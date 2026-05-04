@@ -1,81 +1,41 @@
 #!/usr/bin/env python3
-"""toshin-web-tools のハブページ群を再生成する。
+"""toshin-web-tools のハブページ群を再生成する(データ駆動)。
 
-入力データは本ファイル中の CHAPTERS dict。
+入力:
+    data/chapters.json        ← 章節構造のシングルソース
 出力:
-    - ../index.html              (ルートハブ: 分野ブロック)
-    - ../calculus/index.html     (微分積分編: 第1〜12回 章グリッド)
-    - ../calculus/lesson-NN/index.html (12 章分のサブハブ)
+    ../index.html              (ルートハブ: 分野ブロック)
+    ../calculus/index.html     (微分積分編: 第1〜12回 章グリッド)
+    ../calculus/lesson-NN/index.html (12 章分のサブハブ)
 
-ツール本体は ../tools/calculus/N-N.html に既に配置済み。
+ツール本体は ../tools/calculus/N-N.html に配置済み。
 本スクリプトはハブから tools/ 配下のファイルへリンクするだけ。
+
+new-tool.py を経由しない手動編集も可:
+    1. data/chapters.json を編集
+    2. python3 scripts/build-hub.py
 """
 
+import json
 from pathlib import Path
 
-CHAPTERS: dict[int, list[tuple[str | None, str]]] = {
-    1: [
-        ("1-1.html", "Adam 最適化の可視化"),
-        ("1-2.html", "Adam 最適化の可視化(別版)"),
-    ],
-    2: [
-        ("2-1.html", "逆三角関数 × ロボットアーム"),
-    ],
-    3: [
-        ("3-1.html", "円錐曲線エクスプローラー"),
-        ("3-2.html", "双曲線関数と AI"),
-        ("3-3.html", "ε-δ 論法 比較"),
-        (None,       "(節 3-4 / RTF 移植予定)"),
-        ("3-5.html", "データサイエンス × 物理シミュ"),
-    ],
-    4: [
-        ("4-1.html", "逆関数の微分"),
-        ("4-2.html", "C² 連続性の重要性"),
-        ("4-3.html", "平均値の定理の応用"),
-        ("4-4.html", "マクローリン展開"),
-    ],
-    5: [
-        ("5-1.html", "マクローリン展開(別版)"),
-        ("5-2.html", "テイラー展開"),
-        ("5-3.html", "ランダウ記号 o(x)"),
-        ("5-4.html", "コーシー列:狭まる区間"),
-        (None,       "(節 5-5 / RTF 移植予定)"),
-        (None,       "(節 5-6 / RTF 移植予定)"),
-        (None,       "(節 5-7 / RTF 移植予定)"),
-        ("5-8.html", "積分の正体 ② 傾きの場"),
-    ],
-    6: [
-        ("6-1.html", "カヴァリエリの原理"),
-        (None,       "(節 6-2 / RTF 移植予定)"),
-        ("6-3.html", "リーマン積分 vs ルベーグ積分"),
-        ("6-4.html", "定積分ビジュアライザー"),
-        ("6-5.html", "微分積分 × 車の動き"),
-        ("6-6.html", "広義積分"),
-    ],
-    7: [
-        ("7-1.html", "多変数関数イントロ"),
-        ("7-2.html", "2 変数関数 学習サイト"),
-        ("7-3.html", "2 変数関数 ビジュアライザー"),
-        ("7-4.html", "2 変数関数の極限(3D)"),
-        ("7-5.html", "f(x,y)=x^y の極限"),
-    ],
-    8: [
-        ("8-1.html", "偏微分ビジュアライザー"),
-        ("8-2.html", "連続性と偏微分可能性"),
-        ("8-3.html", "時間による偏微分"),
-        (None,       "(節 8-4 / RTF 移植予定)"),
-        ("8-5.html", "データサイエンスの数理"),
-        ("8-6.html", "拡散モデル"),
-    ],
-    9: [
-        ("9-1.html", "楕円放物面の勾配"),
-    ],
-    10: [],
-    11: [],
-    12: [],
-}
+BASE = Path(__file__).resolve().parent.parent
+DATA = BASE / "data/chapters.json"
 
-TOTAL_PUBLISHED = sum(1 for c in CHAPTERS.values() for f, _ in c if f)
+
+def load_data() -> dict:
+    return json.loads(DATA.read_text(encoding="utf-8"))
+
+
+def total_published(data: dict) -> int:
+    n = 0
+    for field in data.values():
+        for chap_sections in field["chapters"].values():
+            for s in chap_sections:
+                if s.get("file"):
+                    n += 1
+    return n
+
 
 FONT_LINK = """<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,14 +49,14 @@ FOOTER = """<footer>
 </footer>"""
 
 
-def render_root() -> str:
+def render_root(data: dict, total: int) -> str:
     return f"""<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>toshin-web-tools — 受験数学の Web ツール集</title>
-<meta name="description" content="受験数学の Web ツール集。微分積分学編 全 {TOTAL_PUBLISHED} ツール公開中。">
+<meta name="description" content="受験数学の Web ツール集。微分積分学編 全 {total} ツール公開中。">
 {FONT_LINK}
 <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -116,7 +76,7 @@ def render_root() -> str:
 <section class="fields">
   <div class="fields-head">
     <h2 class="fields-title">分野<span class="en">Fields</span></h2>
-    <div class="fields-meta">{TOTAL_PUBLISHED} TOOLS PUBLISHED</div>
+    <div class="fields-meta">{total} TOOLS PUBLISHED</div>
   </div>
   <div class="fields-grid">
 
@@ -129,7 +89,7 @@ def render_root() -> str:
         全 12 回の単元に沿って、Web ツールで「何に・どのように使われるか」を体感します。
       </p>
       <div class="field-meta">
-        <span>{TOTAL_PUBLISHED} TOOLS / 12 LESSONS</span>
+        <span>{total} TOOLS / 12 LESSONS</span>
         <span>→</span>
       </div>
     </a>
@@ -158,12 +118,14 @@ def render_root() -> str:
 """
 
 
-def render_calculus_index() -> str:
+def render_calculus_index(data: dict, total: int) -> str:
+    chapters = data["calculus"]["chapters"]
     cards = []
-    for n in range(1, 13):
-        sections = CHAPTERS[n]
-        published = [s for s in sections if s[0]]
-        coming = [s for s in sections if not s[0]]
+    for n_str in sorted(chapters.keys(), key=int):
+        n = int(n_str)
+        sections = chapters[n_str]
+        published = [s for s in sections if s.get("file")]
+        coming = [s for s in sections if not s.get("file")]
         if published:
             count_text = f"{len(published)} TOOL" + ("S" if len(published) > 1 else "")
             if coming:
@@ -185,7 +147,7 @@ def render_calculus_index() -> str:
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>微分積分学編 — toshin-web-tools</title>
-<meta name="description" content="微分積分学の Web ツール集(全 12 回 / {TOTAL_PUBLISHED} ツール公開中)。極限・微分・積分の基礎から、データサイエンスへの接続まで。">
+<meta name="description" content="微分積分学の Web ツール集(全 12 回 / {total} ツール公開中)。">
 {FONT_LINK}
 <link rel="stylesheet" href="../assets/style.css">
 </head>
@@ -200,7 +162,7 @@ def render_calculus_index() -> str:
     <p class="lessons-lede">
       極限・微分・積分の基礎から、データサイエンスへの接続まで。
       全 12 回の単元に沿って、Web ツールで「何に・どのように使われるか」を体感します。
-      現在 <strong>{TOTAL_PUBLISHED} ツール</strong> 公開中。
+      現在 <strong>{total} ツール</strong> 公開中。
     </p>
   </div>
 
@@ -216,20 +178,20 @@ def render_calculus_index() -> str:
 """
 
 
-def render_lesson(n: int) -> str:
-    sections = CHAPTERS[n]
+def render_lesson(n: int, sections: list[dict]) -> str:
     if not sections:
-        body = """  <div class="lesson-placeholder">
+        body = f"""  <div class="lesson-placeholder">
     第 {n} 回は準備中です。<br>
     第 1 〜 9 回 のツールは公開中。
-  </div>""".format(n=n)
+  </div>"""
     else:
         items = []
-        for filename, short in sections:
-            if filename:
-                # 章番号で短縮表示
-                section_label = filename.replace(".html", "")
-                items.append(f"""    <a href="../../tools/calculus/{filename}" class="lesson-card" target="_blank" rel="noopener">
+        for s in sections:
+            f = s.get("file")
+            short = s.get("title", "")
+            if f:
+                section_label = f.replace(".html", "")
+                items.append(f"""    <a href="../../tools/calculus/{f}" class="lesson-card" target="_blank" rel="noopener">
       <div class="lesson-num">{section_label}</div>
       <div class="lesson-title">{short}</div>
       <div class="lesson-status">↗ ツールを開く</div>
@@ -274,15 +236,19 @@ def render_lesson(n: int) -> str:
 
 
 def main():
-    base = Path(__file__).resolve().parent.parent
-    (base / "index.html").write_text(render_root(), encoding="utf-8")
-    (base / "calculus/index.html").write_text(render_calculus_index(), encoding="utf-8")
-    for n in range(1, 13):
-        out = base / f"calculus/lesson-{n:02d}/index.html"
+    data = load_data()
+    total = total_published(data)
+    (BASE / "index.html").write_text(render_root(data, total), encoding="utf-8")
+    (BASE / "calculus/index.html").write_text(render_calculus_index(data, total), encoding="utf-8")
+    chapters = data["calculus"]["chapters"]
+    chap_count = data["calculus"].get("chapter_count", 12)
+    for n in range(1, chap_count + 1):
+        sections = chapters.get(str(n), [])
+        out = BASE / f"calculus/lesson-{n:02d}/index.html"
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(render_lesson(n), encoding="utf-8")
-    print(f"✓ Generated: index.html + calculus/index.html + 12 lesson pages")
-    print(f"  Total tools published: {TOTAL_PUBLISHED}")
+        out.write_text(render_lesson(n, sections), encoding="utf-8")
+    print(f"✓ Generated: index.html + calculus/index.html + {chap_count} lesson pages")
+    print(f"  Total tools published: {total}")
 
 
 if __name__ == "__main__":

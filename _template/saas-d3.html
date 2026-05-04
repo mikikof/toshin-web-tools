@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- TEMPLATE: saas-d3 (D3.js v7 / 領域塗りつぶし・収束/発散・確率分布など)
+     参考実装: tools/calculus/6-6.html (広義積分)
+     CDN: D3.js v7。完全オフラインではない -->
+<title><!-- TODO: ツールタイトル --> | toshin-web-tools</title>
+<meta name="description" content="<!-- TODO: 1〜2 文 -->">
+
+<link rel="stylesheet" href="../../assets/tool-style.css">
+<script src="https://d3js.org/d3.v7.min.js" defer></script>
+
+<style>
+  #viz { width: 100%; height: 480px; }
+  .axis path, .axis line { stroke: var(--tool-line2); }
+  .axis text { fill: var(--tool-mute); font-size: 12px; }
+</style>
+</head>
+<body class="tool-page">
+
+<header class="tool-header">
+  <div class="tool-header-inner">
+    <div class="tool-brand">
+      <div class="tool-badge"><!-- TODO --></div>
+      <div class="tool-brand-text">
+        <h1 class="tool-h1"><!-- TODO --></h1>
+        <div class="tool-sub"><!-- TODO --></div>
+      </div>
+    </div>
+    <div class="tool-controls">
+      <a class="tool-back" href="../../calculus/lesson-XX/">← 第 X 回</a>
+      <button id="btnReset" class="tool-btn" type="button">⟳ リセット</button>
+    </div>
+  </div>
+</header>
+
+<main class="tool-main">
+  <div class="tool-grid">
+
+    <section class="tool-side">
+      <div class="tool-card">
+        <h2>このツールで体感すること</h2>
+        <p class="tool-mute"><!-- TODO --></p>
+        <div class="tool-card tool-card-soft" style="margin-top: 10px; padding: 12px;">
+          <div class="tool-math" aria-label="<!-- TODO -->">
+            <math display="block">
+              <!-- TODO: MathML -->
+            </math>
+          </div>
+          <div class="tool-small tool-mute">(未対応なら) <code class="tool-mono"><!-- TODO --></code></div>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2>プリセット</h2>
+        <div class="tool-presets">
+          <button class="tool-btn" id="preset1" type="button"><!-- TODO: 収束ケース --></button>
+          <button class="tool-btn" id="preset2" type="button"><!-- TODO: 発散ケース --></button>
+          <button class="tool-btn" id="preset3" type="button"><!-- TODO: 境界 --></button>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2>パラメータ</h2>
+        <div style="display: grid; gap: 12px;">
+          <div class="tool-slider">
+            <label>p = <span class="tool-slider-value" data-bind="p">1.50</span></label>
+            <input id="p" type="range" min="0.1" max="3" step="0.01" value="1.5">
+          </div>
+          <div class="tool-slider">
+            <label>上限 R = <span class="tool-slider-value" data-bind="R">10</span></label>
+            <input id="R" type="range" min="2" max="100" step="1" value="10">
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2>収束判定</h2>
+        <div class="tool-kv">
+          <span class="tool-k">∫₁ᴿ x⁻ᵖ dx</span>
+          <span class="tool-v tool-mono" id="kpiI">—</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="tool-viz">
+      <div class="tool-viz-frame">
+        <svg id="viz" role="img" aria-label="<!-- TODO -->"></svg>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="tool-footer">
+  <div>© toshin-web-tools — <a href="../../">ツール一覧へ</a></div>
+</footer>
+
+<script src="../../assets/tool-helpers.js"></script>
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  if (typeof d3 === "undefined") {
+    console.error("D3.js が読み込まれていません(オフライン環境では別の雛形を使用してください)");
+    return;
+  }
+  const { Slider, ToolState, formatNumber } = window.toshin;
+
+  /* ---------- State ---------- */
+  const state = new ToolState({ p: 1.5, R: 10 });
+
+  /* ---------- Sliders ---------- */
+  new Slider("p", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ p: v }));
+  new Slider("R", { format: (v) => String(Math.round(v)) }).onChange((v) => state.set({ R: Math.round(v) }));
+
+  /* ---------- D3 init ---------- */
+  const svg = d3.select("#viz");
+  const width = () => svg.node().getBoundingClientRect().width;
+  const height = () => svg.node().getBoundingClientRect().height;
+  const margin = { top: 24, right: 24, bottom: 36, left: 48 };
+
+  function fn(x, p) {
+    /* TODO: 描画する関数 */
+    return Math.pow(x, -p);
+  }
+  function integral(R, p) {
+    /* TODO: テーマに応じた解析的 / 数値積分 */
+    if (Math.abs(p - 1) < 1e-9) return Math.log(R);
+    return (Math.pow(R, 1 - p) - 1) / (1 - p);
+  }
+
+  function redraw() {
+    const w = width(), h = height();
+    const innerW = w - margin.left - margin.right;
+    const innerH = h - margin.top - margin.bottom;
+
+    svg.selectAll("*").remove();
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const { p, R } = state.state;
+    const x = d3.scaleLinear().domain([1, R]).range([0, innerW]);
+    const yMax = Math.min(fn(1, p), 5);
+    const y = d3.scaleLinear().domain([0, yMax]).range([innerH, 0]);
+
+    // axes
+    g.append("g").attr("class", "axis").attr("transform", `translate(0,${innerH})`).call(d3.axisBottom(x));
+    g.append("g").attr("class", "axis").call(d3.axisLeft(y));
+
+    // 領域
+    const data = d3.range(1, R + 0.01, (R - 1) / 200).map((xi) => ({ x: xi, y: fn(xi, p) }));
+    const area = d3.area().x((d) => x(d.x)).y0(innerH).y1((d) => y(Math.min(d.y, yMax)));
+    g.append("path")
+      .datum(data)
+      .attr("fill", "color-mix(in oklab, var(--tool-brand) 24%, transparent)")
+      .attr("d", area);
+
+    g.append("path")
+      .datum(data)
+      .attr("stroke", "var(--tool-brand)")
+      .attr("stroke-width", 2)
+      .attr("fill", "none")
+      .attr("d", d3.line().x((d) => x(d.x)).y((d) => y(Math.min(d.y, yMax))));
+
+    document.getElementById("kpiI").textContent = formatNumber(integral(R, p), 4);
+  }
+  state.subscribe(() => redraw());
+
+  /* ---------- Buttons ---------- */
+  document.getElementById("btnReset").addEventListener("click", () => {
+    state.set({ p: 1.5, R: 10 });
+    document.getElementById("p").value = 1.5;
+    document.getElementById("R").value = 10;
+  });
+  document.getElementById("preset1").addEventListener("click", () => { state.set({ p: 2 }); document.getElementById("p").value = 2; });
+  document.getElementById("preset2").addEventListener("click", () => { state.set({ p: 0.5 }); document.getElementById("p").value = 0.5; });
+  document.getElementById("preset3").addEventListener("click", () => { state.set({ p: 1 }); document.getElementById("p").value = 1; });
+
+  window.addEventListener("resize", redraw);
+  redraw();
+});
+</script>
+
+</body>
+</html>

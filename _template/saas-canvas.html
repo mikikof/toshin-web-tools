@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- TEMPLATE: saas-canvas (完全オフライン / Canvas でリアルタイムグラフ)
+     参考実装: tools/calculus/5-2.html (テイラー展開)
+     2D 関数プロット・微分可視化・誤差比較などに最適 -->
+<title><!-- TODO: ツールタイトル --> | toshin-web-tools</title>
+<meta name="description" content="<!-- TODO: 1〜2 文の説明 -->">
+
+<link rel="stylesheet" href="../../assets/tool-style.css">
+
+<style>
+  .tool-canvas { background: var(--tool-card-soft); border-radius: var(--tool-r-md); }
+  .tool-canvas { width: 100%; height: 460px; }
+</style>
+</head>
+<body class="tool-page">
+
+<header class="tool-header">
+  <div class="tool-header-inner">
+    <div class="tool-brand">
+      <div class="tool-badge"><!-- TODO: 絵文字 --></div>
+      <div class="tool-brand-text">
+        <h1 class="tool-h1"><!-- TODO: タイトル --></h1>
+        <div class="tool-sub"><!-- TODO: サブタイ --></div>
+      </div>
+    </div>
+    <div class="tool-controls">
+      <a class="tool-back" href="../../calculus/lesson-XX/">← 第 X 回</a>
+      <button id="btnReset" class="tool-btn" type="button">⟳ リセット</button>
+    </div>
+  </div>
+</header>
+
+<main class="tool-main">
+  <div class="tool-grid">
+
+    <section class="tool-side">
+
+      <div class="tool-card">
+        <h2>このツールで体感すること</h2>
+        <p class="tool-mute"><!-- TODO: 学習者が動かして何を発見するか --></p>
+
+        <div class="tool-card tool-card-soft" style="margin-top: 10px; padding: 12px;">
+          <div class="tool-small tool-mute" style="margin-bottom: 4px;"><!-- TODO: 数式の説明 --></div>
+          <div class="tool-math" aria-label="<!-- TODO: 読み上げ -->">
+            <math display="block">
+              <!-- TODO: MathML -->
+            </math>
+          </div>
+          <div class="tool-small tool-mute">
+            (未対応なら) <code class="tool-mono"><!-- TODO: ASCII 表記 --></code>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2>プリセット</h2>
+        <div class="tool-presets">
+          <button class="tool-btn" id="preset1" type="button"><!-- TODO --></button>
+          <button class="tool-btn" id="preset2" type="button"><!-- TODO --></button>
+          <button class="tool-btn" id="preset3" type="button"><!-- TODO --></button>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2>パラメータ</h2>
+        <div style="display: grid; gap: 12px;">
+          <div class="tool-slider">
+            <label>展開次数 n = <span class="tool-slider-value" data-bind="n">5</span></label>
+            <input id="n" type="range" min="0" max="20" step="1" value="5">
+          </div>
+          <div class="tool-slider">
+            <label>展開中心 a = <span class="tool-slider-value" data-bind="a">0</span></label>
+            <input id="a" type="range" min="-3" max="3" step="0.05" value="0">
+          </div>
+          <!-- TODO: 必要な分だけスライダー -->
+        </div>
+      </div>
+
+      <div class="tool-radio-group" role="radiogroup" aria-label="<!-- TODO: 関数選択 -->">
+        <label class="tool-radio"><input type="radio" name="func" value="exp" checked> e^x</label>
+        <label class="tool-radio"><input type="radio" name="func" value="sin"> sin x</label>
+        <label class="tool-radio"><input type="radio" name="func" value="ln"> ln(1+x)</label>
+      </div>
+
+      <details class="tool-detail tool-card">
+        <summary>テイラー展開の式</summary>
+        <div class="tool-mute tool-small" style="margin-top: 8px;">
+          <code>f(x) ≈ Σ f^(k)(a)/k! · (x-a)^k</code>
+        </div>
+      </details>
+    </section>
+
+    <section class="tool-viz">
+      <div class="tool-viz-frame">
+        <canvas class="tool-canvas" id="viz" role="img"
+                aria-label="<!-- TODO: 描画内容の読み上げ -->"></canvas>
+      </div>
+      <div class="tool-card">
+        <h2>誤差</h2>
+        <div class="tool-kv">
+          <span class="tool-k">最大誤差(描画範囲内)</span>
+          <span class="tool-v tool-mono" id="kpiErr">—</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="tool-footer">
+  <div>© toshin-web-tools — <a href="../../">ツール一覧へ</a></div>
+</footer>
+
+<script src="../../assets/tool-helpers.js"></script>
+<script>
+(() => {
+  "use strict";
+  const { Slider, ToolState, clamp, map, linspace, formatNumber } = window.toshin;
+
+  /* ---------- 1. State ---------- */
+  const state = new ToolState({ n: 5, a: 0, func: "exp" });
+
+  /* ---------- 2. Sliders ---------- */
+  new Slider("n",  { format: (v) => String(Math.round(v)) }).onChange((v) => state.set({ n: Math.round(v) }));
+  new Slider("a",  { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ a: v }));
+
+  /* ---------- 3. Function selector ---------- */
+  document.querySelectorAll('input[name="func"]').forEach((r) => {
+    r.addEventListener("change", (e) => state.set({ func: e.target.value }));
+  });
+
+  /* ---------- 4. Canvas setup (HiDPI 対応) ---------- */
+  const canvas = document.getElementById("viz");
+  const ctx = canvas.getContext("2d");
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  window.addEventListener("resize", () => { resizeCanvas(); redraw(); });
+
+  /* ---------- 5. Math: TODO 関数本体・展開を実装 ---------- */
+  function trueFn(x, kind) {
+    /* TODO: 関数の真値 */
+    if (kind === "exp") return Math.exp(x);
+    if (kind === "sin") return Math.sin(x);
+    if (kind === "ln")  return Math.log(1 + x);
+    return 0;
+  }
+  function approxFn(x, kind, n, a) {
+    /* TODO: テーマに応じた近似(ここではダミーで真値を返す) */
+    return trueFn(x, kind);
+  }
+
+  /* ---------- 6. Redraw ---------- */
+  function redraw() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+
+    // 軸
+    const xMin = -3, xMax = 3;
+    const yMin = -3, yMax = 6;
+    const X = (x) => map(x, xMin, xMax, 40, w - 20);
+    const Y = (y) => map(y, yMin, yMax, h - 30, 20);
+
+    // grid
+    ctx.strokeStyle = "rgba(100,116,139,0.15)";
+    ctx.lineWidth = 1;
+    for (let g = -3; g <= 6; g++) {
+      ctx.beginPath(); ctx.moveTo(40, Y(g)); ctx.lineTo(w - 20, Y(g)); ctx.stroke();
+    }
+    // axes
+    ctx.strokeStyle = "rgba(15,23,42,0.6)";
+    ctx.beginPath(); ctx.moveTo(X(xMin), Y(0)); ctx.lineTo(X(xMax), Y(0)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(0), Y(yMin)); ctx.lineTo(X(0), Y(yMax)); ctx.stroke();
+
+    const { n, a, func } = state.state;
+
+    // true
+    ctx.strokeStyle = "#0ea5e9";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let firstT = true;
+    for (const x of linspace(xMin, xMax, 401)) {
+      const y = clamp(trueFn(x, func), -100, 100);
+      if (firstT) { ctx.moveTo(X(x), Y(y)); firstT = false; }
+      else ctx.lineTo(X(x), Y(y));
+    }
+    ctx.stroke();
+
+    // approx
+    ctx.strokeStyle = "#ef4444";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    let firstA = true;
+    let maxErr = 0;
+    for (const x of linspace(xMin, xMax, 401)) {
+      const y = clamp(approxFn(x, func, n, a), -100, 100);
+      const err = Math.abs(y - trueFn(x, func));
+      if (Number.isFinite(err)) maxErr = Math.max(maxErr, err);
+      if (firstA) { ctx.moveTo(X(x), Y(y)); firstA = false; }
+      else ctx.lineTo(X(x), Y(y));
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    document.getElementById("kpiErr").textContent = formatNumber(maxErr, 4);
+  }
+  state.subscribe(() => redraw());
+
+  /* ---------- 7. Buttons ---------- */
+  document.getElementById("btnReset").addEventListener("click", () => {
+    state.set({ n: 5, a: 0, func: "exp" });
+    document.getElementById("n").value = 5;
+    document.getElementById("a").value = 0;
+    document.querySelector('input[name="func"][value="exp"]').checked = true;
+  });
+  document.getElementById("preset1").addEventListener("click", () => {
+    /* TODO */
+    state.set({ n: 1, a: 0 }); document.getElementById("n").value = 1;
+  });
+  document.getElementById("preset2").addEventListener("click", () => {
+    state.set({ n: 10, a: 0 }); document.getElementById("n").value = 10;
+  });
+  document.getElementById("preset3").addEventListener("click", () => {
+    state.set({ n: 5, a: 1.5 }); document.getElementById("n").value = 5; document.getElementById("a").value = 1.5;
+  });
+
+  /* ---------- 8. Init ---------- */
+  resizeCanvas();
+  redraw();
+})();
+</script>
+
+</body>
+</html>

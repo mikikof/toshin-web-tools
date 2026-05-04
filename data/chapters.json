@@ -1,0 +1,181 @@
+{
+  "calculus": {
+    "title": "微分積分学編",
+    "chapter_count": 12,
+    "chapters": {
+      "1": [
+        {
+          "file": "1-1.html",
+          "title": "Adam 最適化の可視化"
+        },
+        {
+          "file": "1-2.html",
+          "title": "Adam 最適化の可視化(別版)"
+        }
+      ],
+      "2": [
+        {
+          "file": "2-1.html",
+          "title": "逆三角関数 × ロボットアーム"
+        }
+      ],
+      "3": [
+        {
+          "file": "3-1.html",
+          "title": "円錐曲線エクスプローラー"
+        },
+        {
+          "file": "3-2.html",
+          "title": "双曲線関数と AI"
+        },
+        {
+          "file": "3-3.html",
+          "title": "ε-δ 論法 比較"
+        },
+        {
+          "file": null,
+          "title": "(節 3-4 / RTF 移植予定)"
+        },
+        {
+          "file": "3-5.html",
+          "title": "データサイエンス × 物理シミュ"
+        }
+      ],
+      "4": [
+        {
+          "file": "4-1.html",
+          "title": "逆関数の微分"
+        },
+        {
+          "file": "4-2.html",
+          "title": "C² 連続性の重要性"
+        },
+        {
+          "file": "4-3.html",
+          "title": "平均値の定理の応用"
+        },
+        {
+          "file": "4-4.html",
+          "title": "マクローリン展開"
+        }
+      ],
+      "5": [
+        {
+          "file": "5-1.html",
+          "title": "マクローリン展開(別版)"
+        },
+        {
+          "file": "5-2.html",
+          "title": "テイラー展開"
+        },
+        {
+          "file": "5-3.html",
+          "title": "ランダウ記号 o(x)"
+        },
+        {
+          "file": "5-4.html",
+          "title": "コーシー列:狭まる区間"
+        },
+        {
+          "file": null,
+          "title": "(節 5-5 / RTF 移植予定)"
+        },
+        {
+          "file": null,
+          "title": "(節 5-6 / RTF 移植予定)"
+        },
+        {
+          "file": null,
+          "title": "(節 5-7 / RTF 移植予定)"
+        },
+        {
+          "file": "5-8.html",
+          "title": "積分の正体 ② 傾きの場"
+        }
+      ],
+      "6": [
+        {
+          "file": "6-1.html",
+          "title": "カヴァリエリの原理"
+        },
+        {
+          "file": null,
+          "title": "(節 6-2 / RTF 移植予定)"
+        },
+        {
+          "file": "6-3.html",
+          "title": "リーマン積分 vs ルベーグ積分"
+        },
+        {
+          "file": "6-4.html",
+          "title": "定積分ビジュアライザー"
+        },
+        {
+          "file": "6-5.html",
+          "title": "微分積分 × 車の動き"
+        },
+        {
+          "file": "6-6.html",
+          "title": "広義積分"
+        }
+      ],
+      "7": [
+        {
+          "file": "7-1.html",
+          "title": "多変数関数イントロ"
+        },
+        {
+          "file": "7-2.html",
+          "title": "2 変数関数 学習サイト"
+        },
+        {
+          "file": "7-3.html",
+          "title": "2 変数関数 ビジュアライザー"
+        },
+        {
+          "file": "7-4.html",
+          "title": "2 変数関数の極限(3D)"
+        },
+        {
+          "file": "7-5.html",
+          "title": "f(x,y)=x^y の極限"
+        }
+      ],
+      "8": [
+        {
+          "file": "8-1.html",
+          "title": "偏微分ビジュアライザー"
+        },
+        {
+          "file": "8-2.html",
+          "title": "連続性と偏微分可能性"
+        },
+        {
+          "file": "8-3.html",
+          "title": "時間による偏微分"
+        },
+        {
+          "file": null,
+          "title": "(節 8-4 / RTF 移植予定)"
+        },
+        {
+          "file": "8-5.html",
+          "title": "データサイエンスの数理"
+        },
+        {
+          "file": "8-6.html",
+          "title": "拡散モデル"
+        }
+      ],
+      "9": [
+        {
+          "file": "9-1.html",
+          "title": "楕円放物面の勾配"
+        }
+      ],
+      "10": [],
+      "11": [],
+      "12": []
+    }
+  }
+}

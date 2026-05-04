@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- TEMPLATE: saas-offline (完全オフライン / CDN ゼロ / SVG 手描き)
+     参考実装: tools/calculus/1-1.html (Adam ロボ学習)
+     TODO の各箇所をテーマに合わせて埋める -->
+<title><!-- TODO: ツールタイトル --> | toshin-web-tools</title>
+<meta name="description" content="<!-- TODO: 1〜2 文の説明 -->">
+
+<link rel="stylesheet" href="../../assets/tool-style.css">
+
+<style>
+  /* ---- ツール固有の追加スタイル(必要なら) ---- */
+  /* TODO: SVG の固有スタイルなど */
+  .tool-svg { height: 480px; }
+</style>
+</head>
+<body class="tool-page">
+
+<header class="tool-header">
+  <div class="tool-header-inner">
+    <div class="tool-brand">
+      <div class="tool-badge"><!-- TODO: 絵文字 1 文字 --></div>
+      <div class="tool-brand-text">
+        <h1 class="tool-h1"><!-- TODO: ツールタイトル --></h1>
+        <div class="tool-sub"><!-- TODO: サブタイ(キャッチ) --></div>
+      </div>
+    </div>
+    <div class="tool-controls">
+      <a class="tool-back" href="../../calculus/lesson-XX/"><!-- TODO: 戻り先 lesson-NN/ --> ← 第 X 回</a>
+      <button id="btnPlay" class="tool-btn tool-btn-primary" type="button">▶ 再生</button>
+      <button id="btnReset" class="tool-btn" type="button">⟳ リセット</button>
+    </div>
+  </div>
+</header>
+
+<main class="tool-main">
+  <div class="tool-grid">
+
+    <!-- ============ 左カラム: 説明 + コントロール ============ -->
+    <section class="tool-side">
+
+      <!-- モデル / 設定の説明 -->
+      <div class="tool-card">
+        <h2>このツールで体感すること</h2>
+        <p class="tool-mute">
+          <!-- TODO: 1〜2 文。学習者が「動かして何を発見するか」を明記 -->
+        </p>
+
+        <!-- MathML(必須) + code フォールバック(必須) -->
+        <div class="tool-card tool-card-soft" style="margin-top: 10px; padding: 12px;">
+          <div class="tool-small tool-mute" style="margin-bottom: 4px;"><!-- TODO: 数式の説明 --></div>
+          <div class="tool-math" aria-label="<!-- TODO: 数式の読み上げテキスト -->">
+            <math display="block">
+              <!-- TODO: MathML を書く。例:
+              <mrow>
+                <mi>L</mi><mo>(</mo><mi>x</mi><mo>)</mo>
+                <mo>=</mo>
+                <mfrac><mn>1</mn><mn>2</mn></mfrac>
+                <msup><mi>x</mi><mn>2</mn></msup>
+              </mrow>
+              -->
+            </math>
+          </div>
+          <div class="tool-small tool-mute">
+            (MathML 未対応なら) <code class="tool-mono"><!-- TODO: 数式の ASCII 表記 --></code>
+          </div>
+        </div>
+
+        <ul class="tool-list" style="margin-top: 10px;">
+          <!-- TODO: パラメータの意味を 2-3 行で説明 -->
+          <li><code class="tool-mono">x</code> : <!-- 説明 --></li>
+        </ul>
+      </div>
+
+      <!-- プリセット(押すだけ体験) -->
+      <div class="tool-card">
+        <h2>まずは押すだけプリセット</h2>
+        <div class="tool-presets">
+          <button class="tool-btn" id="preset1" type="button"><!-- TODO: プリセット 1 (例: 「典型例 ➜」) --></button>
+          <button class="tool-btn" id="preset2" type="button"><!-- TODO: プリセット 2 (例: 「極端な値 ➜」) --></button>
+          <button class="tool-btn" id="preset3" type="button"><!-- TODO: プリセット 3 (例: 「反例 ➜」) --></button>
+        </div>
+        <div class="tool-small tool-mute" style="margin-top: 6px;">
+          <!-- TODO: ヒント文(例: 図をクリックすると...) -->
+        </div>
+      </div>
+
+      <!-- パラメータ -->
+      <div class="tool-card">
+        <h2>パラメータを動かす</h2>
+        <div style="display: grid; gap: 12px;">
+          <div class="tool-slider">
+            <label>α = <span class="tool-slider-value" data-bind="alpha">0.50</span></label>
+            <input id="alpha" type="range" min="0" max="2" step="0.01" value="0.5"
+                   aria-label="<!-- TODO: パラメータの読み上げ -->">
+          </div>
+          <!-- TODO: 必要な分だけスライダーを追加 -->
+        </div>
+      </div>
+
+      <!-- 補足解説(展開) -->
+      <details class="tool-detail tool-card">
+        <summary>更新式 / 数式の詳細</summary>
+        <div class="tool-mute tool-small" style="margin-top: 8px;">
+          <!-- TODO: code 形式で数式を列挙 -->
+          <div><code>x_{n+1} = x_n - α · ∇L(x_n)</code></div>
+        </div>
+      </details>
+
+    </section>
+
+    <!-- ============ 右カラム: 可視化 ============ -->
+    <section class="tool-viz">
+      <div class="tool-viz-frame">
+        <svg class="tool-svg" id="viz" viewBox="0 0 600 480" role="img"
+             aria-label="<!-- TODO: 可視化図の読み上げ -->">
+          <!-- 動的に描画される -->
+        </svg>
+      </div>
+
+      <!-- 観測値のリアルタイム表示 -->
+      <div class="tool-card">
+        <h2>観測値</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div class="tool-kv">
+            <span class="tool-k"><!-- TODO: ラベル --></span>
+            <span class="tool-v" id="kpi1">—</span>
+          </div>
+          <div class="tool-kv">
+            <span class="tool-k"><!-- TODO: ラベル --></span>
+            <span class="tool-v" id="kpi2">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="tool-footer">
+  <div>© toshin-web-tools — <a href="../../">ツール一覧へ</a></div>
+</footer>
+
+<script src="../../assets/tool-helpers.js"></script>
+<script>
+(() => {
+  "use strict";
+  const { Slider, ToolState, RAFLoop, svgEl, clamp, map } = window.toshin;
+
+  /* ---------- 1. State ---------- */
+  const state = new ToolState({
+    /* TODO: 初期状態 */
+    alpha: 0.5,
+    x: 1.0,
+    running: false,
+  });
+
+  /* ---------- 2. Sliders ---------- */
+  const alpha = new Slider("alpha");
+  alpha.onChange((v) => state.set({ alpha: v }));
+
+  /* ---------- 3. SVG init ---------- */
+  const viz = document.getElementById("viz");
+  // TODO: 軸・初期描画
+  function initSVG() {
+    viz.replaceChildren();
+    // 例: 軸
+    viz.appendChild(svgEl("line", { x1: 0, y1: 240, x2: 600, y2: 240, stroke: "#cbd5e1" }));
+    viz.appendChild(svgEl("line", { x1: 300, y1: 0, x2: 300, y2: 480, stroke: "#cbd5e1" }));
+  }
+
+  /* ---------- 4. Step (1 フレーム分の更新) ---------- */
+  function step(dt) {
+    /* TODO: 数値解 / 物理シミュレーション 1 ステップ */
+    // 例: state.set({ x: state.state.x - state.state.alpha * 2 * state.state.x * dt });
+  }
+
+  /* ---------- 5. Redraw ---------- */
+  function redraw() {
+    /* TODO: SVG の中身を state から再構築 */
+    document.getElementById("kpi1").textContent = state.state.alpha.toFixed(2);
+    document.getElementById("kpi2").textContent = state.state.x.toFixed(3);
+  }
+  state.subscribe(() => redraw());
+
+  /* ---------- 6. RAF Loop ---------- */
+  const loop = new RAFLoop((dt) => { step(dt); redraw(); }, { fps: 60 });
+
+  /* ---------- 7. Buttons ---------- */
+  document.getElementById("btnPlay").addEventListener("click", () => loop.toggle());
+  document.getElementById("btnReset").addEventListener("click", () => {
+    /* TODO: リセット */
+    state.set({ x: 1.0 });
+    loop.stop();
+  });
+  document.getElementById("preset1").addEventListener("click", () => {
+    /* TODO: プリセット 1 を当てる */
+    state.set({ alpha: 0.1 }); alpha.value = 0.1;
+  });
+  document.getElementById("preset2").addEventListener("click", () => {
+    /* TODO: プリセット 2 */
+    state.set({ alpha: 1.5 }); alpha.value = 1.5;
+  });
+  document.getElementById("preset3").addEventListener("click", () => {
+    /* TODO: プリセット 3 */
+    state.set({ alpha: 0.5 }); alpha.value = 0.5;
+  });
+
+  /* ---------- 8. Init ---------- */
+  initSVG();
+  redraw();
+})();
+</script>
+
+</body>
+</html>

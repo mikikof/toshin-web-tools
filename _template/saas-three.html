@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- TEMPLATE: saas-three (Three.js / 3D 曲面・ベクトル場・回転体)
+     参考実装: tools/calculus/3-1.html (円錐曲線), 7-1.html (多変数関数)
+     CDN: Three.js r160+ (importmap)。完全オフラインではない -->
+<title><!-- TODO: ツールタイトル --> | toshin-web-tools</title>
+<meta name="description" content="<!-- TODO: 1〜2 文 -->">
+
+<link rel="stylesheet" href="../../assets/tool-style.css">
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<style>
+  #viz3d { width: 100%; height: 520px; background: var(--tool-card-soft); border-radius: var(--tool-r-md); }
+</style>
+</head>
+<body class="tool-page">
+
+<header class="tool-header">
+  <div class="tool-header-inner">
+    <div class="tool-brand">
+      <div class="tool-badge"><!-- TODO --></div>
+      <div class="tool-brand-text">
+        <h1 class="tool-h1"><!-- TODO --></h1>
+        <div class="tool-sub"><!-- TODO --></div>
+      </div>
+    </div>
+    <div class="tool-controls">
+      <a class="tool-back" href="../../calculus/lesson-XX/">← 第 X 回</a>
+      <button id="btnReset" class="tool-btn" type="button">⟳ ビュー初期化</button>
+    </div>
+  </div>
+</header>
+
+<main class="tool-main">
+  <div class="tool-grid">
+
+    <section class="tool-side">
+      <div class="tool-card">
+        <h2>このツールで体感すること</h2>
+        <p class="tool-mute"><!-- TODO --></p>
+        <div class="tool-card tool-card-soft" style="margin-top: 10px; padding: 12px;">
+          <div class="tool-math" aria-label="<!-- TODO -->">
+            <math display="block"><!-- TODO: MathML --></math>
+          </div>
+          <div class="tool-small tool-mute">(未対応なら) <code class="tool-mono"><!-- TODO --></code></div>
+        </div>
+        <div class="tool-note" style="margin-top: 10px;">
+          <strong>操作:</strong> 左ドラッグで回転、右ドラッグで並行移動、ホイールでズーム。
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2>プリセット</h2>
+        <div class="tool-presets">
+          <button class="tool-btn" id="preset1" type="button"><!-- TODO --></button>
+          <button class="tool-btn" id="preset2" type="button"><!-- TODO --></button>
+          <button class="tool-btn" id="preset3" type="button"><!-- TODO --></button>
+        </div>
+      </div>
+
+      <div class="tool-card">
+        <h2>パラメータ</h2>
+        <div style="display: grid; gap: 12px;">
+          <div class="tool-slider">
+            <label>a = <span class="tool-slider-value" data-bind="a">1.00</span></label>
+            <input id="a" type="range" min="0.2" max="3" step="0.01" value="1.0">
+          </div>
+          <div class="tool-slider">
+            <label>b = <span class="tool-slider-value" data-bind="b">1.00</span></label>
+            <input id="b" type="range" min="0.2" max="3" step="0.01" value="1.0">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tool-viz">
+      <div class="tool-viz-frame">
+        <div id="viz3d" role="img" aria-label="<!-- TODO --> (3D 表示)"></div>
+      </div>
+      <div class="tool-card">
+        <h2>観測値</h2>
+        <div class="tool-kv">
+          <span class="tool-k"><!-- TODO --></span>
+          <span class="tool-v tool-mono" id="kpi">—</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="tool-footer">
+  <div>© toshin-web-tools — <a href="../../">ツール一覧へ</a></div>
+</footer>
+
+<script src="../../assets/tool-helpers.js"></script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const { Slider, ToolState, formatNumber } = window.toshin;
+
+/* ---------- State ---------- */
+const state = new ToolState({ a: 1.0, b: 1.0 });
+
+/* ---------- Sliders ---------- */
+new Slider("a", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ a: v }));
+new Slider("b", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ b: v }));
+
+/* ---------- Three.js scene ---------- */
+const container = document.getElementById("viz3d");
+const w0 = () => container.clientWidth;
+const h0 = () => container.clientHeight;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(getComputedStyle(document.body).getPropertyValue("--tool-bg2").trim() || "#ffffff");
+
+const camera = new THREE.PerspectiveCamera(45, w0() / h0(), 0.1, 100);
+camera.position.set(4, 4, 5);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(w0(), h0());
+renderer.setPixelRatio(window.devicePixelRatio);
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+dir.position.set(5, 8, 4);
+scene.add(dir);
+
+// 軸
+const axes = new THREE.AxesHelper(2);
+scene.add(axes);
+
+// 曲面 (TODO: テーマに応じた数式)
+let surfaceMesh = null;
+function buildSurface(a, b) {
+  if (surfaceMesh) {
+    scene.remove(surfaceMesh);
+    surfaceMesh.geometry.dispose();
+    surfaceMesh.material.dispose();
+  }
+  const N = 60;
+  const range = 2;
+  const positions = [];
+  const indices = [];
+  for (let i = 0; i <= N; i++) {
+    for (let j = 0; j <= N; j++) {
+      const x = -range + (2 * range) * i / N;
+      const y = -range + (2 * range) * j / N;
+      // TODO: z = f(x, y; a, b)
+      const z = (x * x) / (a * a) + (y * y) / (b * b);
+      positions.push(x, z, y);  // y-up: 数学の z を Three の y に
+    }
+  }
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const k = i * (N + 1) + j;
+      indices.push(k, k + 1, k + N + 1);
+      indices.push(k + 1, k + N + 2, k + N + 1);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x0ea5e9,
+    metalness: 0.1,
+    roughness: 0.6,
+    side: THREE.DoubleSide,
+    flatShading: false,
+    transparent: true,
+    opacity: 0.85,
+  });
+  surfaceMesh = new THREE.Mesh(geo, mat);
+  scene.add(surfaceMesh);
+}
+
+state.subscribe(({ a, b }) => {
+  buildSurface(a, b);
+  document.getElementById("kpi").textContent = `a=${formatNumber(a, 2)}, b=${formatNumber(b, 2)}`;
+});
+
+window.addEventListener("resize", () => {
+  camera.aspect = w0() / h0();
+  camera.updateProjectionMatrix();
+  renderer.setSize(w0(), h0());
+});
+
+document.getElementById("btnReset").addEventListener("click", () => {
+  controls.reset();
+  camera.position.set(4, 4, 5);
+});
+document.getElementById("preset1").addEventListener("click", () => {
+  state.set({ a: 1, b: 1 });
+  document.getElementById("a").value = 1; document.getElementById("b").value = 1;
+});
+document.getElementById("preset2").addEventListener("click", () => {
+  state.set({ a: 2, b: 0.5 });
+  document.getElementById("a").value = 2; document.getElementById("b").value = 0.5;
+});
+document.getElementById("preset3").addEventListener("click", () => {
+  state.set({ a: 0.5, b: 2 });
+  document.getElementById("a").value = 0.5; document.getElementById("b").value = 2;
+});
+
+// init
+buildSurface(state.state.a, state.state.b);
+document.getElementById("kpi").textContent = "a=1.00, b=1.00";
+
+(function loop() {
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,365 @@
+/*
+ * toshin-web-tools / tool-style.css
+ *
+ * 新規ツール本体用の共通スタイル。
+ * - SaaS 風モダン基調(_source/caliculus/1-1.html を昇華)
+ * - prefers-color-scheme で自動ダーク対応
+ * - モバイル: タッチ規格(44-48px+)、font-size 16px+ で iOS zoom 抑制
+ * - 既存 32 ツールには適用しない(各自 inline スタイルを持つため)。
+ *   tools/calculus/N-N.html (既存) には触れず、新規追加するツールのみ link する。
+ *
+ * 命名: コンポーネント class は `tool-` prefix で名前空間化。
+ *       ハブの style.css(field-card / lesson-card 等)とは衝突しない。
+ */
+
+/* ============ TOKENS ============ */
+:root {
+  --tool-bg1: #f8fafc;
+  --tool-bg2: #ffffff;
+  --tool-bg3: #eef2ff;
+  --tool-card: #ffffff;
+  --tool-card-soft: #f8fafc;
+  --tool-ink: #0f172a;
+  --tool-text: #1e293b;
+  --tool-mute: #475569;
+  --tool-mute-soft: #64748b;
+  --tool-line: #e2e8f0;
+  --tool-line-soft: #f1f5f9;
+  --tool-line2: #cbd5e1;
+  --tool-brand: #0ea5e9;
+  --tool-brand-2: #6366f1;
+  --tool-accent: #0f766e;
+  --tool-accent-2: #ef4444;
+  --tool-pop: #f59e0b;
+  --tool-shadow: 0 10px 30px rgba(2, 6, 23, .08);
+  --tool-shadow-sm: 0 4px 12px rgba(2, 6, 23, .06);
+  --tool-shadow-strong: 0 14px 40px rgba(2, 6, 23, .12);
+
+  --tool-r-sm: 12px;
+  --tool-r-md: 16px;
+  --tool-r-lg: 20px;
+  --tool-pad-card: 20px 24px 22px;
+
+  --tool-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans JP", "Hiragino Sans", "Apple Color Emoji",
+    "Segoe UI Emoji", sans-serif;
+  --tool-font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --tool-font-display: "Fraunces", "Playfair Display", Georgia, serif;
+
+  --tool-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tool-bg1: #0b1220;
+    --tool-bg2: #111827;
+    --tool-bg3: #1f2937;
+    --tool-card: #111827;
+    --tool-card-soft: #1f2937;
+    --tool-ink: #f1f5f9;
+    --tool-text: #cbd5e1;
+    --tool-mute: #94a3b8;
+    --tool-mute-soft: #64748b;
+    --tool-line: #1f2937;
+    --tool-line-soft: #111827;
+    --tool-line2: #334155;
+    --tool-brand: #38bdf8;
+    --tool-brand-2: #818cf8;
+    --tool-accent: #2dd4bf;
+    --tool-accent-2: #f87171;
+    --tool-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+    --tool-shadow-sm: 0 4px 12px rgba(0, 0, 0, .25);
+  }
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body.tool-page {
+  font-family: var(--tool-font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--tool-ink);
+  background: linear-gradient(135deg, var(--tool-bg1), var(--tool-bg2) 35%, var(--tool-bg3));
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { color: inherit; text-decoration: none; }
+::selection { background: var(--tool-brand); color: #fff; }
+:focus-visible { outline: 2px solid var(--tool-brand); outline-offset: 2px; border-radius: 4px; }
+
+/* ============ HEADER ============ */
+.tool-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: saturate(1.2) blur(8px);
+  -webkit-backdrop-filter: saturate(1.2) blur(8px);
+  background: color-mix(in oklab, var(--tool-bg2) 88%, transparent);
+  border-bottom: 1px solid var(--tool-line);
+}
+.tool-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.tool-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.tool-badge {
+  width: 44px; height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--tool-accent), var(--tool-brand-2));
+  display: grid; place-items: center;
+  color: #fff;
+  font-size: 22px;
+  box-shadow: var(--tool-shadow-sm);
+  flex-shrink: 0;
+}
+.tool-brand-text { min-width: 0; overflow: hidden; }
+.tool-h1 {
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: var(--tool-ink);
+  font-weight: 700;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tool-sub { font-size: 13px; color: var(--tool-mute); margin-top: 2px; }
+.tool-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tool-back {
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--tool-brand);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+  transition: border-color 0.3s var(--tool-ease);
+}
+.tool-back:hover { border-bottom-color: var(--tool-brand); }
+
+/* ============ MAIN LAYOUT ============ */
+.tool-main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+.tool-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media (min-width: 1024px) { .tool-grid { grid-template-columns: 420px 1fr; } }
+.tool-side { display: grid; gap: 18px; align-content: start; }
+.tool-viz { display: grid; gap: 16px; align-content: start; }
+
+/* ============ CARDS ============ */
+.tool-card {
+  background: var(--tool-card);
+  border: 1px solid var(--tool-line);
+  border-radius: var(--tool-r-lg);
+  padding: var(--tool-pad-card);
+  box-shadow: var(--tool-shadow);
+}
+.tool-card-soft { background: var(--tool-card-soft); }
+.tool-card h2 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: 0.02em;
+  color: var(--tool-ink);
+}
+.tool-card p { color: var(--tool-text); }
+.tool-mute { color: var(--tool-mute); font-size: 14px; }
+.tool-small { font-size: 13px; }
+.tool-mono { font-family: var(--tool-font-mono); font-feature-settings: "tnum" 1; }
+
+/* ============ BUTTONS ============ */
+.tool-btn {
+  appearance: none;
+  border: 1px solid var(--tool-line2);
+  background: var(--tool-card);
+  color: var(--tool-ink);
+  border-radius: var(--tool-r-md);
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s var(--tool-ease), transform 0.15s var(--tool-ease), box-shadow 0.2s var(--tool-ease);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+.tool-btn:hover { background: var(--tool-bg1); }
+.tool-btn:active { transform: scale(0.98); }
+.tool-btn-primary {
+  background: var(--tool-accent);
+  border-color: var(--tool-accent);
+  color: #fff;
+}
+.tool-btn-primary:hover { filter: brightness(1.06); background: var(--tool-accent); }
+.tool-btn-sm { padding: 8px 12px; font-size: 14px; min-height: 36px; }
+.tool-presets { display: grid; gap: 8px; }
+
+/* ============ SLIDERS ============ */
+.tool-slider { display: grid; gap: 6px; }
+.tool-slider label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tool-ink);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tool-slider .tool-slider-value {
+  font-family: var(--tool-font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tool-brand);
+}
+.tool-slider input[type="range"] {
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--tool-line);
+  outline: none;
+  cursor: pointer;
+}
+.tool-slider input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--tool-brand);
+  border: 3px solid var(--tool-card);
+  box-shadow: var(--tool-shadow-sm);
+  cursor: grab;
+}
+.tool-slider input[type="range"]:active::-webkit-slider-thumb { cursor: grabbing; }
+.tool-slider input[type="range"]::-moz-range-thumb {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--tool-brand);
+  border: 3px solid var(--tool-card);
+  box-shadow: var(--tool-shadow-sm);
+  cursor: grab;
+}
+
+/* ============ RADIO / CHECKBOX (algo selectors etc) ============ */
+.tool-radio-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.tool-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--tool-line2);
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+  background: var(--tool-card);
+  transition: background 0.2s var(--tool-ease), border-color 0.2s var(--tool-ease);
+}
+.tool-radio:hover { background: var(--tool-bg1); }
+.tool-radio input { accent-color: var(--tool-brand); }
+.tool-radio:has(input:checked) {
+  background: color-mix(in oklab, var(--tool-brand) 14%, var(--tool-card));
+  border-color: var(--tool-brand);
+}
+
+/* ============ KV / PILL / MATH / NOTES ============ */
+.tool-kv {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--tool-card-soft);
+  border-radius: var(--tool-r-sm);
+  border: 1px solid var(--tool-line);
+}
+.tool-kv .tool-k { font-size: 13px; color: var(--tool-mute); }
+.tool-kv .tool-v { font-family: var(--tool-font-mono); font-size: 18px; color: var(--tool-ink); font-weight: 600; }
+.tool-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--tool-line);
+  background: var(--tool-card);
+  font-size: 12.5px;
+  color: var(--tool-mute);
+}
+.tool-math { font-size: 16px; line-height: 1.4; color: var(--tool-ink); }
+.tool-math math { display: block; padding: 8px 0; }
+.tool-note {
+  background: var(--tool-card-soft);
+  border-left: 3px solid var(--tool-brand);
+  padding: 12px 14px;
+  border-radius: 0 var(--tool-r-sm) var(--tool-r-sm) 0;
+  font-size: 14px;
+  color: var(--tool-text);
+}
+.tool-list { list-style: disc; padding-left: 1.25em; color: var(--tool-text); font-size: 14px; }
+.tool-list li { margin: 4px 0; }
+.tool-detail summary {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  color: var(--tool-ink);
+  padding: 2px 0;
+}
+.tool-detail summary:hover { color: var(--tool-brand); }
+
+/* ============ VIZ ============ */
+.tool-viz-frame {
+  background: var(--tool-card);
+  border: 1px solid var(--tool-line);
+  border-radius: var(--tool-r-lg);
+  padding: 16px;
+  box-shadow: var(--tool-shadow);
+  position: relative;
+  overflow: hidden;
+}
+.tool-svg, .tool-canvas { display: block; width: 100%; height: auto; }
+
+/* ============ FOOTER ============ */
+.tool-footer {
+  max-width: 1200px;
+  margin: 24px auto 0;
+  padding: 24px 16px 32px;
+  border-top: 1px solid var(--tool-line);
+  text-align: center;
+  font-size: 13px;
+  color: var(--tool-mute);
+}
+.tool-footer a { color: var(--tool-brand); border-bottom: 1px solid transparent; }
+.tool-footer a:hover { border-bottom-color: var(--tool-brand); }
+
+/* ============ ACCESS / MISC ============ */
+.tool-sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* mobile: thumb 拡大 + ボタン高さ拡張(タッチ規格) */
+@media (max-width: 767px) {
+  .tool-slider input[type="range"]::-webkit-slider-thumb { width: 30px; height: 30px; }
+  .tool-slider input[type="range"]::-moz-range-thumb { width: 30px; height: 30px; }
+  .tool-btn { min-height: 48px; font-size: 16px; }
+  .tool-btn-sm { min-height: 40px; font-size: 15px; }
+  .tool-h1 { font-size: 18px; }
+  .tool-main { padding: 16px 12px 40px; }
+  .tool-card { padding: 16px 16px 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
