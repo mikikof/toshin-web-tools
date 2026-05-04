@@ -241,12 +241,17 @@ toshin-web-tools/
 
 | ブラウザ | 最低バージョン | 備考 |
 |---|---|---|
-| Chrome | 89+ | importmap, MathML |
+| Chrome | **109+** | MathML Core が Chrome 109 で追加。importmap は 89+ |
 | Firefox | 108+ | importmap, MathML 標準対応 |
 | Safari (macOS / iOS) | **16.4+** | 16.3 以下では importmap 非対応(Three.js 雛形が真っ白になる) |
-| Android Chrome | 89+ | 端末の OS 制約あり |
+| Android Chrome | **109+** | MathML Core(Chrome と同系統) |
 
-学校端末・古いタブレットは Safari 14-16 系の可能性があるため、`saas-three` ではフォールバック表示を必須にする(雛形に組み込み済)。
+学校端末・古いタブレット(Safari 14-16 系、Chrome 100 未満等)が想定される場合は:
+- `saas-three` の WebGL fallback メッセージ(雛形に組み込み済)
+- MathML 未対応時の `<code>` フォールバック(雛形必須)
+- 古いブラウザでも壊れないことを目視確認
+
+出典: [Chrome 109 release note](https://developer.chrome.com/blog/new-in-chrome-109/)
 
 ---
 
@@ -370,14 +375,60 @@ SUBMODULE_SHA=$(git -C .company/education/toshin/web-tools rev-parse HEAD)
 git ls-remote https://github.com/mikikof/toshin-web-tools.git | grep "$SUBMODULE_SHA"
 ```
 
-#### 万が一 push 順序を間違えた場合の救済 runbook
+#### 万が一 push 順序を間違えた場合の救済 runbook(再現コマンド)
 
-**症状**: 親リポを先に push し、submodule push を忘れた → リモートで「submodule の SHA が存在しない」状態に
+**症状**: 親リポを先に push し、submodule push を忘れた → リモートで「submodule の SHA が存在しない」状態に。
+他の作業者が `git submodule update --init --recursive` で fetch 失敗する。
 
-**救済**:
-1. すぐに submodule リポに `cd` して `git push origin main` 実行(SHA を後追いで送る)
-2. もし submodule の commit がローカルにも残っていない(reflog 切れ)なら、親リポで `git revert <bad commit>` で参照を戻す
-3. revert 後、submodule で正しい状態を作り直して、再度 submodule → 親 の順で push
+**救済 — ケース A: submodule の commit がローカルに残っているとき(よくあるケース)**
+
+```bash
+# 1. submodule に入って rev-parse で SHA を確認
+cd .company/education/toshin/web-tools
+git rev-parse HEAD
+# → c32a46e... 等
+
+# 2. submodule を push(後追いで送る)
+git push origin main
+
+# 3. push が成功したことを確認
+git ls-remote origin | grep "$(git rev-parse HEAD)"  # 一致行が出れば OK
+
+# 4. 親リポに戻って整合性確認
+cd ../../../..
+git ls-remote https://github.com/mikikof/toshin-web-tools.git | grep "$(git -C .company/education/toshin/web-tools rev-parse HEAD)"
+# 一致行が出れば、親リポの参照と submodule リモートが一致した = 救済完了
+```
+
+**救済 — ケース B: submodule の commit が消失(reflog 切れ等)**
+
+```bash
+# 1. 親リポの bad commit を特定
+git log --oneline -5 -- .company/education/toshin/web-tools
+# → 直近の submodule 参照更新 commit を特定(例: abcdef0)
+
+# 2. その commit を revert(submodule 参照を 1 つ前に戻す)
+git revert abcdef0
+# revert 後、競合があれば手動解消、submodule 行を元 SHA に戻す
+
+# 3. revert commit を push
+git push origin main
+
+# 4. submodule で正しい状態を作り直す
+cd .company/education/toshin/web-tools
+git checkout main && git pull
+# 必要な変更を再度コミット → push
+
+# 5. 親リポで submodule SHA を再度進める(順序: submodule → 親)
+cd ../../../..
+git -C .company/education/toshin/web-tools rev-parse HEAD  # 新 SHA
+# ↑ がリモートにあることを ls-remote で確認してから親リポ commit
+git add .company/education/toshin/web-tools
+git commit -m "education+toshin: submodule 参照復旧"
+git push origin main
+```
+
+**予防**: 親 push 前に必ず `git ls-remote origin <SUBMODULE_SHA>` で remote 存在確認(本節冒頭参照)。
 
 ### 14-2. commit メッセージの形式
 

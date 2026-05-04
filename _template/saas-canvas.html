@@ -6,8 +6,8 @@
 <!-- TEMPLATE: saas-canvas (完全オフライン / Canvas でリアルタイムグラフ)
      参考実装: tools/calculus/5-2.html (テイラー展開)
      2D 関数プロット・微分可視化・誤差比較などに最適 -->
-<title><!-- TODO: ツールタイトル --> | toshin-web-tools</title>
-<meta name="description" content="<!-- TODO: 1〜2 文の説明 -->">
+<title><!-- TOOL_TITLE --> | toshin-web-tools</title>
+<meta name="description" content="<!-- TOOL_DESCRIPTION -->">
 
 <link rel="stylesheet" href="../../assets/tool-style.css">
 
@@ -23,7 +23,7 @@
     <div class="tool-brand">
       <div class="tool-badge"><!-- TODO: 絵文字 --></div>
       <div class="tool-brand-text">
-        <h1 class="tool-h1"><!-- TODO: タイトル --></h1>
+        <h1 class="tool-h1"><!-- TOOL_TITLE --></h1>
         <div class="tool-sub"><!-- TODO: サブタイ --></div>
       </div>
     </div>
@@ -145,12 +145,13 @@
   }
   window.addEventListener("resize", () => { resizeCanvas(); redraw(); });
 
-  /* ---------- 5. Math: TODO 関数本体・展開を実装 ---------- */
+  /* ---------- 5. Math: TODO 関数本体・展開を実装 ----------
+     注: 定義域外は NaN を返し、redraw で skip する(§5-5 教育倫理: 画面に NaN を表示しない) */
   function trueFn(x, kind) {
     /* TODO: 関数の真値 */
     if (kind === "exp") return Math.exp(x);
     if (kind === "sin") return Math.sin(x);
-    if (kind === "ln")  return Math.log(1 + x);
+    if (kind === "ln")  return x <= -1 ? NaN : Math.log(1 + x);  // 定義域 x > -1
     return 0;
   }
   function approxFn(x, kind, n, a) {
@@ -182,19 +183,21 @@
 
     const { n, a, func } = state.state;
 
-    // true
+    // true (NaN は path を切る = 定義域外を視覚的に欠落させる)
     ctx.strokeStyle = "#0ea5e9";
     ctx.lineWidth = 2;
     ctx.beginPath();
     let firstT = true;
     for (const x of linspace(xMin, xMax, 401)) {
-      const y = clamp(trueFn(x, func), -100, 100);
+      const yRaw = trueFn(x, func);
+      if (!Number.isFinite(yRaw)) { firstT = true; continue; }  // 定義域外 → path を分割
+      const y = clamp(yRaw, -100, 100);
       if (firstT) { ctx.moveTo(X(x), Y(y)); firstT = false; }
       else ctx.lineTo(X(x), Y(y));
     }
     ctx.stroke();
 
-    // approx
+    // approx (同様に NaN は skip)
     ctx.strokeStyle = "#ef4444";
     ctx.lineWidth = 2;
     ctx.setLineDash([6, 4]);
@@ -202,8 +205,11 @@
     let firstA = true;
     let maxErr = 0;
     for (const x of linspace(xMin, xMax, 401)) {
-      const y = clamp(approxFn(x, func, n, a), -100, 100);
-      const err = Math.abs(y - trueFn(x, func));
+      const yRaw = approxFn(x, func, n, a);
+      const tRaw = trueFn(x, func);
+      if (!Number.isFinite(yRaw) || !Number.isFinite(tRaw)) { firstA = true; continue; }
+      const y = clamp(yRaw, -100, 100);
+      const err = Math.abs(yRaw - tRaw);
       if (Number.isFinite(err)) maxErr = Math.max(maxErr, err);
       if (firstA) { ctx.moveTo(X(x), Y(y)); firstA = false; }
       else ctx.lineTo(X(x), Y(y));

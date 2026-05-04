@@ -6,8 +6,8 @@
 <!-- TEMPLATE: saas-three (Three.js / 3D 曲面・ベクトル場・回転体)
      参考実装: tools/calculus/3-1.html (円錐曲線), 7-1.html (多変数関数)
      CDN: Three.js r160+ (importmap)。完全オフラインではない -->
-<title><!-- TODO: ツールタイトル --> | toshin-web-tools</title>
-<meta name="description" content="<!-- TODO: 1〜2 文 -->">
+<title><!-- TOOL_TITLE --> | toshin-web-tools</title>
+<meta name="description" content="<!-- TOOL_DESCRIPTION -->">
 
 <link rel="stylesheet" href="../../assets/tool-style.css">
 
@@ -31,7 +31,7 @@
     <div class="tool-brand">
       <div class="tool-badge"><!-- TODO --></div>
       <div class="tool-brand-text">
-        <h1 class="tool-h1"><!-- TODO --></h1>
+        <h1 class="tool-h1"><!-- TOOL_TITLE --></h1>
         <div class="tool-sub"><!-- TODO --></div>
       </div>
     </div>
@@ -129,9 +129,8 @@ const state = new ToolState({ a: 1.0, b: 1.0 });
 const sliderA = new Slider("a", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ a: v }));
 const sliderB = new Slider("b", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ b: v }));
 
-/* ---------- importmap が動いた = fallback メッセージを隠す ---------- */
+/* ---------- fallback メッセージ要素を取得(初期化失敗時は再表示) ---------- */
 const fb = document.getElementById("viz3dFallback");
-if (fb) fb.hidden = true;
 
 /* ---------- Three.js scene ---------- */
 const container = document.getElementById("viz3d");
@@ -145,10 +144,26 @@ const camera = new THREE.PerspectiveCamera(45, w0() / h0(), 0.1, 100);
 camera.position.set(4, 4, 5);
 camera.lookAt(0, 0, 0);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+// WebGL 初期化(失敗時は fallback 再表示してスクリプトを止める)
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+} catch (e) {
+  console.error("WebGL renderer 作成失敗:", e);
+  if (fb) {
+    fb.hidden = false;
+    fb.innerHTML = '<strong>3D 表示が利用できません。</strong><br>'
+      + 'WebGL が無効か、GPU が制限されている可能性があります。<br>'
+      + '<code class="tool-mono">_template/saas-canvas.html</code> ベースの 2D 版をお試しください。';
+  }
+  throw e;  // top-level でスクリプト実行を停止
+}
 renderer.setSize(w0(), h0());
 renderer.setPixelRatio(window.devicePixelRatio);
 container.appendChild(renderer.domElement);
+
+// ここまで到達 = importmap + WebGL の両方が成功 → fallback を消す
+if (fb) fb.hidden = true;
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;

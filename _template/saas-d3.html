@@ -6,11 +6,12 @@
 <!-- TEMPLATE: saas-d3 (D3.js v7 / 領域塗りつぶし・収束/発散・確率分布など)
      参考実装: tools/calculus/6-6.html (広義積分)
      CDN: D3.js v7。完全オフラインではない -->
-<title><!-- TODO: ツールタイトル --> | toshin-web-tools</title>
-<meta name="description" content="<!-- TODO: 1〜2 文 -->">
+<title><!-- TOOL_TITLE --> | toshin-web-tools</title>
+<meta name="description" content="<!-- TOOL_DESCRIPTION -->">
 
 <link rel="stylesheet" href="../../assets/tool-style.css">
-<script src="https://d3js.org/d3.v7.min.js" defer></script>
+<!-- D3.js v7.8.5(patch 固定 / NOTICE.md 記載) -->
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js" defer></script>
 
 <style>
   #viz { width: 100%; height: 480px; }
@@ -25,7 +26,7 @@
     <div class="tool-brand">
       <div class="tool-badge"><!-- TODO --></div>
       <div class="tool-brand-text">
-        <h1 class="tool-h1"><!-- TODO --></h1>
+        <h1 class="tool-h1"><!-- TOOL_TITLE --></h1>
         <div class="tool-sub"><!-- TODO --></div>
       </div>
     </div>

@@ -6,8 +6,8 @@
 <!-- TEMPLATE: saas-offline (完全オフライン / CDN ゼロ / SVG 手描き)
      参考実装: tools/calculus/1-1.html (Adam ロボ学習)
      TODO の各箇所をテーマに合わせて埋める -->
-<title><!-- TODO: ツールタイトル --> | toshin-web-tools</title>
-<meta name="description" content="<!-- TODO: 1〜2 文の説明 -->">
+<title><!-- TOOL_TITLE --> | toshin-web-tools</title>
+<meta name="description" content="<!-- TOOL_DESCRIPTION -->">
 
 <link rel="stylesheet" href="../../assets/tool-style.css">
 
@@ -24,7 +24,7 @@
     <div class="tool-brand">
       <div class="tool-badge"><!-- TODO: 絵文字 1 文字 --></div>
       <div class="tool-brand-text">
-        <h1 class="tool-h1"><!-- TODO: ツールタイトル --></h1>
+        <h1 class="tool-h1"><!-- TOOL_TITLE --></h1>
         <div class="tool-sub"><!-- TODO: サブタイ(キャッチ) --></div>
       </div>
     </div>
@@ -124,14 +124,18 @@
       <div class="tool-card">
         <h2>観測値</h2>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <!-- 注: 動的に毎フレーム更新される KPI に aria-live を付けるとスクリーンリーダーが過剰に読み上げる。
+               状態変化(プリセット押下、リセット等)を通知したい場合は、別途 #toolStatus に short message を流す。 -->
           <div class="tool-kv">
             <span class="tool-k"><!-- TODO: ラベル --></span>
-            <span class="tool-v" id="kpi1" aria-live="polite">—</span>
+            <span class="tool-v" id="kpi1">—</span>
           </div>
           <div class="tool-kv">
             <span class="tool-k"><!-- TODO: ラベル --></span>
-            <span class="tool-v" id="kpi2" aria-live="polite">—</span>
+            <span class="tool-v" id="kpi2">—</span>
           </div>
+          <!-- 状態変化通知用(プリセット適用時などに 1 回だけテキストを流す) -->
+          <div id="toolStatus" class="tool-sr-only" role="status" aria-live="polite"></div>
         </div>
       </div>
     </section>

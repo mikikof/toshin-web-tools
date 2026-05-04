@@ -30,8 +30,11 @@
     for (let i = 0; i < n; i++) out[i] = a + step * i;
     return out;
   }
-  function formatNumber(x, digits = 3) {
-    if (!Number.isFinite(x)) return String(x);
+  function formatNumber(x, digits = 3, opts = {}) {
+    // 非有限値は教材として「定義域外」を示す表記に寄せる(§5-5 教育倫理)
+    if (Number.isNaN(x)) return opts.invalidLabel || "—";
+    if (x === Infinity)  return opts.posInfLabel || "∞";
+    if (x === -Infinity) return opts.negInfLabel || "-∞";
     if (Math.abs(x) < 1e-3 && x !== 0) return x.toExponential(2);
     if (Math.abs(x) >= 1e4) return x.toExponential(2);
     return Number.parseFloat(x.toFixed(digits)).toString();
