@@ -66,11 +66,11 @@
         <h2>パラメータ</h2>
         <div style="display: grid; gap: 12px;">
           <div class="tool-slider">
-            <label>p = <span class="tool-slider-value" data-bind="p">1.50</span></label>
+            <label for="p">p = <span class="tool-slider-value" data-bind="p">1.50</span></label>
             <input id="p" type="range" min="0.1" max="3" step="0.01" value="1.5">
           </div>
           <div class="tool-slider">
-            <label>上限 R = <span class="tool-slider-value" data-bind="R">10</span></label>
+            <label for="R">上限 R = <span class="tool-slider-value" data-bind="R">10</span></label>
             <input id="R" type="range" min="2" max="100" step="1" value="10">
           </div>
         </div>
@@ -80,7 +80,7 @@
         <h2>収束判定</h2>
         <div class="tool-kv">
           <span class="tool-k">∫₁ᴿ x⁻ᵖ dx</span>
-          <span class="tool-v tool-mono" id="kpiI">—</span>
+          <span class="tool-v tool-mono" id="kpiI" aria-live="polite">—</span>
         </div>
       </div>
     </section>
@@ -88,6 +88,13 @@
     <section class="tool-viz">
       <div class="tool-viz-frame">
         <svg id="viz" role="img" aria-label="<!-- TODO -->"></svg>
+        <!-- CDN 失敗時 fallback (D3 が読み込めなかった場合に画面に表示) -->
+        <div id="vizFallback" class="tool-note" hidden>
+          <strong>D3.js が読み込めません。</strong><br>
+          オンライン接続を確認してください。完全オフラインで動かしたい場合は、
+          <code class="tool-mono">_template/saas-offline.html</code> または
+          <code class="tool-mono">_template/saas-canvas.html</code> ベースの雛形をご利用ください。
+        </div>
       </div>
     </section>
 
@@ -103,6 +110,8 @@
 window.addEventListener("DOMContentLoaded", () => {
   if (typeof d3 === "undefined") {
     console.error("D3.js が読み込まれていません(オフライン環境では別の雛形を使用してください)");
+    const fb = document.getElementById("vizFallback");
+    if (fb) { fb.hidden = false; document.getElementById("viz").style.display = "none"; }
     return;
   }
   const { Slider, ToolState, formatNumber } = window.toshin;
@@ -110,9 +119,9 @@ window.addEventListener("DOMContentLoaded", () => {
   /* ---------- State ---------- */
   const state = new ToolState({ p: 1.5, R: 10 });
 
-  /* ---------- Sliders ---------- */
-  new Slider("p", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ p: v }));
-  new Slider("R", { format: (v) => String(Math.round(v)) }).onChange((v) => state.set({ R: Math.round(v) }));
+  /* ---------- Sliders (instance を保持してプリセットでも programmatic update) ---------- */
+  const sliderP = new Slider("p", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ p: v }));
+  const sliderR = new Slider("R", { format: (v) => String(Math.round(v)) }).onChange((v) => state.set({ R: Math.round(v) }));
 
   /* ---------- D3 init ---------- */
   const svg = d3.select("#viz");
@@ -166,15 +175,13 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   state.subscribe(() => redraw());
 
-  /* ---------- Buttons ---------- */
+  /* ---------- Buttons (Slider instance 経由で表示値同期) ---------- */
   document.getElementById("btnReset").addEventListener("click", () => {
-    state.set({ p: 1.5, R: 10 });
-    document.getElementById("p").value = 1.5;
-    document.getElementById("R").value = 10;
+    sliderP.value = 1.5; sliderR.value = 10;
   });
-  document.getElementById("preset1").addEventListener("click", () => { state.set({ p: 2 }); document.getElementById("p").value = 2; });
-  document.getElementById("preset2").addEventListener("click", () => { state.set({ p: 0.5 }); document.getElementById("p").value = 0.5; });
-  document.getElementById("preset3").addEventListener("click", () => { state.set({ p: 1 }); document.getElementById("p").value = 1; });
+  document.getElementById("preset1").addEventListener("click", () => { sliderP.value = 2; });
+  document.getElementById("preset2").addEventListener("click", () => { sliderP.value = 0.5; });
+  document.getElementById("preset3").addEventListener("click", () => { sliderP.value = 1; });
 
   window.addEventListener("resize", redraw);
   redraw();

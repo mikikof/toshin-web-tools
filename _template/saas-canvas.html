@@ -69,11 +69,11 @@
         <h2>パラメータ</h2>
         <div style="display: grid; gap: 12px;">
           <div class="tool-slider">
-            <label>展開次数 n = <span class="tool-slider-value" data-bind="n">5</span></label>
+            <label for="n">展開次数 n = <span class="tool-slider-value" data-bind="n">5</span></label>
             <input id="n" type="range" min="0" max="20" step="1" value="5">
           </div>
           <div class="tool-slider">
-            <label>展開中心 a = <span class="tool-slider-value" data-bind="a">0</span></label>
+            <label for="a">展開中心 a = <span class="tool-slider-value" data-bind="a">0</span></label>
             <input id="a" type="range" min="-3" max="3" step="0.05" value="0">
           </div>
           <!-- TODO: 必要な分だけスライダー -->
@@ -103,7 +103,7 @@
         <h2>誤差</h2>
         <div class="tool-kv">
           <span class="tool-k">最大誤差(描画範囲内)</span>
-          <span class="tool-v tool-mono" id="kpiErr">—</span>
+          <span class="tool-v tool-mono" id="kpiErr" aria-live="polite">—</span>
         </div>
       </div>
     </section>
@@ -124,9 +124,9 @@
   /* ---------- 1. State ---------- */
   const state = new ToolState({ n: 5, a: 0, func: "exp" });
 
-  /* ---------- 2. Sliders ---------- */
-  new Slider("n",  { format: (v) => String(Math.round(v)) }).onChange((v) => state.set({ n: Math.round(v) }));
-  new Slider("a",  { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ a: v }));
+  /* ---------- 2. Sliders (instance を保持してプリセットでも programmatic update) ---------- */
+  const sliderN = new Slider("n", { format: (v) => String(Math.round(v)) }).onChange((v) => state.set({ n: Math.round(v) }));
+  const sliderA = new Slider("a", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ a: v }));
 
   /* ---------- 3. Function selector ---------- */
   document.querySelectorAll('input[name="func"]').forEach((r) => {
@@ -215,22 +215,21 @@
   }
   state.subscribe(() => redraw());
 
-  /* ---------- 7. Buttons ---------- */
+  /* ---------- 7. Buttons (Slider instance 経由で表示値同期) ---------- */
   document.getElementById("btnReset").addEventListener("click", () => {
-    state.set({ n: 5, a: 0, func: "exp" });
-    document.getElementById("n").value = 5;
-    document.getElementById("a").value = 0;
+    sliderN.value = 5; sliderA.value = 0;
     document.querySelector('input[name="func"][value="exp"]').checked = true;
+    state.set({ func: "exp" });
   });
   document.getElementById("preset1").addEventListener("click", () => {
     /* TODO */
-    state.set({ n: 1, a: 0 }); document.getElementById("n").value = 1;
+    sliderN.value = 1; sliderA.value = 0;
   });
   document.getElementById("preset2").addEventListener("click", () => {
-    state.set({ n: 10, a: 0 }); document.getElementById("n").value = 10;
+    sliderN.value = 10; sliderA.value = 0;
   });
   document.getElementById("preset3").addEventListener("click", () => {
-    state.set({ n: 5, a: 1.5 }); document.getElementById("n").value = 5; document.getElementById("a").value = 1.5;
+    sliderN.value = 5; sliderA.value = 1.5;
   });
 
   /* ---------- 8. Init ---------- */

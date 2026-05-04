@@ -19,7 +19,10 @@
 
   // ---------------- Number helpers ----------------
   function clamp(x, lo, hi) { return Math.min(Math.max(x, lo), hi); }
-  function map(x, a, b, c, d) { return c + (d - c) * (x - a) / (b - a); }
+  function map(x, a, b, c, d) {
+    if (a === b) return c; // guard: 縮退区間ではターゲット下限を返す(0 除算防止)
+    return c + (d - c) * (x - a) / (b - a);
+  }
   function linspace(a, b, n) {
     if (n < 2) return [a];
     const out = new Array(n);
@@ -89,23 +92,34 @@
   }
 
   // ---------------- RAFLoop (fixed-step) ----------------
+  // tab 非表示中は raf が止まり、復帰時に巨大 dt が来る。
+  // dt を maxDt(既定 100ms)で clamp し、visibilitychange でも累積をリセットする。
   class RAFLoop {
     constructor(stepFn, opts = {}) {
       this.stepFn = stepFn;
       this.fps = opts.fps || 60;
+      this.maxDt = opts.maxDt != null ? opts.maxDt : 100; // ms
       this.running = false;
       this._raf = null;
       this._lastT = 0;
       this._accum = 0;
+      this._onVisibility = () => {
+        if (document.visibilityState === "visible") {
+          this._lastT = performance.now();
+          this._accum = 0;
+        }
+      };
     }
     start() {
       if (this.running) return;
       this.running = true;
       this._lastT = performance.now();
       this._accum = 0;
+      document.addEventListener("visibilitychange", this._onVisibility);
       const tick = (now) => {
         if (!this.running) return;
-        const dt = now - this._lastT;
+        let dt = now - this._lastT;
+        if (dt > this.maxDt) dt = this.maxDt; // clamp: 復帰時の巨大 dt を抑える
         this._lastT = now;
         const targetMs = 1000 / this.fps;
         this._accum += dt;
@@ -122,6 +136,7 @@
       this.running = false;
       if (this._raf) cancelAnimationFrame(this._raf);
       this._raf = null;
+      document.removeEventListener("visibilitychange", this._onVisibility);
     }
     toggle() { this.running ? this.stop() : this.start(); }
   }

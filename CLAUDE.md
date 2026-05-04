@@ -71,7 +71,13 @@ toshin-web-tools/
 
 ## 4. デザイン方針(SaaS 風モダン、統一)
 
-- **配色**: ライト基調 + プリチャージのアクセント(brand=スカイブルー、accent=ティール、pop=コーラル)
+- **配色トークン**(`assets/tool-style.css` の `:root` で定義):
+  - `--tool-brand`: スカイブルー(主役、リンクや active 状態)
+  - `--tool-brand-2`: インディゴ(brand のサブ、グラデ用)
+  - `--tool-accent`: ティール(強調・成功・正解)
+  - `--tool-accent-2`: レッド(失敗・エラー・反例)
+  - `--tool-pop`: アンバー(警告・注意喚起・「ここに注目」のハイライト)
+  - 用途: brand と accent は併用 OK、accent-2 と pop は同時使用に注意(視覚的にうるさい)
 - **フォント**: `ui-sans-serif, system-ui` 系。Google Fonts は **基本使わない**(完全オフライン優先)
 - **角丸**: 12-20px(`--tool-r-sm/md/lg`)。シャープすぎないが過剰な丸も避ける
 - **影**: 微妙(`0 10px 30px rgba(2,6,23,.08)`)、SaaS 的軽やかさ
@@ -121,6 +127,34 @@ toshin-web-tools/
 
 - ❌ 過剰な絵文字、過剰な擬人化(「がんばろう!」等)
 - ✅ 数学的に正確な用語、適度なカジュアルさ(「触ってみよう」程度)
+
+### 5-5. 数学的正確性の検証(教育倫理、最重要)
+
+東進シリーズは全国の高校生・浪人生が視聴 → **数値実験を見て「定理が成り立つ」と勘違いさせない**設計が必要。
+
+#### 必須の確認項目
+
+新規ツールを書くときに、**以下のすべて**を必ず点検する:
+
+1. **定義域**: 関数が未定義になる入力(0 除算、負の log、特異点)で **NaN/Infinity** を画面に出さない。エラー領域は灰色で塗るか「定義域外」とラベルを付ける
+2. **特異点・境界値**: 既知の特異点(`x → 0` で `1/x`、`x → -1` で `log(1+x)` 等)を含めて挙動を確認する
+3. **既知値での検算**: 既知の数値解(例: `e^0 = 1`、`sin(π/2) = 1`、`∫₀^1 x dx = 1/2`)が実装で正しく出るか検算する。最低 3 ケース
+4. **数値近似と切り詰め**: 描画で値を clamp する場合は「ここは画面範囲で打ち切られています」を明示
+5. **定理の仮定を UI に短く出す**: 「この可視化は連続関数を前提」「a, b > 0 のとき成立」など、**ツール内で見える形で**示す。`<details>` で折り畳み可
+
+#### 「数値実験 ≠ 証明」の明示(必須)
+
+可視化で「成り立つように見える」だけでは数学的に何も保証しない。学習者を誤誘導しないため、ツール内で必ずどこかに以下のような注記を置く:
+
+> 例: 「このグラフでは X が成り立っているように見えますが、これは数値実験の表示範囲内での観察です。一般の証明には [仮定] が必要です。」
+
+書きすぎ NG(教師目線の長文化に陥る)。1〜2 文で。
+
+#### よく踏むトラップ(避ける)
+
+- ❌ 関数定義域外で `NaN` をそのまま `<text>` 描画 → 画面が壊れる
+- ❌ 浮動小数の丸めで `0.30000000000000004` がそのまま表示 → `formatNumber` を使う
+- ❌ 「数値で確かめた」を「数学的に証明した」と取り違える文言
 
 ---
 
@@ -175,8 +209,15 @@ toshin-web-tools/
 
 ## 8. 完全オフライン基準
 
-「完全オフライン対応」は **CDN 依存ゼロ** を意味する。以下のときに必須:
+「完全オフライン対応」は **CDN 依存ゼロ** を意味する。
 
+### CDN 利用の判断ルール(明文化)
+
+- **オフライン要件が明示されているとき** → CDN 雛形(`saas-d3`, `saas-three`)は **使わない**。`saas-offline` か `saas-canvas` を選ぶ
+- **オフライン要件が明示されていないとき** → 教育効果を優先して CDN 雛形(D3 / Three.js)を選んで OK
+- 判断に迷ったら Step 1 で「3D 優先か、完全オフライン優先か」を **先に確認する**(Step 3 で雛形選択した後に戻ると手戻りが大きい)
+
+### オフライン要件が必須なケース(参考)
 - 配布・同梱(USB/メールで配る)を想定する場合
 - 学校/予備校の教室 Wi-Fi が不安定な環境向け
 - ユーザーが「オフライン版がほしい」と明言した場合
@@ -187,7 +228,25 @@ toshin-web-tools/
 - フォントは system-ui のみ(Google Fonts もダメ)
 - 共通 `assets/tool-style.css` `tool-helpers.js` は OK(同一サイト内)
 
-オンライン前提(D3, Three.js)なら CDN OK。だが**必要なライブラリだけ**(jQuery 等は不要)。
+オンライン前提(D3, Three.js)なら CDN OK。だが**必要なライブラリだけ**(jQuery 等は不要)、**バージョンを必ず pin する**(unpkg なら `@0.160.0` 等)。
+
+### CDN 利用の副作用(README / NOTICE.md に記載)
+
+- 利用者の IP・ブラウザ情報が CDN プロバイダ(unpkg / d3js.org)に記録される可能性
+- ライセンスは `NOTICE.md` を参照(Three.js MIT、D3.js ISC 等)
+
+---
+
+## 8-2. ブラウザ対応表
+
+| ブラウザ | 最低バージョン | 備考 |
+|---|---|---|
+| Chrome | 89+ | importmap, MathML |
+| Firefox | 108+ | importmap, MathML 標準対応 |
+| Safari (macOS / iOS) | **16.4+** | 16.3 以下では importmap 非対応(Three.js 雛形が真っ白になる) |
+| Android Chrome | 89+ | 端末の OS 制約あり |
+
+学校端末・古いタブレットは Safari 14-16 系の可能性があるため、`saas-three` ではフォールバック表示を必須にする(雛形に組み込み済)。
 
 ---
 
@@ -299,6 +358,27 @@ git push  # ★ 整合性レポート → ユーザー承認 → push
 
 逆順だとリモートで参照切れになる。memory ルール「submodule push 順序の厳守」を参照。
 
+#### 親 push 前の必須確認(SHA 存在確認)
+
+親リポを push する直前に、submodule SHA がリモートに存在するか **必ず** 確認:
+
+```bash
+# 親リポ側で submodule SHA を取得
+SUBMODULE_SHA=$(git -C .company/education/toshin/web-tools rev-parse HEAD)
+
+# リモートに存在するか確認
+git ls-remote https://github.com/mikikof/toshin-web-tools.git | grep "$SUBMODULE_SHA"
+```
+
+#### 万が一 push 順序を間違えた場合の救済 runbook
+
+**症状**: 親リポを先に push し、submodule push を忘れた → リモートで「submodule の SHA が存在しない」状態に
+
+**救済**:
+1. すぐに submodule リポに `cd` して `git push origin main` 実行(SHA を後追いで送る)
+2. もし submodule の commit がローカルにも残っていない(reflog 切れ)なら、親リポで `git revert <bad commit>` で参照を戻す
+3. revert 後、submodule で正しい状態を作り直して、再度 submodule → 親 の順で push
+
 ### 14-2. commit メッセージの形式
 
 submodule 側:
@@ -355,30 +435,21 @@ A. JSON syntax エラーの可能性。`python3 -c "import json; json.load(open(
 
 ---
 
-## 16. 「テーマ X」を受けたときの最短手順(Claude 用)
+## 16. 「テーマ X」を受けたときの最短手順 — SKILL の 9 ステップ対応表
 
-```
-1. ユーザーから「テーマ X を Web ツールにして」と言われる
-2. /toshin-tool スキルが起動(または手動で以下を実行)
-3. このファイル(CLAUDE.md)を最初に読む(設計判断軸を頭に入れる)
-4. _template/EXAMPLES.md で類似事例を見つける
-5. AskUserQuestion で:
-   - 章節番号(例: 4-5)
-   - 雛形(offline/canvas/d3/three)
-   - 教育意図(プリセット 3 つは何にする?)
-   - 完全オフライン要件があるか
-6. python3 scripts/new-tool.py <chapter>-<section> "<title>" --template <type>
-7. 生成された tools/<field>/<chapter>-<section>.html を編集
-   - 数式(MathML + code)
-   - プリセット 3 つ(意味のあるシナリオ)
-   - スライダー定義
-   - 関数本体・可視化ロジック
-   - 教育文(導入で何を体感するか、1-2 文)
-8. python3 -m http.server で動作確認、curl で 200 確認
-9. _template/CHECKLIST.md でセルフチェック(全項目)
-10. submodule で commit & push
-11. 親リポで submodule 参照進める + 整合性レポート → ユーザー承認 → push
-```
+| SKILL Step | 内容 | 主な参照先 |
+|---|---|---|
+| 1. テーマ受領 + 章節決定 + **完全オフライン要件確認** | AskUserQuestion で章節・分野(`--field calculus/linear`)・オフライン要件 | §3 命名 / §8 オフライン |
+| 2. 既存事例の参照 | EXAMPLES.md で類似テーマ検索 → 既存ツール 1-2 件を Read | `_template/EXAMPLES.md` |
+| 3. 雛形選択(offline/canvas/d3/three) | オフライン要件 + 可視化手段で決定 | §7 可視化 / §8 オフライン |
+| 4. 教育設計 | プリセット 3 つ + 気づき仕掛け 2 つ以上 + 4 段階構造 | §5 教育設計 |
+| 5. 数式設計 + **数学的正確性の検証** | MathML + code 併記、定義域・特異点・既知値の検算 | §6 数式 / §5-5 正確性 |
+| 6. 雛形 copy & カスタマイズ | `python3 scripts/new-tool.py <ch>-<sec> "<title>" --template <type>` | `scripts/new-tool.py` |
+| 7. 動作確認 | `curl 200` + `grep -c "TODO"` + `grep "https://"` 依存検出 + ブラウザ目視 | §8-2 ブラウザ対応表 |
+| 8. CHECKLIST セルフ点検 | 全項目で OK 確認 | `_template/CHECKLIST.md` |
+| 9. commit & push | submodule → 親リポ、整合性レポートでユーザー承認 | §14 commit/push + §14-1 救済 runbook |
+
+詳細は `.claude/skills/toshin-tool/SKILL.md` 参照。
 
 ---
 

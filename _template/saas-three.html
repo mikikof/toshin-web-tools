@@ -56,7 +56,8 @@
           <div class="tool-small tool-mute">(未対応なら) <code class="tool-mono"><!-- TODO --></code></div>
         </div>
         <div class="tool-note" style="margin-top: 10px;">
-          <strong>操作:</strong> 左ドラッグで回転、右ドラッグで並行移動、ホイールでズーム。
+          <strong>操作 (PC):</strong> 左ドラッグで回転、右ドラッグで並行移動、ホイールでズーム。<br>
+          <strong>操作 (タッチ):</strong> 1 本指ドラッグで回転、2 本指ドラッグでパン、ピンチでズーム。
         </div>
       </div>
 
@@ -73,11 +74,11 @@
         <h2>パラメータ</h2>
         <div style="display: grid; gap: 12px;">
           <div class="tool-slider">
-            <label>a = <span class="tool-slider-value" data-bind="a">1.00</span></label>
+            <label for="a">a = <span class="tool-slider-value" data-bind="a">1.00</span></label>
             <input id="a" type="range" min="0.2" max="3" step="0.01" value="1.0">
           </div>
           <div class="tool-slider">
-            <label>b = <span class="tool-slider-value" data-bind="b">1.00</span></label>
+            <label for="b">b = <span class="tool-slider-value" data-bind="b">1.00</span></label>
             <input id="b" type="range" min="0.2" max="3" step="0.01" value="1.0">
           </div>
         </div>
@@ -86,13 +87,23 @@
 
     <section class="tool-viz">
       <div class="tool-viz-frame">
-        <div id="viz3d" role="img" aria-label="<!-- TODO --> (3D 表示)"></div>
+        <div id="viz3d" role="img" aria-label="<!-- TODO --> (3D 表示)">
+          <!-- importmap 非対応ブラウザ(Safari 16.3 以下等)向け fallback。
+               module 初期化が成功すると JS が hide する。 -->
+          <div id="viz3dFallback" class="tool-note" style="margin: 16px;">
+            <strong>3D 表示の準備中です…</strong><br>
+            このページは Three.js(importmap)を使います。<br>
+            数秒以上経っても表示されない場合、ブラウザを最新版に更新するか
+            (Safari は 16.4 以上、Chrome 89 以上、Firefox 108 以上が必要)、
+            <code class="tool-mono">_template/saas-canvas.html</code> ベースの 2D 版をお試しください。
+          </div>
+        </div>
       </div>
       <div class="tool-card">
         <h2>観測値</h2>
         <div class="tool-kv">
           <span class="tool-k"><!-- TODO --></span>
-          <span class="tool-v tool-mono" id="kpi">—</span>
+          <span class="tool-v tool-mono" id="kpi" aria-live="polite">—</span>
         </div>
       </div>
     </section>
@@ -114,9 +125,13 @@ const { Slider, ToolState, formatNumber } = window.toshin;
 /* ---------- State ---------- */
 const state = new ToolState({ a: 1.0, b: 1.0 });
 
-/* ---------- Sliders ---------- */
-new Slider("a", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ a: v }));
-new Slider("b", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ b: v }));
+/* ---------- Sliders (instance を保持してプリセットでも programmatic update) ---------- */
+const sliderA = new Slider("a", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ a: v }));
+const sliderB = new Slider("b", { format: (v) => v.toFixed(2) }).onChange((v) => state.set({ b: v }));
+
+/* ---------- importmap が動いた = fallback メッセージを隠す ---------- */
+const fb = document.getElementById("viz3dFallback");
+if (fb) fb.hidden = true;
 
 /* ---------- Three.js scene ---------- */
 const container = document.getElementById("viz3d");
@@ -208,27 +223,38 @@ document.getElementById("btnReset").addEventListener("click", () => {
   camera.position.set(4, 4, 5);
 });
 document.getElementById("preset1").addEventListener("click", () => {
-  state.set({ a: 1, b: 1 });
-  document.getElementById("a").value = 1; document.getElementById("b").value = 1;
+  sliderA.value = 1; sliderB.value = 1;
 });
 document.getElementById("preset2").addEventListener("click", () => {
-  state.set({ a: 2, b: 0.5 });
-  document.getElementById("a").value = 2; document.getElementById("b").value = 0.5;
+  sliderA.value = 2; sliderB.value = 0.5;
 });
 document.getElementById("preset3").addEventListener("click", () => {
-  state.set({ a: 0.5, b: 2 });
-  document.getElementById("a").value = 0.5; document.getElementById("b").value = 2;
+  sliderA.value = 0.5; sliderB.value = 2;
 });
 
 // init
 buildSurface(state.state.a, state.state.b);
 document.getElementById("kpi").textContent = "a=1.00, b=1.00";
 
+let _running = true;
 (function loop() {
+  if (!_running) return;
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(loop);
 })();
+
+// ページ離脱時のリソース解放(memory leak 防止)
+window.addEventListener("pagehide", () => {
+  _running = false;
+  if (surfaceMesh) {
+    scene.remove(surfaceMesh);
+    surfaceMesh.geometry.dispose();
+    surfaceMesh.material.dispose();
+  }
+  controls.dispose();
+  renderer.dispose();
+});
 </script>
 
 </body>

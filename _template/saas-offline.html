@@ -93,9 +93,8 @@
         <h2>パラメータを動かす</h2>
         <div style="display: grid; gap: 12px;">
           <div class="tool-slider">
-            <label>α = <span class="tool-slider-value" data-bind="alpha">0.50</span></label>
-            <input id="alpha" type="range" min="0" max="2" step="0.01" value="0.5"
-                   aria-label="<!-- TODO: パラメータの読み上げ -->">
+            <label for="alpha">α = <span class="tool-slider-value" data-bind="alpha">0.50</span></label>
+            <input id="alpha" type="range" min="0" max="2" step="0.01" value="0.5">
           </div>
           <!-- TODO: 必要な分だけスライダーを追加 -->
         </div>
@@ -127,11 +126,11 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <div class="tool-kv">
             <span class="tool-k"><!-- TODO: ラベル --></span>
-            <span class="tool-v" id="kpi1">—</span>
+            <span class="tool-v" id="kpi1" aria-live="polite">—</span>
           </div>
           <div class="tool-kv">
             <span class="tool-k"><!-- TODO: ラベル --></span>
-            <span class="tool-v" id="kpi2">—</span>
+            <span class="tool-v" id="kpi2" aria-live="polite">—</span>
           </div>
         </div>
       </div>
