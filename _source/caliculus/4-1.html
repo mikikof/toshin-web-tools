@@ -1,0 +1,347 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;逆関数の微分 可視化ツール&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0KOVEMVIhbCwHMAq2EVqFlyhKtxDFFFb1I3lQdN755Hr4rYNCs2vU" crossorigin="anonymous"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-font-smoothing: antialiased;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-moz-osx-font-smoothing: grayscale;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.katex {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.1em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.legend-color-box {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-right: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 4px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-50 text-gray-800"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8 max-w-7xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl md:text-4xl font-bold text-gray-900"&gt;逆関数の微分 可視化ツール&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-2 text-lg text-gray-600"&gt;関数の接線と、その逆関数の接線の関係を探ってみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid grid-cols-1 lg:grid-cols-3 gap-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Left Panel: Visualization --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;canvas id="graphCanvas"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="xSlider" class="block mb-2 font-medium text-gray-700"&gt;x の値を動かす:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input type="range" id="xSlider" min="0.1" max="3" step="0.01" value="1.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Right Panel: Information --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-2xl font-bold mb-4 border-b pb-2"&gt;凡例と情報&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="space-y-3 mb-6 text-gray-700"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="flex items-center"&gt;&lt;div class="legend-color-box bg-blue-500"&gt;&lt;/div&gt;&lt;span id="func-f"&gt;&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="flex items-center"&gt;&lt;div class="legend-color-box bg-green-500"&gt;&lt;/div&gt;&lt;span id="func-g"&gt;&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="flex items-center"&gt;&lt;div class="legend-color-box bg-gray-400 border border-gray-400" style="background-image: linear-gradient(135deg, #fff 50%, transparent 50%), linear-gradient(45deg, transparent 50%, #fff 50%); background-size: 6px 6px;"&gt;&lt;/div&gt;&lt;span id="func-yx"&gt;y = x&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="p-4 bg-blue-50 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;h3 class="font-bold text-blue-800"&gt;元の関数上の点 P&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p id="pointP" class="font-mono"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p id="slopeP" class="font-mono"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="p-4 bg-green-50 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;h3 class="font-bold text-green-800"&gt;逆関数上の点 Q&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p id="pointQ" class="font-mono"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p id="slopeQ" class="font-mono"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-6 p-4 bg-yellow-50 rounded-lg text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3 class="font-bold text-yellow-800 mb-2"&gt;傾きの関係&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p id="slope-relation" class="text-lg font-bold text-yellow-900"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-yellow-700 mt-1"&gt;傾きが互いに逆数になっています&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mt-8 bg-white p-6 rounded-2xl shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl font-bold mb-4"&gt;解説&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>グラフは、関数 &lt;span id="explanation-f"&gt;&lt;/span&gt; とその逆関数 &lt;span id="explanation-g"&gt;&lt;/span&gt; を示しています。これらは直線 &lt;span class="text-gray-600 font-semibold"&gt;y = x&lt;/span&gt; に関して対称です。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>スライダーを動かすと、点P &lt;span class="font-mono"&gt;(a, b)&lt;/span&gt; が青い曲線上を動き、それに対応する点Q &lt;span class="font-mono"&gt;(b, a)&lt;/span&gt; が緑の曲線上を動きます。それぞれの点における接線（点線）も描かれます。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>注目すべきは、2つの接線の傾きの関係です。点Pでの傾きを &lt;span class="font-mono"&gt;m₁&lt;/span&gt;、点Qでの傾きを &lt;span class="font-mono"&gt;m₂&lt;/span&gt; とすると、常に &lt;span id="explanation-m2"&gt;&lt;/span&gt; という関係が成り立ちます。これは、逆関数の微分公式を示しています。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="p-4 bg-gray-100 rounded-lg flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="formula1" class="text-xl"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-gray-400 text-2xl"&gt;⇔&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="formula2" class="text-xl"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// KaTeXによる数式描画</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const katexElements = [</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ id: 'func-f', expression: 'y = f(x) = 0.1x^3 + 0.5x' },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ id: 'func-g', expression: 'x = f^{-1}(y)' },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ id: 'explanation-f', expression: 'f(x)' },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ id: 'explanation-g', expression: 'f^{-1}(y)' },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ id: 'explanation-m2', expression: 'm_2 = 1 / m_1' },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ id: 'formula1', expression: `\\frac{dx}{dy} = \\frac{1}{\\frac{dy}{dx}}` },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ id: 'formula2', expression: `(f^{-1})'(y) = \\frac{1}{f'(x)}` },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>katexElements.forEach(item =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>katex.render(item.expression, document.getElementById(item.id), {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>throwOnError: false</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} catch (e) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>console.error(`KaTeX rendering failed for ID ${item.id}:`, e);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>document.getElementById(item.id).textContent = item.expression;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.getElementById('graphCanvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ctx = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const slider = document.getElementById('xSlider');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const pointPElement = document.getElementById('pointP');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const slopePElement = document.getElementById('slopeP');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const pointQElement = document.getElementById('pointQ');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const slopeQElement = document.getElementById('slopeQ');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const slopeRelationElement = document.getElementById('slope-relation');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let scale = 50;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let originX, originY;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// 元の関数とその導関数</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const f = x =&gt; 0.1 * Math.pow(x, 3) + 0.5 * x;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const f_prime = x =&gt; 0.3 * Math.pow(x, 2) + 0.5;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function setupCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const container = canvas.parentElement;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const size = Math.min(container.clientWidth, 600);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.width = size;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.height = size;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>originX = canvas.width * 0.1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>originY = canvas.height * 0.9;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scale = Math.min(canvas.width, canvas.height) / 10;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draw();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function toCanvasX(x) { return originX + x * scale; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function toCanvasY(y) { return originY - y * scale; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function fromCanvasX(cx) { return (cx - originX) / scale; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawAxes() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = '#9ca3af'; // gray-400</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// X axis</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(0, originY);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(canvas.width, originY);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Y axis</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(originX, 0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(originX, canvas.height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Axis labels</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#4b5563'; // gray-600</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.font = '14px Inter';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText('x', canvas.width - 15, originY - 10);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText('y', originX + 10, 15);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Ticks</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for(let i = 1; i * scale &lt; canvas.width - originX; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillText(i, toCanvasX(i), originY + 15);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.moveTo(toCanvasX(i), originY - 3);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.lineTo(toCanvasX(i), originY + 3);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for(let i = 1; i * scale &lt; originY; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillText(i, originX - 20, toCanvasY(i) + 5);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.moveTo(originX - 3, toCanvasY(i));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.lineTo(originX + 3, toCanvasY(i));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawFunction(func, color) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 3;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let firstPoint = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let cx = 0; cx &lt; canvas.width; cx++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const x = fromCanvasX(cx);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (x &gt;= 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const y = func(x);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const cy = toCanvasY(y);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (firstPoint) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>ctx.moveTo(cx, cy);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>firstPoint = false;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>ctx.lineTo(cx, cy);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawInverse(func, color) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 3;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let firstPoint = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let cx = 0; cx &lt; canvas.width; cx++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const x = fromCanvasX(cx);</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>if (x &gt;= 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const y = func(x);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// Swap x and y to draw the inverse</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const inv_cx = toCanvasX(y);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const inv_cy = toCanvasY(x);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (inv_cx &gt; originX) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (firstPoint) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>ctx.moveTo(inv_cx, inv_cy);</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>firstPoint = false;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>ctx.lineTo(inv_cx, inv_cy);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawLine(y_intercept, slope, color, dashed = false) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (dashed) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.setLineDash([5, 5]);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x0 = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y0 = slope * (x0 - fromCanvasX(0)) + y_intercept;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x1 = fromCanvasX(canvas.width);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y1 = slope * (x1 - fromCanvasX(0)) + y_intercept;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(toCanvasX(x0), toCanvasY(y0));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(toCanvasX(x1), toCanvasY(y1));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.setLineDash([]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawTangent(px, py, slope, color) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.setLineDash([4, 4]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const length = 1.5;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const angle = Math.atan(slope);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const dx = length * Math.cos(angle);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const dy = length * Math.sin(angle);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(toCanvasX(px - dx), toCanvasY(py - dy));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(toCanvasX(px + dx), toCanvasY(py + dy));</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.setLineDash([]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawPoint(x, y, color) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(toCanvasX(x), toCanvasY(y), 6, 0, 2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = 'white';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function draw() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.clearRect(0, 0, canvas.width, canvas.height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawAxes();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Draw y = x</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.save();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = '#9ca3af'; // gray-400</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 1.5;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.setLineDash([3, 3]);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(0, canvas.height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(canvas.width, 0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.restore();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Draw functions</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(f, '#3b82f6'); // blue-500</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawInverse(f, '#22c55e'); // green-500</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Get current point</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const a = parseFloat(slider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const b = f(a);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Point P on f(x)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const px = a;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const py = b;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const slope_p = f_prime(a);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawTangent(px, py, slope_p, '#60a5fa'); // blue-400</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawPoint(px, py, '#1d4ed8'); // blue-700</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Point Q on f^-1(y)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const qx = b;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const qy = a;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const slope_q = 1 / slope_p;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawTangent(qx, qy, slope_q, '#4ade80'); // green-400</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawPoint(qx, qy, '#15803d'); // green-700</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Update info text</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pointPElement.textContent = `P(a, b) = (${px.toFixed(2)}, ${py.toFixed(2)})`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>slopePElement.textContent = `傾き f'(a) = ${slope_p.toFixed(3)}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pointQElement.textContent = `Q(b, a) = (${qx.toFixed(2)}, ${qy.toFixed(2)})`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>slopeQElement.textContent = `傾き (f⁻¹)'(b) = ${slope_q.toFixed(3)}`;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>slopeRelationElement.textContent = `${slope_p.toFixed(3)} × ${slope_q.toFixed(3)} ≈ 1`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>slider.addEventListener('input', draw);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', setupCanvas);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupCanvas();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

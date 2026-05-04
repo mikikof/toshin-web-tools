@@ -1,0 +1,388 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;ランダウ記号 o(x) をインタラクティブに学ぶ&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Noto Sans JP', 'Inter', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f8fafc;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.latex {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Times New Roman', serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-style: italic;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.card {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: all 0.3s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@media (min-width: 768px) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.card {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>padding: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.card:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>h1, h2 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.bar {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: width 0.3s ease-out;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-shadow: 1px 1px 2px rgba(0,0,0,0.5);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>canvas {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-height: 400px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="text-gray-800"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8 max-w-4xl"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl md:text-4xl font-bold text-gray-900"&gt;ランダウ記号 &lt;span class="latex"&gt;o(x)&lt;/span&gt; をインタラクティブに学ぶ&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-4 text-lg text-gray-600"&gt;近似計算の「誤差」を評価&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Section 1: Introduction --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl mb-4 text-slate-800"&gt;1. なぜ「誤差の評価」が必要なのか？&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mb-4"&gt;数学や物理では、複雑な関数をシンプルな多項式で近似することがよくあります。例えば、&lt;span class="latex"&gt;sin(x)&lt;/span&gt; は &lt;span class="latex"&gt;x&lt;/span&gt; が0に近いとき、&lt;span class="latex"&gt;x&lt;/span&gt; でとてもよく近似できます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="p-4 bg-slate-100 rounded-lg text-center text-xl md:text-2xl font-mono"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="latex"&gt;sin(x) &amp;approx; x&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-4"&gt;しかし、この近似には必ず「誤差」が伴います。その誤差はどれくらい小さいのでしょうか？「すごく小さい」だけでは不十分です。誤差が&lt;strong class="text-indigo-600"&gt;どれくらいの速さで0に近づくか&lt;/strong&gt;を数学的に表現するために、ランダウの記号が使われます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Section 2: Interactive Demo --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl mb-4 text-slate-800"&gt;2. 「はるかに小さい」を体験する&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mb-4"&gt;ランダウ記号 &lt;span class="latex"&gt;f(x) = o(g(x))&lt;/span&gt; は、「&lt;span class="latex"&gt;x&lt;/span&gt; がある値に近づくとき、&lt;span class="latex"&gt;f(x)&lt;/span&gt; は &lt;span class="latex"&gt;g(x)&lt;/span&gt; よりも圧倒的に速く0に近づく」ことを意味します。ここでは &lt;span class="latex"&gt;f(x) = x³&lt;/span&gt; と &lt;span class="latex"&gt;g(x) = x²&lt;/span&gt; で、&lt;span class="latex"&gt;x &amp;rarr; 0&lt;/span&gt; の場合を体験してみましょう。&lt;/p&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="x-slider" class="block mb-2 font-medium text-gray-700"&gt;下のスライダーを動かして &lt;span class="latex"&gt;x&lt;/span&gt; の値を変えてみよう:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input id="x-slider" type="range" min="0.001" max="1" step="0.001" value="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center font-mono text-lg p-4 bg-gray-50 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;x = &lt;span id="x-value" class="font-bold text-blue-600"&gt;&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;f(x)/g(x) = &lt;span id="ratio-value" class="font-bold text-red-600"&gt;&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-6 space-y-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="w-24 font-mono"&gt;g(x)=x²:&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="h-8 bg-blue-500 rounded-r-md bar flex items-center justify-end pr-2 text-white font-bold" id="g-bar" style="width: 50%;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="w-24 font-mono"&gt;f(x)=x³:&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="h-8 bg-red-500 rounded-r-md bar flex items-center justify-end pr-2 text-white font-bold" id="f-bar" style="width: 25%;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="conclusion" class="mt-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-800 rounded-r-lg hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;&lt;strong class="font-bold"&gt;結論:&lt;/strong&gt; &lt;span class="latex"&gt;x&lt;/span&gt; が0に近づくにつれて、比率 &lt;span class="latex"&gt;f(x)/g(x)&lt;/span&gt; も0に近づいていきますね！これは数学的に &lt;span class="latex"&gt;lim(x&amp;rarr;0) f(x)/g(x) = 0&lt;/span&gt; と書け、まさに &lt;span class="latex"&gt;x³ = o(x²)&lt;/span&gt; が成り立つことを意味します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Section 3: Taylor Expansion Graph --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl mb-4 text-slate-800"&gt;3. テイラー展開で見る近似の精度&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mb-4"&gt;&lt;span class="latex"&gt;sin(x)&lt;/span&gt; のテイラー展開は、近似の次数を上げるほど精度が向上する様子を視覚的に示してくれます。下のボタンで近似式を切り替えて、グラフがどのように &lt;span class="latex"&gt;sin(x)&lt;/span&gt; の曲線に近づいていくか確認しましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;canvas id="taylorChart"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-4 text-center space-x-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="updateChart(1)" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition"&gt;1次近似: x&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="updateChart(3)" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition"&gt;3次近似: x - x³/6&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onclick="updateChart(5)" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-lg transition"&gt;5次近似: x - x³/6 + x⁵/120&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;p class="mt-6 text-center text-gray-600"&gt;1次近似式 &lt;span class="latex"&gt;sin(x) = x + o(x)&lt;/span&gt; の &lt;span class="latex"&gt;o(x)&lt;/span&gt; は、誤差が &lt;span class="latex"&gt;x&lt;/span&gt; よりも速く0に収束することを保証しています。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Section 4: Physics Simulation (Revised) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl mb-4 text-slate-800"&gt;4. 実用例：単振り子の近似&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mb-4"&gt;物理学の単振り子の例です。&lt;span class="latex"&gt;sin(&amp;theta;) = &amp;theta; + o(&amp;theta;)&lt;/span&gt; なので、角度 &lt;span class="latex"&gt;&amp;theta;&lt;/span&gt; が小さいとき &lt;span class="latex"&gt;sin(&amp;theta;) &amp;approx; &amp;theta;&lt;/span&gt; と近似します。この近似がどれほど有効か、下のシミュレーションで確かめましょう。実線の振り子（正確な計算）と、半透明のゴースト（近似計算）のズレに注目してください。&lt;/p&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="theta-slider" class="block mb-2 font-medium text-gray-700"&gt;振り子の初期角度 &lt;span class="latex"&gt;&amp;theta;&lt;/span&gt; を設定:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input id="theta-slider" type="range" min="5" max="80" step="1" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-center mt-2 text-xl font-mono"&gt;角度: &lt;span id="theta-value" class="font-bold text-indigo-600"&gt;15&lt;/span&gt;°&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-slate-50 rounded-lg border mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;canvas id="pendulum-canvas"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">           </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h3 class="text-xl font-semibold mb-2"&gt;角度の時間変化グラフ&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mb-4 text-sm text-gray-600"&gt;下のグラフは、それぞれの計算方法での振り子の角度の時間変化を示します。角度が小さいと2つの線はほぼ重なりますが、大きくすると徐々にズレていく（周期が変化する）のが分かります。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-slate-50 rounded-lg border"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;canvas id="pendulum-graph"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p id="pendulum-comment" class="mt-6 text-center font-medium"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Interactive Demo Script (Section 2) ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const xSlider = document.getElementById('x-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const xValue = document.getElementById('x-value');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ratioValue = document.getElementById('ratio-value');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const gBar = document.getElementById('g-bar');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const fBar = document.getElementById('f-bar');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const conclusion = document.getElementById('conclusion');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateComparison() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const x = parseFloat(xSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const g_x = x * x;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const f_x = x * x * x;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ratio = f_x / g_x;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>xValue.textContent = x.toFixed(4);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ratioValue.textContent = ratio.toFixed(4);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const g_width = x * 100;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const f_width = g_width * ratio;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>gBar.style.width = `${Math.min(g_width, 100)}%`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>fBar.style.width = `${Math.min(f_width, 100)}%`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (x &lt; 0.1) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>conclusion.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>conclusion.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>xSlider.addEventListener('input', updateComparison);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateComparison();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Taylor Chart Script (Section 3) ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const taylorCanvas = document.getElementById('taylorChart');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let taylorChart;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const labels = Array.from({length: 201}, (_, i) =&gt; (i - 100) * Math.PI / 100);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const sinData = labels.map(x =&gt; Math.sin(x));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const datasets = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sin: { label: 'sin(x)', data: sinData, borderColor: 'rgb(22, 163, 74)', tension: 0.1, borderWidth: 3, pointRadius: 0 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>approx1: { label: '近似: x', data: labels.map(x =&gt; x), borderColor: 'rgb(99, 102, 241)', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>approx3: { label: '近似: x - x³/6', data: labels.map(x =&gt; x - Math.pow(x, 3) / 6), borderColor: 'rgb(168, 85, 247)', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>approx5: { label: '近似: x - x³/6 + x⁵/120', data: labels.map(x =&gt; x - Math.pow(x, 5) / 120), borderColor: 'rgb(236, 72, 153)', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createChart(approxOrder) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (taylorChart) taylorChart.destroy();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let approxData;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>switch(approxOrder) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>case 3: approxData = datasets.approx3; break;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>case 5: approxData = datasets.approx5; break;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>default: approxData = datasets.approx1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>taylorChart = new Chart(taylorCanvas, {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>type: 'line',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data: { labels: labels, datasets: [datasets.sin, approxData] },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>options: { responsive: true, scales: { x: { type: 'linear', position: 'bottom', title: { display: true, text: 'x' }}, y: { title: { display: true, text: 'y' }}}, plugins: { tooltip: { mode: 'index', intersect: false }}}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateChart(order) { createChart(order); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.addEventListener('load', () =&gt; createChart(1));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Pendulum Script (Section 4, Revised) ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const thetaSlider = document.getElementById('theta-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const thetaValue = document.getElementById('theta-value');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pendulumComment = document.getElementById('pendulum-comment');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pendulumCanvas = document.getElementById('pendulum-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const p_ctx = pendulumCanvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const graphCanvas = document.getElementById('pendulum-graph');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let pendulumGraph;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let animationFrameId;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let time = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const GRAPH_DURATION = 10; // The total time duration the graph will show (in seconds)</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>class PendulumModel {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>constructor(initialTheta, useApprox) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.theta = initialTheta * Math.PI / 180;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.omega = 0; // angular velocity</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.useApprox = useApprox;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.g = 9.8 * 5; // Increased speed for better visualization</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.length = 150;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.dt = 1 / 60;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>update() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const alpha = this.useApprox ?</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>-(this.g / this.length) * this.theta :</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>-(this.g / this.length) * Math.sin(this.theta);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.omega += alpha * this.dt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.omega *= 0.999; // A bit of damping</p>
+<p class="p1"><span class="Apple-converted-space">                </span>this.theta += this.omega * this.dt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawPendulum(ctx, model, isGhost = false) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = ctx.canvas.width;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const origin = { x: w / 2, y: 50 };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const bobX = origin.x + model.length * Math.sin(model.theta);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const bobY = origin.y + model.length * Math.cos(model.theta);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.globalAlpha = isGhost ? 0.4 : 1.0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Rod</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.moveTo(origin.x, origin.y);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineTo(bobX, bobY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = '#64748b';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Bob</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.arc(bobX, bobY, 15, 0, 2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = isGhost ? '#a855f7' : '#1d4ed8'; // Approx: purple, Exact: blue</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fill();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.globalAlpha = 1.0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupPendulumGraph() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (pendulumGraph) pendulumGraph.destroy();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const initialThetaRad = parseFloat(thetaSlider.value) * Math.PI / 180;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>pendulumGraph = new Chart(graphCanvas, {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>type: 'line',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>datasets: [{</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>label: '正確な計算 sin(θ)',</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>borderColor: '#1d4ed8',</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>borderWidth: 2,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>data: [],</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>pointRadius: 0,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>tension: 0.2</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}, {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>label: '近似計算 θ',</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>borderColor: '#a855f7',</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>borderWidth: 2,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>borderDash: [5, 5],</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>data: [],</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>pointRadius: 0,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>tension: 0.2</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}]</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>options: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>responsive: true,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>scales: {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>x: {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>type: 'linear',<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>title: { display: true, text: '時間 (s)' },</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>min: 0,</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>max: GRAPH_DURATION // Fix the x-axis</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>y: {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>title: { display: true, text: '角度 (rad)' },</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>min: -initialThetaRad * 1.1, // Set y-axis based on initial angle</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>max: initialThetaRad * 1.1</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>animation: {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>duration: 0 // No animation for drawing</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>plugins: {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>legend: {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>position: 'top',</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let pendulumExact, pendulumApprox;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function startPendulumAnimation() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (animationFrameId) cancelAnimationFrame(animationFrameId);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const initialTheta = parseFloat(thetaSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>thetaValue.textContent = initialTheta;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const containerWidth = pendulumCanvas.parentElement.clientWidth;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pendulumCanvas.width = containerWidth;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pendulumCanvas.height = containerWidth * 0.6;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>pendulumExact = new PendulumModel(initialTheta, false);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pendulumApprox = new PendulumModel(initialTheta, true);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (initialTheta &lt;= 20) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pendulumComment.textContent = "角度が小さいと、両者の動きと周期はほぼ一致しますね！";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pendulumComment.className = "mt-6 text-center font-medium text-green-700";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pendulumComment.textContent = "角度が大きくなると、ゴーストとのズレが大きくなり、周期も変わってきます。";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pendulumComment.className = "mt-6 text-center font-medium text-red-700";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>time = 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupPendulumGraph();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animatePendulums();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function animatePendulums() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pendulumExact.update();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pendulumApprox.update();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>p_ctx.clearRect(0, 0, p_ctx.canvas.width, p_ctx.canvas.height);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawPendulum(p_ctx, pendulumApprox, true); // Draw ghost first</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawPendulum(p_ctx, pendulumExact, false); // Draw solid on top</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Update graph data only within the defined duration</p>
+<p class="p1"><span class="Apple-converted-space">            </span>time += pendulumExact.dt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (time &lt;= GRAPH_DURATION) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const datasets = pendulumGraph.data.datasets;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>datasets[0].data.push({x: time, y: pendulumExact.theta});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>datasets[1].data.push({x: time, y: pendulumApprox.theta});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pendulumGraph.update('none'); // Update without any animation</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>animationFrameId = requestAnimationFrame(animatePendulums);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>thetaSlider.addEventListener('input', startPendulumAnimation);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const resizeObserver = new ResizeObserver(entries =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Use a timeout to avoid rapid re-renders during resize</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (this.resizeTimeout) clearTimeout(this.resizeTimeout);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>this.resizeTimeout = setTimeout(startPendulumAnimation, 100);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>resizeObserver.observe(pendulumCanvas.parentElement);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.addEventListener('load', startPendulumAnimation);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

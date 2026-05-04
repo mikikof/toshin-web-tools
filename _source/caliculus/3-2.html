@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;双曲線関数とAIのインタラクティブな関係 Ver.13.1 (修正版)&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Noto Sans JP', 'Inter', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.chart-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 300px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>input[type="range"]::-webkit-slider-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #4f46e5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 4px solid #fff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 0 5px rgba(0,0,0,0.2);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>input[type="range"]::-moz-range-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #4f46e5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 4px solid #fff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 0 5px rgba(0,0,0,0.2);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-50 text-gray-800"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8 max-w-7xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl md:text-4xl font-bold text-gray-900"&gt;双曲線関数がAIを賢くする&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-2 text-lg text-gray-600"&gt;AIの学習における双曲線関数の役割を探る&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Section 1: Cosh for Robust Regression --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white p-6 rounded-2xl shadow-lg mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl font-bold mb-4"&gt;役割1: cosh による外れ値に強い学習&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 lg:grid-cols-2 gap-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-xl font-bold mb-4"&gt;回帰モデルを訓練してみよう&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm mb-4 text-gray-600"&gt;下のグラフ内をクリックしてデータ点を追加してください。特に、既存の点から大きく外れた「外れ値」を追加すると、2つのモデルの違いが顕著になります。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="regressionChart"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex justify-center mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="resetButton" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-indigo-700 transition-colors"&gt;リセット&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-xl font-bold mb-2"&gt;なぜ挙動が違うのか？&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm mb-4 text-gray-600"&gt;モデルの挙動は、予測の「間違い」をどう評価するか（損失関数）で決まります。下に2つの損失関数とその微分（間違いを修正する力の強さ）を示します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="grid grid-cols-1 md:grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div&gt;&lt;h4 class="text-lg font-semibold text-center"&gt;損失関数&lt;/h4&gt;&lt;div class="chart-container" style="height:200px"&gt;&lt;canvas id="lossChart"&gt;&lt;/canvas&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div&gt;&lt;h4 class="text-lg font-semibold text-center"&gt;損失関数の微分（勾配）&lt;/h4&gt;&lt;div class="chart-container" style="height:200px"&gt;&lt;canvas id="gradChart"&gt;&lt;/canvas&gt;&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="mt-4 space-y-4 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="p-4 bg-blue-50 rounded-lg border border-blue-200"&gt;&lt;h5 class="font-bold text-blue-800"&gt;青線: 二乗誤差 (MSE)&lt;/h5&gt;&lt;p&gt;一般的なモデル。間違い(x)が大きくなるほど、罰則($x^2$)が急激に増加します。そのため、外れ値に過剰に反応してしまいます。&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="p-4 bg-red-50 rounded-lg border border-red-200"&gt;&lt;h5 class="font-bold text-red-800"&gt;赤線: Log-Cosh損失&lt;/h5&gt;&lt;p&gt;間違いが小さい時は二乗誤差と似ていますが、間違いが大きくなると罰則の増え方が緩やかになります。これは&lt;span class="font-bold"&gt;cosh&lt;/span&gt;の性質に由来します。&lt;/p&gt;&lt;p class="mt-2"&gt;その結果、間違いを修正する力（勾配）は&lt;span class="font-bold"&gt;tanh&lt;/span&gt;で表され、一定以上にはなりません。これにより、外れ値の極端な影響を受け流すことができるのです。&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Section 2: Tanh as a Scaler --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white p-6 rounded-2xl shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl font-bold mb-4"&gt;役割2: `tanh`による信号の「圧搾」効果&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex flex-col items-center mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="signalVariance" class="text-lg font-semibold"&gt;入力信号のばらつき (標準偏差): &lt;span id="signalVariance_val" class="font-bold text-indigo-600"&gt;1.0&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input id="signalVariance" type="range" min="0.5" max="5" value="1" step="0.1" class="w-full max-w-lg h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-sm text-gray-600 mt-2"&gt;スライダーを動かして、入力信号のばらつきが大きくなった時の`tanh`の効果を見てみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;h3 class="text-xl font-bold text-center mb-2"&gt;Tanh Squeezer&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="chart-container" style="height: 350px;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="squeezerChart"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-xl font-bold text-center mb-2"&gt;変換プロセス&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="chart-container" style="height: 350px;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="transformationChart"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h4 class="font-bold text-green-800 text-lg"&gt;`tanh`は賢い「調整装置」&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                   </span>左の「Tanh Squeezer」では、入力信号（紫の点）が`tanh`によって出力信号（赤い点）へと「圧搾」される様子がわかります。入力がどれだけ暴走しても、出力は必ず`-1`と`1`の壁に押し込められ、壁際に密集していきます。</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                   </span>右の「変換プロセス」グラフは、その数学的な仕組みを示しています。この強力なスケーリング機能が、AIの学習を安定させる鍵なのです。</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mt-12 bg-gray-800 text-white p-6 rounded-2xl shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl font-bold mb-4 text-center"&gt;まとめ：双曲線関数の役割&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="p-4 bg-gray-700 rounded-lg"&gt;&lt;h3 class="text-xl font-semibold"&gt;cosh&lt;/h3&gt;&lt;p class="mt-2"&gt;「U字型」の性質が、外れ値に強い損失関数の土台を作ります。間違いが大きくても罰則が爆発しない、しなやかな評価基準です。&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="p-4 bg-gray-700 rounded-lg"&gt;&lt;h3 class="text-xl font-semibold"&gt;tanh&lt;/h3&gt;&lt;p class="mt-2"&gt;①損失の勾配、②活性化関数という二役をこなします。値を一定範囲に収め、勾配が飽和する性質が、AIの学習を安定させるキープレイヤーです。&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="p-4 bg-gray-700 rounded-lg"&gt;&lt;h3 class="text-xl font-semibold"&gt;sinh&lt;/h3&gt;&lt;p class="mt-2"&gt;`cosh`の微分（変化率）として、`tanh`を導出する過程で使われます。これら3つはセットで機能する、縁の下の力持ちです。&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Chart.js instances</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let regressionChart, lossChart, gradChart, transformationChart, squeezerChart;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let dataPoints = [{x: 1, y: 1.5}, {x: 2, y: 2.5}, {x: 3, y: 2}, {x: 4, y: 4}, {x: 5, y: 3.5}];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let signalPoints = [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Helper Functions ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const cosh = x =&gt; (Math.exp(x) + Math.exp(-x)) / 2;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const tanh = x =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (x &gt; 20) return 1; if (x &lt; -20) return -1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ex = Math.exp(2 * x); return (ex - 1) / (ex + 1);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function randn_bm() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let u = 0, v = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>while(u === 0) u = Math.random();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>while(v === 0) v = Math.random();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Regression Logic (Section 1) ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function getRegressionLines() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (dataPoints.length &lt; 2) return { mse: {m: 0, b: 0}, logcosh: {m: 0, b: 0} };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const n = dataPoints.length;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>dataPoints.forEach(p =&gt; { sumX += p.x; sumY += p.y; sumXY += p.x * p.y; sumX2 += p.x * p.x; });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const m_mse = (n * sumX2 - sumX * sumX === 0) ? 0 : (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const b_mse = (sumY - m_mse * sumX) / n;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let m_lc = m_mse, b_lc = b_mse;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const learningRate = 0.01, iterations = 100;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt; iterations; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let gradM = 0, gradB = 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>dataPoints.forEach(p =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const error = (m_lc * p.x + b_lc) - p.y;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const grad = tanh(error); gradM += grad * p.x; gradB += grad;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>m_lc -= (learningRate / n) * gradM; b_lc -= (learningRate / n) * gradB;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return { mse: {m: m_mse, b: b_mse}, logcosh: {m: m_lc, b: b_lc} };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Chart Creation ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function createCharts() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const tickCallback = (value) =&gt; Number(value).toFixed(1);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Regression Chart</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const regressionCtx = document.getElementById('regressionChart').getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>regressionChart = new Chart(regressionCtx, {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>type: 'scatter',<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>data: { datasets: [<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ label: 'データ点', data: dataPoints, backgroundColor: 'rgba(15, 23, 42, 0.7)', pointRadius: 6 },<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ label: '二乗誤差 (MSE) モデル', type: 'line', data: [], borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 3, fill: false, pointRadius: 0 },<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ label: 'Log-Cosh モデル', type: 'line', data: [], borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 3, borderDash: [5, 5], fill: false, pointRadius: 0 }<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>] },<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>options: {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>responsive: true, maintainAspectRatio: false,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>scales: {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>x: { type: 'linear', min: 0, max: 10, ticks: { callback: tickCallback } },<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>y: { min: 0, max: 10, ticks: { callback: tickCallback } }<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>},<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>onClick: (e) =&gt; {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// FIX: Use e.x and e.y for Chart.js v4</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const dataX = regressionChart.scales.x.getValueForPixel(e.x);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const dataY = regressionChart.scales.y.getValueForPixel(e.y);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (dataX &gt;= 0 &amp;&amp; dataX &lt;= 10 &amp;&amp; dataY &gt;= 0 &amp;&amp; dataY &lt;= 10) {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>dataPoints.push({x: dataX, y: dataY});<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>updateRegressionChart();<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lossLabels = Array.from({length: 41}, (_, i) =&gt; (i - 20) * 0.25);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lossCtx = document.getElementById('lossChart').getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>lossChart = new Chart(lossCtx, { type: 'line', data: { labels: lossLabels, datasets: [ { data: lossLabels.map(x =&gt; x*x), borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 2, pointRadius: 0 }, { data: lossLabels.map(x =&gt; Math.log(cosh(x))), borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 2, pointRadius: 0 } ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: tickCallback } }, y: { ticks: { callback: tickCallback } } } } });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const gradCtx = document.getElementById('gradChart').getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>gradChart = new Chart(gradCtx, { type: 'line', data: { labels: lossLabels, datasets: [ { data: lossLabels.map(x =&gt; x), borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 2, pointRadius: 0 }, { data: lossLabels.map(x =&gt; tanh(x)), borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 2, pointRadius: 0 } ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: tickCallback } }, y: { ticks: { callback: tickCallback } } } } });</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Transformation Chart</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const transCtx = document.getElementById('transformationChart').getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transformationChart = new Chart(transCtx, {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>type: 'line',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>data: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>labels: [],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>datasets: [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ label: 'tanh(x)', data: [], borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 3, pointRadius: 0, tension: 0.1, order: 1 },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ type: 'scatter', label: '入力信号', data: [], backgroundColor: 'rgba(168, 85, 247, 0.5)', pointRadius: 4, order: 2 },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ type: 'scatter', label: '出力信号', data: [], backgroundColor: 'rgba(239, 68, 68, 0.7)', pointRadius: 4, order: 3 }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>]</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: -10, max: 10, ticks: { callback: tickCallback } }, y: { min: -1.2, max: 1.2, ticks: { callback: tickCallback } } } }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Squeezer Chart</p>
+<p class="p1"><span class="Apple-converted-space">        </span>squeezerChart = new Chart(document.getElementById('squeezerChart').getContext('2d'), {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>type: 'scatter',<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">             </span>data: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>datasets: [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ label: '入力信号', data: [], backgroundColor: 'rgba(168, 85, 247, 0.6)', pointRadius: 5 },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ label: '出力信号', data: [], backgroundColor: 'rgba(239, 68, 68, 0.6)', pointRadius: 5 }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>]</p>
+<p class="p1"><span class="Apple-converted-space">             </span>},</p>
+<p class="p1"><span class="Apple-converted-space">             </span>options: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>responsive: true, maintainAspectRatio: false,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>plugins: { legend: { display: false } },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scales: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>x: { min: -10, max: 10, ticks: { callback: tickCallback } },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>y: { min: 0, max: 3, grid: { display: false }, ticks: {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>callback: function(value, index, ticks) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (value === 1) return '出力';</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (value === 2) return '入力';</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>return '';</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>font: { size: 14, weight: 'bold' }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">             </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Update Logic ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateRegressionChart() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!regressionChart) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lines = getRegressionLines();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>regressionChart.data.datasets[0].data = dataPoints;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const xRange = {min: 0, max: 10};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>regressionChart.data.datasets[1].data = [{x: xRange.min, y: lines.mse.m * xRange.min + lines.mse.b}, {x: xRange.max, y: lines.mse.m * xRange.max + lines.mse.b}];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>regressionChart.data.datasets[2].data = [{x: xRange.min, y: lines.logcosh.m * xRange.min + lines.logcosh.b}, {x: xRange.max, y: lines.logcosh.m * xRange.max + lines.logcosh.b}];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>regressionChart.update();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const signalVarianceSlider = document.getElementById('signalVariance');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const signalVarianceVal = document.getElementById('signalVariance_val');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateDistributionVisuals() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!transformationChart || !squeezerChart) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const stdDev = parseFloat(signalVarianceSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>signalVarianceVal.textContent = stdDev.toFixed(1);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Generate signal data</p>
+<p class="p1"><span class="Apple-converted-space">        </span>signalPoints = Array.from({length: 200}, () =&gt; randn_bm() * stdDev);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const activatedSignals = signalPoints.map(s =&gt; tanh(s));</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Update Transformation Chart</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const inputMaxX = Math.max(10, stdDev * 3);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const transLabels = Array.from({length: 101}, (_, i) =&gt; (i - 50) * (inputMaxX / 50));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transformationChart.data.labels = transLabels;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transformationChart.data.datasets[0].data = transLabels.map(x =&gt; ({x: x, y: tanh(x)}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transformationChart.data.datasets[1].data = signalPoints.map(x =&gt; ({x: x, y: 0}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transformationChart.data.datasets[2].data = signalPoints.map(x =&gt; ({x: 0, y: tanh(x)}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transformationChart.options.scales.x.min = -inputMaxX;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transformationChart.options.scales.x.max = inputMaxX;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transformationChart.update();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Update Squeezer Chart</p>
+<p class="p1"><span class="Apple-converted-space">        </span>squeezerChart.data.datasets[0].data = signalPoints.map(x =&gt; ({x: x, y: 2}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>squeezerChart.data.datasets[1].data = activatedSignals.map(x =&gt; ({x: x, y: 1}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>squeezerChart.options.scales.x.min = -inputMaxX;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>squeezerChart.options.scales.x.max = inputMaxX;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>squeezerChart.update();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Event Listeners ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('resetButton').addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>dataPoints = [{x: 1, y: 1.5}, {x: 2, y: 2.5}, {x: 3, y: 2}, {x: 4, y: 4}, {x: 5, y: 3.5}];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateRegressionChart();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>signalVarianceSlider.addEventListener('input', updateDistributionVisuals);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Initial Load ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.onload = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>createCharts();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateRegressionChart();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateDistributionVisuals();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

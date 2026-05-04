@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>時間による偏微分：インタラクティブな可視化</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            background-color: #111827;
+            color: #f3f4f6;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        math {
+          font-size: 1.2em; /* KaTeXのfont-sizeに合わせて調整 */
+        }
+        .inline-math {
+          display: inline-block;
+          vertical-align: -0.25em; /* 微調整してテキストとの高さを合わせる */
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto p-4 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl lg:text-4xl font-bold text-cyan-400">時間による偏微分の直感的理解</h1>
+            <p class="mt-2 text-lg text-gray-300">物理量が時間と空間で変化する様子を可視化します。</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Panel: Visualization -->
+            <div class="bg-gray-800 p-6 rounded-2xl shadow-2xl flex flex-col items-center">
+                <h2 class="text-2xl font-bold mb-4 text-white">温度分布 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>f</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>,</mo><mi>t</mi><mo>)</mo></mrow></math></h2>
+                <p class="text-gray-400 mb-4 text-center">下の領域は、時間と共に変化する温度分布を表します。クリックして特定の点 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></mrow></math> を選択してください。</p>
+                <div class="w-full aspect-square bg-gray-900 rounded-lg shadow-inner overflow-hidden relative">
+                    <canvas id="heatmapCanvas" class="w-full h-full"></canvas>
+                    <div id="selectionMarker" class="absolute w-4 h-4 border-2 border-white rounded-full pointer-events-none transform -translate-x-1/2 -translate-y-1/2 hidden"></div>
+                </div>
+                 <div class="w-full mt-4 flex justify-between items-center text-sm font-mono px-1">
+                    <span class="text-blue-400">低温</span>
+                    <div class="flex-grow h-4 rounded-full mx-4" id="colorbar"></div>
+                    <span class="text-red-400">高温</span>
+                </div>
+            </div>
+
+            <!-- Right Panel: Explanation and Chart -->
+            <div class="bg-gray-800 p-6 rounded-2xl shadow-2xl flex flex-col">
+                <h2 class="text-2xl font-bold mb-4 text-white">選択点における時間変化</h2>
+                <p class="text-gray-400 mb-4">
+                    画像で示された概念は「同じ場所<math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></mrow></math>を連続した動画のコマで追い、時間<math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>t</mi></math>が<math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>&Delta;</mi><mi>t</mi></mrow></math>だけ進んだときの変化量を<math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>&Delta;</mi><mi>t</mi></mrow></math>で割り、その極限をとる」というイメージです。
+                    これは、ある点に定点を置いたときの物理量（ここでは温度）の時間に対する変化率を求める操作であり、数式では時間による偏微分 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><msub><mo>&part;</mo><mi>t</mi></msub><mi>f</mi></mrow></math> として表されます。
+                </p>
+
+                <div class="my-4 p-4 bg-gray-900 rounded-lg text-center">
+                    <!-- MathML formula -->
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                      <mrow>
+                        <msub>
+                          <mo>&part;</mo>
+                          <mi>t</mi>
+                        </msub>
+                        <mi>f</mi>
+                        <mo stretchy="false">(</mo>
+                        <mi>x</mi>
+                        <mo>,</mo>
+                        <mi>y</mi>
+                        <mo>,</mo>
+                        <mi>t</mi>
+                        <mo stretchy="false">)</mo>
+                        <mo>&equiv;</mo>
+                        <munder>
+                          <mo>lim</mo>
+                          <mrow>
+                            <mi>&Delta;</mi>
+                            <mi>t</mi>
+                            <mo>&rarr;</mo>
+                            <mn>0</mn>
+                          </mrow>
+                        </munder>
+                        <mfrac>
+                          <mrow>
+                            <mi>f</mi>
+                            <mo stretchy="false">(</mo>
+                            <mi>x</mi>
+                            <mo>,</mo>
+                            <mi>y</mi>
+                            <mo>,</mo>
+                            <mi>t</mi>
+                            <mo>+</mo>
+                            <mi>&Delta;</mi>
+                            <mi>t</mi>
+                            <mo stretchy="false">)</mo>
+                            <mo>&minus;</mo>
+                            <mi>f</mi>
+                            <mo stretchy="false">(</mo>
+                            <mi>x</mi>
+                            <mo>,</mo>
+                            <mi>y</mi>
+                            <mo>,</mo>
+                            <mi>t</mi>
+                            <mo stretchy="false">)</mo>
+                          </mrow>
+                          <mrow>
+                            <mi>&Delta;</mi>
+                            <mi>t</mi>
+                          </mrow>
+                        </mfrac>
+                      </mrow>
+                    </math>
+                </div>
+
+                <div id="chart-info" class="text-center mb-4 min-h-[80px]">
+                     <p id="chart-placeholder" class="text-gray-500">左の温度分布図をクリックして、グラフを表示します。</p>
+                     <div id="chart-data" class="hidden">
+                        <p class="text-gray-300">選択点 <span id="selectedPoint" class="font-mono text-cyan-400"></span> の温度変化</p>
+                        <p class="text-lg">現在の時間変化率 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><msub><mo>&part;</mo><mi>t</mi></msub><mi>f</mi></mrow></math>: <span id="derivativeValue" class="font-mono text-green-400 font-bold"></span></p>
+                     </div>
+                </div>
+
+                <div class="chart-container mt-auto">
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center mt-8 text-gray-500 text-sm">
+            <p>&copy; 2025 Interactive Visualization Lab. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    // --- Canvas and Visualization Setup ---
+    const canvas = document.getElementById('heatmapCanvas');
+    const ctx = canvas.getContext('2d');
+    const marker = document.getElementById('selectionMarker');
+    const colorbar = document.getElementById('colorbar');
+
+    let width, height;
+    let animationFrameId;
+    let selectedPixel = null;
+    let history = [];
+    const HISTORY_LENGTH = 200;
+
+    // --- Chart.js Setup ---
+    const chartCanvas = document.getElementById('timeChart');
+    const chartPlaceholder = document.getElementById('chart-placeholder');
+    const chartDataDisplay = document.getElementById('chart-data');
+    const selectedPointEl = document.getElementById('selectedPoint');
+    const derivativeValueEl = document.getElementById('derivativeValue');
+    let timeChart;
+
+    function initChart() {
+        if (timeChart) {
+            timeChart.destroy();
+        }
+        const chartCtx = chartCanvas.getContext('2d');
+        timeChart = new Chart(chartCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: '温度',
+                    data: [],
+                    borderColor: 'rgb(56, 189, 248)',
+                    backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 0
+                },
+                {
+                    label: '接線',
+                    data: [],
+                    borderColor: 'rgb(74, 222, 128)',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    borderDash: [5, 5],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        display: false,
+                    },
+                    y: {
+                        beginAtZero: false,
+                        max: 1,
+                        min: -1,
+                        ticks: { color: '#9ca3af' },
+                        grid: { color: '#374151' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                animation: {
+                    duration: 0
+                }
+            }
+        });
+    }
+
+    // --- Simulation Logic ---
+    // 空間と時間によって変化する温度を定義する関数
+    function getTemperature(x, y, t) {
+        // x, y は 0-1 の範囲
+        // t は秒単位
+        const term1 = Math.sin(x * 6 + t) * Math.cos(y * 6 - t) * 0.5;
+
+        // 時間で移動する熱源
+        const heatSourceX = 0.5 + 0.3 * Math.sin(t * 0.7);
+        const heatSourceY = 0.5 + 0.3 * Math.cos(t * 1.1);
+        const distSq = (x - heatSourceX)**2 + (y - heatSourceY)**2;
+        const term2 = Math.exp(-distSq * 15) * (0.5 + 0.5 * Math.sin(t*2));
+
+        return term1 + term2 - 0.5; // -1から1の範囲に正規化
+    }
+
+    // getTemperature の時間微分（解析的）
+    function getTemperatureDerivative(x, y, t) {
+        // term1'
+        const term1_dt = (Math.cos(x * 6 + t) * Math.cos(y * 6 - t) + Math.sin(x * 6 + t) * Math.sin(y * 6 - t)) * 0.5;
+
+        // term2' (product rule)
+        const heatSourceX = 0.5 + 0.3 * Math.sin(t * 0.7);
+        const heatSourceY = 0.5 + 0.3 * Math.cos(t * 1.1);
+        const dx_dt = 0.3 * 0.7 * Math.cos(t*0.7);
+        const dy_dt = -0.3 * 1.1 * Math.sin(t*1.1);
+        const distSq = (x - heatSourceX)**2 + (y - heatSourceY)**2;
+        const expTerm = Math.exp(-distSq * 15);
+
+        const d_distSq_dt = -2 * (x - heatSourceX) * dx_dt - 2 * (y - heatSourceY) * dy_dt;
+        const d_expTerm_dt = expTerm * (-15 * d_distSq_dt);
+
+        const sinTerm = (0.5 + 0.5 * Math.sin(t*2));
+        const d_sinTerm_dt = 0.5 * 2 * Math.cos(t*2);
+
+        const term2_dt = d_expTerm_dt * sinTerm + expTerm * d_sinTerm_dt;
+
+        return term1_dt + term2_dt;
+    }
+
+
+    function tempToColor(value) {
+        // -1 (blue) to 1 (red)
+        const r = 255 * Math.max(0, value);
+        const b = 255 * Math.max(0, -value);
+        const g = 255 - r - b;
+        return `rgb(${r},${g},${b})`;
+    }
+
+    function drawColorbar() {
+        const gradient = ctx.createLinearGradient(0, 0, colorbar.clientWidth, 0);
+        for(let i=0; i<=10; i++){
+            const value = (i/5.0) - 1.0;
+            const color = tempToColor(value);
+            gradient.addColorStop(i/10, color);
+        }
+        colorbar.style.background = `linear-gradient(to right, ${tempToColor(-1)}, ${tempToColor(0)}, ${tempToColor(1)})`;
+    }
+
+    function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        width = rect.width;
+        height = rect.height;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+        if (selectedPixel) {
+            updateMarkerPosition(selectedPixel.x, selectedPixel.y);
+        }
+    }
+
+    function drawHeatmap(time) {
+        const imageData = ctx.createImageData(canvas.width, canvas.height);
+        const data = imageData.data;
+        const t = time / 1000;
+
+        for (let y = 0; y < canvas.height; y++) {
+            for (let x = 0; x < canvas.width; x++) {
+                const normX = x / canvas.width;
+                const normY = y / canvas.height;
+                const temp = getTemperature(normX, normY, t);
+                const r = 255 * Math.max(0, temp);
+                const b = 255 * Math.max(0, -temp);
+                const g = 255 - r - b; // Simplified green component for speed
+
+                const index = (y * canvas.width + x) * 4;
+                data[index] = r;
+                data[index + 1] = g;
+                data[index + 2] = b;
+                data[index + 3] = 255;
+            }
+        }
+        ctx.putImageData(imageData, 0, 0);
+    }
+
+    function updateMarkerPosition(x, y) {
+        marker.style.left = `${x * 100}%`;
+        marker.style.top = `${y * 100}%`;
+        marker.classList.remove('hidden');
+    }
+
+    function updateChart(time) {
+        if (!selectedPixel || !timeChart) return;
+
+        const t = time / 1000;
+        const temp = getTemperature(selectedPixel.x, selectedPixel.y, t);
+
+        history.push({t, temp});
+        if (history.length > HISTORY_LENGTH) {
+            history.shift();
+        }
+
+        const labels = history.map(p => p.t);
+        const data = history.map(p => p.temp);
+
+        const derivative = getTemperatureDerivative(selectedPixel.x, selectedPixel.y, t);
+        derivativeValueEl.textContent = derivative.toFixed(3);
+
+        // Update tangent line
+        const tangentData = labels.map((label_t, index) => {
+             // Show tangent only around the current point
+             if (index > history.length - 20 && index < history.length) {
+                 return temp + derivative * (label_t - t);
+             }
+             return null;
+        });
+
+        timeChart.data.labels = labels;
+        timeChart.data.datasets[0].data = data;
+        timeChart.data.datasets[1].data = tangentData;
+        timeChart.update();
+    }
+
+    function animate(time) {
+        drawHeatmap(time);
+        if (selectedPixel) {
+            updateChart(time);
+        }
+        animationFrameId = requestAnimationFrame(animate);
+    }
+
+    // --- Event Listeners ---
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        selectedPixel = { x, y };
+
+        updateMarkerPosition(x, y);
+
+        chartPlaceholder.classList.add('hidden');
+        chartDataDisplay.classList.remove('hidden');
+        selectedPointEl.textContent = `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+
+        // Reset and start chart
+        history = [];
+        initChart();
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+
+    // --- Initialization ---
+    initChart();
+    resizeCanvas();
+    drawColorbar();
+    animationFrameId = requestAnimationFrame(animate);
+});
+</script>
+</body>
+</html>

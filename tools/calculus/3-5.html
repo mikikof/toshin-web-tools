@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>データサイエンス＋物理シミュレーション (v12: 大画面レイアウト)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .control-panel label { display: block; margin-bottom: 0.5rem; color: #cbd5e1; }
+        .control-panel input[type="range"] { width: 100%; cursor: pointer; }
+        .output-box { background-color: #1e293b; padding: 1rem; border-radius: 0.5rem; border: 1px solid #334155; }
+        .output-box p { margin: 0; line-height: 1.6; }
+        .output-box .label { color: #94a3b8; font-weight: 500; }
+        .output-box .value { color: #e2e8f0; font-weight: 700; font-size: 1.125rem; }
+        .highlight { color: #f472b6; }
+        .animation-container {
+            position: relative;
+            height: 300px;
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+        .car-animation-container { background-color: #4b5563; border: 2px solid #6b7280; }
+        .car-animation-container::before {
+            content: ''; position: absolute; left: 50%; transform: translateX(-50%);
+            width: 4px; height: 100%;
+            background: repeating-linear-gradient(#facc15, #facc15 15px, transparent 15px, transparent 30px);
+        }
+        #carIcon {
+            position: absolute; bottom: 20px; width: 30px; height: 50px;
+            transition: left 0.1s linear;
+        }
+        .friction-animation-container { background-color: #374151; }
+        #personAndBox {
+            position: absolute;
+            bottom: 30px;
+            left: 50px;
+            width: 150px;
+            height: 100px;
+            transition: left 0.5s linear;
+        }
+        #personIcon, #boxIcon { position: absolute; bottom: 0; }
+        #personIcon { width: 60px; height: 100px; left: 0; transition: transform 0.2s; }
+        #boxIcon { width: 80px; height: 80px; left: 60px; background-color: #a16207; border-radius: 4px;}
+
+        .skydiver-animation-container { background: linear-gradient(to bottom, #0ea5e9, #6366f1); }
+        #skydiverIcon {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 50px; transition: top 0.1s linear;
+        }
+
+        @keyframes push-effort {
+          0% { transform: translate(0, 0); }
+          25% { transform: translate(-1px, 1px); }
+          50% { transform: translate(1px, -1px); }
+          75% { transform: translate(-1px, 0); }
+          100% { transform: translate(0, 0); }
+        }
+
+        .is-pushing {
+          animation: push-effort 0.1s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-white">データサイエンス＋物理シミュレーション</h1>
+            <p class="mt-4 text-slate-400 max-w-3xl mx-auto">機械学習や物理シミュレーションの裏側にある数学の概念。</p>
+        </header>
+
+        <div class="grid grid-cols-1 gap-8 max-w-4xl mx-auto">
+
+            <!-- 1. 関数の発散 -->
+            <div class="bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700">
+                <h2 class="text-2xl font-bold mb-1 text-white">1. 関数の発散 🚗</h2>
+                <p class="text-slate-400 mb-4">自動運転AIが、ハンドルの補正量（学習率）が大きすぎて左右に揺れが拡大し、<span class="highlight">発散</span>する様子を観察します。</p>
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div class="sm:w-2/3 w-full">
+                        <canvas id="gradientCanvas" class="w-full bg-slate-900 rounded-lg border border-slate-600" height="300"></canvas>
+                    </div>
+                    <div class="sm:w-1/3 w-full animation-container car-animation-container">
+                        <div id="carIcon">
+                            <svg viewBox="0 0 20 34" xmlns="http://www.w3.org/2000/svg" fill="#ef4444"><path d="M17.5,6.25H2.5a2.5,2.5,0,0,0-2.5,2.5v16.5a2.5,2.5,0,0,0,2.5,2.5h.75a1.25,1.25,0,0,0,1.25-1.25V25a1.25,1.25,0,0,0-1.25-1.25H2.5V8.75h15V23.75h-.75a1.25,1.25,0,0,0-1.25,1.25v1.25a1.25,1.25,0,0,0,1.25,1.25h.75a2.5,2.5,0,0,0,2.5-2.5V8.75A2.5,2.5,0,0,0,17.5,6.25Z"/><rect x="3.75" y="1.25" width="12.5" height="7.5" rx="1.25"/><rect x="3.75" y="27.5" width="12.5" height="5" rx="1.25"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-panel grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label>学習率 (η): <span id="lrValue" class="text-cyan-400 font-mono">0.20</span></label>
+                        <input type="range" id="learningRate" min="0.01" max="1.05" step="0.01" value="0.2">
+                    </div>
+                    <div>
+                        <label>初期位置 (w₀): <span id="spValue" class="text-cyan-400 font-mono">4.0</span></label>
+                        <input type="range" id="startPoint" min="-4.5" max="4.5" step="0.1" value="4.0">
+                    </div>
+                </div>
+                <div class="output-box">
+                    <p><span class="label">ステップ:</span> <span id="epoch" class="value">0</span></p>
+                    <p><span class="label">車線からのズレ (w):</span> <span id="param" class="value">4.0</span></p>
+                    <p><span class="label">ズレの大きさ (損失):</span> <span id="loss" class="value">16.00</span></p>
+                </div>
+            </div>
+
+            <!-- 2. 片側極限 -->
+            <div class="bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700">
+                <h2 class="text-2xl font-bold mb-1 text-white">2. 片側極限 📦</h2>
+                <p class="text-slate-400 mb-4">箱が滑り出す瞬間に摩擦力が<span class="highlight">不連続にジャンプ</span>します。この境界の左右で極限が異なる様子を観察しましょう。</p>
+                 <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <div class="sm:w-2/3 w-full">
+                        <canvas id="frictionCanvas" class="w-full bg-slate-900 rounded-lg border border-slate-600" height="300"></canvas>
+                    </div>
+                    <div class="sm:w-1/3 w-full animation-container friction-animation-container">
+                        <div id="personAndBox">
+                             <div id="personIcon">
+                                <svg viewBox="0 0 60 100" xmlns="http://www.w3.org/2000/svg">
+                                    <g fill="#a5f3fc">
+                                        <rect id="arm" x="35" y="45" width="10" height="10" rx="5"/>
+                                        <circle cx="25" cy="15" r="15"/>
+                                        <rect x="15" y="30" width="20" height="40" rx="10"/>
+                                        <rect x="5" y="70" width="15" height="30" rx="5" transform="rotate(10 12.5 85)"/>
+                                        <rect x="30" y="70" width="15" height="30" rx="5" transform="rotate(-10 37.5 85)"/>
+                                    </g>
+                                </svg>
+                             </div>
+                             <div id="boxIcon"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-panel mb-4">
+                    <label>加える力: <span id="forceValue" class="text-cyan-400 font-mono">20</span> N</label>
+                    <input type="range" id="appliedForceSlider" min="0" max="100" step="0.5" value="20">
+                </div>
+                <div class="output-box">
+                     <p><span class="label">現在の状態:</span> <span id="frictionStatus" class="value">静止中</span></p>
+                     <p><span class="label">摩擦力:</span> <span id="frictionValue" class="value">20.0</span> N</p>
+                     <p class="text-sm mt-2"><span class="label">左側極限 (力→50⁻):</span> <span class="text-white">50.0 N</span></p>
+                </div>
+            </div>
+
+            <!-- 3. 無限遠での極限 -->
+            <div class="bg-slate-800 p-6 rounded-xl shadow-2xl border border-slate-700">
+                <h2 class="text-2xl font-bold mb-1 text-white">3. 無限遠での極限 🪂</h2>
+                <p class="text-slate-400 mb-4">落下し続けると、速度は一定の値（終端速度）に<span class="highlight">収束</span>します。体重や姿勢でどう変わるか見てみましょう。</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <div class="sm:w-2/3 w-full">
+                        <canvas id="terminalVelocityCanvas" class="w-full bg-slate-900 rounded-lg border border-slate-600" height="300"></canvas>
+                    </div>
+                    <div class="sm:w-1/3 w-full animation-container skydiver-animation-container">
+                        <div id="skydiverIcon"></div>
+                    </div>
+                </div>
+                <div class="control-panel grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+                    <div>
+                        <label>体重: <span id="massValue" class="text-cyan-400 font-mono">70</span> kg</label>
+                        <input type="range" id="massSlider" min="40" max="100" step="1" value="70">
+                    </div>
+                    <div>
+                        <label>空気の濃さ: <span id="densityValue" class="text-cyan-400 font-mono">1.0</span></label>
+                        <input type="range" id="densitySlider" min="0.1" max="2.0" step="0.1" value="1.0">
+                    </div>
+                    <div>
+                        <label>姿勢: <span id="postureValue" class="text-cyan-400 font-mono">水平</span></label>
+                        <input type="range" id="postureSlider" min="0.5" max="1.5" step="0.1" value="1.5">
+                    </div>
+                </div>
+                <div class="output-box">
+                    <p><span class="label">経過時間:</span> <span id="timeValue" class="value">0.0</span> s</p>
+                    <p><span class="label">現在の速度:</span> <span id="velocityValue" class="value">0.0</span> m/s</p>
+                    <p><span class="label">終端速度 (極限値):</span> <span id="terminalVValue" class="value">0.0</span> m/s</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let animationFrameId1, animationFrameId2, animationFrameId3;
+
+            const setupCanvases = () => {
+                const canvases = [
+                    document.getElementById('gradientCanvas'),
+                    document.getElementById('frictionCanvas'),
+                    document.getElementById('terminalVelocityCanvas')
+                ];
+                canvases.forEach(canvas => {
+                    if (canvas) {
+                        canvas.width = canvas.clientWidth;
+                        canvas.height = 300;
+                    }
+                });
+            };
+
+            // --- 1. 勾配爆発シミュレーター ---
+            const gCtx = document.getElementById('gradientCanvas').getContext('2d');
+            const lrSlider = document.getElementById('learningRate');
+            const spSlider = document.getElementById('startPoint');
+            const lrValue = document.getElementById('lrValue');
+            const spValue = document.getElementById('spValue');
+            const epochEl = document.getElementById('epoch');
+            const paramEl = document.getElementById('param');
+            const lossEl = document.getElementById('loss');
+            const carIcon = document.getElementById('carIcon');
+
+            const lossFunction = w => w * w;
+            const gradient = w => 2 * w;
+
+            const drawGradientGraph = () => {
+                const w = gCtx.canvas.width, h = gCtx.canvas.height;
+                gCtx.clearRect(0, 0, w, h);
+                gCtx.strokeStyle = '#475569';
+                gCtx.beginPath();
+                gCtx.moveTo(0, h - 20); gCtx.lineTo(w, h - 20);
+                gCtx.moveTo(w / 2, 0); gCtx.lineTo(w / 2, h);
+                gCtx.stroke();
+                gCtx.strokeStyle = '#38bdf8';
+                gCtx.lineWidth = 2;
+                gCtx.beginPath();
+                for (let i = 0; i < w; i++) {
+                    const x = (i - w / 2) / (w / 10);
+                    const y = lossFunction(x);
+                    const canvasY = h - 20 - y * (h / 30);
+                    if (i === 0) gCtx.moveTo(i, canvasY); else gCtx.lineTo(i, canvasY);
+                }
+                gCtx.stroke();
+            };
+
+            const runGradientDescent = () => {
+                cancelAnimationFrame(animationFrameId1);
+                let currentW = parseFloat(spSlider.value), epoch = 0;
+                const learningRate = parseFloat(lrSlider.value);
+                drawGradientGraph();
+
+                let lastTime = 0;
+                const animate = (timestamp) => {
+                    if (!lastTime || timestamp - lastTime > 50) {
+                        lastTime = timestamp;
+                        if (epoch >= 100 || Math.abs(currentW) > 10 || Math.abs(gradient(currentW)) < 0.001) return;
+
+                        const prevW = currentW;
+                        currentW -= learningRate * gradient(currentW);
+                        epoch++;
+
+                        const w = gCtx.canvas.width, h = gCtx.canvas.height;
+                        const x1 = w / 2 + prevW * (w / 10), y1 = h - 20 - lossFunction(prevW) * (h / 30);
+                        const x2 = w / 2 + currentW * (w / 10), y2 = h - 20 - lossFunction(currentW) * (h / 30);
+                        gCtx.beginPath(); gCtx.moveTo(x1, y1); gCtx.lineTo(x2, y2);
+                        gCtx.strokeStyle = '#f472b6'; gCtx.stroke();
+                        gCtx.beginPath(); gCtx.arc(x2, y2, 4, 0, Math.PI * 2);
+                        gCtx.fillStyle = '#f43f5e'; gCtx.fill();
+
+                        epochEl.textContent = epoch;
+                        paramEl.textContent = currentW.toFixed(2);
+                        lossEl.textContent = lossFunction(currentW).toFixed(2);
+
+                        const carContainerWidth = carIcon.parentElement.clientWidth;
+                        const carPosition = (currentW / 10 + 0.5) * carContainerWidth;
+                        carIcon.style.left = `calc(${carPosition}px - 15px)`;
+                    }
+                    animationFrameId1 = requestAnimationFrame(animate);
+                };
+                animationFrameId1 = requestAnimationFrame(animate);
+            };
+
+            // --- 2. 摩擦力シミュレーター ---
+            const fCtx = document.getElementById('frictionCanvas').getContext('2d');
+            const appliedForceSlider = document.getElementById('appliedForceSlider');
+            const forceValue = document.getElementById('forceValue');
+            const frictionStatus = document.getElementById('frictionStatus');
+            const frictionValue = document.getElementById('frictionValue');
+            const personAndBox = document.getElementById('personAndBox');
+            const personIcon = document.getElementById('personIcon');
+            const armIcon = personIcon.querySelector('#arm');
+            const MAX_STATIC_FRICTION = 50, KINETIC_FRICTION = 30;
+
+            const calculateFriction = (applied) => {
+                if (applied < MAX_STATIC_FRICTION) return applied;
+                if (applied === MAX_STATIC_FRICTION) return MAX_STATIC_FRICTION;
+                return KINETIC_FRICTION;
+            };
+
+            const drawFrictionGraph = () => {
+                const w = fCtx.canvas.width, h = fCtx.canvas.height;
+                fCtx.clearRect(0, 0, w, h);
+                fCtx.strokeStyle = '#475569';
+                fCtx.beginPath();
+                fCtx.moveTo(30, h - 30); fCtx.lineTo(w - 10, h - 30);
+                fCtx.moveTo(30, 10); fCtx.lineTo(30, h - 30);
+                fCtx.stroke();
+                fCtx.fillStyle = '#94a3b8';
+                fCtx.textAlign = 'center'; fCtx.textBaseline = 'top';
+                for (let i = 0; i <= 100; i += 20) fCtx.fillText(i, 30 + i / 100 * (w - 40), h - 25);
+                fCtx.fillText("加える力 (N)", w / 2, h-15);
+                fCtx.textAlign = 'right'; fCtx.textBaseline = 'middle';
+                for (let i = 0; i <= 60; i += 10) fCtx.fillText(i, 25, h - 30 - i / 100 * (h-40));
+
+                const staticX = 30 + MAX_STATIC_FRICTION / 100 * (w - 40);
+                const staticY = h - 30 - MAX_STATIC_FRICTION / 100 * (h - 40);
+                const kineticY = h - 30 - KINETIC_FRICTION / 100 * (h - 40);
+                fCtx.strokeStyle = '#22c55e'; fCtx.lineWidth = 2;
+                fCtx.beginPath(); fCtx.moveTo(30, h - 30); fCtx.lineTo(staticX, staticY); fCtx.stroke();
+                fCtx.beginPath(); fCtx.moveTo(staticX, kineticY); fCtx.lineTo(w - 10, kineticY); fCtx.stroke();
+                fCtx.fillStyle = '#22c55e';
+                fCtx.beginPath(); fCtx.arc(staticX, staticY, 5, 0, Math.PI * 2); fCtx.fill();
+                fCtx.beginPath(); fCtx.arc(staticX, kineticY, 5, 0, Math.PI * 2); fCtx.fill();
+            };
+
+            const updateFrictionSim = () => {
+                drawFrictionGraph();
+                const applied = parseFloat(appliedForceSlider.value);
+                const friction = calculateFriction(applied);
+                forceValue.textContent = applied.toFixed(1);
+                frictionValue.textContent = friction.toFixed(1);
+
+                const effort = Math.min(1, applied / MAX_STATIC_FRICTION);
+
+                if (applied < MAX_STATIC_FRICTION) {
+                    frictionStatus.textContent = "静止中";
+                    frictionStatus.style.color = '#60a5fa';
+                    personAndBox.style.left = '50px';
+                    if (applied > 1) {
+                         personIcon.classList.add('is-pushing');
+                         personIcon.style.transform = `rotate(${effort * -5}deg)`;
+                         armIcon.setAttribute('width', 10 + effort * 15);
+                    } else {
+                         personIcon.classList.remove('is-pushing');
+                         personIcon.style.transform = 'rotate(0deg)';
+                         armIcon.setAttribute('width', 10);
+                    }
+                } else if (applied === MAX_STATIC_FRICTION) {
+                    frictionStatus.textContent = "動き出す瞬間！";
+                    frictionStatus.style.color = '#facc15';
+                    personAndBox.style.left = '50px';
+                    personIcon.classList.add('is-pushing');
+                    personIcon.style.transform = `rotate(${effort * -5}deg)`;
+                    armIcon.setAttribute('width', 10 + effort * 15);
+                } else {
+                    frictionStatus.textContent = "移動中";
+                    frictionStatus.style.color = '#4ade80';
+                    personAndBox.style.left = '100px';
+                    personIcon.classList.remove('is-pushing');
+                    personIcon.style.transform = 'rotate(0deg)';
+                    armIcon.setAttribute('width', 15);
+                }
+                const w = fCtx.canvas.width, h = fCtx.canvas.height;
+                const markerX = 30 + applied / 100 * (w - 40);
+                const markerY = h - 30 - friction / 100 * (h - 40);
+                fCtx.fillStyle = '#f43f5e';
+                fCtx.beginPath(); fCtx.arc(markerX, markerY, 6, 0, 2 * Math.PI); fCtx.fill();
+            };
+
+            // --- 3. 終端速度シミュレーター ---
+            const vCtx = document.getElementById('terminalVelocityCanvas').getContext('2d');
+            const massSlider = document.getElementById('massSlider');
+            const densitySlider = document.getElementById('densitySlider');
+            const postureSlider = document.getElementById('postureSlider');
+            const massValue = document.getElementById('massValue');
+            const densityValue = document.getElementById('densityValue');
+            const postureValue = document.getElementById('postureValue');
+            const timeValue = document.getElementById('timeValue');
+            const velocityValue = document.getElementById('velocityValue');
+            const terminalVValue = document.getElementById('terminalVValue');
+            const skydiverIcon = document.getElementById('skydiverIcon');
+            const G = 9.8;
+
+            const divingSVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g fill="#fde047"><circle cx="50" cy="20" r="15"/><rect x="40" y="35" width="20" height="50" rx="10"/><rect x="20" y="40" width="60" height="15" rx="5" transform="rotate(-20 50 47.5)"/><rect x="20" y="70" width="60" height="15" rx="5" transform="rotate(20 50 77.5)"/></g></svg>`;
+            const spreadSVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g fill="#fde047"><circle cx="50" cy="50" r="15"/><g transform="rotate(45 50 50)"><rect x="42.5" y="0" width="15" height="100" rx="5"/><rect x="0" y="42.5" width="100" height="15" rx="5"/></g></g></svg>`;
+
+            const runTerminalVelocitySim = () => {
+                cancelAnimationFrame(animationFrameId3);
+                const mass = parseFloat(massSlider.value);
+                const densityFactor = parseFloat(densitySlider.value);
+                const postureFactor = parseFloat(postureSlider.value);
+
+                postureValue.textContent = postureFactor < 1.0 ? "ダイビング" : "水平";
+                skydiverIcon.innerHTML = postureFactor < 1.0 ? divingSVG : spreadSVG;
+
+                const dragCoeff = 0.2 * densityFactor * postureFactor;
+                const terminalV = Math.sqrt((2 * mass * G) / dragCoeff);
+
+                terminalVValue.textContent = terminalV.toFixed(1);
+                let startTime = null;
+
+                const animate = (timestamp) => {
+                    if (!startTime) startTime = timestamp;
+                    const time = (timestamp - startTime) / 1000;
+                    const currentV = terminalV * Math.tanh(time * G / terminalV);
+
+                    timeValue.textContent = time.toFixed(1);
+                    velocityValue.textContent = currentV.toFixed(1);
+
+                    const w = vCtx.canvas.width, h = vCtx.canvas.height;
+                    vCtx.clearRect(0, 0, w, h);
+
+                    vCtx.strokeStyle = '#475569';
+                    vCtx.beginPath();
+                    vCtx.moveTo(30, h - 30); vCtx.lineTo(w - 10, h - 30);
+                    vCtx.moveTo(30, 10); vCtx.lineTo(30, h - 30);
+                    vCtx.stroke();
+                    vCtx.fillStyle = '#94a3b8';
+                    vCtx.textAlign = 'center'; vCtx.textBaseline = 'top';
+                    for (let i = 0; i <= 20; i += 5) vCtx.fillText(i, 30 + i / 20 * (w - 40), h - 25);
+                    vCtx.fillText("時間 (s)", w / 2, h-15);
+
+                    const yMax = terminalV * 1.2;
+                    const asymptoteY = h - 30 - terminalV / yMax * (h - 40);
+                    vCtx.strokeStyle = '#f59e0b';
+                    vCtx.setLineDash([5, 5]);
+                    vCtx.beginPath(); vCtx.moveTo(30, asymptoteY); vCtx.lineTo(w - 10, asymptoteY); vCtx.stroke();
+                    vCtx.setLineDash([]);
+                    vCtx.textAlign = 'left';
+                    vCtx.fillText(`終端速度 ${terminalV.toFixed(1)} m/s`, 40, asymptoteY - 15);
+
+                    vCtx.strokeStyle = '#22c55e'; vCtx.lineWidth = 2;
+                    vCtx.beginPath();
+                    for (let t_step = 0; t_step <= 20; t_step += 0.1) {
+                        const v = terminalV * Math.tanh(t_step * G / terminalV);
+                        const x = 30 + t_step / 20 * (w - 40);
+                        const y = h - 30 - v / yMax * (h - 40);
+                        if (t_step === 0) vCtx.moveTo(x, y); else vCtx.lineTo(x, y);
+                    }
+                    vCtx.stroke();
+
+                    const markerX = 30 + time / 20 * (w - 40);
+                    const markerY = h - 30 - currentV / yMax * (h - 40);
+                    skydiverIcon.style.top = `${(currentV / terminalV) * 80}%`;
+
+                    vCtx.fillStyle = '#fde047';
+                    vCtx.beginPath();
+                    vCtx.arc(markerX, markerY, 6, 0, 2*Math.PI);
+                    vCtx.fill();
+
+                    if (time < 20) {
+                        animationFrameId3 = requestAnimationFrame(animate);
+                    }
+                };
+                animationFrameId3 = requestAnimationFrame(animate);
+            };
+
+            // --- Event Listeners & Initializers ---
+            const setupEventListeners = () => {
+                lrSlider.addEventListener('input', e => { lrValue.textContent = parseFloat(e.target.value).toFixed(2); runGradientDescent(); });
+                spSlider.addEventListener('input', e => { spValue.textContent = parseFloat(e.target.value).toFixed(1); runGradientDescent(); });
+                appliedForceSlider.addEventListener('input', updateFrictionSim);
+                massSlider.addEventListener('input', e => { massValue.textContent = e.target.value; runTerminalVelocitySim(); });
+                densitySlider.addEventListener('input', e => { densityValue.textContent = parseFloat(e.target.value).toFixed(1); runTerminalVelocitySim(); });
+                postureSlider.addEventListener('input', e => { runTerminalVelocitySim(); });
+            };
+
+            const initializeAndBindResize = () => {
+                setupCanvases();
+                runGradientDescent();
+                updateFrictionSim();
+                runTerminalVelocitySim();
+            };
+
+            window.addEventListener('resize', initializeAndBindResize);
+            setupEventListeners();
+            initializeAndBindResize();
+        });
+    </script>
+</body>
+</ht

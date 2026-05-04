@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拡散モデル：インタラクティブな解説</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+        }
+        .text-glow {
+            text-shadow: 0 0 8px rgba(59, 130, 246, 0.6), 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+        .card {
+            background-color: rgba(31, 41, 55, 0.5); /* bg-gray-800 with opacity */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem; /* rounded-3xl */
+            padding: 2rem; /* p-8 */
+        }
+        canvas {
+            border-radius: 1rem; /* rounded-xl */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        /* Custom slider styles */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #374151; /* bg-gray-700 */
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3B82F6; /* bg-blue-500 */
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid #111827;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3B82F6;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid #111827;
+        }
+        math {
+            font-size: 1.1rem;
+            color: #9CA3AF; /* text-gray-400 */
+        }
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #4b5563;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-glow">拡散モデル：ノイズから生成するとは？</h1>
+            <p class="text-gray-400 mt-4 max-w-3xl mx-auto">AIがランダムなノイズから画像を生成する仕組みを、簡単に説明。</p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 gap-8">
+
+            <!-- Wrapper for Part 1 and 2 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- ======================================================= -->
+                <!-- Part 1: Forward Process (DDPM)                          -->
+                <!-- ======================================================= -->
+                <div class="card flex flex-col">
+                    <div class="flex-grow">
+                        <h2 class="text-2xl font-bold mb-4 text-sky-400">1. 順方向プロセス</h2>
+                        <p class="text-gray-300 mb-4">
+                            きれいな画像（<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>x</mi><mn>0</mn></msub></math>）に、ガウシアンノイズ（<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>ε</mi></math>）を徐々に加え、純粋なノイズ（<math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>x</mi><mi>T</mi></msub></math>）にする過程です。
+                        </p>
+                        <div class="my-4 p-3 bg-gray-900 rounded-lg text-center">
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                              <mrow>
+                                <msub>
+                                  <mi>x</
+                                  <mi>t</mi>
+                                </msub>
+                                <mo>=</mo>
+                                <msqrt>
+                                  <msub>
+                                    <mrow>
+                                      <mover>
+                                        <mi>α</mi>
+                                        <mo>&#x203E;</mo>
+                                      </mover>
+                                    </mrow>
+                                    <mi>t</mi>
+                                  </msub>
+                                </msqrt>
+                                <msub>
+                                  <mi>x</mi>
+                                  <mn>0</mn>
+                                </msub>
+                                <mo>+</mo>
+                                <msqrt>
+                                  <mrow>
+                                    <mn>1</mn>
+                                    <mo>-</mo>
+                                    <msub>
+                                      <mrow>
+                                        <mover>
+                                          <mi>α</mi>
+                                          <mo>&#x203E;</mo>
+                                        </mover>
+                                      </mrow>
+                                      <mi>t</mi>
+                                    </msub>
+                                  </mrow>
+                                </msqrt>
+                                <mi>ε</mi>
+                              </mrow>
+                            </math>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-6">
+                            スライダーを右に動かすと、ノイズが注入されます。
+                        </p>
+                    </div>
+                    <!-- Interactive Canvas -->
+                    <div class="space-y-4 mt-auto max-w-md mx-auto w-full">
+                        <canvas id="forwardCanvas" width="512" height="512" class="w-full h-auto aspect-square"></canvas>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm">元画像</span>
+                            <input id="noiseSlider" type="range" min="0" max="100" value="0" class="w-full">
+                            <span class="text-sm">ノイズ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- Part 2: Reverse Process (Simulation)                  -->
+                <!-- ======================================================= -->
+                <div class="card flex flex-col">
+                     <div class="flex-grow">
+                        <h2 class="text-2xl font-bold mb-4 text-emerald-400">2. 逆方向プロセス</h2>
+                        <p class="text-gray-300 mb-4">
+                            ノイズ除去の「逆再生」をシミュレーションします。あなたの手でノイズの塊から画像を彫り出す体験です。
+                        </p>
+                         <p class="text-gray-400 text-sm mb-2">
+                            「設計図」を選んで開始し、スライダーを左に動かしてノイズを除去してください。
+                        </p>
+                        <p class="text-xs text-gray-500 italic mt-4">※注：これは逆拡散のステップを概念的に可視化したものです。実際のAIはより複雑な方法でノイズを除去します。</p>
+                    </div>
+                    <!-- Interactive Canvas -->
+                    <div class="space-y-4 mt-auto max-w-md mx-auto w-full">
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <select id="promptSelectSimple" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="sun">輝く太陽</option>
+                                <option value="house">シンプルな家</option>
+                                <option value="cat">猫の顔</option>
+                                <option value="car">車</option>
+                            </select>
+                            <button id="generateButtonSimple" class="bg-emerald-600 hover:bg-emerald-700 transition-colors font-bold py-2 px-6 rounded-lg">
+                                開始
+                            </button>
+                        </div>
+                        <canvas id="reverseCanvasSimple" width="512" height="512" class="w-full h-auto aspect-square"></canvas>
+                        <div class="h-8">
+                            <div id="denoiseSliderContainerSimple" class="flex items-center space-x-4" style="display: none;">
+                               <span class="text-sm">画像</span>
+                               <input id="denoiseSliderSimple" type="range" min="0" max="100" value="100" class="w-full">
+                               <span class="text-sm">ノイズ</span>
+                            </div>
+                            <p id="statusTextSimple" class="text-center text-sm text-gray-400 mt-2"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- Part 3: Reverse Process (Generation) with Gemini API    -->
+            <!-- ======================================================= -->
+            <div class="card flex flex-col">
+                 <div class="flex-grow">
+                    <h2 class="text-2xl font-bold mb-4 text-violet-400">3. 逆方向プロセス：AIによる生成</h2>
+                    <p class="text-gray-300 mb-4">
+                        Gemini APIを使い、AIがノイズから画像を生成するプロセスを実際に体験します。AIは学習した「画像の法則」を元に、ノイズを段階的に除去していきます。
+                    </p>
+                     <div class="my-2 p-2 bg-gray-900/50 rounded-lg text-center">
+                        <p class="text-sm text-violet-300 mb-1">条件付き逆拡散ステップの概念</p>
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                          <mrow>
+                            <msub>
+                              <mi>x</mi>
+                              <mrow>
+                                <mi>t</mi>
+                                <mo>-</mo>
+                                <mn>1</mn>
+                              </mrow>
+                            </msub>
+                            <mo>&#x2248;</mo>
+                            <mfrac>
+                              <mn>1</mn>
+                              <msqrt>
+                                <msub>
+                                  <mi>α</mi>
+                                  <mi>t</mi>
+                                </msub>
+                              </msqrt>
+                            </mfrac>
+                            <mrow>
+                              <mo>(</mo>
+                              <mrow>
+                                <msub>
+                                  <mi>x</mi>
+                                  <mi>t</mi>
+                                </msub>
+                                <mo>-</mo>
+                                <mfrac>
+                                  <msub>
+                                    <mi>β</mi>
+                                    <mi>t</mi>
+                                  </msub>
+                                  <msqrt>
+                                    <mrow>
+                                      <mn>1</mn>
+                                      <mo>-</mo>
+                                      <msub>
+                                        <mrow>
+                                          <mover>
+                                            <mi>α</mi>
+                                            <mo>&#x203E;</mo>
+                                          </mover>
+                                        </mrow>
+                                        <mi>t</mi>
+                                      </msub>
+                                    </mrow>
+                                  </msqrt>
+                                </mfrac>
+                                <msub>
+                                  <mover>
+                                    <mi>ε</mi>
+                                    <mo>^</mo>
+                                  </mover>
+                                  <mi>θ</mi>
+                                </msub>
+                                <mrow>
+                                  <mo>(</mo>
+                                  <mrow>
+                                    <msub>
+                                      <mi>x</mi>
+                                      <mi>t</mi>
+                                    </msub>
+                                    <mo>,</mo>
+                                    <mi>t</mi>
+                                    <mo>,</mo>
+                                    <mi>c</mi>
+                                  </mrow>
+                                  <mo>)</mo>
+                                </mrow>
+                              </mrow>
+                              <mo>)</mo>
+                            </mrow>
+                            <mo>+</mo>
+                            <mtext>小ノイズ</mtext>
+                          </mrow>
+                        </math>
+                     </div>
+                     <p class="text-xs text-gray-400 mb-4">AI <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mover><mi>ε</mi><mo>^</mo></mover><mi>θ</mi></msub></math> は、現在のノイズ画像 <math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>x</mi><mi>t</mi></msub></math> とプロンプト <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>c</mi></math> をヒントに、加えられたノイズを予測し、それを引き算することで一つ前のステップの画像を復元します。</p>
+
+                </div>
+                <!-- Interactive Canvas -->
+                <div class="space-y-4 mt-auto max-w-md mx-auto w-full">
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <select id="promptSelectAI" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500">
+                            <option value="cat" data-ja="猫の顔">A cat's face</option>
+                            <option value="house" data-ja="シンプルな家">A simple house</option>
+                            <option value="car" data-ja="未来の車">A futuristic car</option>
+                            <option value="galaxy" data-ja="渦巻銀河">A spiral galaxy</option>
+                        </select>
+                        <button id="generateButtonAI" class="bg-violet-600 hover:bg-violet-700 transition-colors font-bold py-2 px-6 rounded-lg flex items-center justify-center gap-2">
+                            <span id="generateButtonTextAI">✨ AIで生成</span>
+                            <div id="generateButtonLoaderAI" class="loader hidden"></div>
+                        </button>
+                    </div>
+                     <div id="promptDisplayAI" class="text-sm text-gray-400 bg-gray-900/50 p-3 rounded-lg mt-2 italic hidden"></div>
+                    <canvas id="reverseCanvasAI" width="512" height="512" class="w-full h-auto aspect-square"></canvas>
+                    <div class="h-8">
+                        <div id="denoiseSliderContainerAI" class="flex items-center space-x-4" style="display: none;">
+                           <span class="text-sm">画像</span>
+                           <input id="denoiseSliderAI" type="range" min="0" max="100" value="100" class="w-full">
+                           <span class="text-sm">ノイズ</span>
+                        </div>
+                        <p id="statusTextAI" class="text-center text-sm text-gray-400 mt-2"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    window.onload = function() {
+        const CANVAS_SIZE = 512;
+
+        /**
+         * Creates an ImageData object filled with grayscale Gaussian noise.
+         * @param {CanvasRenderingContext2D} ctx - The canvas rendering context.
+         * @returns {ImageData}
+         */
+        function createGaussianNoiseData(ctx) {
+            const noiseData = ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);
+            const data = noiseData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const u1 = Math.random();
+                const u2 = Math.random();
+                const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+                const noiseVal = 128 + z0 * 128; // Noise centered at gray
+
+                data[i] = noiseVal;
+                data[i + 1] = noiseVal;
+                data[i + 2] = noiseVal;
+                data[i + 3] = 255;
+            }
+            return noiseData;
+        }
+
+        // =======================================================
+        // Part 1: Forward Process Logic
+        // =======================================================
+        (() => {
+            const forwardCanvas = document.getElementById('forwardCanvas');
+            const f_ctx = forwardCanvas.getContext('2d');
+            const noiseSlider = document.getElementById('noiseSlider');
+            let originalImageData = null;
+
+            function drawBaseImage(ctx) {
+                ctx.fillStyle = '#111827';
+                ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                const centerX = CANVAS_SIZE / 2;
+                const centerY = CANVAS_SIZE / 2;
+                const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, CANVAS_SIZE/3);
+                grad.addColorStop(0, 'rgba(255, 223, 186, 0.4)');
+                grad.addColorStop(0.5, 'rgba(251, 191, 36, 0.2)');
+                grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, CANVAS_SIZE / 6, 0, Math.PI * 2, false);
+                ctx.fillStyle = 'rgba(253, 224, 71, 0.9)';
+                ctx.fill();
+                originalImageData = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+            }
+
+            function applyNoise(noiseFactor) {
+                if (!originalImageData) return;
+                const newImageData = f_ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);
+                const originalData = originalImageData.data;
+                const newData = newImageData.data;
+                for (let i = 0; i < originalData.length; i += 4) {
+                    const u1 = Math.random();
+                    const u2 = Math.random();
+                    const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+
+                    const noiseOffset = z0 * 128;
+
+                    const r = originalData[i], g = originalData[i + 1], b = originalData[i + 2], a = originalData[i + 3];
+                    newData[i] = r * (1 - noiseFactor) + (128 + noiseOffset) * noiseFactor;
+                    newData[i + 1] = g * (1 - noiseFactor) + (128 + noiseOffset) * noiseFactor;
+                    newData[i + 2] = b * (1 - noiseFactor) + (128 + noiseOffset) * noiseFactor;
+                    newData[i + 3] = a;
+                }
+                f_ctx.putImageData(newImageData, 0, 0);
+            }
+
+            drawBaseImage(f_ctx);
+            noiseSlider.addEventListener('input', (event) => applyNoise(parseInt(event.target.value) / 100));
+            applyNoise(0);
+        })();
+
+        // =======================================================
+        // Part 2: Reverse Process Logic (Simulation)
+        // =======================================================
+        (() => {
+            const reverseCanvas = document.getElementById('reverseCanvasSimple');
+            const r_ctx = reverseCanvas.getContext('2d', { willReadFrequently: true });
+            const promptSelect = document.getElementById('promptSelectSimple');
+            const generateButton = document.getElementById('generateButtonSimple');
+            const denoiseSliderContainer = document.getElementById('denoiseSliderContainerSimple');
+            const denoiseSlider = document.getElementById('denoiseSliderSimple');
+            const statusText = document.getElementById('statusTextSimple');
+
+            let targetImageData = null;
+            let noiseImageData = null;
+            const targetImages = {};
+
+            function drawSunImage(ctx) {
+                ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                const centerX = CANVAS_SIZE/2, centerY = CANVAS_SIZE/2;
+                const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, CANVAS_SIZE/3);
+                grad.addColorStop(0, 'rgba(255, 223, 186, 0.4)'); grad.addColorStop(0.5, 'rgba(251, 191, 36, 0.2)'); grad.addColorStop(1, 'rgba(251, 191, 36, 0)');
+                ctx.fillStyle = grad; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                ctx.beginPath(); ctx.arc(centerX, centerY, CANVAS_SIZE / 6, 0, Math.PI * 2); ctx.fillStyle = 'rgba(253, 224, 71, 0.9)'; ctx.fill();
+            }
+            function drawHouseImage(ctx) {
+                ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                ctx.fillStyle = '#A16207'; ctx.fillRect(156, 256, 200, 200);
+                ctx.fillStyle = '#DC2626'; ctx.beginPath(); ctx.moveTo(128, 256); ctx.lineTo(384, 256); ctx.lineTo(256, 100); ctx.closePath(); ctx.fill();
+            }
+            function drawCatImage(ctx) {
+                ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                const centerX = CANVAS_SIZE / 2, centerY = CANVAS_SIZE / 2;
+                ctx.beginPath(); ctx.arc(centerX, centerY, 150, 0, Math.PI * 2); ctx.fillStyle = '#F59E0B'; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(centerX-150, centerY-150); ctx.lineTo(centerX-50, centerY-130); ctx.lineTo(centerX-130, centerY-50); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(centerX+150, centerY-150); ctx.lineTo(centerX+50, centerY-130); ctx.lineTo(centerX+130, centerY-50); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(centerX - 60, centerY - 30, 20, 0, Math.PI * 2); ctx.arc(centerX + 60, centerY - 30, 20, 0, Math.PI * 2); ctx.fill();
+            }
+            function drawCarImage(ctx) {
+                ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                ctx.fillStyle = '#0284C7'; ctx.fillRect(100, 250, 312, 100);
+                ctx.beginPath(); ctx.moveTo(150, 250); ctx.lineTo(200, 180); ctx.lineTo(362, 180); ctx.lineTo(412, 250); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = '#1E293B'; ctx.beginPath(); ctx.arc(160, 350, 40, 0, Math.PI * 2); ctx.arc(352, 350, 40, 0, Math.PI * 2); ctx.fill();
+            }
+            function generateImageData(drawFunc) {
+                const tempCanvas = document.createElement('canvas'); tempCanvas.width = CANVAS_SIZE; tempCanvas.height = CANVAS_SIZE;
+                const tempCtx = tempCanvas.getContext('2d'); drawFunc(tempCtx);
+                return tempCtx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+            }
+
+            targetImages['sun'] = generateImageData(drawSunImage);
+            targetImages['house'] = generateImageData(drawHouseImage);
+            targetImages['cat'] = generateImageData(drawCatImage);
+            targetImages['car'] = generateImageData(drawCarImage);
+
+            function initializeCanvas() {
+                r_ctx.fillStyle = '#1E293B'; r_ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                r_ctx.fillStyle = '#9CA3AF'; r_ctx.textAlign = 'center'; r_ctx.font = '20px "Noto Sans JP"';
+                r_ctx.fillText('設計図を選んで「開始」を押してください', CANVAS_SIZE/2, CANVAS_SIZE/2);
+            }
+            initializeCanvas();
+
+            function updateReverseCanvas() {
+                if (!targetImageData || !noiseImageData) return;
+                const noiseLevel = parseInt(denoiseSlider.value) / 100;
+                const newImageData = r_ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);
+                const newData = newImageData.data; const targetData = targetImageData.data; const noiseData = noiseImageData.data;
+                for (let i = 0; i < newData.length; i += 4) {
+                    newData[i] = targetData[i] * (1 - noiseLevel) + noiseData[i] * noiseLevel;
+                    newData[i+1] = targetData[i+1] * (1 - noiseLevel) + noiseData[i+1] * noiseLevel;
+                    newData[i+2] = targetData[i+2] * (1 - noiseLevel) + noiseData[i+2] * noiseLevel;
+                    newData[i+3] = 255;
+                }
+                r_ctx.putImageData(newImageData, 0, 0);
+            }
+
+            generateButton.addEventListener('click', () => {
+                targetImageData = targetImages[promptSelect.value];
+                noiseImageData = createGaussianNoiseData(r_ctx);
+                denoiseSliderContainer.style.display = 'flex';
+                statusText.textContent = `ステップの概念可視化（画像←ノイズ）`;
+                denoiseSlider.value = 100; // Start at noise
+                updateReverseCanvas();
+            });
+
+            denoiseSlider.addEventListener('input', updateReverseCanvas);
+        })();
+
+        // =======================================================
+        // Part 3: Reverse Process Logic with Gemini API
+        // =======================================================
+        (() => {
+            const reverseCanvas = document.getElementById('reverseCanvasAI');
+            const r_ctx = reverseCanvas.getContext('2d', { willReadFrequently: true });
+            const promptSelect = document.getElementById('promptSelectAI');
+            const generateButton = document.getElementById('generateButtonAI');
+            const generateButtonText = document.getElementById('generateButtonTextAI');
+            const generateButtonLoader = document.getElementById('generateButtonLoaderAI');
+            const denoiseSliderContainer = document.getElementById('denoiseSliderContainerAI');
+            const denoiseSlider = document.getElementById('denoiseSliderAI');
+            const statusText = document.getElementById('statusTextAI');
+            const promptDisplay = document.getElementById('promptDisplayAI');
+
+            let targetImageData = null;
+            let noiseImageData = null;
+            const apiKey = ""; // APIキーはCanvas環境で自動的に提供されます
+
+            function initializeCanvas() {
+                r_ctx.fillStyle = '#1E293B'; r_ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                r_ctx.fillStyle = '#9CA3AF'; r_ctx.textAlign = 'center'; r_ctx.font = '20px "Noto Sans JP"';
+                r_ctx.fillText('テーマを選んで「AIで生成」を押してください', CANVAS_SIZE/2, CANVAS_SIZE/2);
+            }
+            initializeCanvas();
+
+            generateButton.addEventListener('click', async () => {
+                const selectedOption = promptSelect.options[promptSelect.selectedIndex];
+                const basePrompt = selectedOption.value; const jaPrompt = selectedOption.dataset.ja;
+
+                generateButton.disabled = true; promptSelect.disabled = true;
+                generateButtonText.textContent = '生成中...'; generateButtonLoader.classList.remove('hidden');
+                statusText.textContent = `AIが「${jaPrompt}」の設計図を考えています...`;
+                promptDisplay.classList.add('hidden'); denoiseSliderContainer.style.display = 'none';
+                initializeCanvas();
+
+                try {
+                    const textApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                    const textPrompt = `Create a short, artistic, and descriptive prompt for a digital painting of a ${basePrompt}. For example, for "A cat's face", you could say "close-up portrait of a majestic cat, piercing green eyes, detailed fur texture, fantasy style".`;
+
+                    const textResponse = await fetch(textApiUrl, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: textPrompt }] }] })
+                    });
+                    if (!textResponse.ok) throw new Error(`Text generation API error: ${textResponse.statusText}`);
+                    const textResult = await textResponse.json();
+                    const detailedPrompt = textResult.candidates[0].content.parts[0].text;
+
+                    promptDisplay.textContent = `AIが生成した設計図: "${detailedPrompt}"`;
+                    promptDisplay.classList.remove('hidden');
+                    statusText.textContent = `設計図を基に、AIが画像を生成中です...`;
+
+                    const imageApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+                    const imageResponse = await fetch(imageApiUrl, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ instances: { prompt: detailedPrompt }, parameters: { "sampleCount": 1 } })
+                    });
+                    if (!imageResponse.ok) throw new Error(`Image generation API error: ${imageResponse.statusText}`);
+                    const imageResult = await imageResponse.json();
+                    const base64ImageData = imageResult.predictions[0].bytesBase64Encoded;
+
+                    const img = new Image();
+                    img.onload = () => {
+                        const tempCanvas = document.createElement('canvas'); tempCanvas.width = CANVAS_SIZE; tempCanvas.height = CANVAS_SIZE;
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCtx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                        targetImageData = tempCtx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+                        noiseImageData = createGaussianNoiseData(r_ctx);
+
+                        statusText.textContent = `AI生成完了。スライダーで概念を可視化します。`;
+                        denoiseSliderContainer.style.display = 'flex';
+                        denoiseSlider.value = 100; // Start at noise
+                        updateReverseCanvas();
+                    };
+                    img.src = `data:image/png;base64,${base64ImageData}`;
+
+                } catch (error) {
+                    console.error('Error during Gemini API call:', error);
+                    statusText.textContent = 'エラーが発生しました。コンソールを確認してください。';
+                    r_ctx.fillText('エラーが発生しました', CANVAS_SIZE/2, CANVAS_SIZE/2);
+                } finally {
+                    generateButton.disabled = false; promptSelect.disabled = false;
+                    generateButtonText.textContent = '✨ AIで生成'; generateButtonLoader.classList.add('hidden');
+                }
+            });
+
+            function updateReverseCanvas() {
+                if (!targetImageData || !noiseImageData) return;
+                const noiseLevel = parseInt(denoiseSlider.value) / 100;
+                const newImageData = r_ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);
+                const newData = newImageData.data; const targetData = targetImageData.data; const noiseData = noiseImageData.data;
+                for (let i = 0; i < newData.length; i += 4) {
+                    newData[i] = targetData[i] * (1 - noiseLevel) + noiseData[i] * noiseLevel;
+                    newData[i+1] = targetData[i+1] * (1 - noiseLevel) + noiseData[i+1] * noiseLevel;
+                    newData[i+2] = targetData[i+2] * (1 - noiseLevel) + noiseData[i+2] * noiseLevel;
+                    newData[i+3] = 255;
+                }
+                r_ctx.putImageData(newImageData, 0, 0);
+            }
+            denoiseSlider.addEventListener('input', updateReverseCanvas);
+        })();
+    };
+    </script>
+</body>
+</html>

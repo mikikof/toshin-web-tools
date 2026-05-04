@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adam ロボ学習 — 単一HTML（完全オフライン対応）</title>
+  <style>
+    :root{
+      --bg1:#f8fafc; --bg2:#ffffff; --bg3:#eef2ff;
+      --ink:#0f172a; --muted:#475569; --line:#e2e8f0; --line2:#cbd5e1;
+      --brand:#0ea5e9; --brand-2:#6366f1; --accent:#0f766e; --accent-2:#ef4444;
+      --card:#ffffff; --shadow:0 10px 30px rgba(2,6,23,.08);
+    }
+    html,body{height:100%;}
+    body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; color:var(--ink);
+      background: linear-gradient(135deg,var(--bg1),var(--bg2) 35%,var(--bg3));}
+    .container{max-width:1200px; margin:0 auto; padding:0 16px;}
+    .header{position:sticky; top:0; z-index:10; backdrop-filter:saturate(1.2) blur(6px); background:rgba(255,255,255,.9); border-bottom:1px solid var(--line);}
+    .brand{display:flex; align-items:center; gap:12px;}
+    .badge{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#14b8a6,#6366f1);display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:var(--shadow)}
+    h1{font-size:28px; line-height:1.15; margin:0; letter-spacing:.2px}
+    .sub{font-size:13px; color:#64748b; margin-top:2px}
+
+    .row{display:grid; grid-template-columns:1fr; gap:24px;}
+    @media(min-width:1024px){ .row{grid-template-columns: 420px 1fr;} }
+
+    .card{background:var(--card); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow)}
+    .card.pad{padding:20px;}
+    .card h2{font-size:16px; margin:0 0 8px;}
+    .muted{color:#475569}
+    .small{font-size:12.5px;}
+
+    .btn{border:1px solid var(--line2); background:#fff; border-radius:16px; padding:10px 14px; font-size:15px; cursor:pointer; box-shadow:0 1px 0 rgba(0,0,0,.02);}
+    .btn:hover{background:#f8fafc}
+    .btn.primary{background:#0f766e; border-color:#0f766e; color:#fff}
+    .btn.primary:hover{filter:brightness(1.05)}
+    .btn.sm{font-size:14px; padding:8px 12px;}
+
+    .controls{display:flex; flex-wrap:wrap; gap:8px}
+
+    .grid{display:grid; gap:10px}
+    .grid.two{grid-template-columns: 1fr 1fr;}
+
+    .kv{display:grid; grid-template-columns: 1fr auto; gap:4px; align-items:center}
+    .kv .v{font-family:ui-monospace, Menlo, Consolas, monospace; font-size:22px}
+
+    .hero{position:relative; overflow:hidden}
+    .hero .bg1{position:absolute; inset:auto auto -40px -40px; width:260px; height:260px; background:#818cf8; opacity:.18; filter:blur(40px); border-radius:999px}
+    .hero .bg2{position:absolute; inset:-40px -60px auto auto; width:300px; height:300px; background:#2dd4bf; opacity:.18; filter:blur(40px); border-radius:999px}
+
+    .row-hero{display:grid; grid-template-columns:1fr; gap:12px;}
+    @media(min-width:640px){ .row-hero{grid-template-columns: repeat(3, minmax(0,1fr));} }
+    .pill{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.85); font-size:12.5px}
+
+    /* sliders */
+    .sl{display:grid; gap:4px}
+    .sl label{font-size:15px; font-weight:600}
+    .sl input[type=range]{width:100%}
+
+    /* viz */
+    .viz-wrap{position:relative}
+    .cta{position:absolute; inset:0; display:flex; align-items:center; justify-content:center}
+    .cta > div{pointer-events:auto; background:rgba(255,255,255,.85); backdrop-filter:blur(8px); border:1px solid var(--line); border-radius:16px; padding:14px 16px; box-shadow:var(--shadow); text-align:center}
+
+    /* loss chart */
+    .loss-svg{width:100%; height:280px}
+
+    .list{list-style:none; padding:0; margin:8px 0 0}
+    .list li{font-size:13.5px}
+    .pass{color:#047857}
+    .fail{color:#b91c1c}
+
+    code, .mono{font-family:ui-monospace, Menlo, Consolas, monospace}
+    .math{font-size:16px}
+    details summary{cursor:pointer; user-select:none}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container" style="padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px">
+      <div class="brand">
+        <div class="badge">🤖</div>
+        <div>
+          <h1>ADAMによる学習の可視化</h1>
+          <div class="sub">直感でわかる最適化：SGD / Adam / AdamW（完全オフライン）</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="btnPlay" class="btn primary">▶ 再生</button>
+        <button id="btnReset" class="btn">⟳ リセット</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding:24px 16px 28px">
+    <div class="row">
+      <!-- 左カラム：説明 + コントロール -->
+      <section class="grid" style="gap:18px">
+        <div class="card pad">
+          <h2>モデル（何をシミュレート？）</h2>
+          <p class="muted" style="font-size:15.5px; line-height:1.7; margin:6px 0 10px">
+            原点 <span class="mono">(0,0)</span> で最小になる <strong>損失地形</strong>（細長い谷）を、ロボット <span class="mono">θ=(x,y)</span> が下っていく様子です。右の図は x–y 平面、赤がゴール。
+          </p>
+          <div class="grid" style="gap:10px">
+            <div class="card pad" style="padding:12px; background:#f8fafc">
+              <div class="small muted" style="margin-bottom:4px">損失（谷の形）</div>
+              <!-- MathML（オフラインで綺麗。未対応ブラウザは下の code を見る） -->
+              <math class="math" display="block">
+                <mrow>
+                  <mi>L</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo>
+                  <mo>=</mo>
+                  <mfrac><mn>1</mn><mn>2</mn></mfrac>
+                  <mo>(</mo>
+                  <mfrac><msup><mi>u</mi><mn>2</mn></msup><msup><mi>a</mi><mn>2</mn></msup></mfrac>
+                  <mo>+</mo>
+                  <mfrac><msup><mi>v</mi><mn>2</mn></msup><msup><mi>b</mi><mn>2</mn></msup></mfrac>
+                  <mo>)</mo>
+                </mrow>
+              </math>
+              <div class="small muted">（MathML が未対応なら）<code>L(x,y)=1/2*(u^2/a^2 + v^2/b^2)</code></div>
+            </div>
+            <div class="card pad" style="padding:12px; background:#f8fafc">
+              <div class="small muted" style="margin-bottom:4px">座標の回転（谷の向き φ）</div>
+              <math class="math" display="block">
+                <mrow>
+                  <mo>[</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo>]^T</mo>
+                  <mo>=</mo>
+                  <mo>R</mo><mo>(</mo><mi>φ</mi><mo>)</mo>
+                  <mo>[</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>]^T</mo>
+                </mrow>
+              </math>
+              <div class="small muted">（未対応なら）<code>[u,v]^T = R(φ)[x,y]^T</code></div>
+            </div>
+          </div>
+          <ul class="muted small" style="margin:8px 0 0 18px; line-height:1.7; list-style:disc">
+            <li><span class="mono">θ=(x,y)</span> はロボの位置（最小化したいパラメータ）。</li>
+            <li><span class="mono">a,b</span> は谷の細さ（<span class="mono">b≫a</span> で横に長い）。</li>
+            <li><span class="mono">φ</span> は谷の向き（回転角）。</li>
+          </ul>
+          <details style="margin-top:10px">
+            <summary class="small"><strong>更新式（SGD / Adam / AdamW）</strong> — 詳細を見る</summary>
+            <div class="muted small" style="margin-top:6px">
+              <div><code>SGD:  θ(t+1) = θ(t) − η ∇L(θ(t))</code></div>
+              <div><code>Adam: m_t=β₁ m_{t-1}+(1−β₁)g_t,  v_t=β₂ v_{t-1}+(1−β₂)g_t²</code></div>
+              <div><code>        θ(t+1)=θ(t) − η ·  m̂_t / (√v̂_t + ε)</code></div>
+              <div><code>AdamW: θ(t+1)=θ(t) − η · ( m̂_t/(√v̂_t+ε) + λ θ(t) )</code></div>
+            </div>
+          </details>
+        </div>
+
+        <div class="card pad">
+          <h2>まずは押すだけプリセット</h2>
+          <div class="grid" style="gap:8px">
+            <button class="btn" id="pZigzag">SGD: ジグザグを体験 ➜</button>
+            <button class="btn" id="pStable">Adam: まっすぐ安定 ➜</button>
+            <button class="btn" id="pReg">AdamW: 正則化で引き締め ➜</button>
+          </div>
+          <div class="small muted" style="margin-top:6px">（再生が自動で始まります。図をクリックすると出発点を変えられます）</div>
+        </div>
+
+        <div class="card pad">
+          <h2>アルゴリズムとハイパーパラメータ</h2>
+          <div class="controls" style="margin-bottom:8px">
+            <label><input type="radio" name="algo" value="SGD"> SGD</label>
+            <label><input type="radio" name="algo" value="Adam" checked> Adam</label>
+            <label><input type="radio" name="algo" value="AdamW"> AdamW</label>
+          </div>
+          <div class="grid" style="gap:12px">
+            <div class="sl"><label>学習率 η = <span id="labEta" class="mono">0.050</span></label><input id="eta" type="range" min="0.005" max="0.2" step="0.001" value="0.05"></div>
+            <div id="blkBeta1" class="sl"><label>β₁ = <span id="labB1" class="mono">0.900</span></label><input id="beta1" type="range" min="0.5" max="0.99" step="0.001" value="0.9"></div>
+            <div id="blkBeta2" class="sl"><label>β₂ = <span id="labB2" class="mono">0.999</span></label><input id="beta2" type="range" min="0.8" max="0.999" step="0.001" value="0.999"></div>
+            <div id="blkEps" class="sl"><label>ε = <span id="labEps" class="mono">1.0e-8</span></label><input id="eps" type="range" min="-10" max="-6" step="0.05" value="-8"></div>
+            <div id="blkDecay" class="sl"><label>重み減衰 λ = <span id="labDecay" class="mono">0.0000</span></label><input id="decay" type="range" min="0" max="0.1" step="0.0005" value="0"></div>
+            <div class="sl"><label>ノイズ（ミニバッチゆらぎ） = <span id="labNoise" class="mono">0.000</span></label><input id="noise" type="range" min="0" max="0.4" step="0.005" value="0"></div>
+            <div class="sl"><label>速度 (steps/s) = <span id="labSpeed" class="mono">48</span></label><input id="speed" type="range" min="1" max="120" step="1" value="48"></div>
+            <label class="small muted"><input id="useInterval" type="checkbox"> タイマー互換モード（<code>setInterval</code> を使用）</label>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div class="controls">
+            <button id="btnStep" class="btn">1 ステップ</button>
+            <button id="btnStep10" class="btn">10 ステップ</button>
+            <button id="btnPause" class="btn">⏸ 一時停止</button>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <h2>Diagnostics / Self-tests</h2>
+          <div class="controls" style="margin-bottom:6px">
+            <button id="btnTests" class="btn">Run tests</button>
+            <span class="small muted">（実装の正しさをざっくり検査）</span>
+          </div>
+          <ul id="testList" class="list"></ul>
+        </div>
+      </section>
+
+      <!-- 右カラム：可視化 -->
+      <section class="grid" style="gap:18px">
+        <div class="card viz-wrap">
+          <div style="padding:14px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <div style="font-weight:700">損失地形と最適化の軌跡</div>
+              <div class="small muted">背景=ヒートマップ/陰影, 青=軌跡, オレンジ=勾配, 赤=ゴール</div>
+            </div>
+            <div class="small muted">🖱️ 図クリックで <strong>出発点</strong> を変更</div>
+          </div>
+          <div style="padding:12px; display:flex; justify-content:center">
+            <svg id="viz" viewBox="0 0 920 600" style="width:100%; height:auto; border-radius:14px; cursor:crosshair">
+              <g id="heatmap"></g>
+              <g id="grid"></g>
+              <g id="contours"></g>
+              <circle id="goal" r="6" fill="#ef4444"></circle>
+              <text id="goalLabel" class="small" fill="#475569">goal (0,0)</text>
+              <polyline id="path" fill="none" stroke="#0ea5e9" stroke-linecap="round" stroke-width="3" />
+              <g id="arrow">
+                <line id="arrowLine" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" />
+                <polygon id="arrowHead" fill="#f59e0b" />
+              </g>
+              <g id="robot">
+                <circle id="robotHalo" r="12" fill="#0ea5e9" opacity=".15" />
+                <circle id="robotDot" r="3.2" fill="#0ea5e9" />
+                <text id="robotEmoji" font-size="18">🤖</text>
+              </g>
+              <g id="axes"></g>
+            </svg>
+          </div>
+          <div id="cta" class="cta" style="display:none">
+            <div>
+              <div style="font-weight:700; margin-bottom:4px">まずは試してみよう</div>
+              <div class="small muted" style="margin-bottom:8px">図をクリックして出発点 → プリセットで挙動を比べてみる</div>
+              <div class="controls" style="justify-content:center">
+                <button class="btn sm" id="ctaZ">🔥 Zigzag</button>
+                <button class="btn sm" id="ctaS">📈 Stable</button>
+                <button class="btn sm" id="ctaR">✨ Regularize</button>
+              </div>
+            </div>
+          </div>
+          <div style="padding:12px 18px 18px; border-top:1px solid var(--line)">
+            <div class="grid two">
+              <div class="card pad" style="padding:12px; background:#f8fafc">
+                <div class="small muted">steps</div>
+                <div id="statSteps" class="mono" style="font-size:34px">0</div>
+              </div>
+              <div class="card pad" style="padding:12px; background:#f8fafc">
+                <div class="small muted">L(θ)</div>
+                <div id="statLoss" class="mono" style="font-size:34px">0.00000</div>
+              </div>
+              <div class="card pad" style="padding:12px; background:#f8fafc; grid-column:1/-1">
+                <div class="small muted">|∇L|</div>
+                <div id="statGrad" class="mono" style="font-size:22px">0.000000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card pad">
+          <div style="font-weight:700; margin-bottom:8px">損失 L の推移</div>
+          <svg id="lossSvg" class="loss-svg"></svg>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="container small muted" style="padding:18px 16px 36px; text-align:center">
+    <div>© <span id="year"></span> Adam Playground — 学校の授業やワークショップでの利用を想定しています。</div>
+  </footer>
+
+  <script>
+  (function(){
+    // ==== Geometry & world params ====
+    const W=920, H=600, scale=64;
+    let svgEl = document.getElementById('viz');
+    const getCx = () => W*0.58;
+    const getCy = () => H*0.56;
+    const phiDeg=30, phi = phiDeg*Math.PI/180; // valley angle
+    const a2=1, b2=100; // valley aspect (u narrow, v wide)
+
+    // ==== State ====
+    const state = {
+      algo:'Adam', eta:0.05, beta1:0.9, beta2:0.999, eps:1e-8,
+      weightDecay:0.0, noise:0.0, speed:48, useInterval:false,
+      theta:{x:-2.0, y:3.6}, m:{x:0,y:0}, v:{x:0,y:0}, t:0,
+      step:0, path:[], lossData:[], playing:false,
+    };
+
+    // ==== DOM ====
+    const $ = (q)=>document.querySelector(q);
+    const viz = $('#viz'); const gHeat = $('#heatmap'); const gGrid=$('#grid'); const gContours=$('#contours');
+    const gAxes=$('#axes'); const pathEl=$('#path'); const goal=$('#goal'); const goalLabel=$('#goalLabel');
+    const robotHalo=$('#robotHalo'), robotDot=$('#robotDot'), robotEmoji=$('#robotEmoji');
+    const arrowLine=$('#arrowLine'), arrowHead=$('#arrowHead');
+    const cta=$('#cta');
+    const lossSvg=$('#lossSvg');
+
+    // Controls
+    const btnPlay=$('#btnPlay'); const btnPause=$('#btnPause'); const btnReset=$('#btnReset');
+    const btnStep=$('#btnStep'); const btnStep10=$('#btnStep10');
+    const algoInputs=[...document.querySelectorAll('input[name=algo]')];
+    const rEta=$('#eta'), rB1=$('#beta1'), rB2=$('#beta2'), rEps=$('#eps'), rDecay=$('#decay'), rNoise=$('#noise'), rSpeed=$('#speed');
+    const labEta=$('#labEta'), labB1=$('#labB1'), labB2=$('#labB2'), labEps=$('#labEps'), labDecay=$('#labDecay'), labNoise=$('#labNoise'), labSpeed=$('#labSpeed');
+    const blkB1=$('#blkBeta1'), blkB2=$('#blkBeta2'), blkEps=$('#blkEps'), blkDecay=$('#blkDecay');
+    const useInterval=$('#useInterval'); const year=$('#year'); year.textContent=new Date().getFullYear();
+    const pZigzag=$('#pZigzag'), pStable=$('#pStable'), pReg=$('#pReg');
+    const ctaZ=$('#ctaZ'), ctaS=$('#ctaS'), ctaR=$('#ctaR');
+
+    const statSteps=$('#statSteps'), statLoss=$('#statLoss'), statGrad=$('#statGrad');
+
+    // ==== Helpers ====
+    const toPx = (x,y)=>({X: getCx() + x*scale, Y: getCy() - y*scale});
+    function rotated(x,y){ const u=x*Math.cos(phi)+y*Math.sin(phi); const v=-x*Math.sin(phi)+y*Math.cos(phi); return {u,v}; }
+    function loss(x,y){ const {u,v}=rotated(x,y); return 0.5*(u*u/a2 + v*v/b2); }
+    function grad(x,y){ const {u,v}=rotated(x,y); const dLdu=u/a2, dLdv=v/b2; return { x: dLdu*Math.cos(phi)-dLdv*Math.sin(phi), y: dLdu*Math.sin(phi)+dLdv*Math.cos(phi) }; }
+
+    function clampArrow(from, vec, lenPx){
+      // Make an arrow of up to lenPx, but clamp so it stays inside SVG bounds with margin
+      const vlen = Math.hypot(vec.x, vec.y) || 1e-9; const ux = vec.x/vlen, uy=vec.y/vlen;
+      let t = lenPx/scale; const margin=8/scale;
+      const xMin=(0-getCx())/scale + margin, xMax=(W-getCx())/scale - margin;
+      const yMin=(getCy()-H)/scale + margin, yMax= getCy()/scale - margin;
+      if(Math.abs(ux)>1e-9){ const tx = ux>0 ? (xMax-from.x)/ux : (xMin-from.x)/ux; t=Math.min(t, tx); }
+      if(Math.abs(uy)>1e-9){ const ty = uy>0 ? (yMax-from.y)/uy : (yMin-from.y)/uy; t=Math.min(t, ty); }
+      return { x: from.x + ux*t, y: from.y + uy*t };
+    }
+
+    // ==== Initialize heatmap, grid, contours, axes ====
+    function buildHeat(){
+      const cx = getCx(), cy = getCy();
+      // grid
+      const gridLines=[]; for(let x= (cx%scale+scale)%scale; x<=W; x+=scale){ gridLines.push(`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#f1f5f9" stroke-width="1"/>`) }
+      for(let y=(cy%scale+scale)%scale; y<=H; y+=scale){ gridLines.push(`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>`) }
+      gGrid.innerHTML=gridLines.join('');
+
+      // heat tiles
+      const Nx=60, Ny=40; const dx=W/Nx, dy=H/Ny; const data=[]; let Lmax=0;
+      for(let j=0;j<Ny;j++){
+        for(let i=0;i<Nx;i++){
+          const X=(i+0.5)*dx, Y=(j+0.5)*dy; const x=(X-cx)/scale, y=(cy-Y)/scale; const L = loss(x,y); const g=grad(x,y);
+          data.push({X:i*dx, Y:j*dy, L, g}); if(L>Lmax) Lmax=L;
+        }
+      }
+      const light={x:-0.6,y:0.8}; const lightLen=Math.hypot(light.x,light.y);
+      const rects = data.map((d,idx)=>{
+        const n = Math.min(1, d.L/(Lmax*0.9+1e-9));
+        const hue = 200 - 30*n; const baseL= 96 - 28*n;
+        const gl = Math.hypot(d.g.x,d.g.y) || 1e-9; const ux = d.g.x/gl, uy=d.g.y/gl; const shade=(ux*light.x+uy*light.y)/lightLen;
+        const lightness = Math.max(60, Math.min(98, baseL+6*shade));
+        const fill = `hsl(${hue} 80% ${lightness}%)`;
+        return `<rect x="${d.X}" y="${d.Y}" width="${dx+0.5}" height="${dy+0.5}" fill="${fill}" opacity="0.65"/>`;
+      });
+      gHeat.innerHTML = rects.join('');
+
+      // contours
+      const levels=[0.25,0.5,1,2,4,8,12,18];
+      const ell=[];
+      for(let i=0;i<levels.length;i++){
+        const c=levels[i]; const rx=Math.sqrt(2*c*a2)*scale, ry=Math.sqrt(2*c*b2)*scale;
+        ell.push(`<g transform="rotate(${phiDeg} ${cx} ${cy})"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="#dbe1ea" stroke-width="1.2"/></g>`);
+      }
+      gContours.innerHTML = ell.join('');
+
+      // axes + ticks
+      const ax=[];
+      ax.push(`<line x1="0" y1="${cy}" x2="${W}" y2="${cy}" stroke="#94a3b8" stroke-width="1.4"/>`);
+      ax.push(`<line x1="${cx}" y1="0" x2="${cx}" y2="${H}" stroke="#94a3b8" stroke-width="1.4"/>`);
+      const ticks=[-4,-2,2,4];
+      for(const k of ticks){ const x = cx + k*scale; ax.push(`<line x1="${x}" y1="${cy-5}" x2="${x}" y2="${cy+5}" stroke="#94a3b8"/>`); ax.push(`<text x="${x-4}" y="${cy+18}" fill="#475569" font-size="12.5">${k}</text>`); }
+      for(const k of ticks){ const y = cy - k*scale; ax.push(`<line x1="${cx-5}" y1="${y}" x2="${cx+5}" y2="${y}" stroke="#94a3b8"/>`); ax.push(`<text x="${cx+10}" y="${y+4}" fill="#475569" font-size="12.5">${k}</text>`); }
+      gAxes.innerHTML = ax.join('');
+
+      // goal
+      const g0 = toPx(0,0); goal.setAttribute('cx', g0.X); goal.setAttribute('cy', g0.Y);
+      goalLabel.setAttribute('x', g0.X+10); goalLabel.setAttribute('y', g0.Y-10);
+    }
+
+    // ==== Path & robot drawing ====
+    function redrawPath(){
+      const pts = state.path.map(p=>{ const q=toPx(p.x,p.y); return `${q.X},${q.Y}`; }).join(' ');
+      pathEl.setAttribute('points', pts);
+    }
+    function redrawRobot(){
+      const p = toPx(state.theta.x, state.theta.y);
+      robotHalo.setAttribute('cx', p.X); robotHalo.setAttribute('cy', p.Y);
+      robotDot.setAttribute('cx', p.X); robotDot.setAttribute('cy', p.Y);
+      robotEmoji.setAttribute('x', p.X+6); robotEmoji.setAttribute('y', p.Y-6);
+      // gradient arrow (toward -grad)
+      const g = grad(state.theta.x, state.theta.y); const tgt = clampArrow(state.theta, {x:-g.x, y:-g.y}, 56);
+      const a = toPx(state.theta.x, state.theta.y); const b = toPx(tgt.x, tgt.y);
+      arrowLine.setAttribute('x1', a.X); arrowLine.setAttribute('y1', a.Y); arrowLine.setAttribute('x2', b.X); arrowLine.setAttribute('y2', b.Y);
+      const ang = Math.atan2(b.Y-a.Y, b.X-a.X); const head=10;
+      const p1=`${b.X},${b.Y}`;
+      const p2=`${b.X - head*Math.cos(ang-Math.PI/7)},${b.Y - head*Math.sin(ang-Math.PI/7)}`;
+      const p3=`${b.X - head*Math.cos(ang+Math.PI/7)},${b.Y - head*Math.sin(ang+Math.PI/7)}`;
+      arrowHead.setAttribute('points', `${p1} ${p2} ${p3}`);
+    }
+
+    // ==== Loss chart ====
+    function drawLossChart(){
+      const padL=36, padR=12, padT=10, padB=20;
+      const w = lossSvg.clientWidth || 760; const h = lossSvg.clientHeight || 280;
+      const innerW = Math.max(10, w - padL - padR), innerH = Math.max(10, h - padT - padB);
+      const data = state.lossData.slice(-500);
+      const sMin = data.length? Math.min(...data.map(d=>d.step)) : 0;
+      const sMax = data.length? Math.max(...data.map(d=>d.step)) : 1;
+      const lMin = data.length? Math.min(...data.map(d=>d.loss)) : 0;
+      const lMax = data.length? Math.max(...data.map(d=>d.loss)) : 1;
+      const x = (s)=> padL + (s - sMin) / Math.max(1e-9, (sMax - sMin||1)) * innerW;
+      const y = (v)=> padT + (1 - (v - lMin) / Math.max(1e-9,(lMax-lMin||1))) * innerH;
+      const gridY = [lMin, (lMin+lMax)/2, lMax];
+      const ticksX = [sMin, Math.round((sMin+sMax)/2), sMax];
+      let svg = '';
+      // grid
+      for(const gy of gridY){ svg += `<line x1="${padL}" y1="${y(gy)}" x2="${padL+innerW}" y2="${y(gy)}" stroke="${'#e2e8f0'}"/>`; }
+      // axes
+      svg += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+innerH}" stroke="${'#cbd5e1'}"/>`;
+      svg += `<line x1="${padL}" y1="${padT+innerH}" x2="${padL+innerW}" y2="${padT+innerH}" stroke="${'#cbd5e1'}"/>`;
+      // labels
+      for(const tx of ticksX){ svg += `<text x="${x(tx)}" y="${padT+innerH+14}" fill="#334155" font-size="12.5" text-anchor="middle">${tx}</text>`; }
+      for(const gy of gridY){ svg += `<text x="${padL-6}" y="${y(gy)+4}" fill="#334155" font-size="12.5" text-anchor="end">${gy.toFixed(3)}</text>`; }
+      // path
+      if(data.length > 1){
+        let d = `M ${x(data[0].step)} ${y(data[0].loss)}`;
+        for(let i=1;i<data.length;i++) d += ` L ${x(data[i].step)} ${y(data[i].loss)}`;
+        svg += `<path d="${d}" fill="none" stroke="${'#0ea5e9'}" stroke-width="3" stroke-linecap="round"/>`;
+      }
+      lossSvg.innerHTML = svg;
+    }
+
+    // ==== UI updates ====
+    function refreshLabels(){
+      labEta.textContent = state.eta.toFixed(3);
+      labB1.textContent = state.beta1.toFixed(3);
+      labB2.textContent = state.beta2.toFixed(3);
+      labEps.textContent = state.eps.toExponential(1);
+      labDecay.textContent = state.weightDecay.toFixed(4);
+      labNoise.textContent = state.noise.toFixed(3);
+      labSpeed.textContent = String(state.speed);
+      // show/hide blocks
+      const adamish = state.algo !== 'SGD';
+      blkB1.style.display = adamish? 'grid':'none';
+      blkB2.style.display = adamish? 'grid':'none';
+      blkEps.style.display = adamish? 'grid':'none';
+      blkDecay.style.display = (state.algo==='AdamW' || state.algo==='SGD')? 'grid':'none';
+    }
+
+    // state -> UI
+    function refreshFromState(){
+      const radio = document.querySelector(`input[name=algo][value="${state.algo}"]`);
+      if(radio) radio.checked = true;
+      rEta.value = state.eta;
+      rB1.value = state.beta1;
+      rB2.value = state.beta2;
+      rEps.value = Math.log10(state.eps);
+      rDecay.value = state.weightDecay;
+      rNoise.value = state.noise;
+      rSpeed.value = state.speed;
+      useInterval.checked = state.useInterval;
+      refreshLabels();
+    }
+
+    function updateStats(){
+      const L = loss(state.theta.x, state.theta.y);
+      const g = grad(state.theta.x, state.theta.y); const gl = Math.hypot(g.x,g.y);
+      statSteps.textContent = state.step;
+      statLoss.textContent = L.toFixed(5);
+      statGrad.textContent = gl.toFixed(6);
+    }
+    function updateCTA(){ cta.style.display = (!state.playing && state.step===0) ? 'flex' : 'none'; }
+
+    // ==== Sim step ====
+    function stepOnce(){
+      const g = grad(state.theta.x, state.theta.y);
+      const gn = { x: g.x + state.noise*(Math.random()-0.5), y: g.y + state.noise*(Math.random()-0.5) };
+      let next = { x: state.theta.x, y: state.theta.y };
+      if(state.algo==='SGD'){
+        next.x -= state.eta*gn.x; next.y -= state.eta*gn.y;
+        if(state.weightDecay>0){ next.x -= state.eta*state.weightDecay*state.theta.x; next.y -= state.eta*state.weightDecay*state.theta.y; }
+      }else{
+        state.m.x = state.beta1*state.m.x + (1-state.beta1)*gn.x; state.m.y = state.beta1*state.m.y + (1-state.beta1)*gn.y;
+        state.v.x = state.beta2*state.v.x + (1-state.beta2)*(gn.x*gn.x); state.v.y = state.beta2*state.v.y + (1-state.beta2)*(gn.y*gn.y);
+        state.t += 1; const t=state.t;
+        const mHat = { x: state.m.x/(1-Math.pow(state.beta1,t)), y: state.m.y/(1-Math.pow(state.beta1,t)) };
+        const vHat = { x: state.v.x/(1-Math.pow(state.beta2,t)), y: state.v.y/(1-Math.pow(state.beta2,t)) };
+        const upd  = { x: mHat.x/(Math.sqrt(vHat.x)+state.eps), y: mHat.y/(Math.sqrt(vHat.y)+state.eps) };
+        if(state.algo==='AdamW' && state.weightDecay>0){ next.x -= state.eta*(upd.x + state.weightDecay*state.theta.x); next.y -= state.eta*(upd.y + state.weightDecay*state.theta.y); }
+        else{ next.x -= state.eta*upd.x; next.y -= state.eta*upd.y; }
+      }
+      state.theta = next;
+      state.path.push(next); if(state.path.length>700) state.path.shift();
+      state.step += 1;
+      state.lossData.push({ step: state.step, loss: loss(next.x, next.y) }); if(state.lossData.length>800) state.lossData.shift();
+    }
+
+    // ==== Play loop ====
+    let raf=null, itv=null;
+    function start(){ if(state.playing) return; state.playing=true; updateCTA(); btnPlay.textContent='⏸ 一時停止';
+      const stepMS = Math.max(8, Math.floor(1000/Math.max(1,state.speed)));
+      if(state.useInterval){ itv = setInterval(tick, stepMS); }
+      else{ let last=performance.now(), acc=0; const frame=(now)=>{ const dt=now-last; last=now; acc+=dt; while(acc>=stepMS){ tick(); acc-=stepMS; if (!state.playing) break; } if(state.playing) raf=requestAnimationFrame(frame); }; raf=requestAnimationFrame(frame); }
+    }
+    function stop(){ state.playing=false; updateCTA(); btnPlay.textContent='▶ 再生'; if(raf){ cancelAnimationFrame(raf); raf=null; } if(itv){ clearInterval(itv); itv=null; } }
+    function tick(){ stepOnce(); redrawPath(); redrawRobot(); updateStats(); drawLossChart(); }
+
+    // ==== Reset & presets ====
+    function reset(theta){ stop(); state.theta=theta||{x:-2.0,y:3.6}; state.m={x:0,y:0}; state.v={x:0,y:0}; state.t=0; state.step=0; state.path=[{...state.theta}]; state.lossData=[{step:-1, loss:loss(state.theta.x, state.theta.y)}, {step:0, loss:loss(state.theta.x, state.theta.y)}]; redrawPath(); redrawRobot(); updateStats(); drawLossChart(); updateCTA(); }
+
+    function applyPreset(name, autoStart=true){
+      reset(state.theta); // Reset state before applying new preset
+      if(name==='sgd-zigzag'){
+        state.algo='SGD'; state.eta=0.12; state.weightDecay=0.0; state.noise=0.02;
+      } else if(name==='adam-stable'){
+        state.algo='Adam'; state.eta=0.05; state.beta1=0.9; state.beta2=0.999; state.weightDecay=0.0; state.noise=0.0;
+      } else if(name==='adamw-regularize'){
+        state.algo='AdamW'; state.eta=0.05; state.weightDecay=0.03; state.beta1=0.9; state.beta2=0.999; state.noise=0.01;
+      }
+      refreshFromState();
+      if(autoStart) start();
+    }
+
+    // ==== Self-tests ====
+    function numericGrad(x,y,h=1e-4){ const L=loss(x,y); return { x:(loss(x+h,y)-L)/h, y:(loss(x,y+h)-L)/h }; }
+    function runTests(){
+      const out=[]; let pass=true;
+      // T1: grad
+      const pts=[{x:1,y:1},{x:2,y:-1},{x:-3,y:0.5}]; let t1ok=true, maxRel=0, worst=null; for(const p of pts){ const ga=grad(p.x,p.y), gn=numericGrad(p.x,p.y); const diff=Math.hypot(ga.x-gn.x, ga.y-gn.y); const denom=Math.max(1e-9,Math.hypot(ga.x,ga.y)); const rel=diff/denom; if(rel>maxRel){maxRel=rel; worst={p,rel}} if(rel>1e-3) t1ok=false; }
+      out.push({name:'T1: grad 一致（数値微分 vs 解析）', ok:t1ok, detail:`maxRelErr=${maxRel.toExponential(2)} at ${JSON.stringify(worst&&worst.p)}`}); pass=pass&&t1ok;
+      // T2: SGD
+      const p0={x:2,y:-1}; const g0=grad(p0.x,p0.y); const p1={x:p0.x-0.01*g0.x, y:p0.y-0.01*g0.y}; const t2ok=loss(p1.x,p1.y)<loss(p0.x,p0.y); out.push({name:'T2: SGD で損失降下', ok:t2ok, detail:`L0=${loss(p0.x,p0.y).toFixed(4)}→L1=${loss(p1.x,p1.y).toFixed(4)}`}); pass=pass&&t2ok;
+      // T3: Adam g=0
+      const z={x:0,y:0}; let m={x:0,y:0}, v={x:0,y:0}, t=0; const gn={x:0,y:0}; function adamPreview(prev, gn, m, v, t, hp){ const {beta1,beta2,eps,eta,weightDecay,algo}=hp; const m2={x:beta1*m.x+(1-beta1)*gn.x, y:beta1*m.y+(1-beta1)*gn.y}; const v2={x:beta2*v.x+(1-beta2)*(gn.x*gn.x), y:beta2*v.y+(1-beta2)*(gn.y*gn.y)}; const t2=t+1; const mHat={x:m2.x/(1-Math.pow(beta1,t2)), y:m2.y/(1-Math.pow(beta1,t2))}; const vHat={x:v2.x/(1-Math.pow(beta2,t2)), y:v2.y/(1-Math.pow(beta2,t2))}; const upd={x:mHat.x/(Math.sqrt(vHat.x)+eps), y:mHat.y/(Math.sqrt(vHat.y)+eps)}; let next={...prev}; if(algo==='AdamW'&&weightDecay>0){ next.x-=eta*(upd.x+weightDecay*prev.x); next.y-=eta*(upd.y+weightDecay*prev.y);} else { next.x-=eta*upd.x; next.y-=eta*upd.y; } return {next,m:m2,v:v2,t:t2}; }
+      const a3=adamPreview(z,gn,{x:0,y:0},{x:0,y:0},0,{beta1:0.9,beta2:0.999,eps:1e-8,eta:0.01,weightDecay:0,algo:'Adam'}); const t3ok = Math.hypot(a3.next.x-z.x, a3.next.y-z.y)<1e-12; out.push({name:'T3: Adam 勾配ゼロで不動 (λ=0)', ok:t3ok, detail:`|Δθ|=${Math.hypot(a3.next.x-z.x, a3.next.y-z.y).toExponential(2)}`}); pass=pass&&t3ok;
+      // T4: AdamW decay
+      const z2={x:1,y:-0.5}; const a4=adamPreview(z2,gn,{x:0,y:0},{x:0,y:0},0,{beta1:0.9,beta2:0.999,eps:1e-8,eta:0.01,weightDecay:0.05,algo:'AdamW'}); const t4ok = Math.hypot(a4.next.x, a4.next.y) < Math.hypot(z2.x, z2.y); out.push({name:'T4: AdamW で重み減衰が原点へ寄せる', ok:t4ok, detail:`|θ'| < |θ| ? ${t4ok}`}); pass=pass&&t4ok;
+      // render
+      const ul = document.getElementById('testList'); ul.innerHTML = out.map(t=>`<li class="${t.ok?'pass':'fail'}">${t.ok?'✔':'✖'} ${t.name} — <span class="muted">${t.detail}</span></li>`).join('');
+      return pass;
+    }
+
+    // ==== Interactions ====
+    viz.addEventListener('click', (e)=>{
+      const r = viz.getBoundingClientRect(); const xpx=e.clientX - r.left; const ypx=e.clientY - r.top;
+      const wx = (xpx - getCx()) / scale; const wy = (getCy() - ypx) / scale;
+      reset({x:wx, y:wy});
+    });
+    btnPlay.addEventListener('click', ()=>{ state.playing? stop(): start(); });
+    btnPause.addEventListener('click', ()=> stop());
+    btnReset.addEventListener('click', ()=> reset());
+    btnStep.addEventListener('click', ()=>{ stop(); tick(); });
+    btnStep10.addEventListener('click', ()=>{ stop(); for(let i=0;i<10;i++) stepOnce(); redrawPath(); redrawRobot(); updateStats(); drawLossChart(); });
+
+    pZigzag.addEventListener('click', ()=>applyPreset('sgd-zigzag'));
+    pStable.addEventListener('click', ()=>applyPreset('adam-stable'));
+    pReg.addEventListener('click', ()=>applyPreset('adamw-regularize'));
+    ctaZ.addEventListener('click', ()=>applyPreset('sgd-zigzag'));
+    ctaS.addEventListener('click', ()=>applyPreset('adam-stable'));
+    ctaR.addEventListener('click', ()=>applyPreset('adamw-regularize'));
+
+    algoInputs.forEach(r=> r.addEventListener('change', ()=>{ state.algo = document.querySelector('input[name=algo]:checked').value; state.m={x:0,y:0}; state.v={x:0,y:0}; state.t=0; refreshLabels(); }));
+    rEta.addEventListener('input', ()=>{ state.eta=+rEta.value; refreshLabels(); });
+    rB1.addEventListener('input', ()=>{ state.beta1=+rB1.value; refreshLabels(); });
+    rB2.addEventListener('input', ()=>{ state.beta2=+rB2.value; refreshLabels(); });
+    rEps.addEventListener('input', ()=>{ state.eps=Math.pow(10, +rEps.value); refreshLabels(); });
+    rDecay.addEventListener('input', ()=>{ state.weightDecay=+rDecay.value; refreshLabels(); });
+    rNoise.addEventListener('input', ()=>{ state.noise=+rNoise.value; refreshLabels(); });
+    rSpeed.addEventListener('input', ()=>{ state.speed=+rSpeed.value; if(state.playing){ stop(); start(); } refreshLabels(); });
+    useInterval.addEventListener('change', ()=>{ state.useInterval=useInterval.checked; if(state.playing){ stop(); start(); } });
+
+    document.getElementById('btnTests').addEventListener('click', runTests);
+
+    // ==== Resize Handler ====
+    const onResize = () => {
+        buildHeat();
+        redrawPath();
+        redrawRobot();
+        drawLossChart();
+    };
+    window.addEventListener('resize', onResize);
+
+    // ==== Boot ====
+    buildHeat();
+    state.path=[{...state.theta}]; state.lossData=[{step:-1, loss:loss(state.theta.x, state.theta.y)},{step:0, loss:loss(state.theta.x, state.theta.y)}];
+    redrawPath(); redrawRobot(); updateStats(); drawLossChart(); refreshFromState(); updateCTA();
+
+    // Safari対策: 既定で setInterval を勧める
+    const ua = navigator.userAgent; if(/Safari\//.test(ua) && !/Chrome\//.test(ua)){ state.useInterval=true; useInterval.checked=true; }
+  })();
+  </script>
+</body>
+</html>

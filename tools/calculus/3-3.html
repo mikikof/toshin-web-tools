@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ε-δ論法 比較</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            font-size: 14px;
+        }
+        .katex-font {
+            font-family: 'KaTeX_Main', 'Times New Roman', serif;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        /* Toggle Switch styles */
+        .toggle-checkbox:checked + .toggle-label .toggle-dot {
+            transform: translateX(100%);
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6;
+        }
+        /* Highlight for formula */
+        .highlight {
+            background-color: #fef9c3; /* yellow-100 */
+            border-radius: 4px;
+            padding: 0 4px;
+            transition: background-color 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 max-w-7xl">
+        <header class="text-center mb-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">ε-δ論法</h1>
+            <p class="mt-1 text-md text-gray-600">直線ver.と曲線ver.</p>
+        </header>
+
+        <!-- Definition Box -->
+        <div class="my-6 bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 rounded-r-lg shadow-sm">
+            <h3 class="font-bold text-lg">極限の定義 (ε-δ論法)</h3>
+            <p class="mt-2 text-xl katex-font tracking-wider">
+                <span id="forall_epsilon" class="p-1">∀ε > 0,</span>
+                <span id="exists_delta" class="p-1">∃δ > 0</span>
+                <span class="p-1">s.t.</span>
+                <span id="delta_condition" class="p-1">0 < |x-a| < δ</span>
+                <span class="p-1">⇒</span>
+                <span id="epsilon_condition" class="p-1">|f(x)-P| < ε</span>
+            </p>
+            <p class="mt-2 text-md">
+                このとき <span class="katex-font text-lg">lim<sub>x→a</sub> f(x) = P</span> となる。
+            </p>
+        </div>
+
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Applet 1: Linear Function -->
+            <div class="bg-white rounded-xl shadow-lg p-4">
+                <h2 class="text-lg font-bold text-center mb-2">直線: f(x) = 2x + 1</h2>
+                <p class="text-center text-sm text-gray-500 mb-3">x → 1 のとき P → 3</p>
+                <div id="canvas-container-1" class="border rounded-lg overflow-hidden bg-gray-50 mb-4 w-full">
+                    <canvas id="graphCanvas1"></canvas>
+                </div>
+                <div class="space-y-4">
+                    <div class="space-y-1">
+                        <label for="epsilon1" class="flex items-center justify-between text-sm font-medium">
+                            <span>誤差 <span class="katex-font">ε</span></span>
+                            <span id="epsilonValue1" class="font-mono text-blue-600 bg-blue-100 rounded-md px-2 py-0.5 text-xs">0.50</span>
+                        </label>
+                        <input type="range" id="epsilon1" min="0.05" max="2.9" step="0.01" value="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <label for="liveUpdate1" class="flex items-center cursor-pointer">
+                            <div class="relative">
+                                <input type="checkbox" id="liveUpdate1" class="sr-only toggle-checkbox">
+                                <div class="toggle-label block bg-gray-300 w-12 h-7 rounded-full transition-colors"></div>
+                                <div class="toggle-dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full shadow-md transition-transform"></div>
+                            </div>
+                            <div class="ml-3 text-gray-700 text-sm font-medium">
+                                δをεに連動
+                            </div>
+                        </label>
+                    </div>
+                    <div id="status1" class="p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-gray-100">
+                        <p class="text-gray-500">「δをεに連動」をオンにしてください。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applet 2: Quadratic Function -->
+            <div class="bg-white rounded-xl shadow-lg p-4">
+                <h2 class="text-lg font-bold text-center mb-2">曲線: f(x) = x²</h2>
+                <p class="text-center text-sm text-gray-500 mb-3">x → 2 のとき P → 4</p>
+                <div id="canvas-container-2" class="border rounded-lg overflow-hidden bg-gray-50 mb-4 w-full">
+                    <canvas id="graphCanvas2"></canvas>
+                </div>
+                <div class="space-y-4">
+                    <div class="space-y-1">
+                        <label for="epsilon2" class="flex items-center justify-between text-sm font-medium">
+                            <span>誤差 <span class="katex-font">ε</span></span>
+                            <span id="epsilonValue2" class="font-mono text-blue-600 bg-blue-100 rounded-md px-2 py-0.5 text-xs">1.00</span>
+                        </label>
+                        <input type="range" id="epsilon2" min="0.1" max="3.9" step="0.05" value="1.0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <label for="liveUpdate2" class="flex items-center cursor-pointer">
+                            <div class="relative">
+                                <input type="checkbox" id="liveUpdate2" class="sr-only toggle-checkbox">
+                                <div class="toggle-label block bg-gray-300 w-12 h-7 rounded-full transition-colors"></div>
+                                <div class="toggle-dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full shadow-md transition-transform"></div>
+                            </div>
+                            <div class="ml-3 text-gray-700 text-sm font-medium">
+                                δをεに連動
+                            </div>
+                        </label>
+                    </div>
+                    <div id="status2" class="p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-gray-100">
+                        <p class="text-gray-500">「δをεに連動」をオンにしてください。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Global Formula Highlighting ---
+        const forallEpsilonEl = document.getElementById('forall_epsilon');
+        const existsDeltaEl = document.getElementById('exists_delta');
+        const deltaConditionEl = document.getElementById('delta_condition');
+        const epsilonConditionEl = document.getElementById('epsilon_condition');
+        let highlightTimeout;
+
+        function highlightFormula(elements) {
+            clearTimeout(highlightTimeout);
+            // Clear all first
+            [forallEpsilonEl, existsDeltaEl, deltaConditionEl, epsilonConditionEl].forEach(el => el.classList.remove('highlight'));
+            // Highlight specified elements
+            elements.forEach(el => el.classList.add('highlight'));
+            // Remove highlight after a delay
+            highlightTimeout = setTimeout(() => {
+                 elements.forEach(el => el.classList.remove('highlight'));
+            }, 1500);
+        }
+
+        function setupApplet(config) {
+            const canvas = document.getElementById(config.canvasId);
+            const canvasContainer = document.getElementById(config.containerId);
+            const ctx = canvas.getContext('2d');
+            const epsilonSlider = document.getElementById(config.epsilonSliderId);
+            const liveUpdateToggle = document.getElementById(config.liveUpdateId);
+            const epsilonValueSpan = document.getElementById(config.epsilonValueId);
+            const statusDiv = document.getElementById(config.statusId);
+
+            let width, height;
+            let currentDelta = null;
+
+            const toCanvasX = x => (x - config.xMin) / (config.xMax - config.xMin) * width;
+            const toCanvasY = y => height - (y - config.yMin) / (config.yMax - config.yMin) * height;
+
+            function draw() {
+                const epsilon = parseFloat(epsilonSlider.value);
+                epsilonValueSpan.textContent = epsilon.toFixed(2);
+
+                ctx.clearRect(0, 0, width, height);
+
+                ctx.fillStyle = 'rgba(173, 216, 230, 0.4)';
+                const y1_eps = toCanvasY(config.P + epsilon);
+                const y2_eps = toCanvasY(config.P - epsilon);
+                ctx.fillRect(0, y1_eps, width, y2_eps - y1_eps);
+
+                if (currentDelta !== null && currentDelta > 0) {
+                    ctx.fillStyle = 'rgba(144, 238, 144, 0.5)';
+                    const x1_delta = toCanvasX(config.a - currentDelta);
+                    const x2_delta = toCanvasX(config.a + currentDelta);
+                    ctx.fillRect(x1_delta, 0, x2_delta - x1_delta, height);
+                }
+
+                ctx.strokeStyle = '#9ca3af';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(0, toCanvasY(0));
+                ctx.lineTo(width, toCanvasY(0));
+                ctx.moveTo(toCanvasX(0), 0);
+                ctx.lineTo(toCanvasX(0), height);
+                ctx.stroke();
+
+                ctx.fillStyle = '#4b5563';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'top';
+                ctx.fillText('x', width - 10, toCanvasY(0) + 5);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('f(x)', toCanvasX(0) - 10, 10);
+
+                for (let i = Math.ceil(config.xMin); i <= config.xMax; i++) {
+                    if (i !== 0 && i % config.xTickStep === 0) ctx.fillText(i, toCanvasX(i), toCanvasY(0) + 5);
+                }
+                for (let i = Math.ceil(config.yMin); i <= config.yMax; i++) {
+                     if (i !== 0 && i % config.yTickStep === 0) ctx.fillText(i, toCanvasX(0) - 8, toCanvasY(i));
+                }
+                ctx.fillText('0', toCanvasX(0) - 8, toCanvasY(0) + 12);
+
+                ctx.fillStyle = '#3b82f6';
+                ctx.beginPath();
+                ctx.arc(toCanvasX(config.a), toCanvasY(0), 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#4b5563';
+                ctx.fillText('a=' + config.a, toCanvasX(config.a), toCanvasY(0) + 18);
+
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                for (let px = 0; px <= width; px++) {
+                    const x = config.xMin + (px / width) * (config.xMax - config.xMin);
+                    const y = config.f(x);
+                    if (px === 0) ctx.moveTo(toCanvasX(x), toCanvasY(y));
+                    else ctx.lineTo(toCanvasX(x), toCanvasY(y));
+                }
+                ctx.stroke();
+
+                if (currentDelta !== null && currentDelta > 0) {
+                    ctx.strokeStyle = '#ef4444';
+                    ctx.lineWidth = 5;
+                    ctx.beginPath();
+                    const startX = Math.max(config.xMin, config.a - currentDelta);
+                    const endX = Math.min(config.xMax, config.a + currentDelta);
+                    ctx.moveTo(toCanvasX(startX), toCanvasY(config.f(startX)));
+                    for (let x = startX; x <= endX; x += 0.01) ctx.lineTo(toCanvasX(x), toCanvasY(config.f(x)));
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = '#10b981';
+                ctx.beginPath();
+                ctx.arc(toCanvasX(config.a), toCanvasY(config.P), 5, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+
+            function handleCalculateDelta() {
+                const epsilon = parseFloat(epsilonSlider.value);
+                const result = config.deltaCalc(epsilon, config.a, config.P);
+
+                if (result.error) {
+                    currentDelta = 0;
+                    statusDiv.className = 'p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-yellow-100 text-yellow-800';
+                    statusDiv.innerHTML = `<strong>計算不能</strong><br>${result.error}`;
+                } else {
+                    currentDelta = result.delta;
+                    statusDiv.className = 'p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-green-100 text-green-800';
+                    statusDiv.innerHTML = `<strong>δ が見つかりました！</strong><br>δ ≈ ${currentDelta.toFixed(4)}`;
+                }
+                draw();
+            }
+
+            function setupCanvas() {
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvasContainer.getBoundingClientRect();
+                width = rect.width;
+                height = width;
+                canvas.style.width = `${width}px`;
+                canvas.style.height = `${height}px`;
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                ctx.scale(dpr, dpr);
+                draw();
+            }
+
+            window.addEventListener('resize', setupCanvas);
+
+            epsilonSlider.addEventListener('input', () => {
+                highlightFormula([forallEpsilonEl, epsilonConditionEl]);
+                if (liveUpdateToggle.checked) {
+                    handleCalculateDelta();
+                } else {
+                    currentDelta = null;
+                    draw();
+                }
+            });
+
+            liveUpdateToggle.addEventListener('change', () => {
+                if (liveUpdateToggle.checked) {
+                    highlightFormula([existsDeltaEl, deltaConditionEl]);
+                    handleCalculateDelta();
+                } else {
+                    currentDelta = null;
+                    statusDiv.className = 'p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-gray-100';
+                    statusDiv.innerHTML = '<p class="text-gray-500">「δをεに連動」をオンにしてください。</p>';
+                    draw();
+                }
+            });
+
+            setupCanvas();
+        }
+
+        window.addEventListener('load', () => {
+            setupApplet({
+                canvasId: 'graphCanvas1',
+                containerId: 'canvas-container-1',
+                epsilonSliderId: 'epsilon1',
+                liveUpdateId: 'liveUpdate1',
+                epsilonValueId: 'epsilonValue1',
+                statusId: 'status1',
+                f: x => 2 * x + 1,
+                a: 1, P: 3,
+                xMin: -2, xMax: 4,
+                yMin: -1, yMax: 5,
+                xTickStep: 1, yTickStep: 1,
+                deltaCalc: (epsilon) => ({ delta: epsilon / 2 })
+            });
+
+            setupApplet({
+                canvasId: 'graphCanvas2',
+                containerId: 'canvas-container-2',
+                epsilonSliderId: 'epsilon2',
+                liveUpdateId: 'liveUpdate2',
+                epsilonValueId: 'epsilonValue2',
+                statusId: 'status2',
+                f: x => x * x,
+                a: 2, P: 4,
+                xMin: -1, xMax: 5,
+                yMin: -2, yMax: 8,
+                xTickStep: 1, yTickStep: 2,
+                deltaCalc: (epsilon, a, P) => {
+                    const y_minus_eps = P - epsilon;
+                    if (y_minus_eps < 0) return { error: 'εが大きすぎます。' };
+                    const delta1 = a - Math.sqrt(y_minus_eps);
+                    const delta2 = Math.sqrt(P + epsilon) - a;
+                    return { delta: Math.min(delta1, delta2) };
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

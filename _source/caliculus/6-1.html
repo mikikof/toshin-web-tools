@@ -1,0 +1,459 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;カヴァリエリの原理：インタラクティブ・ビジュアライゼーション&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Noto+Sans+JP:wght@400;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f0f2f5;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.canvas-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 450px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.slider-thumb::-webkit-slider-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.slider-thumb::-moz-range-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.card {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.label-3d {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>bottom: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #374151;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-50 text-gray-800"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8 max-w-7xl"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- ヘッダーと説明 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4"&gt;積分の起源&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-lg md:text-xl text-blue-600 font-semibold"&gt;「測りたい」という根源的欲求&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl font-bold mb-4"&gt;すべては「面積や体積を測りたい」から始まった 📏&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-base md:text-lg leading-relaxed"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>古代の挑戦：曲線で囲まれた図形の面積や、複雑な立体の体積をどうやって正確に求めるか？これは古代ギリシャ時代からの難問でした。&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>17世紀、カヴァリエリはこの難問に光を当てます。「&lt;strong&gt;切断した面積が常に等しいなら、全体の体積も等しい&lt;/strong&gt;」という原理を提唱しました。</p>
+<p class="p1"><span class="Apple-converted-space">                </span>これは、対象を無数の「薄い層（スライス）」に分割し、その集合として全体を捉えるという画期的なアイデアです。この考え方こそ、積分の中核にある&lt;strong&gt;「無限小に分割して、それらを足し合わせる (summation)」&lt;/strong&gt;という思考の源流なのです。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="font-semibold text-blue-800"&gt;💡 ポイント：積分計算の本質は、複雑で捉えどころのない全体量を、把握可能な単純なパーツの和として理解することにあります。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- 2Dデモ: 円の面積 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-3xl font-bold text-center mb-2"&gt;2D: 円の面積&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-center text-gray-600 mb-6"&gt;円を細い長方形にスライスして表現します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="canvas-2d-container" class="canvas-container"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex flex-col items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-lg mb-4"&gt;スライスの数: &lt;span id="slices-2d-label" class="font-bold text-blue-600"&gt;50&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="slices-2d-slider" type="range" min="10" max="200" value="50" class="w-full max-w-sm h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-4 text-center text-sm text-gray-500"&gt;スライスの数を増やすほど、より滑らかな円に近づきます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- 3Dデモ: 球の構成 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-3xl font-bold text-center mb-2"&gt;3D: 球の構成&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-center text-gray-600 mb-6"&gt;球を薄い円盤にスライスして表現します。（マウスでドラッグして視点を変えられます）&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="canvas-3d-sphere-container" class="canvas-container"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex flex-col items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-lg mb-4"&gt;スライスの数: &lt;span id="slices-3d-sphere-label" class="font-bold text-blue-600"&gt;20&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="slices-3d-sphere-slider" type="range" min="4" max="100" value="20" class="w-full max-w-sm h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;p class="mt-4 text-center text-sm text-gray-500"&gt;スライスの数を増やすほど、カクカクした集合体が滑らかな球に近づいていきます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- 3Dデモ: カヴァリエリの原理 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-3xl font-bold text-center mb-2"&gt;3D: 球の体積の探求（カヴァリエリの原理）&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-center text-gray-600 mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>一見違う形の「半球」と「円柱-円錐」。同じ高さでスライスすると、断面積は常に等しくなります。&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>（マウスでドラッグして視点を変えられます）</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="canvas-3d-container" class="canvas-container col-span-1 lg:col-span-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="label-3d" style="left: 0;"&gt;円柱 - 円錐&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="label-3d" style="left: 50%;"&gt;半球&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex flex-col items-center justify-center col-span-1 lg:col-span-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-lg mb-4"&gt;スライスの高さ: &lt;span id="slice-height-label" class="font-bold text-blue-600"&gt;0.50&lt;/span&gt; / R&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="slice-height-slider" type="range" min="0" max="100" value="50" class="w-full max-w-sm h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="area-display" class="mt-8 p-4 bg-gray-100 rounded-lg w-full max-w-sm text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="font-semibold mb-2"&gt;断面積の比較 (A = π(R² - h²))&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-blue-700"&gt;A (円柱-円錐): &lt;span id="area-a"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-green-700"&gt;A (半球): &lt;span id="area-b"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="font-bold mt-2 text-lg" id="area-equality"&gt;面積は等しい！&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="importmap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"imports": {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="module"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>import * as THREE from 'three';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>import { OrbitControls } from 'three/addons/controls/OrbitControls.js';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- グローバル変数 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let scene2D, camera2D, renderer2D, circleGroup;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let sceneCavalieri, cameraCavalieri, rendererCavalieri, controlsCavalieri;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let sceneSphere, cameraSphere, rendererSphere, controlsSphere, sphereSliceGroup;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let hemisphere, cylinder, cone, slicePlane, crossSectionHemi, crossSectionCyl;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const R = 1; // 3Dオブジェクトの基準半径</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const cavalieriFrustumSize = 4.5; // カメラの表示領域サイズ</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// UI要素</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const SLICES_2D_SLIDER = document.getElementById('slices-2d-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const SLICES_2D_LABEL = document.getElementById('slices-2d-label');</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const SLICE_HEIGHT_SLIDER = document.getElementById('slice-height-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const SLICE_HEIGHT_LABEL = document.getElementById('slice-height-label');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const AREA_A_LABEL = document.getElementById('area-a');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const AREA_B_LABEL = document.getElementById('area-b');</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const SLICES_3D_SPHERE_SLIDER = document.getElementById('slices-3d-sphere-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const SLICES_3D_SPHERE_LABEL = document.getElementById('slices-3d-sphere-label');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 初期化処理 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function init() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>init2D();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initSphereDemo();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initCavalieriDemo();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animate();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupEventListeners();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateSliceHeight(parseFloat(SLICE_HEIGHT_SLIDER.value) / 100);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 2Dデモの初期化 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function init2D() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const container = document.getElementById('canvas-2d-container');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2D = new THREE.Scene();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2D.background = new THREE.Color(0xffffff);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera2D = new THREE.OrthographicCamera(container.clientWidth / -2, container.clientWidth / 2, container.clientHeight / 2, container.clientHeight / -2, 1, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera2D.position.z = 10;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera2D.zoom = 2.5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera2D.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer2D = new THREE.WebGLRenderer({ antialias: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer2D.setSize(container.clientWidth, container.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>container.appendChild(renderer2D.domElement);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>circleGroup = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2D.add(circleGroup);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createCircleSlices(parseInt(SLICES_2D_SLIDER.value));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 球体構成デモの初期化 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function initSphereDemo() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const container = document.getElementById('canvas-3d-sphere-container');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneSphere = new THREE.Scene();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneSphere.background = new THREE.Color(0xffffff);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>cameraSphere = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cameraSphere.position.set(0, 1.5, 3.5);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneSphere.add(ambientLight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>directionalLight.position.set(1.5, 2.5, 1.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneSphere.add(directionalLight);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>rendererSphere = new THREE.WebGLRenderer({ antialias: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>rendererSphere.setSize(container.clientWidth, container.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>container.appendChild(rendererSphere.domElement);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>controlsSphere = new OrbitControls(cameraSphere, rendererSphere.domElement);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controlsSphere.enableDamping = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>sphereSliceGroup = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneSphere.add(sphereSliceGroup);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>createFullSphereSlices(parseInt(SLICES_3D_SPHERE_SLIDER.value));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- カヴァリエリの原理デモの初期化 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function initCavalieriDemo() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const container = document.getElementById('canvas-3d-container');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneCavalieri = new THREE.Scene();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneCavalieri.background = new THREE.Color(0xffffff);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// ★修正点: PerspectiveCameraからOrthographicCameraに変更</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const aspect = container.clientWidth / container.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cameraCavalieri = new THREE.OrthographicCamera(cavalieriFrustumSize * aspect / -2, cavalieriFrustumSize * aspect / 2, cavalieriFrustumSize / 2, cavalieriFrustumSize / -2, 0.1, 100);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cameraCavalieri.position.set(0, 1.5, 10); // 平行投影なのでZの位置はズームに影響しないが、クリッピングのために設定</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneCavalieri.add(ambientLight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const directionalLight = new THREE.DirectionalLight(0xffffff, 2.2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>directionalLight.position.set(2, 3, 2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneCavalieri.add(directionalLight);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>rendererCavalieri = new THREE.WebGLRenderer({ antialias: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>rendererCavalieri.setSize(container.clientWidth, container.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>container.appendChild(rendererCavalieri.domElement);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>controlsCavalieri = new OrbitControls(cameraCavalieri, rendererCavalieri.domElement);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controlsCavalieri.enableDamping = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controlsCavalieri.target.set(0, R / 2, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// 平行投影カメラではズームが直感的でないため、無効化</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controlsCavalieri.enableZoom = false;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>createCavalieriObjects();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 2D円のスライスを作成 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createCircleSlices(numSlices) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>circleGroup.clear();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const radius = 60;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const sliceWidth = (radius * 2) / numSlices;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt; numSlices; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = -radius + sliceWidth * (i + 0.5);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const height = 2 * Math.sqrt(Math.max(0, radius * radius - x * x));</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const geometry = new THREE.PlaneGeometry(sliceWidth, height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const color = new THREE.Color(`hsl(${(i / numSlices) * 360}, 90%, 70%)`);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const material = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const slice = new THREE.Mesh(geometry, material);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>slice.position.x = x;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>circleGroup.add(slice);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 球のスライスを作成 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createFullSphereSlices(numSlices) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sphereSliceGroup.clear();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const radius = 1.2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const sliceHeight = (radius * 2) / numSlices;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt; numSlices; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = -radius + sliceHeight * (i + 0.5);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const sliceRadius = Math.sqrt(radius * radius - y * y);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const geometry = new THREE.CylinderGeometry(sliceRadius, sliceRadius, sliceHeight, 32);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const color = new THREE.Color(`hsl(${((y + radius) / (radius*2)) * 360}, 90%, 70%)`);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.5, metalness: 0.1 });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const slice = new THREE.Mesh(geometry, material);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>slice.position.y = y;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sphereSliceGroup.add(slice);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- カヴァリエリの原理用オブジェクト作成 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createCavalieriObjects() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const group = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const separation = R * 2.5;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const hemiGeom = new THREE.SphereGeometry(R, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const hemiMat = new THREE.MeshStandardMaterial({ color: 0x4ade80, transparent: true, opacity: 0.3, side: THREE.DoubleSide });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>hemisphere = new THREE.Mesh(hemiGeom, hemiMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>hemisphere.position.x = separation / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>group.add(hemisphere);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const cylGeom = new THREE.CylinderGeometry(R, R, R, 64, 1, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const cylMat = new THREE.MeshStandardMaterial({ color: 0x60a5fa, transparent: true, opacity: 0.4, side: THREE.DoubleSide });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cylinder = new THREE.Mesh(cylGeom, cylMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cylinder.position.set(-separation / 2, R / 2, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>group.add(cylinder);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const coneGeom = new THREE.ConeGeometry(R, R, 64, 1, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const coneMat = new THREE.MeshStandardMaterial({ color: 0x4b5563, side: THREE.BackSide });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cone = new THREE.Mesh(coneGeom, coneMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cone.position.set(-separation / 2, R / 2, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cone.rotation.x = Math.PI;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>group.add(cone);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const planeGeom = new THREE.PlaneGeometry(separation + R * 2, R * 1.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const planeMat = new THREE.MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.08, side: THREE.DoubleSide });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>slicePlane = new THREE.Mesh(planeGeom, planeMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>slicePlane.rotation.x = -Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>group.add(slicePlane);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const crossHemiGeom = new THREE.RingGeometry(0, 1, 64);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const crossHemiMat = new THREE.MeshBasicMaterial({ color: 0x16a34a, side: THREE.DoubleSide, depthTest: false });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionHemi = new THREE.Mesh(crossHemiGeom, crossHemiMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionHemi.rotation.x = -Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionHemi.position.x = separation / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionHemi.renderOrder = 1;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>group.add(crossSectionHemi);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const crossCylGeom = new THREE.RingGeometry(0, R, 64);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const crossCylMat = new THREE.MeshBasicMaterial({ color: 0x2563eb, side: THREE.DoubleSide, depthTest: false });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionCyl = new THREE.Mesh(crossCylGeom, crossCylMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionCyl.rotation.x = -Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionCyl.position.x = -separation / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionCyl.renderOrder = 1;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>group.add(crossSectionCyl);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneCavalieri.add(group);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- スライスの高さを更新 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateSliceHeight(h_ratio) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const h = h_ratio * R;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>SLICE_HEIGHT_LABEL.textContent = h.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>slicePlane.position.y = h;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const r_hemi_sq = R * R - h * h;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const r_hemi = Math.sqrt(Math.max(0, r_hemi_sq));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionHemi.scale.set(r_hemi, r_hemi, 1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionHemi.position.y = h + 0.001;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const r_cone = h;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneCavalieri.remove(crossSectionCyl);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionCyl.geometry.dispose();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const newCrossCylGeom = new THREE.RingGeometry(r_cone, R, 64);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionCyl.geometry = newCrossCylGeom;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sceneCavalieri.add(crossSectionCyl);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionCyl.position.y = h + 0.001;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionCyl.position.x = -(R * 2.5) / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionCyl.rotation.x = -Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const area = Math.PI * r_hemi_sq;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (area &gt;= 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>AREA_A_LABEL.textContent = area.toFixed(4);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>AREA_B_LABEL.textContent = area.toFixed(4);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>AREA_A_LABEL.textContent = "0.0000";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>AREA_B_LABEL.textContent = "0.0000";</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- イベントリスナーの設定 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupEventListeners() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>SLICES_2D_SLIDER.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const numSlices = parseInt(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>SLICES_2D_LABEL.textContent = numSlices;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>createCircleSlices(numSlices);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>SLICE_HEIGHT_SLIDER.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateSliceHeight(parseFloat(e.target.value) / 100);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>SLICES_3D_SPHERE_SLIDER.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const numSlices = parseInt(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>SLICES_3D_SPHERE_LABEL.textContent = numSlices;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>createFullSphereSlices(numSlices);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', onWindowResize, false);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- ウィンドウリサイズ処理 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function onWindowResize() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// 2D</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const container2D = document.getElementById('canvas-2d-container');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(container2D &amp;&amp; renderer2D) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>camera2D.left = container2D.clientWidth / -2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>camera2D.right = container2D.clientWidth / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>camera2D.top = container2D.clientHeight / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>camera2D.bottom = container2D.clientHeight / -2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>camera2D.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderer2D.setSize(container2D.clientWidth, container2D.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Sphere Demo</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const containerSphere = document.getElementById('canvas-3d-sphere-container');</p>
+<p class="p1"><span class="Apple-converted-space">             </span>if(containerSphere &amp;&amp; rendererSphere) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cameraSphere.aspect = containerSphere.clientWidth / containerSphere.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cameraSphere.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>rendererSphere.setSize(containerSphere.clientWidth, containerSphere.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Cavalieri Demo</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const containerCavalieri = document.getElementById('canvas-3d-container');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(containerCavalieri &amp;&amp; rendererCavalieri) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// ★修正点: OrthographicCameraのリサイズ処理</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const aspect = containerCavalieri.clientWidth / containerCavalieri.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cameraCavalieri.left = cavalieriFrustumSize * aspect / -2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cameraCavalieri.right = cavalieriFrustumSize * aspect / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cameraCavalieri.top = cavalieriFrustumSize / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cameraCavalieri.bottom = cavalieriFrustumSize / -2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cameraCavalieri.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>rendererCavalieri.setSize(containerCavalieri.clientWidth, containerCavalieri.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- アニメーションループ ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function animate() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>requestAnimationFrame(animate);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(renderer2D) renderer2D.render(scene2D, camera2D);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(rendererSphere) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>controlsSphere.update();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>rendererSphere.render(sceneSphere, cameraSphere);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(rendererCavalieri) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>controlsCavalieri.update();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>rendererCavalieri.render(sceneCavalieri, cameraCavalieri);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 実行 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>init();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

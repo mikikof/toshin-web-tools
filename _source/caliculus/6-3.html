@@ -1,0 +1,948 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;理論の深化 - リーマン積分とルベーグ積分&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Noto+Sans+JP:wght@400;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f0f2f5;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.card {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.canvas-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 400px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #e5e7eb;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-group {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-mode {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #6b7280;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.75rem 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 9999px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px solid transparent;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: all 0.2s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-mode:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #4b5563;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-mode.active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #4f46e5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: #a5b4fc;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.slider-thumb::-webkit-slider-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #4f46e5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0KOVEMVIhbGKLCePo231CVQSHcLesaPSub69DVZXucRepAS5rJcWx" crossorigin="anonymous"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"&gt;&lt;/script&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-50 text-gray-800"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8 max-w-7xl"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4"&gt;理論の深化 - 積分法の進化&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-lg md:text-xl text-indigo-600 font-semibold"&gt;リーマンからルベーグへ&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-2xl font-bold mb-4"&gt;① リーマン積分という「常識的な」方法 📐&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;「無限小の和」という直感を数学的に正当化するため、リーマンは関数とx軸で囲まれた領域を細い長方形で分割し、その面積の合計を考えました。この長方形の幅を極限までゼロに近づけたとき、合計値が特定の価に収束するなら、それが定積分の値です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-center my-4"&gt;$$ \int_{a}^{b} f(x)dx = \lim_{n \to \infty} \sum_{i=1}^{n} f(x_i^*) \Delta x $$&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="font-semibold text-indigo-700"&gt;強み：私たちの「面積を短冊の集まりで近似する」という直感に非常にマッチしており、多くの「行儀の良い」関数に対して絶大な効果を発揮します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-2xl font-bold mb-4"&gt;② ルベーグ積分という「革新的な」視点 &lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;非常に不連続な関数など、リーマン積分では面積を定義できないケースが存在します。ルベーグは逆転の発想をしました。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;ul class="list-disc list-inside my-4 space-y-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;b&gt;リーマン:&lt;/b&gt; 「定義域（x軸）を細かく区切る」&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;b&gt;ルベーグ:&lt;/b&gt; 「値域（y軸）を細かく区切る」&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;同じような「高さ」を持つ点の集合をまず見つけ出し、その集合の「大きさ（測度）」を掛け合わせて足し上げます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="font-semibold text-indigo-700 mt-4"&gt; 革新性：より複雑な関数までをも扱える強力な積分理論で、現代の確率論や解析学の根幹を支えています。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-3xl font-bold text-center mb-2"&gt;積分法の可視化&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-center text-gray-600 mb-6"&gt;下のボタンで関数の形や積分の方法を切り替えて、違いを見比べてみましょう。&lt;/p&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex justify-center items-center gap-8 mb-6 flex-wrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-center font-semibold mb-2"&gt;関数の種類&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="btn-group" id="function-selector"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="btn-mode active" data-func="simple"&gt;シンプル&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="btn-mode" data-func="complex"&gt;複雑&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-center font-semibold mb-2"&gt;積分の方法&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="btn-group" id="mode-selector"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="btn-mode active" data-mode="riemann"&gt;リーマン&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="btn-mode" data-mode="lebesgue"&gt;ルベーグ&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="canvas-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;canvas id="integration-canvas"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="flex flex-col items-center mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;p class="text-lg mb-2"&gt;分割数: &lt;span id="partition-label" class="font-bold"&gt;10&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;input id="partition-slider" type="range" min="2" max="100" value="10" class="w-full max-w-lg h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;p class="mt-4 font-semibold text-xl"&gt;計算された面積: &lt;span id="area-value" class="font-mono text-indigo-600"&gt;0.00&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- ★★★ ここから追記 ★★★ --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-3xl font-bold text-center mb-6"&gt;ルベーグ積分が真価を発揮する世界&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="space-y-8 text-base md:text-lg leading-relaxed max-w-4xl mx-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-xl font-bold mb-2 text-indigo-600"&gt;1. ディリクレ関数：リーマン積分を壊す「意地悪」な例&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;ルベーグ積分のすごさを示す典型例が「ディリクレ関数」です。これは「xが有理数なら1、無理数なら0」という値を取る関数で、無数の不連続点を持ちます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;ul class="list-disc list-inside mt-2 space-y-1 pl-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;&lt;b&gt;リーマン積分の問題点:&lt;/b&gt; どんなに細い短冊を作っても、その中には必ず有理数と無理数の両方が含まれます。そのため、短冊の高さを「1」と取ることも「0」と取ることもできてしまい、面積の合計値は決して一つの値に収束しません。計算が破綻してしまうのです。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;&lt;b&gt;ルベーグ積分の鮮やかな解決策:&lt;/b&gt; ルベーグはx軸ではなくy軸を見ます。「値が1になる点の集まり（有理数全体）」と「値が0になる点の集まり（無理数全体）」に分け、それぞれの集合の「大きさ（測度）」を考えます。数直線上では、有理数はスカスカで測度は0、無理数はびっしりで測度は1（区間[0,1]の場合）となります。よって面積は &lt;code class="bg-gray-100 p-1 rounded"&gt;(値 1 × 測度 0) + (値 0 × 測度 1) = 0&lt;/code&gt; と、いとも簡単に確定します。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-xl font-bold mb-2 text-indigo-600"&gt;2. 確率論と期待値：「神の視点」の計算方法&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;「サイコロの期待値」を計算するとき、私たちは自然にルベーグ積分的な考え方をしています。計算式は `(1の目 × 1/6) + (2の目 × 1/6) + ...` となりますが、これは「出る目（&lt;b&gt;値&lt;/b&gt;）」ごとにグループ分けし、「その値が出る&lt;b&gt;確率（測度）&lt;/b&gt;」を掛けて足し合わせる、まさしくルベーグの発想です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-2"&gt;宝くじのように、確率が連続的な部分（ハズレ）と離散的な部分（アタリ）で混在している場合、リーマン積分ではうまく扱えません。しかし、ルベーグ積分なら、出る値（賞金）でグループ分けし、それぞれの確率（測度）を掛けて足し合わせるだけで、期待値を完璧に計算できます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-xl font-bold mb-2 text-indigo-600"&gt;3. 伊藤積分への架け橋：「測るモノサシ」の変更&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;この「何で測るかを変える」というルベーグの発想は、さらに発展します。金融工学などで使われる&lt;b&gt;伊藤積分&lt;/b&gt;は、不規則に変動する株価などを扱うため、時間の進み方そのものを「ランダムなモノサシ（確率過程）」で測り直します。これもまた、ルベーグ積分の「測り方を変える」という革新的なアイデアが根底にあるのです。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- ★★★ ここまで追記 ★★★ --&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (typeof renderMathInElement === 'function') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderMathInElement(document.body);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>class IntegralVisualizer {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>constructor(config) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.canvas = document.getElementById(config.canvasId);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx = this.canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.modeSelector = document.getElementById(config.modeSelectorId);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.functionSelector = document.getElementById(config.functionSelectorId);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.slider = document.getElementById(config.sliderId);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.partitionLabel = document.getElementById(config.partitionLabelId);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.areaLabel = document.getElementById(config.areaLabelId);</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.functions = config.functions;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.currentFunc = this.functions.simple;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.graph = config.graph;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.currentMode = 'riemann';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.partitions = parseInt(this.slider.value);</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.setupCanvas();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.addEventListeners();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>setupCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.dpr = window.devicePixelRatio || 1;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const rect = this.canvas.parentElement.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.width = rect.width;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.height = rect.height;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.canvas.width = this.width * this.dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.canvas.height = this.height * this.dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.canvas.style.width = `${this.width}px`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.canvas.style.height = `${this.height}px`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.scale(this.dpr, this.dpr);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.drawScene();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>toCX(x) { return this.graph.padding + (x - this.graph.xMin) / (this.graph.xMax - this.graph.xMin) * (this.width - 2 * this.graph.padding); }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>toCY(y) { return this.height - this.graph.padding - (y - this.graph.yMin) / (this.graph.yMax - this.graph.yMin) * (this.height - 2 * this.graph.padding); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawAxesAndFunction() {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.clearRect(0, 0, this.width, this.height);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.strokeStyle = '#d1d5db';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.lineWidth = 1;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.moveTo(this.graph.padding, this.toCY(0));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.lineTo(this.width - this.graph.padding, this.toCY(0));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.moveTo(this.toCX(this.graph.xMin), this.graph.padding);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.lineTo(this.toCX(this.graph.xMin), this.height - this.graph.padding);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.strokeStyle = '#1f2937';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.lineWidth = 3;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let x = this.graph.xMin; x &lt;= this.graph.xMax; x += 0.1) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.ctx.lineTo(this.toCX(x), this.toCY(this.currentFunc(x)));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawRiemann() {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const dx = (this.graph.xMax - this.graph.xMin) / this.partitions;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let totalArea = 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let i = 0; i &lt; this.partitions; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const xStart = this.graph.xMin + i * dx;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const y = this.currentFunc(xStart);</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>totalArea += y * dx;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const hue = (i / this.partitions) * 360;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.ctx.fillStyle = `hsla(${hue}, 90%, 70%, 0.7)`;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.ctx.strokeStyle = `hsla(${hue}, 90%, 50%, 0.5)`;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.ctx.lineWidth = 1;</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const cx = this.toCX(xStart);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const cWidth = this.toCX(xStart + dx) - cx;</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.ctx.fillRect(cx, this.toCY(y), cWidth, this.toCY(0) - this.toCY(y));</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.ctx.strokeRect(cx, this.toCY(y), cWidth, this.toCY(0) - this.toCY(y));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.areaLabel.textContent = totalArea.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawLebesgue() {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const yMinIntegration = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const yMaxIntegration = this.graph.yMax;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const dy = (yMaxIntegration - yMinIntegration) / this.partitions;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let totalArea = 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let i = 0; i &lt; this.partitions; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const y = yMinIntegration + i * dy;</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>let measure = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>let inSet = false;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>let startX = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const sampleStep = 0.02;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>for (let x = this.graph.xMin; x &lt;= this.graph.xMax; x += sampleStep) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const fx = this.currentFunc(x);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const currentlyInSet = (fx &gt;= y);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (currentlyInSet &amp;&amp; !inSet) startX = x;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (!currentlyInSet &amp;&amp; inSet) measure += (x - startX);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>inSet = currentlyInSet;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (inSet) measure += (this.graph.xMax - startX);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (measure &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>totalArea += dy * measure;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const hue = (y / this.graph.yMax) * 240 + 120;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>this.ctx.fillStyle = `hsla(${hue}, 90%, 70%, 0.7)`;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>this.ctx.strokeStyle = `hsla(${hue}, 90%, 40%, 1)`;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>this.ctx.lineWidth = 0.5;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>inSet = false;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>startX = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>for (let x = this.graph.xMin; x &lt;= this.graph.xMax; x += sampleStep) {</p>
+<p class="p1"><span class="Apple-converted-space">                                 </span>const fx = this.currentFunc(x);</p>
+<p class="p1"><span class="Apple-converted-space">                                 </span>const currentlyInSet = (fx &gt;= y);</p>
+<p class="p1"><span class="Apple-converted-space">                                 </span>if (currentlyInSet &amp;&amp; !inSet) startX = x;</p>
+<p class="p1"><span class="Apple-converted-space">                                 </span>if (!currentlyInSet &amp;&amp; inSet) {</p>
+<p class="p1"><span class="Apple-converted-space">                                     </span>this.ctx.fillRect(this.toCX(startX), this.toCY(y + dy), this.toCX(x) - this.toCX(startX), this.toCY(y) - this.toCY(y + dy));</p>
+<p class="p1"><span class="Apple-converted-space">                                     </span>this.ctx.strokeRect(this.toCX(startX), this.toCY(y + dy), this.toCX(x) - this.toCX(startX), this.toCY(y) - this.toCY(y + dy));</p>
+<p class="p1"><span class="Apple-converted-space">                                 </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                                 </span>inSet = currentlyInSet;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if(inSet){</p>
+<p class="p1"><span class="Apple-converted-space">                                 </span>this.ctx.fillRect(this.toCX(startX), this.toCY(y + dy), this.toCX(this.graph.xMax) - this.toCX(startX), this.toCY(y) - this.toCY(y + dy));</p>
+<p class="p1"><span class="Apple-converted-space">                                 </span>this.ctx.strokeRect(this.toCX(startX), this.toCY(y + dy), this.toCX(this.graph.xMax) - this.toCX(startX), this.toCY(y) - this.toCY(y + dy));</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.areaLabel.textContent = totalArea.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawScene() {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.drawAxesAndFunction();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (this.currentMode === 'riemann') {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.drawRiemann();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.drawLebesgue();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>addEventListeners() {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.modeSelector.addEventListener('click', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (e.target.classList.contains('btn-mode')) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>this.currentMode = e.target.dataset.mode;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>this.modeSelector.querySelectorAll('.btn-mode').forEach(btn =&gt; btn.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>e.target.classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>this.drawScene();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.functionSelector.addEventListener('click', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (e.target.classList.contains('btn-mode')) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const funcName = e.target.dataset.func;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>this.currentFunc = this.functions[funcName];</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>this.functionSelector.querySelectorAll('.btn-mode').forEach(btn =&gt; btn.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>e.target.classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>this.drawScene();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>this.slider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.partitions = parseInt(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.partitionLabel.textContent = this.partitions;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>this.drawScene();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>window.addEventListener('resize', () =&gt; this.setupCanvas());</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>new IntegralVisualizer({</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvasId: 'integration-canvas',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>modeSelectorId: 'mode-selector',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>functionSelectorId: 'function-selector',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sliderId: 'partition-slider',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>partitionLabelId: 'partition-label',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>areaLabelId: 'area-value',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>functions: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>simple: x =&gt; 5 * Math.sin(x / 5) + 5,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>complex: x =&gt; 2 * Math.sin(x / 1.5) + 3 * Math.cos(x / 4) + 5</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>graph: { xMin: 0, xMax: 40, yMin: -2, yMax: 12, padding: 40 }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;インタラクティブ定積分ビジュアライザー&lt;/title&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Chart.js (グラフ描画ライブラリ) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- MathJax (数式表示ライブラリ) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>MathJax = {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>tex: {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>inlineMath: [['$', '$'], ['\\(', '\\)']],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>displayMath: [['$$', '$$'], ['\\[', '\\]']]</p>
+<p class="p1"><span class="Apple-converted-space">          </span>},</p>
+<p class="p1"><span class="Apple-converted-space">          </span>svg: {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>fontCache: 'global'</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="text/javascript" id="MathJax-script" async</p>
+<p class="p1"><span class="Apple-converted-space">      </span>src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* 基本的なページスタイル */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>line-height: 1.7;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #333;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #fdfdfd;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 900px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 auto;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>h1, h2 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid #007bff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding-bottom: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #0056b3;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* 各セクションのスタイル */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.property-section {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #fff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #ddd;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 30px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 8px rgba(0,0,0,0.05);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: box-shadow 0.3s ease;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.property-section:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 6px 12px rgba(0,0,0,0.08);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* 数式表示エリアのスタイル */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.formula {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.2em;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #e9f5ff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 20px 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow-x: auto;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* 解説文のスタイル */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.explanation {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #fef9e7;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 10px 15px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 4px solid #f1c40f;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* 操作パネルのスタイル */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.controls {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 15px 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-wrap: wrap;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f8f9fa;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.controls label {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.controls input[type="range"] {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-grow: 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>min-width: 120px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* 計算結果の出力スタイル */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.output {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.1em;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #d35400;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 5px 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* グラフコンテナのスタイル */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.chart-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 300px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Flexboxを使ったレイアウト */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.flex-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-wrap: wrap;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.flex-container &gt; div {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex: 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>min-width: 250px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">         </span>hr {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 1px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 40px 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h1&gt;定積分の性質&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p&gt;定積分の基本的な性質を、グラフを動かしながら直感的に理解するためのページです。スライダーを動かして、数式とグラフがどう連動するか確かめます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p&gt;今回は例として、関数 \( f(t) = -0.1t^2 + t + 2 \) と \( g(t) = 0.5t + 1 \) を使って可視化します。&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;hr&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Property 1: Integral from a to a --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="property-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;1. 積分区間がない場合&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="formula"&gt;$$ \int_{\alpha}^{\alpha} f(t) dt = 0 $$&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="explanation"&gt;💡 積分区間の幅がゼロなので、面積もゼロになります。つまり、ただの「線」です。&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p1-alpha"&gt;α:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="range" id="p1-alpha" min="-5" max="15" value="5" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="output" id="p1-output"&gt;α = 5.0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;canvas id="chart1"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Property 2: Swapping limits --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="property-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;2. 積分区間の入れ替え&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="formula"&gt;$$ \int_{\alpha}^{\beta} f(t) dt = - \int_{\beta}^{\alpha} f(t) dt $$&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="explanation"&gt;💡 積分する向きを逆にすると、面積の符号が反転します。&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p2-alpha"&gt;α:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="range" id="p2-alpha" min="-5" max="15" value="2" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;label for="p2-beta"&gt;β:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="range" id="p2-beta" min="-5" max="15" value="10" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="output" id="p2-output-left"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="chart2_1"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="output" id="p2-output-right"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="chart2_2"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Property 3: Additivity (Corrected) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="property-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;3. 積分区間の加法性（分割）&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="formula"&gt;$$ \int_{\gamma}^{\beta} f(t) dt = \int_{\gamma}^{\alpha} f(t) dt + \int_{\alpha}^{\beta} f(t) dt $$&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="explanation"&gt;💡 全体の区間の面積は、途中で区切った2つの部分の面積の和と等しくなります。&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p3-gamma"&gt;γ:&lt;/label&gt; &lt;input type="range" id="p3-gamma" min="-5" max="15" value="0" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p3-alpha"&gt;α:&lt;/label&gt; &lt;input type="range" id="p3-alpha" min="-5" max="15" value="6" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p3-beta"&gt;β:&lt;/label&gt; &lt;input type="range" id="p3-beta" min="-5" max="15" value="12" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="p3-output" class="output"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;canvas id="chart3"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Property 4: Constant Factor --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="property-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;4. 定数倍&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="formula"&gt;$$ \int_{\alpha}^{\beta} \kappa f(t) dt = \kappa \int_{\alpha}^{\beta} f(t) dt $$&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="explanation"&gt;💡 関数を縦に \(\kappa\) 倍に引き伸ばすと、面積も \(\kappa\) 倍になります。左右のグラフのY軸の縮尺は同期しています。&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p4-alpha"&gt;α:&lt;/label&gt; &lt;input type="range" id="p4-alpha" min="-5" max="15" value="2" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p4-beta"&gt;β:&lt;/label&gt; &lt;input type="range" id="p4-beta" min="-5" max="15" value="10" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p4-kappa"&gt;κ:&lt;/label&gt; &lt;input type="range" id="p4-kappa" min="-2" max="3" value="1.5" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;\(\int f(t) dt\)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="output" id="p4-output-left"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="chart4_1"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;p&gt;\(\int \kappa f(t) dt\)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="output" id="p4-output-right"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="chart4_2"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Property 5: Sum/Difference --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="property-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;5. 和と差の積分&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="formula"&gt;$$ \int_{\alpha}^{\beta} (f(t) + g(t)) dt = \int_{\alpha}^{\beta} f(t) dt + \int_{\alpha}^{\beta} g(t) dt $$&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="explanation"&gt;💡 「2つの関数を足してから積分」した面積は、「それぞれを積分してから足した」面積と等しくなります。&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">         </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p5-alpha"&gt;α:&lt;/label&gt; &lt;input type="range" id="p5-alpha" min="-5" max="15" value="1" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p5-beta"&gt;β:&lt;/label&gt; &lt;input type="range" id="p5-beta" min="-5" max="15" value="9" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="p5-output" class="output" style="text-align: center; margin-bottom: 15px;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;\(\int f(t)dt\)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container" style="height:200px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="chart5_1"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;p&gt;\(\int g(t)dt\)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container" style="height:200px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="chart5_2"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;p&gt;\(\int (f(t)+g(t))dt\)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container" style="height:200px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="chart5_3"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;hr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2&gt;定理と不等式&lt;/h2&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Property 6: Mean Value Theorem --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="property-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;6. 積分における平均値の定理&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="formula"&gt;$$ \text{ある } c \in (\alpha, \beta) \text{ が存在し、} \int_{\alpha}^{\beta} f(t) dt = (\beta - \alpha) f(c) $$&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="explanation"&gt;💡 曲線の下の面積（左辺）と、面積が等しくなるような「長方形」（右辺）が必ず存在することを示します。その長方形の高さ \(f(c)\) が関数の「平均の高さ」になります。&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p6-alpha"&gt;α:&lt;/label&gt; &lt;input type="range" id="p6-alpha" min="-5" max="15" value="1" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p6-beta"&gt;β:&lt;/label&gt; &lt;input type="range" id="p6-beta" min="-5" max="15" value="11" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="p6-output" class="output"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;canvas id="chart6"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Property 7: Absolute Value Inequality --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="property-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;7. 絶対値に関する不等式&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="formula"&gt;$$ \left| \int_{\alpha}^{\beta} f(t) dt \right| \le \int_{\alpha}^{\beta} |f(t)| dt $$&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="explanation"&gt;💡 左辺はプラスの面積とマイナスの面積を相殺してから絶対値をとります。右辺はマイナスの面積をプラスに反転させてから足し合わせます。そのため、必ず右辺が左辺以上になります。&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p style="margin:0;"&gt;※この性質を分かりやすくするため、このセクションのみ \(f(t) = 5\sin(0.5t)\) を使います。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p7-alpha"&gt;α:&lt;/label&gt; &lt;input type="range" id="p7-alpha" min="0" max="20" value="1" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p7-beta"&gt;β:&lt;/label&gt; &lt;input type="range" id="p7-beta" min="0" max="20" value="15" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="output" id="p7-output-left"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="chart7_1"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="output" id="p7-output-right"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="chart7_2"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Property 8: Cauchy-Schwarz --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="property-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;8. コーシー・シュワルツの不等式&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="formula"&gt;$$ \left( \int_{\alpha}^{\beta} f(t)g(t) dt \right)^2 \le \left( \int_{\alpha}^{\beta} f(t)^2 dt \right) \left( \int_{\alpha}^{\beta} g(t)^2 dt \right) $$&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="explanation" style="background-color: #e8f6f3; border-left-color: #1abc9c;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;&lt;strong&gt;💡 なぜこうなるの？ベクトルで考えてみよう！&lt;/strong&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>この不等式をグラフで直接イメージするのは難しいですが、高校で習うベクトルの「内積」で考えると、とてもスッキリします。&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>2つのベクトル $\vec{a}$ と $\vec{b}$ があるとき、内積に関する不等式は $(\vec{a} \cdot \vec{b})^2 \le |\vec{a}|^2 |\vec{b}|^2$ でした。（等号は2つのベクトルが平行なときに成り立ちます）</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p style="margin-top:10px;"&gt;実は、関数も一種の「無限次元のベクトル」と見なすことができます。その世界では、&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>- 関数の&lt;b&gt;内積&lt;/b&gt;が $\int_{\alpha}^{\beta} f(t)g(t)dt$&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>- 関数の&lt;b&gt;長さの2乗&lt;/b&gt;が $\int_{\alpha}^{\beta} f(t)^2 dt$&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>に対応します。こう考えると、コーシー・シュワルツの不等式は、ベクトルの内積の性質を関数に拡張したもの、と直感的に理解できます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="explanation"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>💡 ここでは、スライダーを動かして、この関係が常に成り立つことを数値で確認してみましょう。</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">         </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p8-alpha"&gt;α:&lt;/label&gt; &lt;input type="range" id="p8-alpha" min="-5" max="15" value="2" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="p8-beta"&gt;β:&lt;/label&gt; &lt;input type="range" id="p8-beta" min="-5" max="15" value="10" step="0.1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="p8-output" class="output" style="font-size: 1.3em; text-align:center;"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">// ========== 共通の関数とデータ ==========</p>
+<p class="p2"><br></p>
+<p class="p1">// 使用する関数</p>
+<p class="p1">const f = t =&gt; -0.1 * t * t + t + 2;</p>
+<p class="p1">const g = t =&gt; 0.5 * t + 1;</p>
+<p class="p1">const f7 = t =&gt; 5 * Math.sin(0.5*t); // 7番目の性質のデモ用</p>
+<p class="p2"><br></p>
+<p class="p1">/**</p>
+<p class="p1"><span class="Apple-converted-space"> </span>* 数値積分（リーマン和による近似）</p>
+<p class="p1"><span class="Apple-converted-space"> </span>* @param {function} func - 積分対象の関数</p>
+<p class="p1"><span class="Apple-converted-space"> </span>* @param {number} a - 積分区間の下端</p>
+<p class="p1"><span class="Apple-converted-space"> </span>* @param {number} b - 積分区間の上端</p>
+<p class="p1"><span class="Apple-converted-space"> </span>* @param {number} n - 分割数</p>
+<p class="p1"><span class="Apple-converted-space"> </span>* @returns {number} 積分結果の近似値</p>
+<p class="p1"><span class="Apple-converted-space"> </span>*/</p>
+<p class="p1">function integrate(func, a, b, n = 200) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (a === b) return 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const dx = (b - a) / n;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let sum = 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>for (let i = 0; i &lt; n; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sum += func(a + i * dx);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return sum * dx;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// グラフ描画用のx軸ラベルと、各関数のy軸データ</p>
+<p class="p1">const chartLabels = Array.from({ length: 201 }, (_, i) =&gt; parseFloat(((i - 50) * 0.1).toFixed(1)));</p>
+<p class="p1">const f_data = chartLabels.map(f);</p>
+<p class="p1">const g_data = chartLabels.map(g);</p>
+<p class="p2"><br></p>
+<p class="p1">/**</p>
+<p class="p1"><span class="Apple-converted-space"> </span>* 共通のグラフオプションを生成する関数</p>
+<p class="p1"><span class="Apple-converted-space"> </span>* @returns {object} Chart.jsのオプションオブジェクト</p>
+<p class="p1"><span class="Apple-converted-space"> </span>*/</p>
+<p class="p1">function createChartOptions() {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>responsive: true,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>maintainAspectRatio: false,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>scales: {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>x: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ticks: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>callback: function(val, index) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// 10個に1つのラベル (つまり整数) のみ表示</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (index % 10 === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>return this.getLabelForValue(val);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>return ''; // それ以外は非表示</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>autoSkip: false,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>maxRotation: 0,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>minRotation: 0</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>y: { beginAtZero: true }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p1"><span class="Apple-converted-space">        </span>plugins: { legend: { display: false } }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1">// ========== 各プロパティのグラフ描画と更新処理 ==========</p>
+<p class="p1">document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- 1. 積分区間が a から a まで ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const ctx1 = document.getElementById('chart1').getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const p1_alpha_slider = document.getElementById('p1-alpha');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const p1_output = document.getElementById('p1-output');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart1 = new Chart(ctx1, {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>data: {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>labels: chartLabels,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>datasets: [</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{ label: 'α', data: [], type: 'bar', backgroundColor: 'rgba(255, 99, 132, 0.8)' }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>]</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p1"><span class="Apple-converted-space">        </span>options: createChartOptions()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function update1() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const alpha = parseFloat(p1_alpha_slider.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>p1_output.textContent = `α = ${alpha.toFixed(1)},<span class="Apple-converted-space">  </span>∫f(t)dt = 0`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lineData = chartLabels.map(t =&gt; (Math.abs(t - alpha) &lt; 0.05) ? Math.max(...f_data, 5) : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart1.data.datasets[1].data = lineData;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart1.update();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>p1_alpha_slider.addEventListener('input', update1);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>update1();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- 2. 積分区間の入れ替え ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chartOptions2 = createChartOptions();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart2_1 = new Chart(document.getElementById('chart2_1').getContext('2d'), {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line', data: { labels: chartLabels, datasets: [ { label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Area', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)', fill: 'origin' } ] }, options: chartOptions2</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart2_2 = new Chart(document.getElementById('chart2_2').getContext('2d'), {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line', data: { labels: chartLabels, datasets: [ { label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Area', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)', fill: 'origin' } ] }, options: chartOptions2</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function update2() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let alpha = parseFloat(document.getElementById('p2-alpha').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let beta = parseFloat(document.getElementById('p2-beta').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const integral = integrate(f, alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p2-output-left').textContent = `∫[${alpha.toFixed(1)}, ${beta.toFixed(1)}] = ${integral.toFixed(2)}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p2-output-right').textContent = `-∫[${beta.toFixed(1)}, ${alpha.toFixed(1)}] = ${(-integral).toFixed(2)}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaData = f_data.map((y, i) =&gt; chartLabels[i] &gt;= Math.min(alpha, beta) &amp;&amp; chartLabels[i] &lt;= Math.max(alpha, beta) ? y : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart2_1.data.datasets[1].data = areaData;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart2_2.data.datasets[1].data = areaData;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart2_1.update('none');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart2_2.update('none');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['p2-alpha', 'p2-beta'].forEach(id =&gt; document.getElementById(id).addEventListener('input', update2));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>update2();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- 3. 積分区間の加法性 ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart3 = new Chart(document.getElementById('chart3').getContext('2d'), {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>data: { labels: chartLabels, datasets: [ { label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Area γ-α', data: [], backgroundColor: 'rgba(54, 162, 235, 0.5)', fill: 'origin' }, { label: 'Area α-β', data: [], backgroundColor: 'rgba(255, 99, 132, 0.5)', fill: 'origin' } ] },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>options: createChartOptions()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function update3() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let gamma = parseFloat(document.getElementById('p3-gamma').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let alpha = parseFloat(document.getElementById('p3-alpha').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let beta = parseFloat(document.getElementById('p3-beta').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (alpha &lt; gamma) { alpha = gamma; document.getElementById('p3-alpha').value = gamma; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (beta &lt; alpha) { beta = alpha; document.getElementById('p3-beta').value = alpha; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int1 = integrate(f, gamma, alpha);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int2 = integrate(f, alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const totalInt = integrate(f, gamma, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p3-output').innerHTML = `∫(${gamma.toFixed(1)}→${alpha.toFixed(1)}) + ∫(${alpha.toFixed(1)}→${beta.toFixed(1)}) = ${int1.toFixed(2)} + ${int2.toFixed(2)} = ${(int1+int2).toFixed(2)} &lt;br&gt; 全体: ∫(${gamma.toFixed(1)}→${beta.toFixed(1)}) = ${totalInt.toFixed(2)}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart3.data.datasets[1].data = f_data.map((y, i) =&gt; chartLabels[i] &gt;= gamma &amp;&amp; chartLabels[i] &lt;= alpha ? y : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart3.data.datasets[2].data = f_data.map((y, i) =&gt; chartLabels[i] &gt;= alpha &amp;&amp; chartLabels[i] &lt;= beta ? y : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart3.update('none');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['p3-gamma', 'p3-alpha', 'p3-beta'].forEach(id =&gt; document.getElementById(id).addEventListener('input', update3));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>update3();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- 4. 定数倍 ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart4_1 = new Chart(document.getElementById('chart4_1').getContext('2d'), {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line', data: { labels: chartLabels, datasets: [ { data: f_data, borderColor: 'rgb(153, 102, 255)', tension: 0.1, pointRadius: 0 }, { data: [], backgroundColor: 'rgba(153, 102, 255, 0.5)', fill: 'origin' } ] }, options: createChartOptions()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart4_2 = new Chart(document.getElementById('chart4_2').getContext('2d'), {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line', data: { labels: chartLabels, datasets: [ { data: [], borderColor: 'rgb(153, 102, 255)', tension: 0.1, pointRadius: 0 }, { data: [], backgroundColor: 'rgba(153, 102, 255, 0.5)', fill: 'origin' } ] }, options: createChartOptions()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function update4() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const alpha = parseFloat(document.getElementById('p4-alpha').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const beta = parseFloat(document.getElementById('p4-beta').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const kappa = parseFloat(document.getElementById('p4-kappa').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const f_kappa = t =&gt; kappa * f(t);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_f = integrate(f, alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_f_kappa = integrate(f_kappa, alpha, beta);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p4-output-left').innerHTML = `∫f = ${int_f.toFixed(2)}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p4-output-right').innerHTML = `∫(${kappa.toFixed(1)}f) = ${int_f_kappa.toFixed(2)} &lt;br&gt; (${kappa.toFixed(1)} × ${int_f.toFixed(2)} = ${(kappa * int_f).toFixed(2)})`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const f_kappa_data = chartLabels.map(f_kappa);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Y軸のスケールを同期させるための処理</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const combinedData = f_data.concat(f_kappa_data);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const dataMin = Math.min(...combinedData);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const dataMax = Math.max(...combinedData);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const padding = (dataMax - dataMin) * 0.1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const newMin = Math.min(0, dataMin - padding);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const newMax = dataMax + padding;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart4_1.options.scales.y.min = newMin;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart4_1.options.scales.y.max = newMax;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart4_2.options.scales.y.min = newMin;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart4_2.options.scales.y.max = newMax;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// グラフデータを更新</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart4_1.data.datasets[1].data = f_data.map((y, i) =&gt; chartLabels[i] &gt;= alpha &amp;&amp; chartLabels[i] &lt;= beta ? y : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart4_2.data.datasets[0].data = f_kappa_data;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart4_2.data.datasets[1].data = f_kappa_data.map((y, i) =&gt; chartLabels[i] &gt;= alpha &amp;&amp; chartLabels[i] &lt;= beta ? y : null);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart4_1.update('none');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart4_2.update('none');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['p4-alpha', 'p4-beta', 'p4-kappa'].forEach(id =&gt; document.getElementById(id).addEventListener('input', update4));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>update4();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- 5. 和と差の積分 ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const createChart5 = (ctx, data, color) =&gt; new Chart(ctx, {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line', data: { labels: chartLabels, datasets: [ { data: data, borderColor: color, tension: 0.1, pointRadius: 0 }, { data: [], backgroundColor: color.replace(')', ', 0.5)').replace('rgb', 'rgba'), fill: 'origin' } ] }, options: createChartOptions()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart5_1 = createChart5(document.getElementById('chart5_1').getContext('2d'), f_data, 'rgb(75, 192, 192)');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart5_2 = createChart5(document.getElementById('chart5_2').getContext('2d'), g_data, 'rgb(255, 159, 64)');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart5_3 = createChart5(document.getElementById('chart5_3').getContext('2d'), chartLabels.map(t =&gt; f(t) + g(t)), 'rgb(153, 102, 255)');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function update5() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const alpha = parseFloat(document.getElementById('p5-alpha').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const beta = parseFloat(document.getElementById('p5-beta').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_f = integrate(f, alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_g = integrate(g, alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_sum = integrate(t =&gt; f(t) + g(t), alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p5-output').innerHTML = `∫f + ∫g = ${int_f.toFixed(2)} + ${int_g.toFixed(2)} = ${(int_f + int_g).toFixed(2)}&lt;br&gt;∫(f+g) = ${int_sum.toFixed(2)}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const updateArea = (chart, data) =&gt; { chart.data.datasets[1].data = data.map((y, i) =&gt; chartLabels[i] &gt;= alpha &amp;&amp; chartLabels[i] &lt;= beta ? y : null); chart.update('none'); };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateArea(chart5_1, f_data);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateArea(chart5_2, g_data);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateArea(chart5_3, chartLabels.map(t =&gt; f(t) + g(t)));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['p5-alpha', 'p5-beta'].forEach(id =&gt; document.getElementById(id).addEventListener('input', update5));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>update5();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- 6. 積分における平均値の定理 ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart6 = new Chart(document.getElementById('chart6').getContext('2d'), {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>data: { labels: chartLabels, datasets: [ { label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Area', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)', fill: 'origin' }, { label: 'Rectangle', type: 'bar', data: [], backgroundColor: 'rgba(255, 99, 132, 0.5)', barPercentage: 1.0, categoryPercentage: 1.0 } ] },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>options: createChartOptions()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function update6() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const alpha = parseFloat(document.getElementById('p6-alpha').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const beta = parseFloat(document.getElementById('p6-beta').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const p6_output = document.getElementById('p6-output');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (alpha &gt;= beta) { p6_output.textContent = "α &lt; β になるように設定してください"; chart6.data.datasets[1].data = []; chart6.data.datasets[2].data = []; chart6.update('none'); return; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const integral = integrate(f, alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const avg_height = integral / (beta - alpha);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let c = NaN;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let t = alpha; t &lt;= beta; t+=0.01) { if(isNaN(c) || Math.abs(f(t) - avg_height) &lt; Math.abs(f(c) - avg_height)) { c = t; } }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>p6_output.textContent = `∫f(t)dt = ${integral.toFixed(2)},<span class="Apple-converted-space">  </span>平均の高さ f(c) = ${avg_height.toFixed(2)}, c ≈ ${c.toFixed(2)}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart6.data.datasets[1].data = f_data.map((y, i) =&gt; chartLabels[i] &gt;= alpha &amp;&amp; chartLabels[i] &lt;= beta ? y : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart6.data.datasets[2].data = chartLabels.map((t) =&gt; (t &gt;= alpha &amp;&amp; t &lt;= beta) ? avg_height : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart6.update('none');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['p6-alpha', 'p6-beta'].forEach(id =&gt; document.getElementById(id).addEventListener('input', update6));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>update6();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- 7. 絶対値に関する不等式 ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const f7_labels = Array.from({ length: 201 }, (_, i) =&gt; parseFloat((i * 0.1).toFixed(1)));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const f7_data = f7_labels.map(f7);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const abs_f7_data = f7_labels.map(t =&gt; Math.abs(f7(t)));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart7Options1 = createChartOptions();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>chart7Options1.scales.x.ticks.callback = function(val, index) { return index % 20 === 0 ? this.getLabelForValue(val) : ''; };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>chart7Options1.scales.y.beginAtZero = false;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart7Options2 = createChartOptions();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>chart7Options2.scales.x.ticks.callback = chart7Options1.scales.x.ticks.callback;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart7_1 = new Chart(document.getElementById('chart7_1').getContext('2d'), {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line', data: { labels: f7_labels, datasets: [ { label: 'f(t)', data: f7_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Positive Area', data: [], backgroundColor: 'rgba(54, 162, 235, 0.5)', fill: {target: 'origin', above: 'rgba(54, 162, 235, 0.5)'} }, { label: 'Negative Area', data: [], backgroundColor: 'rgba(255, 99, 132, 0.5)', fill: {target: 'origin', below: 'rgba(255, 99, 132, 0.5)'} } ] }, options: chart7Options1</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chart7_2 = new Chart(document.getElementById('chart7_2').getContext('2d'), {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>type: 'line', data: { labels: f7_labels, datasets: [ { label: '|f(t)|', data: abs_f7_data, borderColor: 'rgb(153, 102, 255)', tension: 0.1, pointRadius: 0 }, { label: 'Area', data: [], backgroundColor: 'rgba(153, 102, 255, 0.5)', fill: 'origin' } ] }, options: chart7Options2</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function update7() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const alpha = parseFloat(document.getElementById('p7-alpha').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const beta = parseFloat(document.getElementById('p7-beta').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_f = integrate(f7, alpha, beta, 400);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_abs_f = integrate(t =&gt; Math.abs(f7(t)), alpha, beta, 400);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p7-output-left').innerHTML = `|∫f dt| = |${int_f.toFixed(2)}| = &lt;b&gt;${Math.abs(int_f).toFixed(2)}&lt;/b&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p7-output-right').innerHTML = `∫|f| dt = &lt;b&gt;${int_abs_f.toFixed(2)}&lt;/b&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart7_1.data.datasets[1].data = f7_data.map((y, i) =&gt; f7_labels[i] &gt;= alpha &amp;&amp; f7_labels[i] &lt;= beta ? y : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart7_1.data.datasets[2].data = f7_data.map((y, i) =&gt; f7_labels[i] &gt;= alpha &amp;&amp; f7_labels[i] &lt;= beta ? y : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart7_2.data.datasets[1].data = abs_f7_data.map((y, i) =&gt; f7_labels[i] &gt;= alpha &amp;&amp; f7_labels[i] &lt;= beta ? y : null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart7_1.update('none');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chart7_2.update('none');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['p7-alpha', 'p7-beta'].forEach(id =&gt; document.getElementById(id).addEventListener('input', update7));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>update7();</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- 8. コーシー・シュワルツの不等式 ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function update8(){</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const alpha = parseFloat(document.getElementById('p8-alpha').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const beta = parseFloat(document.getElementById('p8-beta').value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_fg = integrate(t =&gt; f(t) * g(t), alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_f2 = integrate(t =&gt; f(t) * f(t), alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const int_g2 = integrate(t =&gt; g(t) * g(t), alpha, beta);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lhs = int_fg * int_fg;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const rhs = int_f2 * int_g2;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('p8-output').innerHTML = `(∫fg)² = ${lhs.toFixed(2)} &lt;br&gt; (∫f²) (∫g²) = ${rhs.toFixed(2)} &lt;br&gt; 結果: &lt;b&gt;${lhs.toFixed(2)} ≤ ${rhs.toFixed(2)}&lt;/b&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['p8-alpha', 'p8-beta'].forEach(id =&gt; document.getElementById(id).addEventListener('input', update8));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>update8();</p>
+<p class="p1">});</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

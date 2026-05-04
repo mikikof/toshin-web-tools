@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2連続性の重要性を可視化するツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        }
+        .tab-button.active {
+            border-color: #3b82f6;
+            background-color: #3b82f6;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Common canvas styles */
+        .canvas-container {
+            width: 100%;
+            height: 300px;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            position: relative;
+        }
+        .canvas-container svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #cg-canvas-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            cursor: grab;
+        }
+        #cg-canvas-container canvas:active {
+            cursor: grabbing;
+        }
+        .control-point {
+            cursor: grab;
+        }
+        .control-point:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">C²級の重要性</h1>
+            <p class="mt-2 text-md md:text-lg text-gray-600">「曲率が滑らか」だと、なぜ世界は安定し美しくなるのか？</p>
+        </header>
+
+        <!-- Tab Buttons -->
+        <div class="mb-6 border-b border-gray-300">
+            <nav class="flex flex-wrap -mb-px" id="tab-buttons">
+                <button data-tab="simulation" class="tab-button text-sm md:text-base font-medium text-center text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-300 py-3 px-4 active">A. スプライン補間</button>
+                <button data-tab="transport" class="tab-button text-sm md:text-base font-medium text-center text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-300 py-3 px-4">B. 道路のカーブ</button>
+                <button data-tab="cg" class="tab-button text-sm md:text-base font-medium text-center text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-300 py-3 px-4">C. CGのハイライト</button>
+                <button data-tab="sound" class="tab-button text-sm md:text-base font-medium text-center text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-300 py-3 px-4">D. 音声合成</button>
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-contents">
+            <!-- A. Simulation: Spline Interpolation (2D Version) -->
+            <div id="simulation-content" class="tab-content active">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="grid md:grid-cols-2 gap-6 items-center">
+                        <div>
+                            <h2 class="text-xl font-bold mb-2">2Dスプライン曲線</h2>
+                            <p class="text-sm text-gray-600 mb-2">黒い制御点をドラッグして、コースを自由に変更できます。</p>
+                            <div id="spline-2d-canvas" class="canvas-container"></div>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold mb-2">曲率の変化</h2>
+                            <p class="text-sm text-gray-600 mb-2">コース上の「曲がり具合」をグラフ化したものです。</p>
+                            <div id="curvature-graph" class="canvas-container"></div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 items-center">
+                        <select id="spline-type" class="w-full sm:w-auto block pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md">
+                            <option value="C0">C⁰ (折れ線)</option>
+                            <option value="C1">C¹ (接線が連続)</option>
+                            <option value="C2" selected>C² (曲率が連続)</option>
+                        </select>
+                        <button id="spline-play-button" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded whitespace-nowrap">再生/リセット</button>
+                    </div>
+                     <div class="mt-6">
+                        <h2 class="text-xl font-bold mb-2">解説</h2>
+                        <p class="text-gray-700 mb-4">再生ボタンを押すと、乗り物（赤い点）がコースを走り、下のグラフでは現在位置の曲率（赤い縦線）が示されます。連続性の違いで曲率グラフがどう変わるかに注目してください。</p>
+                        <ul class="space-y-3 text-sm">
+                            <li><strong class="text-blue-600">C⁰ (折れ線):</strong> 直線部分の曲率は常に0ですが、角では無限大に発散します。グラフが途切れる点で、急転換していることを意味します。</li>
+                            <li><strong class="text-blue-600">C¹ (接線連続):</strong> 軌道は滑らかに見えますが、制御点を通過する瞬間、曲率が瞬時にジャンプします。滑らかに見えても、実は急な方向転換があることを意味しています。</li>
+                            <li><strong class="text-blue-600">C² (曲率連続):</strong> 曲率のグラフが滑らかに変化します。曲がり具合がスムーズで、衝撃のない自然な動きが実現できていることを示します。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- B. Transport: Road Curve -->
+            <div id="transport-content" class="tab-content">
+                 <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-bold mb-2">道路カーブとハンドル操作</h2>
+                        <p class="text-sm text-gray-600 mb-4">再生ボタンを押して、車の動きとハンドルの切れ角（＝曲率）の関係を見てみましょう。</p>
+                        <div id="road-canvas" class="w-full h-64 md:h-80 bg-gray-50 rounded border relative"></div>
+                        <div class="mt-4 flex items-center space-x-4">
+                            <button id="road-play-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">再生</button>
+                            <select id="road-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                <option value="C1">円弧カーブ (C¹)</option>
+                                <option value="C2" selected>クロソイドカーブ (C²)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-bold mb-2">解説</h2>
+                        <p class="text-gray-700 mb-4">高速道路などでは、急なハンドル操作を避けるために曲率が滑らかに変化する「クロソイド曲線」が使われます。</p>
+                        <ul class="space-y-3 text-sm">
+                            <li><strong class="text-blue-600">円弧カーブ (C¹):</strong> 直線からカーブに入る瞬間に、ハンドルを一定の角度まで「瞬時に」切る必要があります。これは曲率の不連続性（ジャンプ）が原因で、乗り心地の悪化や、高速走行ではスリップの危険性を伴います。</li>
+                            <li><strong class="text-blue-600">クロソイドカーブ (C²):</strong> 直線からカーブに向けて、徐々にハンドルを切り込んでいきます。曲率が線形に（滑らかに）変化するため、加加速度（躍度, jerk）が抑えられ、安全で快適な走行が可能になります。ロボットアームの軌道制御でも同じ考え方が使われます。</li>
+                        </ul>
+                         <div id="steering-graph" class="w-full h-32 mt-4 bg-gray-50 rounded border"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- C. CG: Specular Highlight -->
+            <div id="cg-content" class="tab-content">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-bold mb-2">曲面と光の反射</h2>
+                        <p class="text-sm text-gray-600 mb-4">マウスで視点を動かし、曲面上のハイライト（光沢）がどう見えるか確認しましょう。</p>
+                        <div id="cg-canvas-container" class="w-full h-80 md:h-96 bg-black rounded border"></div>
+                        <div class="mt-4">
+                             <label for="surface-type" class="block text-sm font-medium text-gray-700">連続性の種類:</label>
+                            <select id="surface-type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                <option value="G1">G¹ (接線連続)</option>
+                                <option value="G2" selected>G² (曲率連続)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-bold mb-2">解説</h2>
+                        <p class="text-gray-700 mb-4">工業製品のデザインでは、見た目の滑らかさを保証する幾何学的連続性（G-continuous）が重要です。</p>
+                        <ul class="space-y-3 text-sm">
+                           <li><strong class="text-blue-600">G¹ (接線連続):</strong> パッチのつなぎ目で接線方向は一致しますが、曲率は一致しません。このため、光のハイライト（リフレクションライン）が「折れ曲がって」見えます。車のボディなどでこれがあると、安っぽいプラスチックのような印象を与えてしまいます。</li>
+                           <li><strong class="text-blue-600">G² (曲率連続):</strong> つなぎ目で曲率も滑らかに変化するため、ハイライトが途切れることなく綺麗に流れていきます。これにより、磨き上げられた金属や、流線形の美しいボディラインといった高品質な質感を表現できます。CAD/CAMの世界では必須の概念です。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- D. Sound: Audio Synthesis -->
+            <div id="sound-content" class="tab-content">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-bold mb-2">ピッチの変化と滑らかさ</h2>
+                        <p class="text-sm text-gray-600 mb-4">再生ボタンで、音の高さが変化する様子を聴き比べてください。（※音量にご注意ください）</p>
+                        <div id="sound-canvas" class="w-full h-64 md:h-80 bg-gray-50 rounded border"></div>
+                        <div class="mt-4 flex items-center space-x-4">
+                            <button id="sound-play-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">再生</button>
+                             <select id="sound-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                <option value="C1">角のあるピッチ変化 (C¹)</option>
+                                <option value="C2" selected>滑らかなピッチ変化 (C²)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-xl font-bold mb-2">解説</h2>
+                        <p class="text-gray-700 mb-4">音の高さ（周波数）の変化が滑らかでないと、不自然で機械的な音に聞こえます。</p>
+                        <ul class="space-y-3 text-sm">
+                           <li><strong class="text-blue-600">角のあるピッチ変化 (C¹):</strong> 周波数の変化「率」が途中で急に変わると、音の変化に「角」が感じられます。ロボットのような少し不自然なイントネーションに聞こえます。</li>
+                           <li><strong class="text-blue-600">滑らかなピッチ変化 (C²):</strong> 周波数の変化率も滑らかに変わることで、自然なポルタメント（音と音の間を滑らかにつなぐ奏法）になります。これにより、歌声や楽器の自然な音程変化が表現できます。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Tab logic ---
+    const tabButtons = document.getElementById('tab-buttons');
+    const tabContents = document.getElementById('tab-contents');
+    let activeTab = 'simulation';
+
+    tabButtons.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tab-button')) {
+            const tabName = e.target.dataset.tab;
+            if(tabName === activeTab) return;
+
+            Array.from(tabButtons.children).forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            Array.from(tabContents.children).forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(`${tabName}-content`).style.display = 'block';
+
+            activeTab = tabName;
+
+            // Initialize tab content if it's the first time
+            if (tabName === 'simulation' && !splineInitialized) initSpline2D();
+            if (tabName === 'transport' && !transportInitialized) initTransport();
+            if (tabName === 'cg' && !cgInitialized) initCg();
+            if (tabName === 'sound' && !soundInitialized) initSound();
+        }
+    });
+
+    // --- A. Spline 2D Visualization (Current version) ---
+    let splineInitialized = false;
+    const splineTypeSelect = document.getElementById('spline-type');
+    const playButton = document.getElementById('spline-play-button');
+    let splineSvg, curvatureSvg, path, rider, curvaturePath, curvatureIndicator;
+    let controlPoints = [];
+    let width, height, graphWidth, graphHeight;
+    let isPlaying = false;
+
+    function initSpline2D() {
+        if (splineInitialized) return;
+        splineInitialized = true;
+
+        const splineContainer = d3.select("#spline-2d-canvas");
+        const curvatureContainer = d3.select("#curvature-graph");
+
+        splineSvg = splineContainer.append("svg");
+        curvatureSvg = curvatureContainer.append("svg");
+
+        const containerRect = splineContainer.node().getBoundingClientRect();
+        width = containerRect.width;
+        height = containerRect.height;
+        controlPoints = [
+            { x: width * 0.1, y: height * 0.5 },
+            { x: width * 0.3, y: height * 0.8 },
+            { x: width * 0.5, y: height * 0.2 },
+            { x: width * 0.7, y: height * 0.6 },
+            { x: width * 0.9, y: height * 0.4 },
+        ];
+
+        rider = splineSvg.append("circle").attr("r", 7).attr("fill", "#ef4444").style("display", "none");
+
+        const graphRect = curvatureContainer.node().getBoundingClientRect();
+        graphWidth = graphRect.width;
+        graphHeight = graphRect.height;
+        curvatureIndicator = curvatureSvg.append("line").attr("stroke", "#ef4444").attr("stroke-width", 1.5).attr("y1", 0).attr("y2", graphHeight).style("display", "none");
+
+        splineTypeSelect.addEventListener('change', updateVisuals);
+        playButton.addEventListener('click', toggleAnimation);
+
+        new ResizeObserver(() => {
+            const newRect = splineContainer.node().getBoundingClientRect();
+            const newGraphRect = curvatureContainer.node().getBoundingClientRect();
+            const scaleX = newRect.width / width;
+            const scaleY = newRect.height / height;
+            width = newRect.width;
+            height = newRect.height;
+            graphWidth = newGraphRect.width;
+            graphHeight = newGraphRect.height;
+            controlPoints.forEach(p => { p.x *= scaleX; p.y *= scaleY; });
+            curvatureIndicator.attr("y2", graphHeight);
+            updateVisuals();
+        }).observe(splineContainer.node());
+
+        updateVisuals();
+    }
+
+    function updateVisuals() {
+        drawSpline();
+        drawCurvatureGraph();
+        drawControlPoints();
+    }
+
+    function drawSpline() {
+        splineSvg.selectAll("path").remove();
+        const type = splineTypeSelect.value;
+        let lineGenerator;
+
+        if (type === 'C0') lineGenerator = d3.line().x(d => d.x).y(d => d.y).curve(d3.curveLinear);
+        else if (type === 'C1') lineGenerator = d3.line().x(d => d.x).y(d => d.y).curve(d3.curveCatmullRom.alpha(0.5));
+        else lineGenerator = d3.line().x(d => d.x).y(d => d.y).curve(d3.curveCatmullRom.alpha(0));
+
+        path = splineSvg.append("path").datum(controlPoints).attr("d", lineGenerator).attr("fill", "none").attr("stroke", "#2563eb").attr("stroke-width", 3);
+    }
+
+    function drawControlPoints() {
+        const drag = d3.drag()
+            .on("drag", function(event) {
+                d3.select(this).attr("cx", event.x).attr("cy", event.y);
+                const i = d3.select(this).attr("data-index");
+                controlPoints[i] = { x: event.x, y: event.y };
+                if (isPlaying) resetAnimation();
+                updateVisuals();
+            });
+
+        splineSvg.selectAll(".control-point").remove();
+        splineSvg.selectAll(".control-point").data(controlPoints).enter().append("circle")
+            .attr("class", "control-point").attr("cx", d => d.x).attr("cy", d => d.y)
+            .attr("r", 8).attr("fill", "#111827").attr("data-index", (d, i) => i).call(drag);
+    }
+
+    function calculateCurvatureData() {
+        if (!path || !path.node()) return [];
+        const pathNode = path.node();
+        const pathLength = pathNode.getTotalLength();
+        const samples = Math.min(500, Math.floor(pathLength));
+        if (samples < 3) return [];
+
+        const data = [];
+        for (let i = 0; i < samples; i++) {
+            const t = i / (samples - 1);
+            const l = t * pathLength;
+            const p1 = pathNode.getPointAtLength(Math.max(0, l - 0.1));
+            const p2 = pathNode.getPointAtLength(l);
+            const p3 = pathNode.getPointAtLength(Math.min(pathLength, l + 0.1));
+            const area = Math.abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)) / 2;
+            const d12 = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+            const d23 = Math.hypot(p2.x - p3.x, p2.y - p3.y);
+            const d31 = Math.hypot(p3.x - p1.x, p3.y - p1.y);
+            let curvature = (d12 * d23 * d31 > 1e-6) ? (4 * area) / (d12 * d23 * d31) : 0;
+            const sign = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+            if (splineTypeSelect.value === 'C0' && curvature > 10) data.push({ t: t, k: null });
+            else data.push({ t: t, k: Math.sign(sign) * curvature });
+        }
+
+        if (splineTypeSelect.value === 'C2') {
+            const smoothedData = [];
+            const windowSize = 5;
+            for (let i = 0; i < data.length; i++) {
+                let sum = 0, count = 0;
+                for (let j = -windowSize; j <= windowSize; j++) {
+                    if (i + j >= 0 && i + j < data.length && data[i + j].k !== null) {
+                        sum += data[i + j].k;
+                        count++;
+                    }
+                }
+                smoothedData.push({ t: data[i].t, k: count > 0 ? sum / count : data[i].k });
+            }
+            return smoothedData;
+        }
+        return data;
+    }
+
+    function drawCurvatureGraph() {
+        curvatureSvg.selectAll("*").remove();
+        const data = calculateCurvatureData();
+        if (data.length === 0) return;
+        const maxK = d3.max(data, d => Math.abs(d.k));
+        const yDomain = maxK > 0.01 ? [-maxK * 1.1, maxK * 1.1] : [-0.1, 0.1];
+        const x = d3.scaleLinear().domain([0, 1]).range([0, graphWidth]);
+        const y = d3.scaleLinear().domain(yDomain).range([graphHeight, 0]);
+        curvatureSvg.append("line").attr("x1", 0).attr("x2", graphWidth).attr("y1", y(0)).attr("y2", y(0)).attr("stroke", "#9ca3af").attr("stroke-dasharray", "2,2");
+        const line = d3.line().defined(d => d.k !== null).x(d => x(d.t)).y(d => y(d.k));
+        curvaturePath = curvatureSvg.append("path").datum(data).attr("d", line).attr("fill", "none").attr("stroke", "#3b82f6").attr("stroke-width", 2);
+        curvatureIndicator = curvatureSvg.append("line").attr("stroke", "#ef4444").attr("stroke-width", 1.5).attr("y1", 0).attr("y2", graphHeight).style("display", isPlaying ? "block" : "none");
+    }
+
+    function toggleAnimation() { isPlaying ? resetAnimation() : startAnimation(); }
+    function resetAnimation() {
+        isPlaying = false;
+        playButton.textContent = "再生/リセット";
+        rider.interrupt().style("display", "none");
+        curvatureIndicator.interrupt().style("display", "none");
+    }
+    function startAnimation() {
+        if (!path || !path.node() || path.node().getTotalLength() === 0) return;
+        isPlaying = true;
+        playButton.textContent = "停止";
+        rider.style("display", "block");
+        curvatureIndicator.style("display", "block");
+        const pathLength = path.node().getTotalLength();
+        const duration = 5000;
+        rider.transition().duration(duration).ease(d3.easeLinear).attrTween("transform", () => t => `translate(${path.node().getPointAtLength(t * pathLength).x}, ${path.node().getPointAtLength(t * pathLength).y})`).on("end", resetAnimation);
+        curvatureIndicator.transition().duration(duration).ease(d3.easeLinear).attrTween("transform", () => t => `translate(${t * graphWidth}, 0)`);
+    }
+
+    // --- B. Transport: Road Curve ---
+    let transportInitialized = false;
+    function initTransport() {
+        if (transportInitialized) return;
+        transportInitialized = true;
+
+        const roadContainer = document.getElementById('road-canvas');
+        const roadSvg = d3.select(roadContainer).append('svg').attr('width', '100%').attr('height', '100%');
+        const roadTypeSelect = document.getElementById('road-type');
+        const roadPlayButton = document.getElementById('road-play-button');
+        const steeringContainer = document.getElementById('steering-graph');
+        const steeringSvg = d3.select(steeringContainer).append('svg').attr('width', '100%').attr('height', '100%');
+        let car, roadPath, steeringIndicator;
+
+        function calculatePathCurvature(pathNode, samples = 200) {
+            if (!pathNode) return [];
+            const length = pathNode.getTotalLength();
+            if (length < 1) return [];
+            const data = [];
+            const delta = length / samples;
+            for (let i = 0; i < samples; i++) {
+                const t = i / (samples - 1);
+                const l = t * length;
+                const p1 = pathNode.getPointAtLength(Math.max(0, l - delta));
+                const p2 = pathNode.getPointAtLength(l);
+                const p3 = pathNode.getPointAtLength(Math.min(length, l + delta));
+                const area = Math.abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)) / 2;
+                const d12 = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+                const d23 = Math.hypot(p2.x - p3.x, p2.y - p3.y);
+                const d31 = Math.hypot(p3.x - p1.x, p3.y - p1.y);
+                let curvature = (d12 * d23 * d31 > 1e-9) ? (4 * area) / (d12 * d23 * d31) : 0;
+                const sign = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+                data.push({t: t, k: -Math.sign(sign) * curvature });
+            }
+            return data;
+        }
+
+        function drawRoad() {
+            const w = roadContainer.clientWidth, h = roadContainer.clientHeight;
+            if (!w) return;
+            roadSvg.selectAll('*').remove();
+
+            const type = roadTypeSelect.value;
+            let pathData;
+            if (type === 'C1') {
+                 pathData = `M 0,${h*0.8} L ${w*0.25},${h*0.8} A ${w*0.25},${w*0.25} 0 0 1 ${w*0.75},${h*0.8} L ${w},${h*0.8}`;
+            } else { // C2
+                pathData = `M 0,${h*0.8} C ${w*0.4},${h*0.8} ${w*0.6},${h*0.2} ${w},${h*0.2}`;
+            }
+
+            roadPath = roadSvg.append('path').attr('d', pathData).attr('fill', 'none').attr('stroke', '#6b7280').attr('stroke-width', 15).attr('stroke-linecap', 'round');
+            const startPoint = roadPath.node().getPointAtLength(0);
+            car = roadSvg.append('circle').attr('r', 10).attr('fill', '#ef4444').attr('transform', `translate(${startPoint.x}, ${startPoint.y})`);
+            drawSteeringGraph();
+        }
+
+        function drawSteeringGraph() {
+            steeringSvg.selectAll('*').remove();
+            const type = roadTypeSelect.value;
+
+            const rawData = calculatePathCurvature(roadPath.node());
+            if (rawData.length === 0) return;
+            let graphData;
+
+            if (type === 'C1') {
+                const threshold = 0.001;
+                const arcCurvatures = rawData.filter(d => Math.abs(d.k) > threshold).map(d => d.k);
+                const avgCurvature = arcCurvatures.length > 0 ? arcCurvatures.reduce((a, b) => a + b, 0) / arcCurvatures.length : 0;
+                graphData = rawData.map(d => ({ t: d.t, k: Math.abs(d.k) > threshold ? avgCurvature : 0 }));
+            } else { // C2
+                graphData = [];
+                const windowSize = 15; // Strong smoothing
+                for (let i = 0; i < rawData.length; i++) {
+                    let sum = 0, count = 0;
+                    for (let j = -windowSize; j <= windowSize; j++) {
+                        if (i + j >= 0 && i + j < rawData.length) {
+                            sum += rawData[i + j].k;
+                            count++;
+                        }
+                    }
+                    graphData.push({ t: rawData[i].t, k: count > 0 ? sum / count : 0 });
+                }
+            }
+
+            const w = steeringContainer.clientWidth, h = steeringContainer.clientHeight;
+            const x = d3.scaleLinear().domain([0, 1]).range([0, w]);
+            const yMax = d3.max(graphData, d => Math.abs(d.k)) * 1.2 || 0.01;
+            const y = d3.scaleLinear().domain([-yMax, yMax]).range([h, 0]);
+
+            steeringSvg.append('line').attr('x1', 0).attr('x2', w).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', '#ccc');
+            steeringSvg.append('text').attr('x', 5).attr('y', 15).text('ハンドルの切れ角').attr('font-size', '10px').attr('fill', '#6b7280');
+
+            const line = d3.line().x(d => x(d.t)).y(d => y(d.k));
+            steeringSvg.append('path').datum(graphData).attr('d', line).attr('fill', 'none').attr('stroke', '#3b82f6').attr('stroke-width', 2);
+            steeringIndicator = steeringSvg.append('line').attr('stroke', '#ef4444').attr('stroke-width', 1.5).attr('y1', 0).attr('y2', h).style('display', 'none');
+        }
+
+        roadPlayButton.addEventListener('click', () => {
+            if (car) car.interrupt();
+            if (!roadPath || !roadPath.node()) return;
+            const length = roadPath.node().getTotalLength();
+            if (length === 0) return;
+            car.style('display', 'block');
+            steeringIndicator.style('display', 'block');
+            car.transition().duration(5000).ease(d3.easeLinear)
+                .attrTween('transform', () => t => {
+                    const p = roadPath.node().getPointAtLength(t * length);
+                    steeringIndicator.attr('transform', `translate(${t * steeringContainer.clientWidth}, 0)`);
+                    return `translate(${p.x}, ${p.y})`;
+                })
+                .on('end', () => steeringIndicator.style('display', 'none'));
+        });
+
+        roadTypeSelect.addEventListener('change', drawRoad);
+        new ResizeObserver(drawRoad).observe(roadContainer);
+    }
+
+    // --- C. CG Specular Highlight ---
+    let cgInitialized = false;
+    function initCg() {
+        if (cgInitialized) return;
+        cgInitialized = true;
+
+        const cgContainer = document.getElementById('cg-canvas-container');
+        const surfaceTypeSelect = document.getElementById('surface-type');
+        let scene, camera, renderer, mesh, controls;
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x111111);
+        camera = new THREE.PerspectiveCamera(75, cgContainer.clientWidth / cgContainer.clientHeight, 0.1, 1000);
+        camera.position.z = 3;
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(cgContainer.clientWidth, cgContainer.clientHeight);
+        cgContainer.appendChild(renderer.domElement);
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        const light = new THREE.DirectionalLight(0xffffff, 1.5);
+        light.position.set(2, 5, 5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040, 1.2));
+
+        function createSurface() {
+            if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); }
+            const type = surfaceTypeSelect.value;
+            const material = new THREE.MeshPhongMaterial({ color: 0x049ef4, shininess: 100, specular: 0xeeeeee, side: THREE.DoubleSide });
+            let parametricFunction;
+            if (type === 'G1') {
+                parametricFunction = (u, v, target) => {
+                    u = u * 2 - 1; v *= Math.PI * 2;
+                    const r = (u < 0) ? 0.5 : 0.5 + u * 0.5;
+                    target.set(u, Math.cos(v) * r, Math.sin(v) * r);
+                };
+            } else { // G2
+                parametricFunction = (u, v, target) => {
+                    u = u * 4 - 2; v *= Math.PI * 2;
+                    target.set(u, Math.sin(v) * (1 - u*u/4), Math.cos(v) * (1 - u*u/4));
+                };
+            }
+            mesh = new THREE.Mesh(new THREE.ParametricGeometry(parametricFunction, 50, 50), material);
+            scene.add(mesh);
+        }
+
+        function animateCg() {
+            requestAnimationFrame(animateCg);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        surfaceTypeSelect.addEventListener('change', createSurface);
+        new ResizeObserver(() => {
+            camera.aspect = cgContainer.clientWidth / cgContainer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(cgContainer.clientWidth, cgContainer.clientHeight);
+        }).observe(cgContainer);
+
+        createSurface();
+        animateCg();
+    }
+
+    // --- D. Sound Synthesis ---
+    let soundInitialized = false;
+    function initSound() {
+        if (soundInitialized) return;
+        soundInitialized = true;
+
+        const soundContainer = document.getElementById('sound-canvas');
+        const soundSvg = d3.select(soundContainer).append('svg').attr('width', '100%').attr('height', '100%');
+        const soundTypeSelect = document.getElementById('sound-type');
+        const soundPlayButton = document.getElementById('sound-play-button');
+        let oscillator;
+
+        function drawSoundEnvelope() {
+            const w = soundContainer.clientWidth, h = soundContainer.clientHeight;
+            if (!w) return;
+            soundSvg.selectAll('*').remove();
+            const type = soundTypeSelect.value;
+            const startFreq = 220, midFreq = 880, endFreq = 440;
+            const x = d3.scaleLinear().domain([0, 1]).range([0, w]);
+            const y = d3.scaleLog().domain([100, 2000]).range([h, 0]).clamp(true);
+            soundSvg.append('g').selectAll('line').data(y.ticks(4)).enter().append('line').attr('x1', 0).attr('x2', w).attr('y1', d => y(d)).attr('y2', d => y(d)).attr('stroke', '#e5e7eb').attr('stroke-dasharray', '2,2');
+            soundSvg.append('g').selectAll('text').data(y.ticks(4)).enter().append('text').attr('x', 5).attr('y', d => y(d) - 2).text(d => `${d.toFixed(0)} Hz`).attr('font-size', '10px').attr('fill', '#9ca3af');
+            let pathData;
+            if (type === 'C1') pathData = d3.line().x(d => x(d[0])).y(d => y(d[1]))([[0, startFreq], [0.5, midFreq], [1, endFreq]]);
+            else pathData = d3.line().x(d => x(d[0])).y(d => y(d[1])).curve(d3.curveBasis)([[0, startFreq], [0.5, midFreq], [1, endFreq]]);
+            soundSvg.append('path').attr('d', pathData).attr('fill', 'none').attr('stroke', '#3b82f6').attr('stroke-width', 3);
+        }
+
+        soundPlayButton.addEventListener('click', async () => {
+            if (!oscillator) {
+                await Tone.start();
+                oscillator = new Tone.Oscillator(440, "sine").toDestination();
+            }
+            const type = soundTypeSelect.value;
+            const duration = 1.5;
+            const now = Tone.now();
+            const startFreq = 220, midFreq = 880, endFreq = 440;
+            oscillator.start(now);
+            oscillator.frequency.cancelScheduledValues(now);
+            oscillator.frequency.setValueAtTime(startFreq, now);
+            if (type === 'C1') {
+                oscillator.frequency.linearRampTo(midFreq, duration / 2, now);
+                oscillator.frequency.linearRampTo(endFreq, duration / 2, now + duration / 2);
+            } else {
+                oscillator.frequency.setTargetAtTime(midFreq, now, 0.2);
+                oscillator.frequency.setTargetAtTime(endFreq, now + duration / 2, 0.2);
+            }
+            oscillator.stop(now + duration);
+        });
+
+        soundTypeSelect.addEventListener('change', drawSoundEnvelope);
+        new ResizeObserver(drawSoundEnvelope).observe(soundContainer);
+    }
+
+    // Initialize first tab
+    initSpline2D();
+});
+</script>
+</body>
+</html>

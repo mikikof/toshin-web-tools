@@ -1,0 +1,719 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja" class="dark"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;関数の連続性と偏微分可能性の可視化&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Set theme on initial load</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (localStorage.theme === 'light' || (!('theme' in localStorage) &amp;&amp; window.matchMedia('(prefers-color-scheme: light)').matches)) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.documentElement.classList.remove('dark')</p>
+<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.documentElement.classList.add('dark')</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overscroll-behavior: none;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>math {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.1em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.control-panel {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scrollbar-width: thin;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Dark scrollbar */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .control-panel { scrollbar-color: #4a5568 #2d3748; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .control-panel::-webkit-scrollbar { width: 8px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .control-panel::-webkit-scrollbar-track { background: #2d3748; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .control-panel::-webkit-scrollbar-thumb { background-color: #4a5568; border-radius: 4px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Light scrollbar */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.light .control-panel { scrollbar-color: #a0aec0 #e2e8f0; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.light .control-panel::-webkit-scrollbar { width: 8px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.light .control-panel::-webkit-scrollbar-track { background: #e2e8f0; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.light .control-panel::-webkit-scrollbar-thumb { background-color: #a0aec0; border-radius: 4px; }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Toggle Switch */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.toggle-checkbox:checked {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>right: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: #38bdf8; /* cyan-400 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.toggle-checkbox:checked + .toggle-label {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #38bdf8; /* cyan-400 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white flex flex-col h-screen antialiased transition-colors duration-300"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;header class="bg-white dark:bg-gray-800 text-center p-3 shadow-lg z-10 flex justify-between items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="w-10"&gt;&lt;/div&gt; &lt;!-- Spacer --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="text-xl md:text-2xl font-bold text-cyan-600 dark:text-cyan-400"&gt;関数の連続性と偏微分可能性：直感的な探求&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Moon Icon --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="theme-icon-dark" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"&gt;&lt;/path&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Sun Icon --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="theme-icon-light" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"&gt;&lt;/path&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="flex-1 flex flex-col md:flex-row overflow-hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- 3D Visualization --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="canvas-container" class="flex-1 relative w-full h-2/3 md:h-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;canvas id="3d-canvas"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;div id="loading" class="absolute inset-0 bg-gray-100 dark:bg-gray-900 bg-opacity-80 flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-2xl animate-pulse"&gt;3Dグラフを生成中...&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Controls and Explanation Panel --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="w-full md:w-96 bg-white dark:bg-gray-800 p-6 overflow-y-auto control-panel h-1/3 md:h-full transition-colors duration-300"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="space-y-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Function Display --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-lg font-semibold mb-2 border-b-2 border-cyan-500 pb-1"&gt;対象の関数&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="function-display"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" display="block"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;z&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;f&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mo&gt;{&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mtable columnalign="left left"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mn&gt;2&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;/row&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;msup&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                          </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                          </span>&lt;mn&gt;2&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;/msup&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mo&gt;+&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;msup&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                          </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                          </span>&lt;mn&gt;2&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;/msup&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;/row&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mspace width="0.5em"&gt;&lt;/mspace&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;≠&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mspace width="0.5em"&gt;&lt;/mspace&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;/mtable&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-500 dark:text-gray-400 mt-2"&gt;この関数は、原点 (0,0) で偏微分可能でありながら、連続ではないという興味深い性質を持っています。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Section 1: Continuity --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-lg font-semibold mb-3 border-b-2 border-cyan-500 pb-1"&gt;1. 連続性の探求&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-500 dark:text-gray-400 mb-4"&gt;原点 (0,0) に近づく道筋を変えると、関数の値はどうなるでしょうか？ 直線 y=mx に沿って原点に近づいてみましょう。&lt;/p&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="space-y-3 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="slope-slider" class="block text-base"&gt;直線の傾き &lt;math xmlns="http://www.w3.org/1998/Math/MathML" style="display: inline-block; vertical-align: middle;"&gt;&lt;mi&gt;m&lt;/mi&gt;&lt;/math&gt;: &lt;span id="slope-value" class="font-bold text-cyan-600 dark:text-cyan-400"&gt;1.00&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input id="slope-slider" type="range" min="-5" max="5" value="1" step="0.01" class="w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-4 text-center text-base"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>y=mx に沿った極限値:</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span id="limit-result" class="block text-xl text-yellow-600 dark:text-yellow-400 bg-gray-100 dark:bg-gray-900 p-2 rounded-md mt-2"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-500 dark:text-gray-400 mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>傾き m を変えると、極限値が変化することがわかります。近づき方によって値が異なるため、この関数は原点で&lt;strong class="text-red-500 dark:text-red-400"&gt;連続ではありません&lt;/strong&gt;。</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Section 2: Partial Differentiability --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-lg font-semibold mb-3 border-b-2 border-cyan-500 pb-1"&gt;2. 偏微分可能性の探求&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-500 dark:text-gray-400 mb-4"&gt;では、なぜ偏微分は可能なのでしょうか？ x軸、y軸に沿った断面（スライス）を見てみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex space-x-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="show-x-slice" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200"&gt;x軸スライス (y=0)&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="show-y-slice" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200"&gt;y軸スライス (x=0)&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;button id="reset-view" class="w-full mt-2 bg-gray-500 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200"&gt;リセット&lt;/button&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;!-- 2D Slice Visualization --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="slice-2d-container" class="mt-4 bg-gray-100 dark:bg-gray-900 p-2 rounded-lg hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h4 class="text-base font-semibold text-center mb-2" id="slice-2d-title"&gt;&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="2d-slice-canvas" class="bg-gray-200 dark:bg-gray-800 rounded-md w-full h-48"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-500 dark:text-gray-400 mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>x軸に沿う (y=0) と、常に f(x,0)=0 です。同様にy軸に沿う (x=0) と、常に f(0,y)=0 です。</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>2Dグラフが示す通り、これらの軸上では関数は平坦であり、原点での接線の傾きは 0 です。</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-base text-center mt-3 bg-gray-100 dark:bg-gray-900 p-2 rounded-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mi&gt;f&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mspace width="1em" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mi&gt;f&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-500 dark:text-gray-400 mt-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>よって、偏微分係数が存在し、この関数は原点で&lt;strong class="text-green-600 dark:text-green-400"&gt;偏微分可能&lt;/strong&gt;です。</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Section 3: Display Options --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-lg font-semibold mb-3 border-b-2 border-cyan-500 pb-1"&gt;3. 表示オプション&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg space-y-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="flex justify-between items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="mesh-toggle" class="text-base"&gt;メッシュ表示&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="relative inline-block w-10 mr-2 align-middle select-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;input type="checkbox" name="toggle" id="mesh-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer right-4 transition-all duration-200 ease-in-out"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;label for="mesh-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="flex justify-between items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="slope-toggle" class="text-base"&gt;傾きの線を表示&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="relative inline-block w-10 mr-2 align-middle select-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;input type="checkbox" name="toggle" id="slope-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer right-4 transition-all duration-200 ease-in-out" checked/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;label for="slope-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Section 4: Summary --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-lg font-semibold mb-3 border-b-2 border-cyan-500 pb-1"&gt;4. まとめ&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-500 dark:text-gray-400"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>3Dグラフの「切断面」と2Dグラフを合わせ見ることで、原点に存在する「断崖」の様子がより明確になります。</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>x軸とy軸という特定の道筋（割れ目の底）から見ると滑らか（微分可能）ですが、少しでも斜めの道筋から近づくと不連続になっていることが、これで直感的に理解できるはずです。</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="module"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>import * as THREE from 'https://cdn.skypack.dev/three@0.136';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>import { OrbitControls } from 'https://cdn.skypack.dev/three@0.136/examples/jsm/controls/OrbitControls.js';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let scene, camera, renderer, controls, surfaceMesh, pathLine, axisLine, slicePlaneMesh;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// UI Elements</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const canvasContainer = document.getElementById('canvas-container');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const canvas = document.getElementById('3d-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const loadingEl = document.getElementById('loading');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slopeSlider = document.getElementById('slope-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slopeValue = document.getElementById('slope-value');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const limitResult = document.getElementById('limit-result');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const btnXSlice = document.getElementById('show-x-slice');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const btnYSlice = document.getElementById('show-y-slice');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const btnReset = document.getElementById('reset-view');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const themeToggle = document.getElementById('theme-toggle');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const themeIconDark = document.getElementById('theme-icon-dark');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const themeIconLight = document.getElementById('theme-icon-light');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const meshToggle = document.getElementById('mesh-toggle');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slopeToggle = document.getElementById('slope-toggle');</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const colors = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>dark: { bg: 0x111827, text: 0xffffff },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>light: { bg: 0xf9fafb, text: 0x111827 }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// The mathematical function to visualize</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function func(x, y) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (x === 0 &amp;&amp; y === 0) return 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return (2 * x * y) / (x * x + y * y);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function init() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene = new THREE.Scene();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.position.set(2.5, 2, 2.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.lookAt(0, 0, 0);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls = new OrbitControls(camera, renderer.domElement);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.enableDamping = true;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(ambientLight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>directionalLight.position.set(5, 5, 5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(directionalLight);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>createThickAxes();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createSurface();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updatePathLine(parseFloat(slopeSlider.value));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Event Listeners setup</p>
+<p class="p1"><span class="Apple-converted-space">            </span>slopeSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const m = parseFloat(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>slopeValue.textContent = m.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updatePathLine(m);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateLimitText(m);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btnXSlice.addEventListener('click', () =&gt; showAxisSlice('x'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btnYSlice.addEventListener('click', () =&gt; showAxisSlice('y'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>btnReset.addEventListener('click', resetView);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>themeToggle.addEventListener('click', toggleTheme);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>meshToggle.addEventListener('change', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (surfaceMesh) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>surfaceMesh.material.wireframe = e.target.checked;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>surfaceMesh.material.opacity = e.target.checked ? 0.15 : 0.9;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>slopeToggle.addEventListener('change', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (pathLine) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>pathLine.visible = e.target.checked;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', onWindowResize, false);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateLimitText(parseFloat(slopeSlider.value));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateTheme();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animate();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>setTimeout(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>loadingEl.style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, 500);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createSurface() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const range = 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const segments = 80;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const geometry = new THREE.PlaneGeometry(range * 2, range * 2, segments, segments);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>geometry.rotateX(-Math.PI / 2); // Rotate to lie on the XZ plane</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const vertices = geometry.attributes.position.array;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt; vertices.length; i += 3) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = vertices[i]; <span class="Apple-converted-space">    </span>// Corresponds to math x</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = vertices[i + 2]; // Corresponds to math y</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const z = func(x, y);<span class="Apple-converted-space">      </span>// Corresponds to math z (height)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>vertices[i + 1] = z; <span class="Apple-converted-space">      </span>// Set height on the Scene's Y axis</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>geometry.attributes.position.needsUpdate = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>geometry.computeVertexNormals();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const material = new THREE.MeshStandardMaterial({</p>
+<p class="p1"><span class="Apple-converted-space">                </span>color: 0x818cf8, // Indigo color from reference</p>
+<p class="p1"><span class="Apple-converted-space">                </span>side: THREE.DoubleSide,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>roughness: 0.7,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>metalness: 0.1,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>transparent: true,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>opacity: 0.9,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>wireframe: false</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>surfaceMesh = new THREE.Mesh(geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(surfaceMesh);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createAxisLabel(text, position, color, background) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.createElement('canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const context = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const size = 256;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.width = size; canvas.height = size;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.font = `Bold 90px Arial`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.textAlign = 'center';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.textBaseline = 'middle';</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.fillStyle = background;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.arc(size / 2, size / 2, size / 2.2, 0, 2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.fill();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.fillStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.fillText(text, size / 2, size / 2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const texture = new THREE.CanvasTexture(canvas);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const sprite = new THREE.Sprite(material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sprite.scale.set(0.4, 0.4, 0.4);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sprite.position.copy(position);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(sprite);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createThickAxes() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const axisLength = 2.5, axisRadius = 0.015, arrowRadius = 0.05, arrowHeight = 0.2;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const createAxis = (color, direction) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const material = new THREE.MeshStandardMaterial({ color, metalness: 0.3, roughness: 0.5 });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const group = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 12), material);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const cone = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 12), material);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cone.position.y = axisLength / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>group.add(cylinder, cone);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!direction.equals(new THREE.Vector3(0, 1, 0))) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.add(group);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const colorX = 0x60a5fa, colorY = 0xf87171, colorZ = 0x4ade80; // Blue, Red, Green</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createAxis(colorX, new THREE.Vector3(1, 0, 0)); // X-axis (math x)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createAxis(colorY, new THREE.Vector3(0, 0, 1)); // Z-axis (math y)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createAxis(colorZ, new THREE.Vector3(0, 1, 0)); // Y-axis (math z, height)</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const labelPos = axisLength / 2 + 0.3;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createAxisLabel('x', new THREE.Vector3(labelPos, 0, 0), '#fff', '#60a5fa');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createAxisLabel('y', new THREE.Vector3(0, 0, labelPos), '#fff', '#f87171');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createAxisLabel('z', new THREE.Vector3(0, labelPos, 0), '#fff', '#4ade80');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function clearSliceVisuals() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (axisLine) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.remove(axisLine);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>axisLine.geometry.dispose(); axisLine.material.dispose(); axisLine = null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (slicePlaneMesh) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.remove(slicePlaneMesh);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>slicePlaneMesh.geometry.dispose(); slicePlaneMesh.material.dispose(); slicePlaneMesh = null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('slice-2d-container').classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updatePathLine(m) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (pathLine) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.remove(pathLine);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pathLine.geometry.dispose(); pathLine.material.dispose();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearSliceVisuals();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const range = 2.1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let x = -range; x &lt;= range; x += 0.04) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = m * x; // math y</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(Math.sqrt(x*x + y*y) &gt; range) continue;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const z = func(x, y); // math z (height)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>points.push(new THREE.Vector3(x, z, y)); // map to scene (math x, math z, math y)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (points.length &lt; 2) return; // Not enough points to form a curve</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Create a thick tube instead of a thin line for better visibility</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const curve = new THREE.CatmullRomCurve3(points);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tubeGeometry = new THREE.TubeGeometry(curve, 64, 0.025, 8, false); // path, segments, radius, radialSegments, closed</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tubeMaterial = new THREE.MeshBasicMaterial({ color: 0xfacc15 }); // yellow-400</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pathLine = new THREE.Mesh(tubeGeometry, tubeMaterial);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pathLine.visible = slopeToggle.checked;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(pathLine);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function showAxisSlice(axis) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (pathLine) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.remove(pathLine);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pathLine.geometry.dispose(); pathLine.material.dispose(); pathLine = null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearSliceVisuals();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const range = 2.1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let p = -range; p &lt;= range; p += 0.04) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>const x = (axis === 'x') ? p : 0;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>const y = (axis === 'y') ? p : 0;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>const z = func(x, y);</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>points.push(new THREE.Vector3(x, z, y));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const color = (axis === 'x') ? 0x60a5fa : 0xf87171; // Blue for x-slice, Red for y-slice</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const material = new THREE.LineBasicMaterial({ color: color, linewidth: 5 });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const geometry = new THREE.BufferGeometry().setFromPoints(points);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axisLine = new THREE.Line(geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(axisLine);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const planeGeom = new THREE.PlaneGeometry(4.2, 3);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const planeMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.2, side: THREE.DoubleSide });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>slicePlaneMesh = new THREE.Mesh(planeGeom, planeMat);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (axis === 'y') { // y-slice (math x=0) should be on the scene's YZ plane</p>
+<p class="p1"><span class="Apple-converted-space">                </span>slicePlaneMesh.rotation.y = Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// For x-slice (math y=0), the plane should be on the scene's XY plane, which is the default for PlaneGeometry. No rotation needed.</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(slicePlaneMesh);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const container2d = document.getElementById('slice-2d-container');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const title2d = document.getElementById('slice-2d-title');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>container2d.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>title2d.textContent = axis === 'x' ? 'x軸による断面 (y=0)' : 'y軸による断面 (x=0)';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>draw2DSlice(axis);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function draw2DSlice(axis) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.getElementById('2d-slice-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!canvas) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ctx = canvas.getContext('2d');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// High-DPI scaling for crisp rendering</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const dpr = window.devicePixelRatio || 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.width = rect.width * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.height = rect.height * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.scale(dpr, dpr);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = canvas.clientWidth;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const h = canvas.clientHeight;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const isDark = document.documentElement.classList.contains('dark');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.clearRect(0, 0, w, h);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const range = 2; // Match 3D range</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const pixelsPerUnitX = w / (range * 2.2); // Give some padding</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const pixelsPerUnitY = h / 3; // z range is [-1, 1], give some padding</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const originX = w / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const originY = h / 2;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.save();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.translate(0.5, 0.5); // For sharper lines</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Draw axes</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = isDark ? '#4a5568' : '#cbd5e0';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.moveTo(0, originY); ctx.lineTo(w, originY); // Horizontal axis</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.moveTo(originX, 0); ctx.lineTo(originX, h); // Vertical axis</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Draw ticks and labels</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = isDark ? '#9ca3af' : '#6b7280';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.font = '10px Inter';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'center';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'top';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = -range; i &lt;= range; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (i === 0) continue;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const posX = originX + i * pixelsPerUnitX;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(posX, originY - 4); ctx.lineTo(posX, originY + 4);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText(i, posX, originY + 8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'left';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'middle';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = -1; i &lt;= 1; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>if (i === 0) continue;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const posY = originY - i * pixelsPerUnitY;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(originX - 4, posY); ctx.lineTo(originX + 4, posY);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText(i, originX + 8, posY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Axis labels</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = isDark ? '#cbd5e0' : '#4a5568';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.font = '13px Inter';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const hLabel = axis === 'x' ? 'x' : 'y';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const vLabel = 'z';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'right';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'bottom';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillText(hLabel, w - 8, originY - 8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'left';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'top';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillText(vLabel, originX + 8, 8);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Draw function curve: f(p,0)=0</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = (axis === 'x') ? '#60a5fa' : '#f87171'; // Blue for x, Red for y</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 3;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.moveTo(0, originY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineTo(w, originY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Draw tangent line at origin</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = '#facc15'; // yellow-400</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.setLineDash([5, 5]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tangentLength = 80; // pixels</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.moveTo(originX - tangentLength / 2, originY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineTo(originX + tangentLength / 2, originY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.setLineDash([]);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = '#facc15';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'center';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'bottom';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillText('接線 (傾き = 0)', originX, originY - 8);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.restore();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function resetView() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>slopeSlider.value = 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>slopeSlider.dispatchEvent(new Event('input'));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateLimitText(m) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const limit = (m === Infinity || m === -Infinity) ? 0 : (2 * m) / (1 + m * m);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>limitResult.innerHTML = `&lt;math xmlns="http://www.w3.org/1998/Math/MathML" display="block"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;munder&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mo&gt;lim&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo&gt;→&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/munder&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mi&gt;f&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mi&gt;m&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mn&gt;2&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;m&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/row&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mn&gt;1&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo&gt;+&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;msup&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mi&gt;m&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mn&gt;2&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/msup&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/row&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mn&gt;${limit.toFixed(2)}&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/math&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function onWindowResize() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!document.getElementById('slice-2d-container').classList.contains('hidden')) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>const currentAxis = document.getElementById('slice-2d-title').textContent.includes('x軸') ? 'x' : 'y';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draw2DSlice(currentAxis);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function animate() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>requestAnimationFrame(animate);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.update();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.render(scene, camera);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function toggleTheme() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.documentElement.classList.toggle('dark');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateTheme();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateTheme() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const isDark = document.documentElement.classList.contains('dark');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(isDark) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>themeIconDark.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>themeIconLight.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.background = new THREE.Color(colors.dark.bg);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderer.setClearColor(colors.dark.bg, 1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>themeIconDark.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>themeIconLight.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.background = new THREE.Color(colors.light.bg);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderer.setClearColor(colors.light.bg, 1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!document.getElementById('slice-2d-container').classList.contains('hidden')) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const currentAxis = document.getElementById('slice-2d-title').textContent.includes('x軸') ? 'x' : 'y';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draw2DSlice(currentAxis);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>init();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双曲線関数とAIのインタラクティブな関係 Ver.13.1 (修正版)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #4f46e5;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #4f46e5;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">双曲線関数がAIを賢くする</h1>
+            <p class="mt-2 text-lg text-gray-600">AIの学習における双曲線関数の役割を探る</p>
+        </header>
+
+        <!-- Section 1: Cosh for Robust Regression -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg mb-12">
+            <h2 class="text-2xl font-bold mb-4">役割1: cosh による外れ値に強い学習</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">回帰モデルを訓練してみよう</h3>
+                    <p class="text-sm mb-4 text-gray-600">下のグラフ内をクリックしてデータ点を追加してください。特に、既存の点から大きく外れた「外れ値」を追加すると、2つのモデルの違いが顕著になります。</p>
+                    <div class="chart-container">
+                        <canvas id="regressionChart"></canvas>
+                    </div>
+                    <div class="flex justify-center mt-4">
+                        <button id="resetButton" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-indigo-700 transition-colors">リセット</button>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2">なぜ挙動が違うのか？</h3>
+                    <p class="text-sm mb-4 text-gray-600">モデルの挙動は、予測の「間違い」をどう評価するか（損失関数）で決まります。下に2つの損失関数とその微分（間違いを修正する力の強さ）を示します。</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><h4 class="text-lg font-semibold text-center">損失関数</h4><div class="chart-container" style="height:200px"><canvas id="lossChart"></canvas></div></div>
+                        <div><h4 class="text-lg font-semibold text-center">損失関数の微分（勾配）</h4><div class="chart-container" style="height:200px"><canvas id="gradChart"></canvas></div></div>
+                    </div>
+                     <div class="mt-4 space-y-4 text-sm">
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200"><h5 class="font-bold text-blue-800">青線: 二乗誤差 (MSE)</h5><p>一般的なモデル。間違い(x)が大きくなるほど、罰則($x^2$)が急激に増加します。そのため、外れ値に過剰に反応してしまいます。</p></div>
+                        <div class="p-4 bg-red-50 rounded-lg border border-red-200"><h5 class="font-bold text-red-800">赤線: Log-Cosh損失</h5><p>間違いが小さい時は二乗誤差と似ていますが、間違いが大きくなると罰則の増え方が緩やかになります。これは<span class="font-bold">cosh</span>の性質に由来します。</p><p class="mt-2">その結果、間違いを修正する力（勾配）は<span class="font-bold">tanh</span>で表され、一定以上にはなりません。これにより、外れ値の極端な影響を受け流すことができるのです。</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Tanh as a Scaler -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4">役割2: `tanh`による信号の「圧搾」効果</h2>
+            <div class="flex flex-col items-center mb-6">
+                <label for="signalVariance" class="text-lg font-semibold">入力信号のばらつき (標準偏差): <span id="signalVariance_val" class="font-bold text-indigo-600">1.0</span></label>
+                <input id="signalVariance" type="range" min="0.5" max="5" value="1" step="0.1" class="w-full max-w-lg h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2">
+                <p class="text-sm text-gray-600 mt-2">スライダーを動かして、入力信号のばらつきが大きくなった時の`tanh`の効果を見てみましょう。</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                     <h3 class="text-xl font-bold text-center mb-2">Tanh Squeezer</h3>
+                     <div class="chart-container" style="height: 350px;">
+                        <canvas id="squeezerChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-center mb-2">変換プロセス</h3>
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="transformationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+             <div class="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                <h4 class="font-bold text-green-800 text-lg">`tanh`は賢い「調整装置」</h4>
+                <p class="mt-2 text-sm">
+                   左の「Tanh Squeezer」では、入力信号（紫の点）が`tanh`によって出力信号（赤い点）へと「圧搾」される様子がわかります。入力がどれだけ暴走しても、出力は必ず`-1`と`1`の壁に押し込められ、壁際に密集していきます。
+                </p>
+                <p class="mt-2 text-sm">
+                   右の「変換プロセス」グラフは、その数学的な仕組みを示しています。この強力なスケーリング機能が、AIの学習を安定させる鍵なのです。
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-12 bg-gray-800 text-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4 text-center">まとめ：双曲線関数の役割</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div class="p-4 bg-gray-700 rounded-lg"><h3 class="text-xl font-semibold">cosh</h3><p class="mt-2">「U字型」の性質が、外れ値に強い損失関数の土台を作ります。間違いが大きくても罰則が爆発しない、しなやかな評価基準です。</p></div>
+                <div class="p-4 bg-gray-700 rounded-lg"><h3 class="text-xl font-semibold">tanh</h3><p class="mt-2">①損失の勾配、②活性化関数という二役をこなします。値を一定範囲に収め、勾配が飽和する性質が、AIの学習を安定させるキープレイヤーです。</p></div>
+                <div class="p-4 bg-gray-700 rounded-lg"><h3 class="text-xl font-semibold">sinh</h3><p class="mt-2">`cosh`の微分（変化率）として、`tanh`を導出する過程で使われます。これら3つはセットで機能する、縁の下の力持ちです。</p></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Chart.js instances
+    let regressionChart, lossChart, gradChart, transformationChart, squeezerChart;
+    let dataPoints = [{x: 1, y: 1.5}, {x: 2, y: 2.5}, {x: 3, y: 2}, {x: 4, y: 4}, {x: 5, y: 3.5}];
+    let signalPoints = [];
+
+    // --- Helper Functions ---
+    const cosh = x => (Math.exp(x) + Math.exp(-x)) / 2;
+    const tanh = x => {
+        if (x > 20) return 1; if (x < -20) return -1;
+        const ex = Math.exp(2 * x); return (ex - 1) / (ex + 1);
+    };
+    function randn_bm() {
+        let u = 0, v = 0;
+        while(u === 0) u = Math.random();
+        while(v === 0) v = Math.random();
+        return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+    }
+
+    // --- Regression Logic (Section 1) ---
+    function getRegressionLines() {
+        if (dataPoints.length < 2) return { mse: {m: 0, b: 0}, logcosh: {m: 0, b: 0} };
+        let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+        const n = dataPoints.length;
+        dataPoints.forEach(p => { sumX += p.x; sumY += p.y; sumXY += p.x * p.y; sumX2 += p.x * p.x; });
+        const m_mse = (n * sumX2 - sumX * sumX === 0) ? 0 : (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        const b_mse = (sumY - m_mse * sumX) / n;
+        let m_lc = m_mse, b_lc = b_mse;
+        const learningRate = 0.01, iterations = 100;
+        for (let i = 0; i < iterations; i++) {
+            let gradM = 0, gradB = 0;
+            dataPoints.forEach(p => {
+                const error = (m_lc * p.x + b_lc) - p.y;
+                const grad = tanh(error); gradM += grad * p.x; gradB += grad;
+            });
+            m_lc -= (learningRate / n) * gradM; b_lc -= (learningRate / n) * gradB;
+        }
+        return { mse: {m: m_mse, b: b_mse}, logcosh: {m: m_lc, b: b_lc} };
+    }
+
+    // --- Chart Creation ---
+    function createCharts() {
+        const tickCallback = (value) => Number(value).toFixed(1);
+
+        // Regression Chart
+        const regressionCtx = document.getElementById('regressionChart').getContext('2d');
+        regressionChart = new Chart(regressionCtx, { 
+            type: 'scatter', 
+            data: { datasets: [ 
+                { label: 'データ点', data: dataPoints, backgroundColor: 'rgba(15, 23, 42, 0.7)', pointRadius: 6 }, 
+                { label: '二乗誤差 (MSE) モデル', type: 'line', data: [], borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 3, fill: false, pointRadius: 0 }, 
+                { label: 'Log-Cosh モデル', type: 'line', data: [], borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 3, borderDash: [5, 5], fill: false, pointRadius: 0 } 
+            ] }, 
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                scales: { 
+                    x: { type: 'linear', min: 0, max: 10, ticks: { callback: tickCallback } }, 
+                    y: { min: 0, max: 10, ticks: { callback: tickCallback } } 
+                }, 
+                onClick: (e) => { 
+                    // FIX: Use e.x and e.y for Chart.js v4
+                    const dataX = regressionChart.scales.x.getValueForPixel(e.x); 
+                    const dataY = regressionChart.scales.y.getValueForPixel(e.y); 
+                    if (dataX >= 0 && dataX <= 10 && dataY >= 0 && dataY <= 10) { 
+                        dataPoints.push({x: dataX, y: dataY}); 
+                        updateRegressionChart(); 
+                    } 
+                } 
+            } 
+        });
+
+        const lossLabels = Array.from({length: 41}, (_, i) => (i - 20) * 0.25);
+        const lossCtx = document.getElementById('lossChart').getContext('2d');
+        lossChart = new Chart(lossCtx, { type: 'line', data: { labels: lossLabels, datasets: [ { data: lossLabels.map(x => x*x), borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 2, pointRadius: 0 }, { data: lossLabels.map(x => Math.log(cosh(x))), borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 2, pointRadius: 0 } ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: tickCallback } }, y: { ticks: { callback: tickCallback } } } } });
+        const gradCtx = document.getElementById('gradChart').getContext('2d');
+        gradChart = new Chart(gradCtx, { type: 'line', data: { labels: lossLabels, datasets: [ { data: lossLabels.map(x => x), borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 2, pointRadius: 0 }, { data: lossLabels.map(x => tanh(x)), borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 2, pointRadius: 0 } ] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: tickCallback } }, y: { ticks: { callback: tickCallback } } } } });
+
+        // Transformation Chart
+        const transCtx = document.getElementById('transformationChart').getContext('2d');
+        transformationChart = new Chart(transCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'tanh(x)', data: [], borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 3, pointRadius: 0, tension: 0.1, order: 1 },
+                    { type: 'scatter', label: '入力信号', data: [], backgroundColor: 'rgba(168, 85, 247, 0.5)', pointRadius: 4, order: 2 },
+                    { type: 'scatter', label: '出力信号', data: [], backgroundColor: 'rgba(239, 68, 68, 0.7)', pointRadius: 4, order: 3 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { min: -10, max: 10, ticks: { callback: tickCallback } }, y: { min: -1.2, max: 1.2, ticks: { callback: tickCallback } } } }
+        });
+
+        // Squeezer Chart
+        squeezerChart = new Chart(document.getElementById('squeezerChart').getContext('2d'), {
+             type: 'scatter', 
+             data: {
+                datasets: [
+                    { label: '入力信号', data: [], backgroundColor: 'rgba(168, 85, 247, 0.6)', pointRadius: 5 },
+                    { label: '出力信号', data: [], backgroundColor: 'rgba(239, 68, 68, 0.6)', pointRadius: 5 }
+                ]
+             },
+             options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { min: -10, max: 10, ticks: { callback: tickCallback } },
+                    y: { min: 0, max: 3, grid: { display: false }, ticks: {
+                        callback: function(value, index, ticks) {
+                            if (value === 1) return '出力';
+                            if (value === 2) return '入力';
+                            return '';
+                        },
+                        font: { size: 14, weight: 'bold' }
+                    }}
+                }
+             }
+        });
+    }
+
+    // --- Update Logic ---
+    function updateRegressionChart() {
+        if (!regressionChart) return;
+        const lines = getRegressionLines();
+        regressionChart.data.datasets[0].data = dataPoints;
+        const xRange = {min: 0, max: 10};
+        regressionChart.data.datasets[1].data = [{x: xRange.min, y: lines.mse.m * xRange.min + lines.mse.b}, {x: xRange.max, y: lines.mse.m * xRange.max + lines.mse.b}];
+        regressionChart.data.datasets[2].data = [{x: xRange.min, y: lines.logcosh.m * xRange.min + lines.logcosh.b}, {x: xRange.max, y: lines.logcosh.m * xRange.max + lines.logcosh.b}];
+        regressionChart.update();
+    }
+
+    const signalVarianceSlider = document.getElementById('signalVariance');
+    const signalVarianceVal = document.getElementById('signalVariance_val');
+
+    function updateDistributionVisuals() {
+        if (!transformationChart || !squeezerChart) return;
+        const stdDev = parseFloat(signalVarianceSlider.value);
+        signalVarianceVal.textContent = stdDev.toFixed(1);
+
+        // Generate signal data
+        signalPoints = Array.from({length: 200}, () => randn_bm() * stdDev);
+        const activatedSignals = signalPoints.map(s => tanh(s));
+
+        // Update Transformation Chart
+        const inputMaxX = Math.max(10, stdDev * 3);
+        const transLabels = Array.from({length: 101}, (_, i) => (i - 50) * (inputMaxX / 50));
+        transformationChart.data.labels = transLabels;
+        transformationChart.data.datasets[0].data = transLabels.map(x => ({x: x, y: tanh(x)}));
+        transformationChart.data.datasets[1].data = signalPoints.map(x => ({x: x, y: 0}));
+        transformationChart.data.datasets[2].data = signalPoints.map(x => ({x: 0, y: tanh(x)}));
+        transformationChart.options.scales.x.min = -inputMaxX;
+        transformationChart.options.scales.x.max = inputMaxX;
+        transformationChart.update();
+
+        // Update Squeezer Chart
+        squeezerChart.data.datasets[0].data = signalPoints.map(x => ({x: x, y: 2}));
+        squeezerChart.data.datasets[1].data = activatedSignals.map(x => ({x: x, y: 1}));
+        squeezerChart.options.scales.x.min = -inputMaxX;
+        squeezerChart.options.scales.x.max = inputMaxX;
+        squeezerChart.update();
+    }
+
+    // --- Event Listeners ---
+    document.getElementById('resetButton').addEventListener('click', () => {
+        dataPoints = [{x: 1, y: 1.5}, {x: 2, y: 2.5}, {x: 3, y: 2}, {x: 4, y: 4}, {x: 5, y: 3.5}];
+        updateRegressionChart();
+    });
+    signalVarianceSlider.addEventListener('input', updateDistributionVisuals);
+
+    // --- Initial Load ---
+    window.onload = () => {
+        createCharts();
+        updateRegressionChart();
+        updateDistributionVisuals();
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;積分の正体② - 世界は「傾きの場」で満ちている&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Noto+Sans+JP:wght@400;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f0f2f5;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.card {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.canvas-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 500px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #111827; /* Dark background for better contrast */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: crosshair;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>touch-action: none;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-group {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-wrap: wrap;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-mode {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #6b7280;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.5rem 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px solid transparent;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: all 0.2s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-mode:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #4b5563;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-mode.active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #4f46e5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: #a5b4fc;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-secondary {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #4b5563;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.75rem 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.btn-secondary:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #374151;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0KOVEMVIhbGKLCePo231CVQSHcLesaPSub69DVZXucRepAS5rJcWx" crossorigin="anonymous"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"&gt;&lt;/script&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-50 text-gray-800"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8 max-w-7xl"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- ヘッダーと説明 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4"&gt;別角度から積分を見る&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-lg md:text-xl text-indigo-600 font-semibold"&gt;世界は「傾きの場」で満ちている&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-2xl font-bold mb-4"&gt;微分方程式が描く「磁力線」も積分結果！&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-base md:text-lg leading-relaxed"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>微分方程式の見方を変えてみましょう。 $$ \frac{dy}{dx} = f(x, y) $$ という式は、平面上の各点 $(x,y)$ における「進むべき方向（傾き）」を指定しています。&lt;br&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;strong&gt;傾きの場（Vector Field）:&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>この式に従って、平面全体に小さな矢印（砂鉄）を無数に描くと、それはまるで「流れ」や「場」のように見えます。&lt;br&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;strong&gt;解曲線 ＝ 磁力線:&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>この流れの中に身を任せたとき、描かれる軌跡が微分方程式の解（積分曲線）です。これは、砂鉄が作る磁力線に非常によく似ています。一本一本の砂鉄は傾きを表し、その連なりが全体の構造（磁力線）を形作ります。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;div class="mt-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="font-semibold text-indigo-800"&gt;🌌 核心的イメージ：積分するとは、局所的なルール（傾き）を繋ぎ合わせて、大域的な構造（解曲線）を発見する行為なのです。積分定数 C の違いは、どの磁力線を選ぶか（＝出発点をどこにするか）の違いに対応します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- インタラクティブ・デモ --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="text-3xl font-bold text-center mb-2"&gt;傾きの場と積分曲線&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-center text-gray-600 mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>下のボタンで磁石の配置を選び、キャンバスをクリックして磁力線を描いてみましょう。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- ★修正点: ボタンの並び順を1-6に修正 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="btn-group" id="mode-selector"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn-mode active" data-mode="single"&gt;① 磁石単体&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn-mode" data-mode="plate"&gt;② 磁石と鉄板&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn-mode" data-mode="attract_opposite"&gt;③ 異極対向&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn-mode" data-mode="repel_opposite"&gt;④ 同極対向&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn-mode" data-mode="attract_parallel"&gt;⑤ 異極並列&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn-mode" data-mode="repel_parallel"&gt;⑥ 同極並列&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="canvas-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;canvas id="vector-field-canvas"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="text-center mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="clear-button" class="btn-secondary"&gt;曲線を消去&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (typeof renderMathInElement === 'function') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderMathInElement(document.body);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.getElementById('vector-field-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ctx = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const clearButton = document.getElementById('clear-button');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const modeSelector = document.getElementById('mode-selector');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let width, height, dpr;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let curves = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let currentMode = 'single';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let poles = [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const poleConfigs = {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>single: [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: -4, y: 0, charge: 1 }, { x: 4, y: 0, charge: -1 }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>plate: [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: -3, y: 4, charge: 1 }, { x: 3, y: 4, charge: -1 }, // Real magnet</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: -3, y: -4, charge: -1 }, { x: 3, y: -4, charge: 1 } // Image magnet</p>
+<p class="p1"><span class="Apple-converted-space">                </span>],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>attract_opposite: [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: -6, y: 0, charge: 1 }, { x: -2, y: 0, charge: -1 },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: 2, y: 0, charge: 1 }, { x: 6, y: 0, charge: -1 }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>repel_opposite: [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: -6, y: 0, charge: -1 }, { x: -2, y: 0, charge: 1 },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: 2, y: 0, charge: 1 }, { x: 6, y: 0, charge: -1 }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>attract_parallel: [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: -4, y: 3, charge: 1 }, { x: 4, y: 3, charge: -1 },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: -4, y: -3, charge: -1 }, { x: 4, y: -3, charge: 1 }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>repel_parallel: [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: -4, y: 3, charge: 1 }, { x: 4, y: 3, charge: -1 },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ x: -4, y: -3, charge: 1 }, { x: 4, y: -3, charge: -1 }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>]</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const getDirectionVector = (x, y) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let total_dx = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let total_dy = 0;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>poles.forEach(pole =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const dx = x - pole.x;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const dy = y - pole.y;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const dist_sq = dx * dx + dy * dy;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (dist_sq &gt; 0.01) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const strength = pole.charge / dist_sq;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>total_dx += dx * strength;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>total_dy += dy * strength;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return { dx: total_dx, dy: total_dy };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function setupCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dpr = window.devicePixelRatio || 1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvas.parentElement.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>width = rect.width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>height = rect.height;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.width = width * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.height = height * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.style.width = `${width}px`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.style.height = `${height}px`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.scale(dpr, dpr);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setMode(currentMode);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const toMathX = (cx) =&gt; (cx - width / 2) / (width / 25);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const toMathY = (cy) =&gt; -(cy - height / 2) / (height / 25);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const toCanvasX = (mx) =&gt; mx * (width / 25) + width / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const toCanvasY = (my) =&gt; -my * (height / 25) + height / 2;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawVectorField() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const gridSize = 20;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const lineLength = 10;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = 'rgba(107, 114, 128, 0.5)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 1;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; width; i += gridSize) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let j = 0; j &lt; height; j += gridSize) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const mx = toMathX(i);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const my = toMathY(j);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (currentMode === 'plate' &amp;&amp; my &lt; 0) continue;</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const vec = getDirectionVector(mx, my);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const magnitude = Math.sqrt(vec.dx * vec.dx + vec.dy * vec.dy);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (magnitude === 0) continue;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const dx_norm = vec.dx / magnitude;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const dy_norm = vec.dy / magnitude;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>ctx.moveTo(i - dx_norm * lineLength / 2, j - dy_norm * lineLength / 2);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>ctx.lineTo(i + dx_norm * lineLength / 2, j + dy_norm * lineLength / 2);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawPoles() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>poles.forEach(pole =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (currentMode === 'plate' &amp;&amp; pole.y &lt; 0) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const cx = toCanvasX(pole.x);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const cy = toCanvasY(pole.y);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const color = pole.charge &gt; 0 ? 'rgba(239, 68, 68, 0.9)' : 'rgba(59, 130, 246, 0.9)';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const text = pole.charge &gt; 0 ? 'N' : 'S';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.arc(cx, cy, 8, 0, 2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillStyle = 'white';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.font = 'bold 12px Inter';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.textAlign = 'center';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.textBaseline = 'middle';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillText(text, cx, cy);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawIronPlate() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (currentMode !== 'plate') return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const plateSurfaceY = toCanvasY(0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#4b5563';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(0, plateSurfaceY, width, height - plateSurfaceY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function traceCurve(startPoint) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const stepSize = 0.1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const numSteps = 2000;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const curvePoints = [];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const sinks = poles.filter(p =&gt; p.charge &lt; 0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const sources = poles.filter(p =&gt; p.charge &gt; 0);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// 正の方向にトレース</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let x = startPoint.x;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let y = startPoint.y;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; numSteps; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>curvePoints.push({ x, y });</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const vec = getDirectionVector(x, y);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const magnitude = Math.sqrt(vec.dx * vec.dx + vec.dy * vec.dy);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (magnitude &lt; 0.01) break;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>x += (vec.dx / magnitude) * stepSize;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>y += (vec.dy / magnitude) * stepSize;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let stopped = sinks.some(sink =&gt; Math.hypot(x - sink.x, y - sink.y) &lt; 0.5);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (currentMode === 'plate' &amp;&amp; y &lt; 0) stopped = true;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (stopped || Math.abs(x) &gt; 15 || Math.abs(y) &gt; 15) break;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// 負の方向にトレース</p>
+<p class="p1"><span class="Apple-converted-space">                </span>x = startPoint.x;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>y = startPoint.y;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; numSteps; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>curvePoints.unshift({ x, y });</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const vec = getDirectionVector(x, y);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const magnitude = Math.sqrt(vec.dx * vec.dx + vec.dy * vec.dy);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (magnitude &lt; 0.01) break;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>x -= (vec.dx / magnitude) * stepSize;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>y -= (vec.dy / magnitude) * stepSize;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let stopped = sources.some(source =&gt; Math.hypot(x - source.x, y - source.y) &lt; 0.5);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (currentMode === 'plate' &amp;&amp; y &lt; 0) stopped = true;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (stopped || Math.abs(x) &gt; 15 || Math.abs(y) &gt; 15) break;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>return curvePoints;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function renderCurve(points, color) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (points.length &lt; 2) return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 2.5;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const startCanvasPoint = { x: toCanvasX(points[0].x), y: toCanvasY(points[0].y) };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(startCanvasPoint.x, startCanvasPoint.y);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 1; i &lt; points.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const canvasPoint = { x: toCanvasX(points[i].x), y: toCanvasY(points[i].y) };</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.lineTo(canvasPoint.x, canvasPoint.y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawScene() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.clearRect(0, 0, width, height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawVectorField();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawIronPlate();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawPoles();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>curves.forEach(curveData =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>renderCurve(curveData.points, curveData.color);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function handlePointerDown(e) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = e.clientX - rect.left;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = e.clientY - rect.top;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const startPoint = { x: toMathX(x), y: toMathY(y) };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (currentMode === 'plate' &amp;&amp; startPoint.y &lt; 0) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newCurvePoints = traceCurve(startPoint);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const randomColor = `hsl(${Math.random() * 360}, 80%, 60%)`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>curves.push({ points: newCurvePoints, color: randomColor });</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawScene();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function setMode(mode) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>currentMode = mode;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>poles = poleConfigs[mode];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>curves = [];</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.querySelectorAll('.btn-mode').forEach(btn =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>btn.classList.toggle('active', btn.dataset.mode === mode);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawScene();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>modeSelector.addEventListener('click', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (e.target.classList.contains('btn-mode')) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>setMode(e.target.dataset.mode);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.addEventListener('pointerdown', handlePointerDown);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearButton.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>curves = [];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawScene();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', setupCanvas);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupCanvas();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

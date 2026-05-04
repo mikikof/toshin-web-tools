@@ -1,0 +1,605 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!doctype html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="utf-8" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Adam ロボ学習 — 単一HTML（完全オフライン対応）&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>:root{</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--bg1:#f8fafc; --bg2:#ffffff; --bg3:#eef2ff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--ink:#0f172a; --muted:#475569; --line:#e2e8f0; --line2:#cbd5e1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--brand:#0ea5e9; --brand-2:#6366f1; --accent:#0f766e; --accent-2:#ef4444;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--card:#ffffff; --shadow:0 10px 30px rgba(2,6,23,.08);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html,body{height:100%;}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; color:var(--ink);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: linear-gradient(135deg,var(--bg1),var(--bg2) 35%,var(--bg3));}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.container{max-width:1200px; margin:0 auto; padding:0 16px;}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.header{position:sticky; top:0; z-index:10; backdrop-filter:saturate(1.2) blur(6px); background:rgba(255,255,255,.9); border-bottom:1px solid var(--line);}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.brand{display:flex; align-items:center; gap:12px;}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.badge{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#14b8a6,#6366f1);display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:var(--shadow)}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>h1{font-size:28px; line-height:1.15; margin:0; letter-spacing:.2px}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.sub{font-size:13px; color:#64748b; margin-top:2px}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.row{display:grid; grid-template-columns:1fr; gap:24px;}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>@media(min-width:1024px){ .row{grid-template-columns: 420px 1fr;} }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.card{background:var(--card); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow)}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.card.pad{padding:20px;}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.card h2{font-size:16px; margin:0 0 8px;}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.muted{color:#475569}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.small{font-size:12.5px;}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.btn{border:1px solid var(--line2); background:#fff; border-radius:16px; padding:10px 14px; font-size:15px; cursor:pointer; box-shadow:0 1px 0 rgba(0,0,0,.02);}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.btn:hover{background:#f8fafc}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.btn.primary{background:#0f766e; border-color:#0f766e; color:#fff}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.btn.primary:hover{filter:brightness(1.05)}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.btn.sm{font-size:14px; padding:8px 12px;}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.controls{display:flex; flex-wrap:wrap; gap:8px}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.grid{display:grid; gap:10px}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.grid.two{grid-template-columns: 1fr 1fr;}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.kv{display:grid; grid-template-columns: 1fr auto; gap:4px; align-items:center}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.kv .v{font-family:ui-monospace, Menlo, Consolas, monospace; font-size:22px}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.hero{position:relative; overflow:hidden}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.hero .bg1{position:absolute; inset:auto auto -40px -40px; width:260px; height:260px; background:#818cf8; opacity:.18; filter:blur(40px); border-radius:999px}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.hero .bg2{position:absolute; inset:-40px -60px auto auto; width:300px; height:300px; background:#2dd4bf; opacity:.18; filter:blur(40px); border-radius:999px}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.row-hero{display:grid; grid-template-columns:1fr; gap:12px;}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>@media(min-width:640px){ .row-hero{grid-template-columns: repeat(3, minmax(0,1fr));} }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.pill{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.85); font-size:12.5px}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>/* sliders */</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.sl{display:grid; gap:4px}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.sl label{font-size:15px; font-weight:600}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.sl input[type=range]{width:100%}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>/* viz */</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.viz-wrap{position:relative}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.cta{position:absolute; inset:0; display:flex; align-items:center; justify-content:center}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.cta &gt; div{pointer-events:auto; background:rgba(255,255,255,.85); backdrop-filter:blur(8px); border:1px solid var(--line); border-radius:16px; padding:14px 16px; box-shadow:var(--shadow); text-align:center}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>/* loss chart */</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.loss-svg{width:100%; height:280px}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.list{list-style:none; padding:0; margin:8px 0 0}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.list li{font-size:13.5px}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.pass{color:#047857}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.fail{color:#b91c1c}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>code, .mono{font-family:ui-monospace, Menlo, Consolas, monospace}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.math{font-size:16px}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>details summary{cursor:pointer; user-select:none}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;header class="header"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container" style="padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="brand"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="badge"&gt;🤖&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;h1&gt;ADAMによる学習の可視化&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="sub"&gt;直感でわかる最適化：SGD / Adam / AdamW（完全オフライン）&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="btnPlay" class="btn primary"&gt;▶ 再生&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="btnReset" class="btn"&gt;⟳ リセット&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;main class="container" style="padding:24px 16px 28px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="row"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;!-- 左カラム：説明 + コントロール --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;section class="grid" style="gap:18px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card pad"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;h2&gt;モデル（何をシミュレート？）&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;p class="muted" style="font-size:15.5px; line-height:1.7; margin:6px 0 10px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>原点 &lt;span class="mono"&gt;(0,0)&lt;/span&gt; で最小になる &lt;strong&gt;損失地形&lt;/strong&gt;（細長い谷）を、ロボット &lt;span class="mono"&gt;θ=(x,y)&lt;/span&gt; が下っていく様子です。右の図は x–y 平面、赤がゴール。</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="grid" style="gap:10px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="card pad" style="padding:12px; background:#f8fafc"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="small muted" style="margin-bottom:4px"&gt;損失（谷の形）&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;!-- MathML（オフラインで綺麗。未対応ブラウザは下の code を見る） --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;math class="math" display="block"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mi&gt;L&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mfrac&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mo&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mfrac&gt;&lt;msup&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;msup&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mo&gt;+&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mfrac&gt;&lt;msup&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;msup&gt;&lt;mi&gt;b&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mo&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="small muted"&gt;（MathML が未対応なら）&lt;code&gt;L(x,y)=1/2*(u^2/a^2 + v^2/b^2)&lt;/code&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="card pad" style="padding:12px; background:#f8fafc"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="small muted" style="margin-bottom:4px"&gt;座標の回転（谷の向き φ）&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;math class="math" display="block"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mo&gt;[&lt;/mo&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;v&lt;/mi&gt;&lt;mo&gt;]^T&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mo&gt;R&lt;/mo&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;φ&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mo&gt;[&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;]^T&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="small muted"&gt;（未対応なら）&lt;code&gt;[u,v]^T = R(φ)[x,y]^T&lt;/code&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul class="muted small" style="margin:8px 0 0 18px; line-height:1.7; list-style:disc"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;&lt;span class="mono"&gt;θ=(x,y)&lt;/span&gt; はロボの位置（最小化したいパラメータ）。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;&lt;span class="mono"&gt;a,b&lt;/span&gt; は谷の細さ（&lt;span class="mono"&gt;b≫a&lt;/span&gt; で横に長い）。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;&lt;span class="mono"&gt;φ&lt;/span&gt; は谷の向き（回転角）。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;details style="margin-top:10px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;summary class="small"&gt;&lt;strong&gt;更新式（SGD / Adam / AdamW）&lt;/strong&gt; — 詳細を見る&lt;/summary&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="muted small" style="margin-top:6px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div&gt;&lt;code&gt;SGD:  θ(t+1) = θ(t) − η ∇L(θ(t))&lt;/code&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div&gt;&lt;code&gt;Adam: m_t=β₁ m_{t-1}+(1−β₁)g_t,  v_t=β₂ v_{t-1}+(1−β₂)g_t²&lt;/code&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div&gt;&lt;code&gt;        θ(t+1)=θ(t) − η ·  m̂_t / (√v̂_t + ε)&lt;/code&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div&gt;&lt;code&gt;AdamW: θ(t+1)=θ(t) − η · ( m̂_t/(√v̂_t+ε) + λ θ(t) )&lt;/code&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/details&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card pad"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;h2&gt;まずは押すだけプリセット&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="grid" style="gap:8px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="btn" id="pZigzag"&gt;SGD: ジグザグを体験 ➜&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="btn" id="pStable"&gt;Adam: まっすぐ安定 ➜&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="btn" id="pReg"&gt;AdamW: 正則化で引き締め ➜&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="small muted" style="margin-top:6px"&gt;（再生が自動で始まります。図をクリックすると出発点を変えられます）&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card pad"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;h2&gt;アルゴリズムとハイパーパラメータ&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="controls" style="margin-bottom:8px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;&lt;input type="radio" name="algo" value="SGD"&gt; SGD&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;&lt;input type="radio" name="algo" value="Adam" checked&gt; Adam&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;&lt;input type="radio" name="algo" value="AdamW"&gt; AdamW&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="grid" style="gap:12px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="sl"&gt;&lt;label&gt;学習率 η = &lt;span id="labEta" class="mono"&gt;0.050&lt;/span&gt;&lt;/label&gt;&lt;input id="eta" type="range" min="0.005" max="0.2" step="0.001" value="0.05"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="blkBeta1" class="sl"&gt;&lt;label&gt;β₁ = &lt;span id="labB1" class="mono"&gt;0.900&lt;/span&gt;&lt;/label&gt;&lt;input id="beta1" type="range" min="0.5" max="0.99" step="0.001" value="0.9"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="blkBeta2" class="sl"&gt;&lt;label&gt;β₂ = &lt;span id="labB2" class="mono"&gt;0.999&lt;/span&gt;&lt;/label&gt;&lt;input id="beta2" type="range" min="0.8" max="0.999" step="0.001" value="0.999"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="blkEps" class="sl"&gt;&lt;label&gt;ε = &lt;span id="labEps" class="mono"&gt;1.0e-8&lt;/span&gt;&lt;/label&gt;&lt;input id="eps" type="range" min="-10" max="-6" step="0.05" value="-8"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="blkDecay" class="sl"&gt;&lt;label&gt;重み減衰 λ = &lt;span id="labDecay" class="mono"&gt;0.0000&lt;/span&gt;&lt;/label&gt;&lt;input id="decay" type="range" min="0" max="0.1" step="0.0005" value="0"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="sl"&gt;&lt;label&gt;ノイズ（ミニバッチゆらぎ） = &lt;span id="labNoise" class="mono"&gt;0.000&lt;/span&gt;&lt;/label&gt;&lt;input id="noise" type="range" min="0" max="0.4" step="0.005" value="0"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="sl"&gt;&lt;label&gt;速度 (steps/s) = &lt;span id="labSpeed" class="mono"&gt;48&lt;/span&gt;&lt;/label&gt;&lt;input id="speed" type="range" min="1" max="120" step="1" value="48"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="small muted"&gt;&lt;input id="useInterval" type="checkbox"&gt; タイマー互換モード（&lt;code&gt;setInterval&lt;/code&gt; を使用）&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card pad"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="btnStep" class="btn"&gt;1 ステップ&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="btnStep10" class="btn"&gt;10 ステップ&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="btnPause" class="btn"&gt;⏸ 一時停止&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card pad"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;h2&gt;Diagnostics / Self-tests&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="controls" style="margin-bottom:6px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="btnTests" class="btn"&gt;Run tests&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="small muted"&gt;（実装の正しさをざっくり検査）&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul id="testList" class="list"&gt;&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;!-- 右カラム：可視化 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;section class="grid" style="gap:18px"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card viz-wrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style="padding:14px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; flex-wrap: wrap; gap: 8px;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div style="font-weight:700"&gt;損失地形と最適化の軌跡&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="small muted"&gt;背景=ヒートマップ/陰影, 青=軌跡, オレンジ=勾配, 赤=ゴール&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="small muted"&gt;🖱️ 図クリックで &lt;strong&gt;出発点&lt;/strong&gt; を変更&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style="padding:12px; display:flex; justify-content:center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="viz" viewBox="0 0 920 600" style="width:100%; height:auto; border-radius:14px; cursor:crosshair"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;g id="heatmap"&gt;&lt;/g&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;g id="grid"&gt;&lt;/g&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;g id="contours"&gt;&lt;/g&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle id="goal" r="6" fill="#ef4444"&gt;&lt;/circle&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text id="goalLabel" class="small" fill="#475569"&gt;goal (0,0)&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;polyline id="path" fill="none" stroke="#0ea5e9" stroke-linecap="round" stroke-width="3" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;g id="arrow"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;line id="arrowLine" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;polygon id="arrowHead" fill="#f59e0b" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/g&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;g id="robot"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;circle id="robotHalo" r="12" fill="#0ea5e9" opacity=".15" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;circle id="robotDot" r="3.2" fill="#0ea5e9" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;text id="robotEmoji" font-size="18"&gt;🤖&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/g&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;g id="axes"&gt;&lt;/g&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div id="cta" class="cta" style="display:none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div style="font-weight:700; margin-bottom:4px"&gt;まずは試してみよう&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="small muted" style="margin-bottom:8px"&gt;図をクリックして出発点 → プリセットで挙動を比べてみる&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="controls" style="justify-content:center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn sm" id="ctaZ"&gt;🔥 Zigzag&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn sm" id="ctaS"&gt;📈 Stable&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn sm" id="ctaR"&gt;✨ Regularize&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style="padding:12px 18px 18px; border-top:1px solid var(--line)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid two"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="card pad" style="padding:12px; background:#f8fafc"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="small muted"&gt;steps&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="statSteps" class="mono" style="font-size:34px"&gt;0&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="card pad" style="padding:12px; background:#f8fafc"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="small muted"&gt;L(θ)&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="statLoss" class="mono" style="font-size:34px"&gt;0.00000&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div class="card pad" style="padding:12px; background:#f8fafc; grid-column:1/-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="small muted"&gt;|∇L|&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="statGrad" class="mono" style="font-size:22px"&gt;0.000000&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card pad"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style="font-weight:700; margin-bottom:8px"&gt;損失 L の推移&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;svg id="lossSvg" class="loss-svg"&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/section&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/main&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;footer class="container small muted" style="padding:18px 16px 36px; text-align:center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div&gt;© &lt;span id="year"&gt;&lt;/span&gt; Adam Playground — 学校の授業やワークショップでの利用を想定しています。&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/footer&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>(function(){</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Geometry &amp; world params ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const W=920, H=600, scale=64;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let svgEl = document.getElementById('viz');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const getCx = () =&gt; W*0.58;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const getCy = () =&gt; H*0.56;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const phiDeg=30, phi = phiDeg*Math.PI/180; // valley angle</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const a2=1, b2=100; // valley aspect (u narrow, v wide)</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== State ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const state = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>algo:'Adam', eta:0.05, beta1:0.9, beta2:0.999, eps:1e-8,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>weightDecay:0.0, noise:0.0, speed:48, useInterval:false,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>theta:{x:-2.0, y:3.6}, m:{x:0,y:0}, v:{x:0,y:0}, t:0,</p>
+<p class="p1"><span class="Apple-converted-space">      </span>step:0, path:[], lossData:[], playing:false,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== DOM ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const $ = (q)=&gt;document.querySelector(q);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const viz = $('#viz'); const gHeat = $('#heatmap'); const gGrid=$('#grid'); const gContours=$('#contours');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const gAxes=$('#axes'); const pathEl=$('#path'); const goal=$('#goal'); const goalLabel=$('#goalLabel');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const robotHalo=$('#robotHalo'), robotDot=$('#robotDot'), robotEmoji=$('#robotEmoji');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const arrowLine=$('#arrowLine'), arrowHead=$('#arrowHead');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const cta=$('#cta');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const lossSvg=$('#lossSvg');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Controls</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const btnPlay=$('#btnPlay'); const btnPause=$('#btnPause'); const btnReset=$('#btnReset');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const btnStep=$('#btnStep'); const btnStep10=$('#btnStep10');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const algoInputs=[...document.querySelectorAll('input[name=algo]')];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const rEta=$('#eta'), rB1=$('#beta1'), rB2=$('#beta2'), rEps=$('#eps'), rDecay=$('#decay'), rNoise=$('#noise'), rSpeed=$('#speed');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const labEta=$('#labEta'), labB1=$('#labB1'), labB2=$('#labB2'), labEps=$('#labEps'), labDecay=$('#labDecay'), labNoise=$('#labNoise'), labSpeed=$('#labSpeed');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const blkB1=$('#blkBeta1'), blkB2=$('#blkBeta2'), blkEps=$('#blkEps'), blkDecay=$('#blkDecay');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const useInterval=$('#useInterval'); const year=$('#year'); year.textContent=new Date().getFullYear();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const pZigzag=$('#pZigzag'), pStable=$('#pStable'), pReg=$('#pReg');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const ctaZ=$('#ctaZ'), ctaS=$('#ctaS'), ctaR=$('#ctaR');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const statSteps=$('#statSteps'), statLoss=$('#statLoss'), statGrad=$('#statGrad');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Helpers ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const toPx = (x,y)=&gt;({X: getCx() + x*scale, Y: getCy() - y*scale});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function rotated(x,y){ const u=x*Math.cos(phi)+y*Math.sin(phi); const v=-x*Math.sin(phi)+y*Math.cos(phi); return {u,v}; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function loss(x,y){ const {u,v}=rotated(x,y); return 0.5*(u*u/a2 + v*v/b2); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function grad(x,y){ const {u,v}=rotated(x,y); const dLdu=u/a2, dLdv=v/b2; return { x: dLdu*Math.cos(phi)-dLdv*Math.sin(phi), y: dLdu*Math.sin(phi)+dLdv*Math.cos(phi) }; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function clampArrow(from, vec, lenPx){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// Make an arrow of up to lenPx, but clamp so it stays inside SVG bounds with margin</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const vlen = Math.hypot(vec.x, vec.y) || 1e-9; const ux = vec.x/vlen, uy=vec.y/vlen;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let t = lenPx/scale; const margin=8/scale;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const xMin=(0-getCx())/scale + margin, xMax=(W-getCx())/scale - margin;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const yMin=(getCy()-H)/scale + margin, yMax= getCy()/scale - margin;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if(Math.abs(ux)&gt;1e-9){ const tx = ux&gt;0 ? (xMax-from.x)/ux : (xMin-from.x)/ux; t=Math.min(t, tx); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if(Math.abs(uy)&gt;1e-9){ const ty = uy&gt;0 ? (yMax-from.y)/uy : (yMin-from.y)/uy; t=Math.min(t, ty); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return { x: from.x + ux*t, y: from.y + uy*t };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Initialize heatmap, grid, contours, axes ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function buildHeat(){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const cx = getCx(), cy = getCy();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// grid</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const gridLines=[]; for(let x= (cx%scale+scale)%scale; x&lt;=W; x+=scale){ gridLines.push(`&lt;line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#f1f5f9" stroke-width="1"/&gt;`) }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for(let y=(cy%scale+scale)%scale; y&lt;=H; y+=scale){ gridLines.push(`&lt;line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/&gt;`) }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gGrid.innerHTML=gridLines.join('');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// heat tiles</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Nx=60, Ny=40; const dx=W/Nx, dy=H/Ny; const data=[]; let Lmax=0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for(let j=0;j&lt;Ny;j++){</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0;i&lt;Nx;i++){</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const X=(i+0.5)*dx, Y=(j+0.5)*dy; const x=(X-cx)/scale, y=(cy-Y)/scale; const L = loss(x,y); const g=grad(x,y);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>data.push({X:i*dx, Y:j*dy, L, g}); if(L&gt;Lmax) Lmax=L;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const light={x:-0.6,y:0.8}; const lightLen=Math.hypot(light.x,light.y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const rects = data.map((d,idx)=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const n = Math.min(1, d.L/(Lmax*0.9+1e-9));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const hue = 200 - 30*n; const baseL= 96 - 28*n;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const gl = Math.hypot(d.g.x,d.g.y) || 1e-9; const ux = d.g.x/gl, uy=d.g.y/gl; const shade=(ux*light.x+uy*light.y)/lightLen;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lightness = Math.max(60, Math.min(98, baseL+6*shade));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const fill = `hsl(${hue} 80% ${lightness}%)`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return `&lt;rect x="${d.X}" y="${d.Y}" width="${dx+0.5}" height="${dy+0.5}" fill="${fill}" opacity="0.65"/&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gHeat.innerHTML = rects.join('');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// contours</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const levels=[0.25,0.5,1,2,4,8,12,18];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const ell=[];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for(let i=0;i&lt;levels.length;i++){</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const c=levels[i]; const rx=Math.sqrt(2*c*a2)*scale, ry=Math.sqrt(2*c*b2)*scale;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>ell.push(`&lt;g transform="rotate(${phiDeg} ${cx} ${cy})"&gt;&lt;ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="#dbe1ea" stroke-width="1.2"/&gt;&lt;/g&gt;`);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gContours.innerHTML = ell.join('');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// axes + ticks</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const ax=[];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>ax.push(`&lt;line x1="0" y1="${cy}" x2="${W}" y2="${cy}" stroke="#94a3b8" stroke-width="1.4"/&gt;`);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>ax.push(`&lt;line x1="${cx}" y1="0" x2="${cx}" y2="${H}" stroke="#94a3b8" stroke-width="1.4"/&gt;`);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const ticks=[-4,-2,2,4];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for(const k of ticks){ const x = cx + k*scale; ax.push(`&lt;line x1="${x}" y1="${cy-5}" x2="${x}" y2="${cy+5}" stroke="#94a3b8"/&gt;`); ax.push(`&lt;text x="${x-4}" y="${cy+18}" fill="#475569" font-size="12.5"&gt;${k}&lt;/text&gt;`); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for(const k of ticks){ const y = cy - k*scale; ax.push(`&lt;line x1="${cx-5}" y1="${y}" x2="${cx+5}" y2="${y}" stroke="#94a3b8"/&gt;`); ax.push(`&lt;text x="${cx+10}" y="${y+4}" fill="#475569" font-size="12.5"&gt;${k}&lt;/text&gt;`); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gAxes.innerHTML = ax.join('');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// goal</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const g0 = toPx(0,0); goal.setAttribute('cx', g0.X); goal.setAttribute('cy', g0.Y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>goalLabel.setAttribute('x', g0.X+10); goalLabel.setAttribute('y', g0.Y-10);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Path &amp; robot drawing ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function redrawPath(){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const pts = state.path.map(p=&gt;{ const q=toPx(p.x,p.y); return `${q.X},${q.Y}`; }).join(' ');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>pathEl.setAttribute('points', pts);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function redrawRobot(){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const p = toPx(state.theta.x, state.theta.y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>robotHalo.setAttribute('cx', p.X); robotHalo.setAttribute('cy', p.Y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>robotDot.setAttribute('cx', p.X); robotDot.setAttribute('cy', p.Y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>robotEmoji.setAttribute('x', p.X+6); robotEmoji.setAttribute('y', p.Y-6);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// gradient arrow (toward -grad)</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const g = grad(state.theta.x, state.theta.y); const tgt = clampArrow(state.theta, {x:-g.x, y:-g.y}, 56);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const a = toPx(state.theta.x, state.theta.y); const b = toPx(tgt.x, tgt.y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>arrowLine.setAttribute('x1', a.X); arrowLine.setAttribute('y1', a.Y); arrowLine.setAttribute('x2', b.X); arrowLine.setAttribute('y2', b.Y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const ang = Math.atan2(b.Y-a.Y, b.X-a.X); const head=10;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const p1=`${b.X},${b.Y}`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const p2=`${b.X - head*Math.cos(ang-Math.PI/7)},${b.Y - head*Math.sin(ang-Math.PI/7)}`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const p3=`${b.X - head*Math.cos(ang+Math.PI/7)},${b.Y - head*Math.sin(ang+Math.PI/7)}`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>arrowHead.setAttribute('points', `${p1} ${p2} ${p3}`);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Loss chart ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function drawLossChart(){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const padL=36, padR=12, padT=10, padB=20;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const w = lossSvg.clientWidth || 760; const h = lossSvg.clientHeight || 280;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const innerW = Math.max(10, w - padL - padR), innerH = Math.max(10, h - padT - padB);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const data = state.lossData.slice(-500);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const sMin = data.length? Math.min(...data.map(d=&gt;d.step)) : 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const sMax = data.length? Math.max(...data.map(d=&gt;d.step)) : 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lMin = data.length? Math.min(...data.map(d=&gt;d.loss)) : 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lMax = data.length? Math.max(...data.map(d=&gt;d.loss)) : 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const x = (s)=&gt; padL + (s - sMin) / Math.max(1e-9, (sMax - sMin||1)) * innerW;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const y = (v)=&gt; padT + (1 - (v - lMin) / Math.max(1e-9,(lMax-lMin||1))) * innerH;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const gridY = [lMin, (lMin+lMax)/2, lMax];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const ticksX = [sMin, Math.round((sMin+sMax)/2), sMax];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let svg = '';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// grid</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for(const gy of gridY){ svg += `&lt;line x1="${padL}" y1="${y(gy)}" x2="${padL+innerW}" y2="${y(gy)}" stroke="${'#e2e8f0'}"/&gt;`; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// axes</p>
+<p class="p1"><span class="Apple-converted-space">      </span>svg += `&lt;line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+innerH}" stroke="${'#cbd5e1'}"/&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>svg += `&lt;line x1="${padL}" y1="${padT+innerH}" x2="${padL+innerW}" y2="${padT+innerH}" stroke="${'#cbd5e1'}"/&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// labels</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for(const tx of ticksX){ svg += `&lt;text x="${x(tx)}" y="${padT+innerH+14}" fill="#334155" font-size="12.5" text-anchor="middle"&gt;${tx}&lt;/text&gt;`; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for(const gy of gridY){ svg += `&lt;text x="${padL-6}" y="${y(gy)+4}" fill="#334155" font-size="12.5" text-anchor="end"&gt;${gy.toFixed(3)}&lt;/text&gt;`; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// path</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if(data.length &gt; 1){</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let d = `M ${x(data[0].step)} ${y(data[0].loss)}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=1;i&lt;data.length;i++) d += ` L ${x(data[i].step)} ${y(data[i].loss)}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg += `&lt;path d="${d}" fill="none" stroke="${'#0ea5e9'}" stroke-width="3" stroke-linecap="round"/&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>lossSvg.innerHTML = svg;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== UI updates ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function refreshLabels(){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>labEta.textContent = state.eta.toFixed(3);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>labB1.textContent = state.beta1.toFixed(3);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>labB2.textContent = state.beta2.toFixed(3);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>labEps.textContent = state.eps.toExponential(1);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>labDecay.textContent = state.weightDecay.toFixed(4);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>labNoise.textContent = state.noise.toFixed(3);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>labSpeed.textContent = String(state.speed);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// show/hide blocks</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const adamish = state.algo !== 'SGD';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>blkB1.style.display = adamish? 'grid':'none';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>blkB2.style.display = adamish? 'grid':'none';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>blkEps.style.display = adamish? 'grid':'none';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>blkDecay.style.display = (state.algo==='AdamW' || state.algo==='SGD')? 'grid':'none';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// state -&gt; UI</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function refreshFromState(){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const radio = document.querySelector(`input[name=algo][value="${state.algo}"]`);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if(radio) radio.checked = true;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>rEta.value = state.eta;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>rB1.value = state.beta1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>rB2.value = state.beta2;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>rEps.value = Math.log10(state.eps);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>rDecay.value = state.weightDecay;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>rNoise.value = state.noise;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>rSpeed.value = state.speed;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>useInterval.checked = state.useInterval;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>refreshLabels();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateStats(){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const L = loss(state.theta.x, state.theta.y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const g = grad(state.theta.x, state.theta.y); const gl = Math.hypot(g.x,g.y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>statSteps.textContent = state.step;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>statLoss.textContent = L.toFixed(5);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>statGrad.textContent = gl.toFixed(6);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateCTA(){ cta.style.display = (!state.playing &amp;&amp; state.step===0) ? 'flex' : 'none'; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Sim step ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function stepOnce(){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const g = grad(state.theta.x, state.theta.y);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const gn = { x: g.x + state.noise*(Math.random()-0.5), y: g.y + state.noise*(Math.random()-0.5) };</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let next = { x: state.theta.x, y: state.theta.y };</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if(state.algo==='SGD'){</p>
+<p class="p1"><span class="Apple-converted-space">        </span>next.x -= state.eta*gn.x; next.y -= state.eta*gn.y;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if(state.weightDecay&gt;0){ next.x -= state.eta*state.weightDecay*state.theta.x; next.y -= state.eta*state.weightDecay*state.theta.y; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}else{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.m.x = state.beta1*state.m.x + (1-state.beta1)*gn.x; state.m.y = state.beta1*state.m.y + (1-state.beta1)*gn.y;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.v.x = state.beta2*state.v.x + (1-state.beta2)*(gn.x*gn.x); state.v.y = state.beta2*state.v.y + (1-state.beta2)*(gn.y*gn.y);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.t += 1; const t=state.t;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const mHat = { x: state.m.x/(1-Math.pow(state.beta1,t)), y: state.m.y/(1-Math.pow(state.beta1,t)) };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const vHat = { x: state.v.x/(1-Math.pow(state.beta2,t)), y: state.v.y/(1-Math.pow(state.beta2,t)) };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const upd<span class="Apple-converted-space">  </span>= { x: mHat.x/(Math.sqrt(vHat.x)+state.eps), y: mHat.y/(Math.sqrt(vHat.y)+state.eps) };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if(state.algo==='AdamW' &amp;&amp; state.weightDecay&gt;0){ next.x -= state.eta*(upd.x + state.weightDecay*state.theta.x); next.y -= state.eta*(upd.y + state.weightDecay*state.theta.y); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>else{ next.x -= state.eta*upd.x; next.y -= state.eta*upd.y; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>state.theta = next;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>state.path.push(next); if(state.path.length&gt;700) state.path.shift();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>state.step += 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>state.lossData.push({ step: state.step, loss: loss(next.x, next.y) }); if(state.lossData.length&gt;800) state.lossData.shift();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Play loop ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let raf=null, itv=null;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function start(){ if(state.playing) return; state.playing=true; updateCTA(); btnPlay.textContent='⏸ 一時停止';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const stepMS = Math.max(8, Math.floor(1000/Math.max(1,state.speed)));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if(state.useInterval){ itv = setInterval(tick, stepMS); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>else{ let last=performance.now(), acc=0; const frame=(now)=&gt;{ const dt=now-last; last=now; acc+=dt; while(acc&gt;=stepMS){ tick(); acc-=stepMS; if (!state.playing) break; } if(state.playing) raf=requestAnimationFrame(frame); }; raf=requestAnimationFrame(frame); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function stop(){ state.playing=false; updateCTA(); btnPlay.textContent='▶ 再生'; if(raf){ cancelAnimationFrame(raf); raf=null; } if(itv){ clearInterval(itv); itv=null; } }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function tick(){ stepOnce(); redrawPath(); redrawRobot(); updateStats(); drawLossChart(); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Reset &amp; presets ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function reset(theta){ stop(); state.theta=theta||{x:-2.0,y:3.6}; state.m={x:0,y:0}; state.v={x:0,y:0}; state.t=0; state.step=0; state.path=[{...state.theta}]; state.lossData=[{step:-1, loss:loss(state.theta.x, state.theta.y)}, {step:0, loss:loss(state.theta.x, state.theta.y)}]; redrawPath(); redrawRobot(); updateStats(); drawLossChart(); updateCTA(); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function applyPreset(name, autoStart=true){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>reset(state.theta); // Reset state before applying new preset</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if(name==='sgd-zigzag'){</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.algo='SGD'; state.eta=0.12; state.weightDecay=0.0; state.noise=0.02;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} else if(name==='adam-stable'){</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.algo='Adam'; state.eta=0.05; state.beta1=0.9; state.beta2=0.999; state.weightDecay=0.0; state.noise=0.0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} else if(name==='adamw-regularize'){</p>
+<p class="p1"><span class="Apple-converted-space">        </span>state.algo='AdamW'; state.eta=0.05; state.weightDecay=0.03; state.beta1=0.9; state.beta2=0.999; state.noise=0.01;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>refreshFromState();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if(autoStart) start();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Self-tests ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function numericGrad(x,y,h=1e-4){ const L=loss(x,y); return { x:(loss(x+h,y)-L)/h, y:(loss(x,y+h)-L)/h }; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function runTests(){</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const out=[]; let pass=true;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// T1: grad</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const pts=[{x:1,y:1},{x:2,y:-1},{x:-3,y:0.5}]; let t1ok=true, maxRel=0, worst=null; for(const p of pts){ const ga=grad(p.x,p.y), gn=numericGrad(p.x,p.y); const diff=Math.hypot(ga.x-gn.x, ga.y-gn.y); const denom=Math.max(1e-9,Math.hypot(ga.x,ga.y)); const rel=diff/denom; if(rel&gt;maxRel){maxRel=rel; worst={p,rel}} if(rel&gt;1e-3) t1ok=false; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>out.push({name:'T1: grad 一致（数値微分 vs 解析）', ok:t1ok, detail:`maxRelErr=${maxRel.toExponential(2)} at ${JSON.stringify(worst&amp;&amp;worst.p)}`}); pass=pass&amp;&amp;t1ok;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// T2: SGD</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const p0={x:2,y:-1}; const g0=grad(p0.x,p0.y); const p1={x:p0.x-0.01*g0.x, y:p0.y-0.01*g0.y}; const t2ok=loss(p1.x,p1.y)&lt;loss(p0.x,p0.y); out.push({name:'T2: SGD で損失降下', ok:t2ok, detail:`L0=${loss(p0.x,p0.y).toFixed(4)}→L1=${loss(p1.x,p1.y).toFixed(4)}`}); pass=pass&amp;&amp;t2ok;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// T3: Adam g=0</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const z={x:0,y:0}; let m={x:0,y:0}, v={x:0,y:0}, t=0; const gn={x:0,y:0}; function adamPreview(prev, gn, m, v, t, hp){ const {beta1,beta2,eps,eta,weightDecay,algo}=hp; const m2={x:beta1*m.x+(1-beta1)*gn.x, y:beta1*m.y+(1-beta1)*gn.y}; const v2={x:beta2*v.x+(1-beta2)*(gn.x*gn.x), y:beta2*v.y+(1-beta2)*(gn.y*gn.y)}; const t2=t+1; const mHat={x:m2.x/(1-Math.pow(beta1,t2)), y:m2.y/(1-Math.pow(beta1,t2))}; const vHat={x:v2.x/(1-Math.pow(beta2,t2)), y:v2.y/(1-Math.pow(beta2,t2))}; const upd={x:mHat.x/(Math.sqrt(vHat.x)+eps), y:mHat.y/(Math.sqrt(vHat.y)+eps)}; let next={...prev}; if(algo==='AdamW'&amp;&amp;weightDecay&gt;0){ next.x-=eta*(upd.x+weightDecay*prev.x); next.y-=eta*(upd.y+weightDecay*prev.y);} else { next.x-=eta*upd.x; next.y-=eta*upd.y; } return {next,m:m2,v:v2,t:t2}; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const a3=adamPreview(z,gn,{x:0,y:0},{x:0,y:0},0,{beta1:0.9,beta2:0.999,eps:1e-8,eta:0.01,weightDecay:0,algo:'Adam'}); const t3ok = Math.hypot(a3.next.x-z.x, a3.next.y-z.y)&lt;1e-12; out.push({name:'T3: Adam 勾配ゼロで不動 (λ=0)', ok:t3ok, detail:`|Δθ|=${Math.hypot(a3.next.x-z.x, a3.next.y-z.y).toExponential(2)}`}); pass=pass&amp;&amp;t3ok;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// T4: AdamW decay</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const z2={x:1,y:-0.5}; const a4=adamPreview(z2,gn,{x:0,y:0},{x:0,y:0},0,{beta1:0.9,beta2:0.999,eps:1e-8,eta:0.01,weightDecay:0.05,algo:'AdamW'}); const t4ok = Math.hypot(a4.next.x, a4.next.y) &lt; Math.hypot(z2.x, z2.y); out.push({name:'T4: AdamW で重み減衰が原点へ寄せる', ok:t4ok, detail:`|θ'| &lt; |θ| ? ${t4ok}`}); pass=pass&amp;&amp;t4ok;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// render</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const ul = document.getElementById('testList'); ul.innerHTML = out.map(t=&gt;`&lt;li class="${t.ok?'pass':'fail'}"&gt;${t.ok?'✔':'✖'} ${t.name} — &lt;span class="muted"&gt;${t.detail}&lt;/span&gt;&lt;/li&gt;`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return pass;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Interactions ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>viz.addEventListener('click', (e)=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const r = viz.getBoundingClientRect(); const xpx=e.clientX - r.left; const ypx=e.clientY - r.top;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const wx = (xpx - getCx()) / scale; const wy = (getCy() - ypx) / scale;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>reset({x:wx, y:wy});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>btnPlay.addEventListener('click', ()=&gt;{ state.playing? stop(): start(); });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>btnPause.addEventListener('click', ()=&gt; stop());</p>
+<p class="p1"><span class="Apple-converted-space">    </span>btnReset.addEventListener('click', ()=&gt; reset());</p>
+<p class="p1"><span class="Apple-converted-space">    </span>btnStep.addEventListener('click', ()=&gt;{ stop(); tick(); });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>btnStep10.addEventListener('click', ()=&gt;{ stop(); for(let i=0;i&lt;10;i++) stepOnce(); redrawPath(); redrawRobot(); updateStats(); drawLossChart(); });</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>pZigzag.addEventListener('click', ()=&gt;applyPreset('sgd-zigzag'));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pStable.addEventListener('click', ()=&gt;applyPreset('adam-stable'));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pReg.addEventListener('click', ()=&gt;applyPreset('adamw-regularize'));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>ctaZ.addEventListener('click', ()=&gt;applyPreset('sgd-zigzag'));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>ctaS.addEventListener('click', ()=&gt;applyPreset('adam-stable'));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>ctaR.addEventListener('click', ()=&gt;applyPreset('adamw-regularize'));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>algoInputs.forEach(r=&gt; r.addEventListener('change', ()=&gt;{ state.algo = document.querySelector('input[name=algo]:checked').value; state.m={x:0,y:0}; state.v={x:0,y:0}; state.t=0; refreshLabels(); }));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>rEta.addEventListener('input', ()=&gt;{ state.eta=+rEta.value; refreshLabels(); });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>rB1.addEventListener('input', ()=&gt;{ state.beta1=+rB1.value; refreshLabels(); });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>rB2.addEventListener('input', ()=&gt;{ state.beta2=+rB2.value; refreshLabels(); });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>rEps.addEventListener('input', ()=&gt;{ state.eps=Math.pow(10, +rEps.value); refreshLabels(); });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>rDecay.addEventListener('input', ()=&gt;{ state.weightDecay=+rDecay.value; refreshLabels(); });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>rNoise.addEventListener('input', ()=&gt;{ state.noise=+rNoise.value; refreshLabels(); });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>rSpeed.addEventListener('input', ()=&gt;{ state.speed=+rSpeed.value; if(state.playing){ stop(); start(); } refreshLabels(); });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>useInterval.addEventListener('change', ()=&gt;{ state.useInterval=useInterval.checked; if(state.playing){ stop(); start(); } });</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('btnTests').addEventListener('click', runTests);</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Resize Handler ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const onResize = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>buildHeat();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>redrawPath();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>redrawRobot();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>drawLossChart();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.addEventListener('resize', onResize);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ==== Boot ====</p>
+<p class="p1"><span class="Apple-converted-space">    </span>buildHeat();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>state.path=[{...state.theta}]; state.lossData=[{step:-1, loss:loss(state.theta.x, state.theta.y)},{step:0, loss:loss(state.theta.x, state.theta.y)}];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>redrawPath(); redrawRobot(); updateStats(); drawLossChart(); refreshFromState(); updateCTA();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Safari対策: 既定で setInterval を勧める</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const ua = navigator.userAgent; if(/Safari\//.test(ua) &amp;&amp; !/Chrome\//.test(ua)){ state.useInterval=true; useInterval.checked=true; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>})();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

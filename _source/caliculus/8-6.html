@@ -1,0 +1,615 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;拡散モデル：インタラクティブな解説&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;family=Noto+Sans+JP:wght@400;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #111827; /* bg-gray-900 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.text-glow {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-shadow: 0 0 8px rgba(59, 130, 246, 0.6), 0 0 20px rgba(59, 130, 246, 0.4);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.card {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: rgba(31, 41, 55, 0.5); /* bg-gray-800 with opacity */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>backdrop-filter: blur(10px);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid rgba(255, 255, 255, 0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 1.5rem; /* rounded-3xl */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 2rem; /* p-8 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>canvas {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 1rem; /* rounded-xl */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid rgba(255, 255, 255, 0.2);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Custom slider styles */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>input[type="range"] {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #374151; /* bg-gray-700 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>outline: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 0.7;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: opacity .2s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>input[type="range"]:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>input[type="range"]::-webkit-slider-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #3B82F6; /* bg-blue-500 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px solid #111827;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>input[type="range"]::-moz-range-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #3B82F6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px solid #111827;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>math {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #9CA3AF; /* text-gray-400 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.loader {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 3px solid #4b5563;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom-color: transparent;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-sizing: border-box;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animation: rotation 1s linear infinite;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@keyframes rotation {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>0% { transform: rotate(0deg); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>100% { transform: rotate(360deg); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="text-white"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8 max-w-7xl"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Header --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-4xl md:text-5xl font-bold text-glow"&gt;拡散モデル：ノイズから生成するとは？&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-gray-400 mt-4 max-w-3xl mx-auto"&gt;AIがランダムなノイズから画像を生成する仕組みを、簡単に説明。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Main Content Grid --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid grid-cols-1 gap-8"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Wrapper for Part 1 and 2 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 lg:grid-cols-2 gap-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- ======================================================= --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Part 1: Forward Process (DDPM)<span class="Apple-converted-space">                          </span>--&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- ======================================================= --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="card flex flex-col"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex-grow"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2 class="text-2xl font-bold mb-4 text-sky-400"&gt;1. 順方向プロセス&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-300 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>きれいな画像（&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;msub&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;）に、ガウシアンノイズ（&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;ε&lt;/mi&gt;&lt;/math&gt;）を徐々に加え、純粋なノイズ（&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;msub&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;T&lt;/mi&gt;&lt;/msub&gt;&lt;/math&gt;）にする過程です。</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="my-4 p-3 bg-gray-900 rounded-lg text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mi&gt;x&lt;/</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;msqrt&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;mover&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mi&gt;α&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mo&gt;&amp;#x203E;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;/mover&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/msqrt&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mo&gt;+&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;msqrt&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mn&gt;1&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;-&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mover&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                          </span>&lt;mi&gt;α&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                          </span>&lt;mo&gt;&amp;#x203E;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;/mover&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/msqrt&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mi&gt;ε&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-400 text-sm mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>スライダーを右に動かすと、ノイズが注入されます。</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;!-- Interactive Canvas --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="space-y-4 mt-auto max-w-md mx-auto w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="forwardCanvas" width="512" height="512" class="w-full h-auto aspect-square"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="flex items-center space-x-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span class="text-sm"&gt;元画像&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input id="noiseSlider" type="range" min="0" max="100" value="0" class="w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span class="text-sm"&gt;ノイズ&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- ======================================================= --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Part 2: Reverse Process (Simulation)<span class="Apple-converted-space">                  </span>--&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- ======================================================= --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="card flex flex-col"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="flex-grow"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2 class="text-2xl font-bold mb-4 text-emerald-400"&gt;2. 逆方向プロセス&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-300 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>ノイズ除去の「逆再生」をシミュレーションします。あなたの手でノイズの塊から画像を彫り出す体験です。</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                         </span>&lt;p class="text-gray-400 text-sm mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>「設計図」を選んで開始し、スライダーを左に動かしてノイズを除去してください。</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-xs text-gray-500 italic mt-4"&gt;※注：これは逆拡散のステップを概念的に可視化したものです。実際のAIはより複雑な方法でノイズを除去します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;!-- Interactive Canvas --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="space-y-4 mt-auto max-w-md mx-auto w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="flex flex-col sm:flex-row gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;select id="promptSelectSimple" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="sun"&gt;輝く太陽&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="house"&gt;シンプルな家&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="cat"&gt;猫の顔&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="car"&gt;車&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button id="generateButtonSimple" class="bg-emerald-600 hover:bg-emerald-700 transition-colors font-bold py-2 px-6 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>開始</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="reverseCanvasSimple" width="512" height="512" class="w-full h-auto aspect-square"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="h-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div id="denoiseSliderContainerSimple" class="flex items-center space-x-4" style="display: none;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                               </span>&lt;span class="text-sm"&gt;画像&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                               </span>&lt;input id="denoiseSliderSimple" type="range" min="0" max="100" value="100" class="w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                               </span>&lt;span class="text-sm"&gt;ノイズ&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p id="statusTextSimple" class="text-center text-sm text-gray-400 mt-2"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- ======================================================= --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Part 3: Reverse Process (Generation) with Gemini API<span class="Apple-converted-space">    </span>--&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- ======================================================= --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="card flex flex-col"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div class="flex-grow"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-2xl font-bold mb-4 text-violet-400"&gt;3. 逆方向プロセス：AIによる生成&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-gray-300 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>Gemini APIを使い、AIがノイズから画像を生成するプロセスを実際に体験します。AIは学習した「画像の法則」を元に、ノイズを段階的に除去していきます。</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="my-2 p-2 bg-gray-900/50 rounded-lg text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-violet-300 mb-1"&gt;条件付き逆拡散ステップの概念&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mo&gt;-&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mn&gt;1&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;&amp;#x2248;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mn&gt;1&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;msqrt&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mi&gt;α&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;/msqrt&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mo&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mo&gt;-&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;β&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;msqrt&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;mn&gt;1&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;mo&gt;-&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                          </span>&lt;mover&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>&lt;mi&gt;α&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                            </span>&lt;mo&gt;&amp;#x203E;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                          </span>&lt;/mover&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/msqrt&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mover&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;ε&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;^&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/mover&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mi&gt;θ&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mo&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                      </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mi&gt;c&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;mo&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;mo&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;+&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mtext&gt;小ノイズ&lt;/mtext&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;p class="text-xs text-gray-400 mb-4"&gt;AI &lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;msub&gt;&lt;mover&gt;&lt;mi&gt;ε&lt;/mi&gt;&lt;mo&gt;^&lt;/mo&gt;&lt;/mover&gt;&lt;mi&gt;θ&lt;/mi&gt;&lt;/msub&gt;&lt;/math&gt; は、現在のノイズ画像 &lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;msub&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;t&lt;/mi&gt;&lt;/msub&gt;&lt;/math&gt; とプロンプト &lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;c&lt;/mi&gt;&lt;/math&gt; をヒントに、加えられたノイズを予測し、それを引き算することで一つ前のステップの画像を復元します。&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Interactive Canvas --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="space-y-4 mt-auto max-w-md mx-auto w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex flex-col sm:flex-row gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;select id="promptSelectAI" class="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-violet-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="cat" data-ja="猫の顔"&gt;A cat's face&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="house" data-ja="シンプルな家"&gt;A simple house&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="car" data-ja="未来の車"&gt;A futuristic car&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="galaxy" data-ja="渦巻銀河"&gt;A spiral galaxy&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="generateButtonAI" class="bg-violet-600 hover:bg-violet-700 transition-colors font-bold py-2 px-6 rounded-lg flex items-center justify-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span id="generateButtonTextAI"&gt;✨ AIで生成&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div id="generateButtonLoaderAI" class="loader hidden"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div id="promptDisplayAI" class="text-sm text-gray-400 bg-gray-900/50 p-3 rounded-lg mt-2 italic hidden"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="reverseCanvasAI" width="512" height="512" class="w-full h-auto aspect-square"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="h-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="denoiseSliderContainerAI" class="flex items-center space-x-4" style="display: none;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>&lt;span class="text-sm"&gt;画像&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>&lt;input id="denoiseSliderAI" type="range" min="0" max="100" value="100" class="w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>&lt;span class="text-sm"&gt;ノイズ&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p id="statusTextAI" class="text-center text-sm text-gray-400 mt-2"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.onload = function() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const CANVAS_SIZE = 512;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* Creates an ImageData object filled with grayscale Gaussian noise.</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* @param {CanvasRenderingContext2D} ctx - The canvas rendering context.</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* @returns {ImageData}</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createGaussianNoiseData(ctx) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const noiseData = ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const data = noiseData.data;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt; data.length; i += 4) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const u1 = Math.random();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const u2 = Math.random();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const noiseVal = 128 + z0 * 128; // Noise centered at gray</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>data[i] = noiseVal;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data[i + 1] = noiseVal;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data[i + 2] = noiseVal;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data[i + 3] = 255;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return noiseData;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// =======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Part 1: Forward Process Logic</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// =======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const forwardCanvas = document.getElementById('forwardCanvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const f_ctx = forwardCanvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const noiseSlider = document.getElementById('noiseSlider');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let originalImageData = null;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawBaseImage(ctx) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#111827';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const centerX = CANVAS_SIZE / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const centerY = CANVAS_SIZE / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, CANVAS_SIZE/3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>grad.addColorStop(0, 'rgba(255, 223, 186, 0.4)');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>grad.addColorStop(0.5, 'rgba(251, 191, 36, 0.2)');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>grad.addColorStop(1, 'rgba(251, 191, 36, 0)');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = grad;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(centerX, centerY, CANVAS_SIZE / 6, 0, Math.PI * 2, false);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = 'rgba(253, 224, 71, 0.9)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>originalImageData = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function applyNoise(noiseFactor) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!originalImageData) return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newImageData = f_ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const originalData = originalImageData.data;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newData = newImageData.data;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; originalData.length; i += 4) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const u1 = Math.random();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const u2 = Math.random();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const noiseOffset = z0 * 128;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const r = originalData[i], g = originalData[i + 1], b = originalData[i + 2], a = originalData[i + 3];</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i] = r * (1 - noiseFactor) + (128 + noiseOffset) * noiseFactor;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i + 1] = g * (1 - noiseFactor) + (128 + noiseOffset) * noiseFactor;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i + 2] = b * (1 - noiseFactor) + (128 + noiseOffset) * noiseFactor;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i + 3] = a;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>f_ctx.putImageData(newImageData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawBaseImage(f_ctx);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>noiseSlider.addEventListener('input', (event) =&gt; applyNoise(parseInt(event.target.value) / 100));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>applyNoise(0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// =======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Part 2: Reverse Process Logic (Simulation)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// =======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const reverseCanvas = document.getElementById('reverseCanvasSimple');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const r_ctx = reverseCanvas.getContext('2d', { willReadFrequently: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const promptSelect = document.getElementById('promptSelectSimple');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const generateButton = document.getElementById('generateButtonSimple');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const denoiseSliderContainer = document.getElementById('denoiseSliderContainerSimple');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const denoiseSlider = document.getElementById('denoiseSliderSimple');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const statusText = document.getElementById('statusTextSimple');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let targetImageData = null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let noiseImageData = null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const targetImages = {};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawSunImage(ctx) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const centerX = CANVAS_SIZE/2, centerY = CANVAS_SIZE/2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const grad = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, CANVAS_SIZE/3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>grad.addColorStop(0, 'rgba(255, 223, 186, 0.4)'); grad.addColorStop(0.5, 'rgba(251, 191, 36, 0.2)'); grad.addColorStop(1, 'rgba(251, 191, 36, 0)');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = grad; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath(); ctx.arc(centerX, centerY, CANVAS_SIZE / 6, 0, Math.PI * 2); ctx.fillStyle = 'rgba(253, 224, 71, 0.9)'; ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawHouseImage(ctx) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#A16207'; ctx.fillRect(156, 256, 200, 200);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#DC2626'; ctx.beginPath(); ctx.moveTo(128, 256); ctx.lineTo(384, 256); ctx.lineTo(256, 100); ctx.closePath(); ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawCatImage(ctx) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const centerX = CANVAS_SIZE / 2, centerY = CANVAS_SIZE / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath(); ctx.arc(centerX, centerY, 150, 0, Math.PI * 2); ctx.fillStyle = '#F59E0B'; ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath(); ctx.moveTo(centerX-150, centerY-150); ctx.lineTo(centerX-50, centerY-130); ctx.lineTo(centerX-130, centerY-50); ctx.closePath(); ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath(); ctx.moveTo(centerX+150, centerY-150); ctx.lineTo(centerX+50, centerY-130); ctx.lineTo(centerX+130, centerY-50); ctx.closePath(); ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(centerX - 60, centerY - 30, 20, 0, Math.PI * 2); ctx.arc(centerX + 60, centerY - 30, 20, 0, Math.PI * 2); ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawCarImage(ctx) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#0284C7'; ctx.fillRect(100, 250, 312, 100);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath(); ctx.moveTo(150, 250); ctx.lineTo(200, 180); ctx.lineTo(362, 180); ctx.lineTo(412, 250); ctx.closePath(); ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#1E293B'; ctx.beginPath(); ctx.arc(160, 350, 40, 0, Math.PI * 2); ctx.arc(352, 350, 40, 0, Math.PI * 2); ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function generateImageData(drawFunc) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const tempCanvas = document.createElement('canvas'); tempCanvas.width = CANVAS_SIZE; tempCanvas.height = CANVAS_SIZE;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const tempCtx = tempCanvas.getContext('2d'); drawFunc(tempCtx);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return tempCtx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>targetImages['sun'] = generateImageData(drawSunImage);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>targetImages['house'] = generateImageData(drawHouseImage);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>targetImages['cat'] = generateImageData(drawCatImage);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>targetImages['car'] = generateImageData(drawCarImage);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function initializeCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>r_ctx.fillStyle = '#1E293B'; r_ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>r_ctx.fillStyle = '#9CA3AF'; r_ctx.textAlign = 'center'; r_ctx.font = '20px "Noto Sans JP"';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>r_ctx.fillText('設計図を選んで「開始」を押してください', CANVAS_SIZE/2, CANVAS_SIZE/2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initializeCanvas();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function updateReverseCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!targetImageData || !noiseImageData) return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const noiseLevel = parseInt(denoiseSlider.value) / 100;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newImageData = r_ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newData = newImageData.data; const targetData = targetImageData.data; const noiseData = noiseImageData.data;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; newData.length; i += 4) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i] = targetData[i] * (1 - noiseLevel) + noiseData[i] * noiseLevel;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i+1] = targetData[i+1] * (1 - noiseLevel) + noiseData[i+1] * noiseLevel;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i+2] = targetData[i+2] * (1 - noiseLevel) + noiseData[i+2] * noiseLevel;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i+3] = 255;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>r_ctx.putImageData(newImageData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>generateButton.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>targetImageData = targetImages[promptSelect.value];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>noiseImageData = createGaussianNoiseData(r_ctx);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>denoiseSliderContainer.style.display = 'flex';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusText.textContent = `ステップの概念可視化（画像←ノイズ）`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>denoiseSlider.value = 100; // Start at noise</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateReverseCanvas();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>denoiseSlider.addEventListener('input', updateReverseCanvas);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// =======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Part 3: Reverse Process Logic with Gemini API</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// =======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const reverseCanvas = document.getElementById('reverseCanvasAI');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const r_ctx = reverseCanvas.getContext('2d', { willReadFrequently: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const promptSelect = document.getElementById('promptSelectAI');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const generateButton = document.getElementById('generateButtonAI');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const generateButtonText = document.getElementById('generateButtonTextAI');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const generateButtonLoader = document.getElementById('generateButtonLoaderAI');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const denoiseSliderContainer = document.getElementById('denoiseSliderContainerAI');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const denoiseSlider = document.getElementById('denoiseSliderAI');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const statusText = document.getElementById('statusTextAI');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const promptDisplay = document.getElementById('promptDisplayAI');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let targetImageData = null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let noiseImageData = null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const apiKey = ""; // APIキーはCanvas環境で自動的に提供されます</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function initializeCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>r_ctx.fillStyle = '#1E293B'; r_ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>r_ctx.fillStyle = '#9CA3AF'; r_ctx.textAlign = 'center'; r_ctx.font = '20px "Noto Sans JP"';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>r_ctx.fillText('テーマを選んで「AIで生成」を押してください', CANVAS_SIZE/2, CANVAS_SIZE/2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initializeCanvas();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>generateButton.addEventListener('click', async () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const selectedOption = promptSelect.options[promptSelect.selectedIndex];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const basePrompt = selectedOption.value; const jaPrompt = selectedOption.dataset.ja;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>generateButton.disabled = true; promptSelect.disabled = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>generateButtonText.textContent = '生成中...'; generateButtonLoader.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusText.textContent = `AIが「${jaPrompt}」の設計図を考えています...`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>promptDisplay.classList.add('hidden'); denoiseSliderContainer.style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>initializeCanvas();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const textApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const textPrompt = `Create a short, artistic, and descriptive prompt for a digital painting of a ${basePrompt}. For example, for "A cat's face", you could say "close-up portrait of a majestic cat, piercing green eyes, detailed fur texture, fantasy style".`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const textResponse = await fetch(textApiUrl, {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>method: 'POST', headers: { 'Content-Type': 'application/json' },</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>body: JSON.stringify({ contents: [{ parts: [{ text: textPrompt }] }] })</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (!textResponse.ok) throw new Error(`Text generation API error: ${textResponse.statusText}`);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const textResult = await textResponse.json();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const detailedPrompt = textResult.candidates[0].content.parts[0].text;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>promptDisplay.textContent = `AIが生成した設計図: "${detailedPrompt}"`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>promptDisplay.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>statusText.textContent = `設計図を基に、AIが画像を生成中です...`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const imageApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const imageResponse = await fetch(imageApiUrl, {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>method: 'POST', headers: { 'Content-Type': 'application/json' },</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>body: JSON.stringify({ instances: { prompt: detailedPrompt }, parameters: { "sampleCount": 1 } })</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (!imageResponse.ok) throw new Error(`Image generation API error: ${imageResponse.statusText}`);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const imageResult = await imageResponse.json();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const base64ImageData = imageResult.predictions[0].bytesBase64Encoded;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const img = new Image();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>img.onload = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const tempCanvas = document.createElement('canvas'); tempCanvas.width = CANVAS_SIZE; tempCanvas.height = CANVAS_SIZE;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const tempCtx = tempCanvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>tempCtx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>targetImageData = tempCtx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>noiseImageData = createGaussianNoiseData(r_ctx);</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>statusText.textContent = `AI生成完了。スライダーで概念を可視化します。`;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>denoiseSliderContainer.style.display = 'flex';</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>denoiseSlider.value = 100; // Start at noise</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>updateReverseCanvas();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>img.src = `data:image/png;base64,${base64ImageData}`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>} catch (error) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>console.error('Error during Gemini API call:', error);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>statusText.textContent = 'エラーが発生しました。コンソールを確認してください。';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>r_ctx.fillText('エラーが発生しました', CANVAS_SIZE/2, CANVAS_SIZE/2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} finally {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>generateButton.disabled = false; promptSelect.disabled = false;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>generateButtonText.textContent = '✨ AIで生成'; generateButtonLoader.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function updateReverseCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!targetImageData || !noiseImageData) return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const noiseLevel = parseInt(denoiseSlider.value) / 100;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newImageData = r_ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newData = newImageData.data; const targetData = targetImageData.data; const noiseData = noiseImageData.data;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; newData.length; i += 4) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i] = targetData[i] * (1 - noiseLevel) + noiseData[i] * noiseLevel;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i+1] = targetData[i+1] * (1 - noiseLevel) + noiseData[i+1] * noiseLevel;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i+2] = targetData[i+2] * (1 - noiseLevel) + noiseData[i+2] * noiseLevel;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>newData[i+3] = 255;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>r_ctx.putImageData(newImageData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>denoiseSlider.addEventListener('input', updateReverseCanvas);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>})();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

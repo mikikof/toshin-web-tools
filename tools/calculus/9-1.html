@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>インタラクティブな楕円放物面の勾配</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Interフォントを読み込み */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            overflow: hidden; /* スクロールバーを非表示 */
+            background-color: #f0f2f5;
+        }
+        /* MathMLの表示を調整 */
+        math {
+            font-size: 1.1rem;
+            padding: 0.5rem;
+        }
+        /* スライダーのつまみを大きくして操作しやすく */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        /* トグルスイッチのスタイル */
+        .toggle-checkbox:checked {
+            transform: translateX(100%);
+            background-color: #3b82f6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #60a5fa;
+        }
+    </style>
+</head>
+<body class="w-screen h-screen m-0 p-0 flex flex-col lg:flex-row">
+
+    <!-- 3D表示領域 -->
+    <div id="container" class="w-full h-2/3 lg:h-full lg:w-2/3 relative">
+        <div id="loading" class="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-600 z-10">
+            <p>読み込み中...</p>
+        </div>
+    </div>
+
+    <!-- コントロールパネル -->
+    <div class="w-full h-1/3 lg:h-full lg:w-1/3 bg-white shadow-lg p-4 md:p-6 overflow-y-auto flex flex-col">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">勾配と接平面</h1>
+
+        <!-- Function Selector -->
+        <div class="mb-4">
+            <label for="function-select" class="block text-sm font-medium text-gray-700">グラフの種類:</label>
+            <select id="function-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                <option value="paraboloid">楕円放物面 (Elliptic Paraboloid)</option>
+                <option value="saddle">双曲放物面 (Hyperbolic Paraboloid)</option>
+            </select>
+        </div>
+
+        <p class="text-sm text-gray-600 mb-2">
+            3Dビューをドラッグで回転、ホイールでズームできます。平面上でマウスを動かすと、点における接平面とベクトルが表示されます。
+        </p>
+        <div class="flex items-center gap-2 mb-3">
+             <div id="status-display" class="flex-grow text-sm font-semibold p-2 rounded-lg text-center transition-colors duration-300">
+                <p id="lock-status">状態: マウスに追従中 (クリックで固定)</p>
+            </div>
+            <button id="stationary-point-btn" class="flex-shrink-0 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors">停留点へ移動</button>
+        </div>
+        <ul class="text-sm text-gray-700 mb-4 list-disc list-inside space-y-2 bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+            <li><span class="font-bold text-orange-600">薄オレンジの板 (接平面):</span> 曲面上の点における「局所的な地面の傾き」を表します。</li>
+            <li><span class="text-gray-700 font-bold">濃い灰色の矢印 (最大傾斜方向):</span> 接平面上にある、最も急な坂道の3D方向を示します。</li>
+            <li><span class="text-orange-500 font-bold">オレンジ矢印 (勾配ベクトル):</span> 濃い灰色矢印を真上から見たときの「影」です。XY平面上での方向と傾きの急さ（長さ）を示します。</li>
+        </ul>
+
+        <!-- 数式表示 -->
+        <div class="bg-gray-100 rounded-lg p-2 mb-4">
+            <h2 class="font-bold text-gray-700 text-lg">曲面の式</h2>
+            <div id="formula-display" class="text-center overflow-x-auto">
+                <!-- MathML will be inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- パラメータ制御 -->
+        <div class="space-y-4 mb-4">
+            <div>
+                <label for="a-slider" class="block font-medium text-gray-700">パラメータ a: <span id="a-value">2.0</span></label>
+                <p class="text-xs text-gray-500 mb-1">X軸方向の曲がり具合を調整します。</p>
+                <input id="a-slider" type="range" min="0.5" max="5" value="2" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+            <div>
+                <label for="b-slider" class="block font-medium text-gray-700">パラメータ b: <span id="b-value">3.0</span></label>
+                <p class="text-xs text-gray-500 mb-1">Y軸方向の曲がり具合を調整します。</p>
+                <input id="b-slider" type="range" min="0.5" max="5" value="3" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+            <div>
+                <label for="h-slider" class="block font-medium text-gray-700">パラメータ h: <span id="h-value">3.0</span></label>
+                <p class="text-xs text-gray-500 mb-1">曲面の高さを調整します。</p>
+                <input id="h-slider" type="range" min="1" max="5" value="3" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+             <div class="pt-2 border-t">
+                 <div class="flex items-center justify-between mb-2">
+                    <label for="vector-toggle" class="font-medium text-gray-700 select-none">ベクトルを表示</label>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="vector-toggle" id="vector-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform"/>
+                        <label for="vector-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mb-2">
+                    <label for="wireframe-toggle" class="font-medium text-gray-700 select-none">ワイヤーフレーム表示</label>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="wireframe-toggle" id="wireframe-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform"/>
+                        <label for="wireframe-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                    </div>
+                </div>
+                <label for="segments-slider" class="block font-medium text-gray-700">メッシュの細かさ: <span id="segments-value">50</span></label>
+                <p class="text-xs text-gray-500 mb-1">ワイヤーフレームの分割数を調整します。</p>
+                <input id="segments-slider" type="range" min="10" max="100" value="50" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+        </div>
+
+        <!-- 情報表示 -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex-grow">
+            <h2 class="font-bold text-gray-700 text-lg mb-2">現在の情報</h2>
+            <div class="text-sm space-y-2 text-gray-800">
+                <p>座標 (x, y): <span id="coords-display" class="font-mono bg-white px-1 rounded">-</span></p>
+                <div class="flex items-center">
+                    <p>勾配 ∇f: </p>
+                    <div id="gradient-display" class="ml-2 font-mono bg-white px-1 rounded overflow-x-auto">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mo>(</mo>
+                            <mtable>
+                                <mtr>
+                                    <mtd>
+                                        <mn>0.00</mn>
+                                    </mtd>
+                                </mtr>
+                                <mtr>
+                                    <mtd>
+                                        <mn>0.00</mn>
+                                    </mtd>
+                                </mtr>
+                            </mtable>
+                            <mo>)</mo>
+                        </math>
+                    </div>
+                </div>
+                <p>勾配の大きさ |∇f|: <span id="magnitude-display" class="font-mono bg-white px-1 rounded">-</span></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- DOM Elements ---
+        const container = document.getElementById('container');
+        const loadingEl = document.getElementById('loading');
+        const aSlider = document.getElementById('a-slider');
+        const bSlider = document.getElementById('b-slider');
+        const hSlider = document.getElementById('h-slider');
+        const segmentsSlider = document.getElementById('segments-slider');
+        const wireframeToggle = document.getElementById('wireframe-toggle');
+        const vectorToggle = document.getElementById('vector-toggle');
+        const stationaryPointBtn = document.getElementById('stationary-point-btn');
+        const functionSelect = document.getElementById('function-select');
+        const aValue = document.getElementById('a-value');
+        const bValue = document.getElementById('b-value');
+        const hValue = document.getElementById('h-value');
+        const segmentsValue = document.getElementById('segments-value');
+        const coordsDisplay = document.getElementById('coords-display');
+        const gradientDisplay = document.getElementById('gradient-display');
+        const magnitudeDisplay = document.getElementById('magnitude-display');
+        const lockStatus = document.getElementById('lock-status');
+        const formulaDisplay = document.getElementById('formula-display');
+
+        // --- Three.js Setup ---
+        let scene, camera, renderer, controls;
+        let paraboloidMesh, gridHelper, basePlane;
+        let pointOnSurface, gradientArrow, steepestArrow, tangentPlaneMesh;
+        let axesGroup;
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+
+        // --- Parameters ---
+        let params = { a: 2.0, b: 3.0, h: 3.0, width: 10, height: 10, segments: 50 };
+        let isLocked = false;
+        let isWireframe = true;
+        let areVectorsVisible = true;
+        let pointerDownTime = 0;
+        let pointerDownPosition = new THREE.Vector2();
+        const dragThreshold = 5; // 5ピクセル以上動いたらドラッグと判定
+        const clickTimeThreshold = 200; // 200ms以内に離したらクリックと判定
+        let currentFunctionKey = 'paraboloid';
+
+        // --- Function Definitions ---
+        const functions = {
+            paraboloid: {
+                name: '楕円放物面 (Elliptic Paraboloid)',
+                func: (x, y, p) => p.h - (x * x) / (p.a * p.a) - (y * y) / (p.b * p.b),
+                gradient: (x, y, p) => ({
+                    gradX: -2 * x / (p.a * p.a),
+                    gradY: -2 * y / (p.b * p.b)
+                }),
+                mathML: `
+                    <math xmlns="http://www.w3.org/1998/Math/MathML">
+                      <mi>z</mi><mo>=</mo><mi>h</mi><mo>&minus;</mo>
+                      <mfrac><msup><mi>x</mi><mn>2</mn></msup><msup><mi>a</mi><mn>2</mn></msup></mfrac>
+                      <mo>&minus;</mo>
+                      <mfrac><msup><mi>y</mi><mn>2</mn></msup><msup><mi>b</mi><mn>2</mn></msup></mfrac>
+                    </math>`,
+                params: ['a', 'b', 'h']
+            },
+            saddle: {
+                name: '双曲放物面 (Hyperbolic Paraboloid)',
+                func: (x, y, p) => 0.2 * (p.a * x * x - p.b * y * y),
+                gradient: (x, y, p) => ({
+                    gradX: 0.2 * 2 * p.a * x,
+                    gradY: 0.2 * -2 * p.b * y
+                }),
+                mathML: `
+                    <math xmlns="http://www.w3.org/1998/Math/MathML">
+                      <mi>z</mi><mo>=</mo>
+                      <mn>0.2</mn><mo>(</mo>
+                      <mi>a</mi><msup><mi>x</mi><mn>2</mn></msup>
+                      <mo>&minus;</mo>
+                      <mi>b</mi><msup><mi>y</mi><mn>2</mn></msup>
+                      <mo>)</mo>
+                    </math>`,
+                params: ['a', 'b']
+            }
+        };
+
+        // --- Initialization ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f2f5);
+
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(5, 6, 5);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5);
+            scene.add(directionalLight);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            gridHelper = new THREE.GridHelper(params.width, 10, 0xcccccc, 0xcccccc);
+            gridHelper.position.y = -0.01;
+            scene.add(gridHelper);
+
+            createAxes();
+
+            basePlane = new THREE.Mesh(
+                new THREE.PlaneGeometry(params.width, params.height),
+                new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide })
+            );
+            basePlane.rotation.x = -Math.PI / 2;
+            scene.add(basePlane);
+
+            createParaboloid();
+            createInteractionObjects();
+            setupEventListeners();
+            updateUIForFunctionChange(); // 初期UI設定
+            animate();
+
+            loadingEl.style.display = 'none';
+        }
+
+        // --- Math Function ---
+        function surfaceFunc(x, y) {
+            return functions[currentFunctionKey].func(x, y, params);
+        }
+
+        // --- 軸ラベルを作成する関数 ---
+        function createAxisLabel(text, position, color) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const fontSize = 80;
+            canvas.width = 128; canvas.height = 128;
+            context.font = `Bold ${fontSize}px Arial`;
+            context.fillStyle = color;
+            context.textAlign = 'center'; context.textBaseline = 'middle';
+            context.fillText(text, canvas.width / 2, canvas.height / 2);
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(1, 1, 1);
+            sprite.position.copy(position);
+            return sprite;
+        }
+
+        // --- 座標軸を作成する関数 ---
+        function createAxes() {
+            axesGroup = new THREE.Group();
+            const axisLength = 5;
+            const axisRadius = 0.05;
+            const arrowHeight = 0.2;
+            const arrowRadius = 0.08;
+
+            const xAxisMat = new THREE.MeshBasicMaterial({ color: 0x2563eb, depthTest: false });
+            const xAxisCylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8), xAxisMat);
+            const xAxisArrow = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 8), xAxisMat);
+            xAxisCylinder.position.x = axisLength / 2;
+            xAxisCylinder.rotation.z = -Math.PI / 2;
+            xAxisArrow.position.x = axisLength;
+            xAxisArrow.rotation.z = -Math.PI / 2;
+            axesGroup.add(xAxisCylinder, xAxisArrow);
+            axesGroup.add(createAxisLabel('x', new THREE.Vector3(axisLength + 0.5, 0, 0), '#2563eb'));
+
+            const yAxisMat = new THREE.MeshBasicMaterial({ color: 0xdc2626, depthTest: false });
+            const yAxisCylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8), yAxisMat);
+            const yAxisArrow = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 8), yAxisMat);
+            yAxisCylinder.position.z = axisLength / 2;
+            yAxisCylinder.rotation.x = Math.PI / 2;
+            yAxisArrow.position.z = axisLength;
+            yAxisArrow.rotation.x = Math.PI / 2;
+            axesGroup.add(yAxisCylinder, yAxisArrow);
+            axesGroup.add(createAxisLabel('y', new THREE.Vector3(0, 0, axisLength + 0.5), '#dc2626'));
+
+            const zAxisMat = new THREE.MeshBasicMaterial({ color: 0x16a34a, depthTest: false });
+            const zAxisCylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8), zAxisMat);
+            const zAxisArrow = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 8), zAxisMat);
+            zAxisCylinder.position.y = axisLength / 2;
+            zAxisArrow.position.y = axisLength;
+            axesGroup.add(zAxisCylinder, zAxisArrow);
+            axesGroup.add(createAxisLabel('z', new THREE.Vector3(0, axisLength + 0.5, 0), '#16a34a'));
+
+            scene.add(axesGroup);
+        }
+
+        // --- Object Creation ---
+        function createParaboloid() {
+            if (paraboloidMesh) {
+                scene.remove(paraboloidMesh);
+                paraboloidMesh.geometry.dispose();
+                if(paraboloidMesh.material.dispose) paraboloidMesh.material.dispose();
+            }
+
+            const geometry = new THREE.PlaneGeometry(params.width, params.height, params.segments, params.segments);
+            geometry.rotateX(-Math.PI / 2);
+
+            const vertices = geometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                const x = vertices[i];
+                const z = vertices[i + 2];
+                vertices[i + 1] = surfaceFunc(x, z);
+            }
+
+            geometry.attributes.position.needsUpdate = true;
+            geometry.computeVertexNormals();
+
+            let material;
+            if (isWireframe) {
+                material = new THREE.MeshStandardMaterial({
+                    wireframe: true,
+                    color: 0x6495ED,
+                });
+            } else {
+                material = new THREE.MeshStandardMaterial({
+                    color: 0x6495ED,
+                    metalness: 0.1,
+                    roughness: 0.5,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.85
+                });
+            }
+
+            paraboloidMesh = new THREE.Mesh(geometry, material);
+            scene.add(paraboloidMesh);
+        }
+
+        function createInteractionObjects() {
+            pointOnSurface = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+
+            // --- カスタム矢印の作成 ---
+            const arrowStemRadius = 0.05; // 棒の半径
+            const arrowHeadRadius = 0.2;  // 矢印の頭の半径
+            const arrowHeadHeight = 0.3; // 矢印の頭の高さ
+
+            // 勾配ベクトル (オレンジ)
+            gradientArrow = new THREE.Group();
+            const gradientMat = new THREE.MeshBasicMaterial({ color: 0xf97316 });
+            const gradientLineGeo = new THREE.CylinderGeometry(arrowStemRadius, arrowStemRadius, 1, 8); // 長さ1の棒
+            const gradientLine = new THREE.Mesh(gradientLineGeo, gradientMat);
+            gradientLine.position.y = 0.5; // Y軸に沿って配置
+            const gradientConeGeo = new THREE.ConeGeometry(arrowHeadRadius, arrowHeadHeight, 8);
+            const gradientCone = new THREE.Mesh(gradientConeGeo, gradientMat);
+            gradientCone.position.y = 1; // 棒の先端に配置
+            gradientArrow.add(gradientLine);
+            gradientArrow.add(gradientCone);
+            gradientArrow.userData.line = gradientLine;
+            gradientArrow.userData.cone = gradientCone;
+
+            // 最大傾斜方向 (濃い灰色)
+            steepestArrow = new THREE.Group();
+            const steepestMat = new THREE.MeshBasicMaterial({ color: 0x424242 });
+            const steepestLineGeo = new THREE.CylinderGeometry(arrowStemRadius, arrowStemRadius, 1, 8);
+            const steepestLine = new THREE.Mesh(steepestLineGeo, steepestMat);
+            steepestLine.position.y = 0.5;
+            const steepestConeGeo = new THREE.ConeGeometry(arrowHeadRadius, arrowHeadHeight, 8);
+            const steepestCone = new THREE.Mesh(steepestConeGeo, steepestMat);
+            steepestCone.position.y = 1;
+            steepestArrow.add(steepestLine);
+            steepestArrow.add(steepestCone);
+            steepestArrow.userData.line = steepestLine;
+            steepestArrow.userData.cone = steepestCone;
+
+            tangentPlaneMesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(2.5, 2.5),
+                new THREE.MeshStandardMaterial({ color: 0xffe0b2, transparent: true, opacity: 0.8, side: THREE.DoubleSide })
+            );
+
+            const edges = new THREE.EdgesGeometry(tangentPlaneMesh.geometry);
+            const lineMaterial = new THREE.LineDashedMaterial({
+                color: 0xe65100,
+                linewidth: 1,
+                scale: 1,
+                dashSize: 0.1,
+                gapSize: 0.1,
+            });
+            const tangentPlaneBorder = new THREE.LineSegments(edges, lineMaterial);
+            tangentPlaneBorder.computeLineDistances();
+            tangentPlaneMesh.add(tangentPlaneBorder);
+
+            [pointOnSurface, gradientArrow, steepestArrow, tangentPlaneMesh].forEach(obj => {
+                obj.visible = false;
+                scene.add(obj);
+            });
+        }
+
+        // --- Event Listeners & Update Logic ---
+        function setupEventListeners() {
+            functionSelect.addEventListener('change', (e) => {
+                currentFunctionKey = e.target.value;
+                updateUIForFunctionChange();
+                createParaboloid();
+                updateOnPointerMove(null, true);
+            });
+
+            aSlider.addEventListener('input', (e) => {
+                params.a = parseFloat(e.target.value);
+                aValue.textContent = params.a.toFixed(currentFunctionKey === 'saddle' ? 2 : 1);
+                createParaboloid();
+                updateOnPointerMove(null, true);
+            });
+            bSlider.addEventListener('input', (e) => {
+                params.b = parseFloat(e.target.value);
+                bValue.textContent = params.b.toFixed(currentFunctionKey === 'saddle' ? 2 : 1);
+                createParaboloid();
+                updateOnPointerMove(null, true);
+            });
+            hSlider.addEventListener('input', (e) => {
+                params.h = parseFloat(e.target.value);
+                hValue.textContent = params.h.toFixed(1);
+                createParaboloid();
+                updateOnPointerMove(null, true);
+            });
+            segmentsSlider.addEventListener('input', (e) => {
+                params.segments = parseInt(e.target.value, 10);
+                segmentsValue.textContent = params.segments;
+                createParaboloid();
+                updateOnPointerMove(null, true);
+            });
+            wireframeToggle.addEventListener('change', (e) => {
+                isWireframe = e.target.checked;
+                createParaboloid();
+                updateOnPointerMove(null, true);
+            });
+            vectorToggle.addEventListener('change', e => {
+                areVectorsVisible = e.target.checked;
+                updateOnPointerMove(null, true);
+            });
+            stationaryPointBtn.addEventListener('click', () => {
+                isLocked = true;
+                updateLockStatusUI();
+                lastKnownIntersection = new THREE.Vector3(0, 0, 0);
+                updateOnPointerMove(null, true);
+            });
+
+
+            window.addEventListener('resize', onWindowResize);
+            container.addEventListener('pointerdown', onPointerDown);
+            container.addEventListener('pointerup', onPointerUp);
+            container.addEventListener('pointermove', updateOnPointerMove);
+
+            updateLockStatusUI();
+        }
+
+        function updateUIForFunctionChange() {
+            const selectedFunc = functions[currentFunctionKey];
+
+            formulaDisplay.innerHTML = selectedFunc.mathML;
+
+            const hSliderContainer = hSlider.parentElement;
+            const aLabel = document.querySelector('label[for="a-slider"]');
+            const aDesc = aLabel.nextElementSibling;
+            const bLabel = document.querySelector('label[for="b-slider"]');
+            const bDesc = bLabel.nextElementSibling;
+
+            if (currentFunctionKey === 'paraboloid') {
+                hSliderContainer.style.display = 'block';
+                aSlider.min = 0.5; aSlider.max = 5; aSlider.step = 0.1;
+                bSlider.min = 0.5; bSlider.max = 5; bSlider.step = 0.1;
+                aSlider.value = 2.0;
+                bSlider.value = 3.0;
+                aDesc.textContent = 'X軸方向の曲がり具合を調整します。';
+                bDesc.textContent = 'Y軸方向の曲がり具合を調整します。';
+            } else if (currentFunctionKey === 'saddle') {
+                hSliderContainer.style.display = 'none';
+                aSlider.min = 0.1; aSlider.max = 1.0; aSlider.step = 0.05;
+                bSlider.min = 0.1; bSlider.max = 1.0; bSlider.step = 0.05;
+                aSlider.value = 0.4;
+                bSlider.value = 0.4;
+                aDesc.textContent = 'X軸方向の曲率を調整します。';
+                bDesc.textContent = 'Y軸方向の曲率を調整します。';
+            }
+
+            params.a = parseFloat(aSlider.value);
+            params.b = parseFloat(bSlider.value);
+            aValue.textContent = params.a.toFixed(currentFunctionKey === 'saddle' ? 2 : 1);
+            bValue.textContent = params.b.toFixed(currentFunctionKey === 'saddle' ? 2 : 1);
+        }
+
+        function onWindowResize() {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        let lastKnownIntersection = null;
+
+        function updateOnPointerMove(event, forceUpdate = false) {
+             if (isLocked && !forceUpdate) {
+                 return;
+             }
+
+             let intersection;
+
+             if (forceUpdate && lastKnownIntersection) {
+                 intersection = lastKnownIntersection;
+             }
+             else if (event) {
+                 const rect = renderer.domElement.getBoundingClientRect();
+                 pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                 pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+                 raycaster.setFromCamera(pointer, camera);
+                 const intersects = raycaster.intersectObject(basePlane);
+
+                 if (intersects.length > 0) {
+                     intersection = intersects[0].point;
+                     if (!isLocked) {
+                         lastKnownIntersection = intersection;
+                     }
+                 }
+             }
+
+            if (intersection) {
+                const x = intersection.x;
+                const y = intersection.z;
+                const z_val = surfaceFunc(x, y);
+
+                pointOnSurface.position.set(x, z_val, y);
+
+                const { gradX, gradY } = functions[currentFunctionKey].gradient(x, y, params);
+                const magnitude = Math.sqrt(gradX * gradX + gradY * gradY);
+
+                // --- gradientArrow (オレンジ) の更新 ---
+                const gradientDir = new THREE.Vector3(gradX, 0, gradY).normalize();
+                const gradientLength = magnitude > 0.001 ? magnitude : 0;
+
+                gradientArrow.position.copy(pointOnSurface.position);
+                gradientArrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), gradientDir);
+                gradientArrow.userData.line.scale.y = gradientLength;
+                gradientArrow.userData.line.position.y = gradientLength / 2;
+                gradientArrow.userData.cone.position.y = gradientLength;
+
+                // --- steepestArrow (濃い灰色) の更新 ---
+                const steepestDir = new THREE.Vector3(gradX, gradX * gradX + gradY * gradY, gradY).normalize();
+                const steepestLength = magnitude > 0.001 ? 1.2 : 0; // 長さは固定
+
+                steepestArrow.position.copy(pointOnSurface.position);
+                steepestArrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), steepestDir);
+                steepestArrow.userData.line.scale.y = steepestLength;
+                steepestArrow.userData.line.position.y = steepestLength / 2;
+                steepestArrow.userData.cone.position.y = steepestLength;
+
+                // --- 接平面の更新 ---
+                const normal = new THREE.Vector3(-gradX, 1, -gradY).normalize();
+                tangentPlaneMesh.position.copy(pointOnSurface.position);
+
+                const defaultPlaneNormal = new THREE.Vector3(0, 0, 1);
+                tangentPlaneMesh.quaternion.setFromUnitVectors(defaultPlaneNormal, normal);
+
+                pointOnSurface.visible = true;
+                tangentPlaneMesh.visible = true;
+                gradientArrow.visible = areVectorsVisible && gradientLength > 0.001;
+                steepestArrow.visible = areVectorsVisible && steepestLength > 0.001;
+
+                updateInfoPanel(x, y, gradX, gradY, magnitude);
+            }
+        }
+
+        function onPointerDown(event) {
+            pointerDownTime = Date.now();
+            pointerDownPosition.set(event.clientX, event.clientY);
+        }
+
+        function onPointerUp(event) {
+            const timeElapsed = Date.now() - pointerDownTime;
+            const distanceMoved = pointerDownPosition.distanceTo(new THREE.Vector2(event.clientX, event.clientY));
+
+            if (timeElapsed < clickTimeThreshold && distanceMoved < dragThreshold) {
+                toggleLockState();
+            }
+        }
+
+        function toggleLockState() {
+            isLocked = !isLocked;
+            updateLockStatusUI();
+        }
+
+        function updateLockStatusUI() {
+            const statusContainer = lockStatus.parentElement;
+            if (isLocked) {
+                lockStatus.textContent = '状態: 位置を固定中 (クリックで解除)';
+                statusContainer.classList.remove('bg-blue-100', 'text-blue-800');
+                statusContainer.classList.add('bg-red-100', 'text-red-800');
+                container.style.cursor = 'default';
+            } else {
+                lockStatus.textContent = '状態: マウスに追従中 (クリックで固定)';
+                statusContainer.classList.remove('bg-red-100', 'text-red-800');
+                statusContainer.classList.add('bg-blue-100', 'text-blue-800');
+                container.style.cursor = 'crosshair';
+            }
+        }
+
+        function updateInfoPanel(x, y, gradX, gradY, magnitude) {
+            coordsDisplay.textContent = `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+            gradientDisplay.innerHTML = `
+                <math xmlns="http://www.w3.org/1998/Math/MathML">
+                    <mo>(</mo>
+                    <mtable>
+                        <mtr>
+                            <mtd>
+                                <mn>${gradX.toFixed(2)}</mn>
+                            </mtd>
+                        </mtr>
+                        <mtr>
+                            <mtd>
+                                <mn>${gradY.toFixed(2)}</mn>
+                            </mtd>
+                        </mtr>
+                    </mtable>
+                    <mo>)</mo>
+                </math>
+            `;
+            magnitudeDisplay.textContent = magnitude.toFixed(2);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コーシー列：どんどん狭まる区間</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        background-color: #f8fafc;
+    }
+    .number-line-container, .chart-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .number-line-wrapper { height: 180px; }
+    .chart-wrapper { height: 350px; }
+    svg {
+        overflow: visible;
+    }
+    .point {
+        transition: fill 0.3s ease, cx 0.3s ease;
+        fill: #9ca3af;
+        stroke: white;
+        stroke-width: 1px;
+    }
+    .fixed-point-in-interval { fill: #0ea5e9; }
+    .fixed-interval-band { fill: #0ea5e9; opacity: 0.2; stroke: #0284c7; stroke-width: 1px; }
+    .zoom-point-in-interval { fill: #f59e0b; }
+    .zoom-interval-band { fill: #f59e0b; opacity: 0.2; stroke: #d97706; stroke-width: 1px; }
+    .chart-point-in-interval { fill: #16a34a; }
+    .chart-interval-band { fill: #16a34a; opacity: 0.15; stroke: #15803d; stroke-width: 1px; stroke-dasharray: 4,2; }
+    .alpha-line-group { transition: opacity 0.4s ease-in-out; }
+    .alpha-line { stroke: #ef4444; stroke-width: 1.5; stroke-dasharray: 5,3;}
+    .density-rect { transition: opacity 0.5s ease; }
+    .axis .tick text { font-size: 12px; fill: #4b5563; }
+    .axis path, .axis line { stroke: #9ca3af; stroke-width: 1.5px; }
+</style>
+</head>
+<body class="text-gray-800">
+
+<div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+    <header class="text-center mb-4">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900">コーシー列：どんどん狭まる区間</h1>
+        <p class="mt-2 text-lg text-gray-600">ゴールを知らなくても、数列の振る舞いだけで収束を判断する。</p>
+    </header>
+
+    <div class="bg-sky-50 border-l-4 border-sky-400 p-4 my-8 rounded-r-lg">
+        <h2 class="font-bold text-lg text-sky-800">このデモで体験すること</h2>
+        <p class="mt-2">右側のスライダーで「<span class="font-bold">どこから先を見るか (N)</span>」を操作し、左側のグラフで点たちが<span class="font-bold text-amber-600">どれだけ狭い範囲に集まってくるか</span>を観察しましょう。Nを大きくするにつれて、グラフ背景に<span class="font-bold text-indigo-500">密集領域</span>が浮かび上がります。</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-5 md:gap-8">
+
+        <!-- Visualizations Column (Left) -->
+        <div class="md:col-span-3 space-y-6">
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg number-line-wrapper">
+                <h3 class="text-lg font-bold text-center text-gray-700 mb-2">全体ビュー (数直線)</h3>
+                <div id="fixed-number-line" class="number-line-container"></div>
+            </div>
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg number-line-wrapper">
+                <h3 class="text-lg font-bold text-center text-gray-700 mb-2">N番目以降を拡大 (数直線)</h3>
+                <div id="zoom-number-line" class="number-line-container"></div>
+            </div>
+            <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg chart-wrapper">
+                <h3 class="text-lg font-bold text-center text-gray-700 mb-2">2Dグラフビュー (経過と値)</h3>
+                <div id="chart" class="chart-container"></div>
+            </div>
+        </div>
+
+        <!-- Controls Column (Right) -->
+        <div class="md:col-span-2 mt-8 md:mt-0">
+            <div class="md:sticky md:top-8 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <label for="n-slider" class="block text-xl font-medium text-gray-700 text-center">どこから先を見るか (N): <span id="n-value" class="font-bold text-sky-600 w-8 inline-block">1</span></label>
+                    <input id="n-slider" type="range" min="1" max="50" value="1" step="1" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-4">
+                </div>
+                 <div class="bg-white p-6 rounded-2xl shadow-lg flex items-center justify-center">
+                    <label for="toggle-alpha" class="flex items-center cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" id="toggle-alpha" class="sr-only">
+                            <div class="block bg-gray-200 w-14 h-8 rounded-full"></div>
+                            <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform transform"></div>
+                        </div>
+                        <div class="ml-3 text-gray-700 font-medium">
+                            収束値を表示
+                        </div>
+                    </label>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg text-center">
+                    <h3 class="text-lg text-gray-600">N番目以降の区間の幅</h3>
+                    <p id="interval-width" class="text-4xl md:text-5xl font-bold text-sky-600 mt-2 font-mono"></p>
+                    <p class="text-sm text-gray-500 mt-2"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center mt-12 text-gray-500">
+        <p>インタラクティブ・デモンストレーション改良版 v3</p>
+    </footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // === Data Setup ===
+    const ALPHA = 2;
+    const MAX_N = 50;
+    const data = d3.range(1, MAX_N + 1).map(n => ({
+        n: n,
+        value: ALPHA + (Math.pow(-1, n) / n)
+    }));
+
+    // === UI Element Selections ===
+    const nSlider = d3.select("#n-slider");
+    const alphaToggle = d3.select("#toggle-alpha");
+    const toggleCheckbox = document.getElementById('toggle-alpha');
+    const dot = toggleCheckbox.nextElementSibling.nextElementSibling;
+
+    // Initial state for toggle: Off
+    dot.style.transform = 'translateX(0)';
+
+    // === Main Drawing Function ===
+    function drawCharts() {
+        // Clear previous SVGs to enable resizing
+        d3.select("#fixed-number-line").selectAll("*").remove();
+        d3.select("#zoom-number-line").selectAll("*").remove();
+        d3.select("#chart").selectAll("*").remove();
+
+        // === Sizing ===
+        const nlMargin = { top: 10, right: 30, bottom: 50, left: 30 };
+        const chartMargin = { top: 10, right: 30, bottom: 30, left: 50 };
+
+        const nlContainer = d3.select("#fixed-number-line");
+        const chartContainer = d3.select("#chart");
+
+        if (nlContainer.node() === null || chartContainer.node() === null) return;
+
+        const nlWidth = nlContainer.node().getBoundingClientRect().width - nlMargin.left - nlMargin.right;
+        const nlHeight = nlContainer.node().getBoundingClientRect().height - nlMargin.top - nlMargin.bottom;
+        const chartWidth = chartContainer.node().getBoundingClientRect().width - chartMargin.left - chartMargin.right;
+        const chartHeight = chartContainer.node().getBoundingClientRect().height - chartMargin.top - chartMargin.bottom;
+
+        // === View Setup Functions ===
+        function setupNumberLine(container, domain) {
+            const svg = container.append("svg")
+                .attr("width", nlWidth + nlMargin.left + nlMargin.right)
+                .attr("height", nlHeight + nlMargin.top + nlMargin.bottom)
+                .append("g")
+                .attr("transform", `translate(${nlMargin.left},${nlMargin.top})`);
+
+            const scaleX = d3.scaleLinear().domain(domain).range([0, nlWidth]);
+            const axis = svg.append("g").attr("transform", `translate(0,${nlHeight / 2})`).attr("class", "axis");
+            const band = svg.append("rect").attr("y", nlHeight / 2 - 20).attr("height", 40);
+            const points = svg.selectAll(".point").data(data).enter().append("circle").attr("class", "point").attr("cy", nlHeight / 2).attr("r", 6);
+
+            return { svg, scaleX, axis, band, points };
+        }
+
+        const fixedView = setupNumberLine(nlContainer, [0.8, 3.2]);
+        fixedView.band.attr("class", "fixed-interval-band");
+
+        const zoomView = setupNumberLine(d3.select("#zoom-number-line"), [ALPHA - 0.1, ALPHA + 0.1]);
+        zoomView.band.attr("class", "zoom-interval-band");
+
+        // === 2D Chart Setup ===
+        const chartSvg = chartContainer.append("svg")
+            .attr("width", chartWidth + chartMargin.left + chartMargin.right)
+            .attr("height", chartHeight + chartMargin.top + chartMargin.bottom)
+            .append("g")
+            .attr("transform", `translate(${chartMargin.left},${chartMargin.top})`);
+
+        const chartX = d3.scaleLinear().domain([0, MAX_N + 1]).range([0, chartWidth]);
+        const chartY = d3.scaleLinear().domain([0.8, 3.2]).range([chartHeight, 0]);
+
+        const defs = chartSvg.append("defs");
+        const linearGradient = defs.append("linearGradient").attr("id", "density-gradient").attr("x1", "0%").attr("y1", "0%").attr("x2", "0%").attr("y2", "100%");
+        const stdDev = 0.1, mean = chartY(ALPHA);
+        const gradientData = [
+            { offset: "0%", color: "#f8fafc", opacity: 0 }, { offset: `${Math.max(0, (mean / chartHeight - stdDev * 2) * 100)}%`, color: "#f8fafc", opacity: 0 },
+            { offset: `${Math.max(0, (mean / chartHeight - stdDev) * 100)}%`, color: "#e0e7ff", opacity: 0.8 }, { offset: `${(mean / chartHeight) * 100}%`, color: "#c7d2fe", opacity: 1 },
+            { offset: `${Math.min(100, (mean / chartHeight + stdDev) * 100)}%`, color: "#e0e7ff", opacity: 0.8 }, { offset: `${Math.min(100, (mean / chartHeight + stdDev * 2) * 100)}%`, color: "#f8fafc", opacity: 0 },
+            { offset: "100%", color: "#f8fafc", opacity: 0 }
+        ];
+        linearGradient.selectAll("stop").data(gradientData).enter().append("stop").attr("offset", d => d.offset).attr("stop-color", d => d.color).attr("stop-opacity", d => d.opacity);
+
+        const densityRect = chartSvg.append("rect").attr("class", "density-rect").attr("width", chartWidth).attr("height", chartHeight).style("fill", "url(#density-gradient)").style("opacity", 0);
+        chartSvg.append("g").attr("transform", `translate(0,${chartHeight})`).attr("class", "axis").call(d3.axisBottom(chartX).ticks(10));
+        chartSvg.append("g").attr("class", "axis").call(d3.axisLeft(chartY));
+
+        const alphaLineGroup = chartSvg.append("g").attr("class", "alpha-line-group");
+        alphaLineGroup.append("line").attr("class", "alpha-line").attr("x1", 0).attr("x2", chartWidth).attr("y1", chartY(ALPHA)).attr("y2", chartY(ALPHA));
+        alphaLineGroup.append("text").text("α = 2").attr("x", chartWidth).attr("y", chartY(ALPHA) - 8).attr("text-anchor", "end").style("fill", "#ef4444").style("font-weight", "500");
+
+        const chartIntervalBand = chartSvg.append("rect").attr("class", "chart-interval-band");
+        const chartPoints = chartSvg.selectAll(".point").data(data).enter().append("circle").attr("r", 5);
+
+        // === Update Function ===
+        function update() {
+            const N = +nSlider.property("value");
+            d3.select("#n-value").text(N);
+
+            const heatMapOpacity = Math.pow((N - 1) / (MAX_N - 1), 1.5);
+            densityRect.style("opacity", heatMapOpacity);
+
+            const subsequentPointsData = data.filter(d => d.n >= N);
+            const minVal = d3.min(subsequentPointsData, d => d.value);
+            const maxVal = d3.max(subsequentPointsData, d => d.value);
+            const intervalWidth = (maxVal && minVal) ? maxVal - minVal : 0;
+            d3.select("#interval-width").text(intervalWidth.toExponential(4));
+
+            fixedView.axis.call(d3.axisBottom(fixedView.scaleX));
+            fixedView.points.attr("class", d => d.n >= N ? "point fixed-point-in-interval" : "point").attr("cx", d => fixedView.scaleX(d.value));
+            fixedView.band.attr("x", fixedView.scaleX(minVal || 0)).attr("width", fixedView.scaleX(maxVal || 0) - fixedView.scaleX(minVal || 0));
+
+            const padding = intervalWidth === 0 ? 0.01 : intervalWidth * 0.2;
+            zoomView.scaleX.domain([(minVal || ALPHA) - padding, (maxVal || ALPHA) + padding]);
+            zoomView.axis.transition().duration(300).call(d3.axisBottom(zoomView.scaleX).ticks(5));
+            zoomView.points.attr("class", d => d.n >= N ? "point zoom-point-in-interval" : "point").style("display", d => d.n >= N ? "inline" : "none").transition().duration(300).attr("cx", d => zoomView.scaleX(d.value));
+            zoomView.band.transition().duration(300).attr("x", zoomView.scaleX(minVal || 0)).attr("width", zoomView.scaleX(maxVal || 0) - zoomView.scaleX(minVal || 0));
+
+            chartPoints.attr("class", d => d.n >= N ? "point chart-point-in-interval" : "point").attr("cx", d => chartX(d.n)).attr("cy", d => chartY(d.value));
+            chartIntervalBand.attr("x", chartX(N - 0.5)).attr("width", chartX(MAX_N + 0.5) - chartX(N - 0.5)).attr("y", chartY(maxVal || 0)).attr("height", chartY(minVal || 0) - chartY(maxVal || 0));
+            alphaLineGroup.style("opacity", alphaToggle.property("checked") ? 1 : 0);
+        }
+
+        // Attach event listeners to the update function
+        nSlider.on("input", update);
+        alphaToggle.on("change", update);
+        toggleCheckbox.addEventListener('change', () => {
+            dot.style.transform = toggleCheckbox.checked ? 'translateX(1.5rem)' : 'translateX(0)';
+        });
+
+        // Initial call to set the state
+        update();
+    }
+
+    // Debounce function to limit resize event frequency
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    };
+
+    // Initial draw and redraw on resize
+    drawCharts();
+    window.addEventListener('resize', debounce(drawCharts, 250));
+});
+</script>
+</body>
+</html>

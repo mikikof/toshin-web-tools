@@ -1,0 +1,585 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;見てわかる！微分積分と車の動き&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Noto Sans JP', 'Inter', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.road {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 80px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #4a5568;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.road-lines {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>bottom: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>left: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-image: linear-gradient(90deg, #edf2f7 50%, transparent 50%);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-size: 80px 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-repeat: repeat-x;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.car {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 50px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>bottom: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>left: calc(50% - 50px); /* 車を中央に固定 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animation: car-jiggle-paused 0.4s infinite;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.car.moving {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>animation-name: car-jiggle;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.brake-light {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: opacity 0.2s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.car.braking .brake-light {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>@keyframes car-jiggle {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>0% { transform: translateY(0); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>50% { transform: translateY(-2px); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>100% { transform: translateY(0); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@keyframes car-jiggle-paused {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>0% { transform: translateY(0); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>100% { transform: translateY(0); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-100 text-gray-800"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl sm:text-4xl font-bold text-gray-900"&gt;微分積分と車の動き&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-2 text-lg text-gray-600"&gt;車の動きで微積分学の基本定理を体感しよう&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-white rounded-2xl shadow-lg p-6"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- 車のアニメーション --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-2xl font-bold mb-4 text-center"&gt;アニメーション&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="road rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="road-lines" class="road-lines"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;svg id="car-svg" class="car" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;g transform="translate(0, 10)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;path d="M42.32,71.22A19.33,19.33,0,0,0,24,65.48,19.5,19.5,0,0,0,6.2,71.55c-2.3,1.4-4.81,2.33-7.22,2.33A19.33,19.33,0,0,0,42.32,71.22Z" transform="translate(10.78 -1.88)" fill="#2c5282"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;path d="M185.9,71.22a19.33,19.33,0,0,0-18.32-5.74,19.5,19.5,0,0,0-17.8,6.07c-2.3,1.4-4.81,2.33-7.22,2.33A19.33,19.33,0,0,0,185.9,71.22Z" transform="translate(10.78 -1.88)" fill="#2c5282"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;path d="M192.5,47.12,175,25.32a12.34,12.34,0,0,0-10.43-5.32H42.32a12.34,12.34,0,0,0-10.43,5.32L15.09,47.12A19.8,19.8,0,0,0,10.78,59v9.57a6.5,6.5,0,0,0,6.5,6.5H190a6.5,6.5,0,0,0,6.5-6.5V59A19.8,19.8,0,0,0,192.5,47.12Z" transform="translate(10.78 -1.88)" fill="#4299e1"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;rect x="74.78" y="27.12" width="57" height="30" rx="5" fill="#bee3f8"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;rect class="brake-light" x="15.78" y="45.12" width="10" height="15" fill="#ef4444"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;rect class="brake-light" x="181.78" y="45.12" width="10" height="15" fill="#ef4444"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;circle cx="40.78" cy="75.12" r="18" fill="#2d3748"/&gt;&lt;circle cx="40.78" cy="75.12" r="10" fill="#e2e8f0"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;circle cx="165.78" cy="75.12" r="18" fill="#2d3748"/&gt;&lt;circle cx="165.78" cy="75.12" r="10" fill="#e2e8f0"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/g&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-gray-50 rounded-lg p-4 flex justify-around items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex flex-col space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="text-center"&gt;&lt;p class="text-sm font-medium text-gray-500"&gt;経過時間 (t)&lt;/p&gt;&lt;p class="text-3xl font-bold text-indigo-600"&gt;&lt;span id="time-display"&gt;0.0&lt;/span&gt; 秒&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="text-center"&gt;&lt;p class="text-sm font-medium text-gray-500"&gt;今の速度 f(t)&lt;/p&gt;&lt;p class="text-3xl font-bold text-blue-600"&gt;&lt;span id="speed-display"&gt;0&lt;/span&gt; km/h&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="text-center"&gt;&lt;p class="text-sm font-medium text-gray-500"&gt;走行距離 F(x)&lt;/p&gt;&lt;p class="text-3xl font-bold text-green-600"&gt;&lt;span id="distance-display"&gt;0.0&lt;/span&gt; m&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="speedometer-canvas" width="180" height="180"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-gray-50 rounded-lg p-4 flex flex-col justify-center items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;h3 class="text-lg font-bold mb-3"&gt;操作パネル&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex space-x-3 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="start-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg"&gt;スタート&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="stop-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg"&gt;ストップ&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="reset-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg"&gt;リセット&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-full px-4 space-y-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div&gt;&lt;label for="accel-slider" class="block text-center font-medium mb-1"&gt;アクセル&lt;/label&gt;&lt;input type="range" id="accel-slider" min="0" max="10" value="0" step="1" class="w-full h-3 bg-gray-300 rounded-lg appearance-none cursor-pointer"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div&gt;&lt;label for="brake-slider" class="block text-center font-medium mb-1"&gt;ブレーキ&lt;/label&gt;&lt;input type="range" id="brake-slider" min="0" max="10" value="0" step="1" class="w-full h-3 bg-red-200 rounded-lg appearance-none cursor-pointer"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- グラフ --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 lg:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-xl font-bold mb-2 text-center"&gt;距離-時間 グラフ&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-gray-50 p-2 rounded-lg relative"&gt;&lt;canvas id="time-distance-chart" width="400" height="300"&gt;&lt;/canvas&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-center mt-2 text-sm text-gray-600"&gt;グラフの&lt;span class="font-bold text-purple-600"&gt;傾き&lt;/span&gt;が&lt;span class="font-bold text-blue-600"&gt;速度&lt;/span&gt;に対応&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-xl font-bold mb-2 text-center"&gt;速度-時間 グラフ&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-gray-50 p-2 rounded-lg relative"&gt;&lt;canvas id="time-speed-chart" width="400" height="300"&gt;&lt;/canvas&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-center mt-2 text-sm text-gray-600"&gt;グラフの&lt;span class="font-bold text-green-600"&gt;面積&lt;/span&gt;が&lt;span class="font-bold text-purple-600"&gt;距離&lt;/span&gt;に対応&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- 解説 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-2xl font-bold mb-4 text-center"&gt;解説：微分と積分のつながり&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="space-y-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3 class="text-xl font-bold text-indigo-800 mb-2"&gt;結論：微分と積分は逆の操作！&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="font-bold"&gt;「積分は微分の逆演算」という関係が、微積分学の基本定理の核心です。2つのグラフの関係を見てみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;ul class="list-disc list-inside mt-2 space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;li&gt;&lt;span class="font-bold text-blue-600"&gt;速度&lt;/span&gt;を&lt;span class="font-bold text-green-600"&gt;積分（面積を計算）&lt;/span&gt;すると&lt;span class="font-bold text-purple-600"&gt;距離&lt;/span&gt;になります。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;li class="border-t pt-2 mt-2"&gt;&lt;span class="font-bold text-purple-600"&gt;距離&lt;/span&gt;を&lt;span class="font-bold text-blue-600"&gt;微分（傾きを計算）&lt;/span&gt;すると&lt;span class="font-bold text-blue-600"&gt;速度&lt;/span&gt;に戻ります。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="mt-2"&gt;グラフにカーソルを合わせると、この関係が視覚的に表示されます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;footer class="text-center mt-8 text-gray-500 text-sm"&gt;&lt;p&gt;&amp;copy; 2025 微分積分ビジュアライザー&lt;/p&gt;&lt;/footer&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// DOM要素の取得</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const timeDisplay = document.getElementById('time-display');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const speedDisplay = document.getElementById('speed-display');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const distanceDisplay = document.getElementById('distance-display');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const startBtn = document.getElementById('start-btn');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const stopBtn = document.getElementById('stop-btn');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const resetBtn = document.getElementById('reset-btn');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const accelSlider = document.getElementById('accel-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const brakeSlider = document.getElementById('brake-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const car = document.getElementById('car-svg');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const roadLines = document.getElementById('road-lines');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const timeDistCanvas = document.getElementById('time-distance-chart');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const tdCtx = timeDistCanvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const timeSpeedCanvas = document.getElementById('time-speed-chart');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const tsCtx = timeSpeedCanvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const speedometerCanvas = document.getElementById('speedometer-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const spCtx = speedometerCanvas.getContext('2d');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let time = 0, speed = 0, distance = 0, acceleration = 0, deceleration = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let animationFrameId = null, lastTimestamp = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let data = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let roadOffset = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let hoverTime = null;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const MAX_SPEED = 120;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ACCEL_FACTOR = 1.5;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const BRAKE_FACTOR = 3.0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const INITIAL_MAX_TIME = 30;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function resizeCanvases() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>[timeDistCanvas, timeSpeedCanvas].forEach(canvas =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const container = canvas.parentElement;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.width = container.clientWidth;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.height = container.clientWidth * 1.0;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawAllCharts();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawSpeedometer() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ctx = spCtx;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = speedometerCanvas;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.clearRect(0, 0, canvas.width, canvas.height);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const x = canvas.width / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const y = canvas.height / 2 + 10;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const radius = canvas.width / 2 - 40;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const maxSpeed = MAX_SPEED;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const startAngleDeg = 135, endAngleDeg = 405;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const totalAngleDeg = endAngleDeg - startAngleDeg;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const startAngleRad = startAngleDeg * Math.PI / 180;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const endAngleRad = endAngleDeg * Math.PI / 180;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const totalAngleRad = totalAngleDeg * Math.PI / 180;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.arc(x, y, radius, startAngleRad, endAngleRad);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = '#e2e8f0';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 15;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineCap = 'round';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const speedRatio = Math.max(0, Math.min(speed, maxSpeed)) / maxSpeed;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const currentAngleRad = startAngleRad + (totalAngleRad * speedRatio);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (speedRatio &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(x, y, radius, startAngleRad, currentAngleRad);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = '#4299e1';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 15;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineCap = 'round';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.save();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.translate(x, y);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.rotate(currentAngleRad);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.moveTo(0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineTo(radius - 10, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = '#1a202c';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 4;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.arc(0, 0, 5, 0, 2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = '#1a202c';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.restore();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.font = 'bold 12px Inter';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = '#4a5568';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawLabel = (value) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const labelRatio = value / maxSpeed;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const labelAngleRad = startAngleRad + (totalAngleRad * labelRatio);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const labelRadius = radius + 20;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const labelX = x + labelRadius * Math.cos(labelAngleRad);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const labelY = y + labelRadius * Math.sin(labelAngleRad);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText(value, labelX, labelY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawLabel(0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawLabel(60);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawLabel(120);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawTimeDistChart() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>tdCtx.clearRect(0, 0, timeDistCanvas.width, timeDistCanvas.height);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const padding = 40;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const chartWidth = timeDistCanvas.width - padding * 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const chartHeight = timeDistCanvas.height - padding * 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xMax = Math.max(INITIAL_MAX_TIME, time);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yMax = Math.max(100, data.length &gt; 0 ? Math.max(...data.map(p =&gt; p.distance)) : 100);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawAxes(tdCtx, timeDistCanvas, padding, '時間 (s)', '距離 (m)');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawGridAndTicks(tdCtx, padding, chartWidth, chartHeight, xMax, yMax, Math.ceil(xMax / 6 / 5) * 5, Math.ceil(yMax / 5 / 50) * 50);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawPath(tdCtx, padding, chartWidth, chartHeight, data, p =&gt; p.time, p =&gt; p.distance, xMax, yMax, '#805ad5');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (hoverTime &amp;&amp; data.length &gt; 1) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const hoverIndex = findClosestIndex(data, hoverTime);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const point = data[hoverIndex];</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = padding + (point.time / xMax) * chartWidth;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = timeDistCanvas.height - padding - (point.distance / yMax) * chartHeight;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const speed_ms = point.speed * 1000 / 3600;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const canvasSlope = -speed_ms * (chartHeight / yMax) / (chartWidth / xMax);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const lineLength = 40;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const dx = lineLength / Math.sqrt(1 + canvasSlope * canvasSlope);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const dy = canvasSlope * dx;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>tdCtx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tdCtx.moveTo(x - dx, y - dy);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tdCtx.lineTo(x + dx, y + dy);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tdCtx.strokeStyle = '#3182ce';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tdCtx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tdCtx.stroke();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawMarker(tdCtx, x, y, '#805ad5');</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const infoText = [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>`傾き (速度): ${point.speed.toFixed(1)} km/h`,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>`速度グラフの値: ${point.speed.toFixed(1)} km/h`</p>
+<p class="p1"><span class="Apple-converted-space">                </span>];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawInfoBox(tdCtx, x, y, infoText);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawTimeSpeedChart() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>tsCtx.clearRect(0, 0, timeSpeedCanvas.width, timeSpeedCanvas.height);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const padding = 40;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const chartWidth = timeSpeedCanvas.width - padding * 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const chartHeight = timeSpeedCanvas.height - padding * 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xMax = Math.max(INITIAL_MAX_TIME, time);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yMax = MAX_SPEED;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawAxes(tsCtx, timeSpeedCanvas, padding, '時間 (s)', '速度 (km/h)');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawGridAndTicks(tsCtx, padding, chartWidth, chartHeight, xMax, yMax, Math.ceil(xMax / 6 / 5) * 5, 20);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawPath(tsCtx, padding, chartWidth, chartHeight, data, p =&gt; p.time, p =&gt; p.speed, xMax, yMax, '#3182ce');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (hoverTime &amp;&amp; data.length &gt; 1) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tsCtx.fillStyle = 'rgba(129, 230, 129, 0.5)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tsCtx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tsCtx.moveTo(padding, timeSpeedCanvas.height - padding);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data.forEach(p =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (p.time &gt; hoverTime) return;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const x = padding + (p.time / xMax) * chartWidth;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const y = timeSpeedCanvas.height - padding - (p.speed / yMax) * chartHeight;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>tsCtx.lineTo(x, y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const lastHoverPoint = data[findClosestIndex(data, hoverTime)];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tsCtx.lineTo(padding + (lastHoverPoint.time / xMax) * chartWidth, timeSpeedCanvas.height - padding);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tsCtx.closePath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tsCtx.fill();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const hoverIndex = findClosestIndex(data, hoverTime);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const point = data[hoverIndex];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = padding + (point.time / xMax) * chartWidth;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = timeSpeedCanvas.height - padding - (point.speed / yMax) * chartHeight;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawMarker(tsCtx, x, y, '#3182ce');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const infoText = [</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>`面積 (距離): ${point.distance.toFixed(1)} m`,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>`距離グラフの値: ${point.distance.toFixed(1)} m`</p>
+<p class="p1"><span class="Apple-converted-space">                </span>];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawInfoBox(tsCtx, x, y, infoText);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawAllCharts() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawTimeDistChart();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawTimeSpeedChart();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawSpeedometer();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (hoverTime &amp;&amp; data.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const xMax = Math.max(INITIAL_MAX_TIME, time);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const padding = 40;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const hoverIndex = findClosestIndex(data, hoverTime);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const point = data[hoverIndex];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const xPixel = padding + (point.time / xMax) * (timeDistCanvas.width - padding * 2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>[tdCtx, tsCtx].forEach(ctx =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.moveTo(xPixel, padding);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.lineTo(xPixel, ctx.canvas.height - padding);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.setLineDash([4, 2]);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.setLineDash([]);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawInfoBox(ctx, x, y, lines) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.font = 'bold 12px Inter';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const textMetrics = lines.map(line =&gt; ctx.measureText(line));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const maxWidth = Math.max(...textMetrics.map(m =&gt; m.width));</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const padding = 8;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const lineHeight = 18;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const boxWidth = maxWidth + padding * 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const boxHeight = lines.length * lineHeight + padding;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let boxX = x + 20;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let boxY = y - boxHeight / 2;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (boxX + boxWidth &gt; ctx.canvas.width - 10) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>boxX = x - boxWidth - 20;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (boxY &lt; 10) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>boxY = 10;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (boxY + boxHeight &gt; ctx.canvas.height - 10) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>boxY = ctx.canvas.height - 10 - boxHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = 'rgba(26, 32, 44, 0.8)';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.rect(boxX, boxY, boxWidth, boxHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = 'white';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'left';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'top';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>lines.forEach((line, index) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText(line, boxX + padding, boxY + padding / 2 + index * lineHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawAxes(ctx, canvas, padding, xLabel, yLabel) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.moveTo(padding, padding);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineTo(padding, canvas.height - padding);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineTo(canvas.width - padding, canvas.height - padding);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = '#a0aec0';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = '#4a5568';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'center';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'top';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.font = '12px Noto Sans JP';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillText(xLabel, canvas.width / 2, canvas.height - padding + 15);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.save();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.translate(padding - 30, canvas.height / 2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.rotate(-Math.PI / 2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'center';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'middle';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillText(yLabel, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.restore();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawGridAndTicks(ctx, padding, width, height, xMax, yMax, xInterval, yInterval) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'center';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'top';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt;= xMax; i += xInterval) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const xPos = padding + (i / xMax) * width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(xPos &lt;= ctx.canvas.width - padding) drawTick(ctx, xPos, ctx.canvas.height - padding, Math.round(i), 'bottom');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textAlign = 'right';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.textBaseline = 'middle';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt;= yMax; i += yInterval) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const yPos = ctx.canvas.height - padding - (i / yMax) * height;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawTick(ctx, padding, yPos, Math.round(i), 'left');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawTick(ctx, x, y, text, position) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = '#718096';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.font = '10px Inter';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (position === 'bottom') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText(text, x, y + 5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText(text, x - 5, y);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawPath(ctx, padding, width, height, data, getX, getY, xMax, yMax, color, yMin = 0) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yRange = yMax - yMin;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (data.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>const startX = padding + (getX(data[0]) / xMax) * width;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>const startY = ctx.canvas.height - padding - (getY(data[0]) - yMin) / yRange * height;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>ctx.moveTo(startX, startY);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>data.forEach(p =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = padding + (getX(p) / xMax) * width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = ctx.canvas.height - padding - (getY(p) - yMin) / yRange * height;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(x, y);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 3;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawMarker(ctx, x, y, color) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.arc(x, y, 5, 0, 2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fillStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.strokeStyle = 'white';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function findClosestIndex(arr, targetTime) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let closestIndex = 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let minDiff = Infinity;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>arr.forEach((point, index) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const diff = Math.abs(point.time - targetTime);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (diff &lt; minDiff) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>minDiff = diff;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>closestIndex = index;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return closestIndex;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function gameLoop(timestamp) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!animationFrameId) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!lastTimestamp) lastTimestamp = timestamp;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const deltaTime = (timestamp - lastTimestamp) / 1000;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>lastTimestamp = timestamp;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>time += deltaTime;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const totalAcceleration = acceleration - deceleration;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>speed += totalAcceleration * deltaTime;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>speed = Math.max(0, Math.min(speed, MAX_SPEED));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const speed_ms = speed * 1000 / 3600;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>distance += speed_ms * deltaTime;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>roadOffset -= speed_ms * 3;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>roadLines.style.backgroundPositionX = roadOffset + 'px';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>data.push({ time, speed, distance, accel: totalAcceleration });</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>car.classList.toggle('moving', speed &gt; 1 &amp;&amp; animationFrameId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>car.classList.toggle('braking', deceleration &gt; 0 &amp;&amp; speed &gt; 0);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawAllCharts();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateDisplay();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animationFrameId = requestAnimationFrame(gameLoop);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateDisplay() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timeDisplay.textContent = time.toFixed(1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>speedDisplay.textContent = Math.round(speed);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>distanceDisplay.textContent = distance.toFixed(1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>startBtn.addEventListener('click', () =&gt; { if (!animationFrameId) { lastTimestamp = null; animationFrameId = requestAnimationFrame(gameLoop); } });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>stopBtn.addEventListener('click', () =&gt; { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; car.classList.remove('moving'); } });</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>resetBtn.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>time = 0; speed = 0; distance = 0; acceleration = 0; deceleration = 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>accelSlider.value = 0; brakeSlider.value = 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>data = []; roadOffset = 0; hoverTime = null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>roadLines.style.backgroundPositionX = '0px';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>car.classList.remove('moving', 'braking');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawAllCharts();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateDisplay();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>accelSlider.addEventListener('input', (e) =&gt; { acceleration = e.target.value * ACCEL_FACTOR; });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>brakeSlider.addEventListener('input', (e) =&gt; { deceleration = e.target.value * BRAKE_FACTOR; });</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>[timeDistCanvas, timeSpeedCanvas].forEach(canvas =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.addEventListener('mousemove', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (data.length === 0 || animationFrameId) return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = e.clientX - rect.left;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const padding = 40;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const chartWidth = canvas.width - padding * 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const xMax = Math.max(INITIAL_MAX_TIME, time);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const mouseTime = (x - padding) / chartWidth * xMax;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (mouseTime &gt;= 0 &amp;&amp; mouseTime &lt;= time) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>hoverTime = mouseTime;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>drawAllCharts();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.addEventListener('mouseleave', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(animationFrameId) return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>hoverTime = null;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawAllCharts();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.addEventListener('resize', resizeCanvases);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// 初期化</p>
+<p class="p1"><span class="Apple-converted-space">        </span>resizeCanvases();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateDisplay();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

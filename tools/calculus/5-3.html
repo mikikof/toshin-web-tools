@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ランダウ記号 o(x) をインタラクティブに学ぶ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .latex {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        @media (min-width: 768px) {
+            .card {
+                padding: 2rem;
+            }
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        h1, h2 {
+            font-weight: 700;
+        }
+        .bar {
+            transition: width 0.3s ease-out;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        canvas {
+            max-height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <header class="text-center mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">ランダウ記号 <span class="latex">o(x)</span> をインタラクティブに学ぶ</h1>
+            <p class="mt-4 text-lg text-gray-600">近似計算の「誤差」を評価</p>
+        </header>
+
+        <!-- Section 1: Introduction -->
+        <div class="card">
+            <h2 class="text-2xl mb-4 text-slate-800">1. なぜ「誤差の評価」が必要なのか？</h2>
+            <p class="mb-4">数学や物理では、複雑な関数をシンプルな多項式で近似することがよくあります。例えば、<span class="latex">sin(x)</span> は <span class="latex">x</span> が0に近いとき、<span class="latex">x</span> でとてもよく近似できます。</p>
+            <div class="p-4 bg-slate-100 rounded-lg text-center text-xl md:text-2xl font-mono">
+                <span class="latex">sin(x) &approx; x</span>
+            </div>
+            <p class="mt-4">しかし、この近似には必ず「誤差」が伴います。その誤差はどれくらい小さいのでしょうか？「すごく小さい」だけでは不十分です。誤差が<strong class="text-indigo-600">どれくらいの速さで0に近づくか</strong>を数学的に表現するために、ランダウの記号が使われます。</p>
+        </div>
+
+        <!-- Section 2: Interactive Demo -->
+        <div class="card">
+            <h2 class="text-2xl mb-4 text-slate-800">2. 「はるかに小さい」を体験する</h2>
+            <p class="mb-4">ランダウ記号 <span class="latex">f(x) = o(g(x))</span> は、「<span class="latex">x</span> がある値に近づくとき、<span class="latex">f(x)</span> は <span class="latex">g(x)</span> よりも圧倒的に速く0に近づく」ことを意味します。ここでは <span class="latex">f(x) = x³</span> と <span class="latex">g(x) = x²</span> で、<span class="latex">x &rarr; 0</span> の場合を体験してみましょう。</p>
+
+            <div class="mb-6">
+                <label for="x-slider" class="block mb-2 font-medium text-gray-700">下のスライダーを動かして <span class="latex">x</span> の値を変えてみよう:</label>
+                <input id="x-slider" type="range" min="0.001" max="1" step="0.001" value="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center font-mono text-lg p-4 bg-gray-50 rounded-lg">
+                <div>x = <span id="x-value" class="font-bold text-blue-600"></span></div>
+                <div>f(x)/g(x) = <span id="ratio-value" class="font-bold text-red-600"></span></div>
+            </div>
+
+            <div class="mt-6 space-y-3">
+                <div class="flex items-center">
+                    <span class="w-24 font-mono">g(x)=x²:</span>
+                    <div class="h-8 bg-blue-500 rounded-r-md bar flex items-center justify-end pr-2 text-white font-bold" id="g-bar" style="width: 50%;"></div>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-24 font-mono">f(x)=x³:</span>
+                    <div class="h-8 bg-red-500 rounded-r-md bar flex items-center justify-end pr-2 text-white font-bold" id="f-bar" style="width: 25%;"></div>
+                </div>
+            </div>
+
+            <div id="conclusion" class="mt-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-800 rounded-r-lg hidden">
+                <p><strong class="font-bold">結論:</strong> <span class="latex">x</span> が0に近づくにつれて、比率 <span class="latex">f(x)/g(x)</span> も0に近づいていきますね！これは数学的に <span class="latex">lim(x&rarr;0) f(x)/g(x) = 0</span> と書け、まさに <span class="latex">x³ = o(x²)</span> が成り立つことを意味します。</p>
+            </div>
+        </div>
+
+        <!-- Section 3: Taylor Expansion Graph -->
+        <div class="card">
+            <h2 class="text-2xl mb-4 text-slate-800">3. テイラー展開で見る近似の精度</h2>
+            <p class="mb-4"><span class="latex">sin(x)</span> のテイラー展開は、近似の次数を上げるほど精度が向上する様子を視覚的に示してくれます。下のボタンで近似式を切り替えて、グラフがどのように <span class="latex">sin(x)</span> の曲線に近づいていくか確認しましょう。</p>
+            <canvas id="taylorChart"></canvas>
+            <div class="mt-4 text-center space-x-2">
+                <button onclick="updateChart(1)" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition">1次近似: x</button>
+                <button onclick="updateChart(3)" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition">3次近似: x - x³/6</button>
+                <button onclick="updateChart(5)" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-lg transition">5次近似: x - x³/6 + x⁵/120</button>
+            </div>
+             <p class="mt-6 text-center text-gray-600">1次近似式 <span class="latex">sin(x) = x + o(x)</span> の <span class="latex">o(x)</span> は、誤差が <span class="latex">x</span> よりも速く0に収束することを保証しています。</p>
+        </div>
+
+        <!-- Section 4: Physics Simulation (Revised) -->
+        <div class="card">
+            <h2 class="text-2xl mb-4 text-slate-800">4. 実用例：単振り子の近似</h2>
+            <p class="mb-4">物理学の単振り子の例です。<span class="latex">sin(&theta;) = &theta; + o(&theta;)</span> なので、角度 <span class="latex">&theta;</span> が小さいとき <span class="latex">sin(&theta;) &approx; &theta;</span> と近似します。この近似がどれほど有効か、下のシミュレーションで確かめましょう。実線の振り子（正確な計算）と、半透明のゴースト（近似計算）のズレに注目してください。</p>
+
+            <div class="mb-6">
+                <label for="theta-slider" class="block mb-2 font-medium text-gray-700">振り子の初期角度 <span class="latex">&theta;</span> を設定:</label>
+                <input id="theta-slider" type="range" min="5" max="80" step="1" value="15" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                <div class="text-center mt-2 text-xl font-mono">角度: <span id="theta-value" class="font-bold text-indigo-600">15</span>°</div>
+            </div>
+
+            <div class="bg-slate-50 rounded-lg border mb-6">
+                 <canvas id="pendulum-canvas"></canvas>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-2">角度の時間変化グラフ</h3>
+            <p class="mb-4 text-sm text-gray-600">下のグラフは、それぞれの計算方法での振り子の角度の時間変化を示します。角度が小さいと2つの線はほぼ重なりますが、大きくすると徐々にズレていく（周期が変化する）のが分かります。</p>
+            <div class="bg-slate-50 rounded-lg border">
+                <canvas id="pendulum-graph"></canvas>
+            </div>
+            <p id="pendulum-comment" class="mt-6 text-center font-medium"></p>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Interactive Demo Script (Section 2) ---
+        const xSlider = document.getElementById('x-slider');
+        const xValue = document.getElementById('x-value');
+        const ratioValue = document.getElementById('ratio-value');
+        const gBar = document.getElementById('g-bar');
+        const fBar = document.getElementById('f-bar');
+        const conclusion = document.getElementById('conclusion');
+
+        function updateComparison() {
+            const x = parseFloat(xSlider.value);
+            const g_x = x * x;
+            const f_x = x * x * x;
+            const ratio = f_x / g_x;
+
+            xValue.textContent = x.toFixed(4);
+            ratioValue.textContent = ratio.toFixed(4);
+
+            const g_width = x * 100;
+            const f_width = g_width * ratio;
+
+            gBar.style.width = `${Math.min(g_width, 100)}%`;
+            fBar.style.width = `${Math.min(f_width, 100)}%`;
+
+            if (x < 0.1) {
+                conclusion.classList.remove('hidden');
+            } else {
+                conclusion.classList.add('hidden');
+            }
+        }
+        xSlider.addEventListener('input', updateComparison);
+        updateComparison();
+
+        // --- Taylor Chart Script (Section 3) ---
+        const taylorCanvas = document.getElementById('taylorChart');
+        let taylorChart;
+        const labels = Array.from({length: 201}, (_, i) => (i - 100) * Math.PI / 100);
+        const sinData = labels.map(x => Math.sin(x));
+
+        const datasets = {
+            sin: { label: 'sin(x)', data: sinData, borderColor: 'rgb(22, 163, 74)', tension: 0.1, borderWidth: 3, pointRadius: 0 },
+            approx1: { label: '近似: x', data: labels.map(x => x), borderColor: 'rgb(99, 102, 241)', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 },
+            approx3: { label: '近似: x - x³/6', data: labels.map(x => x - Math.pow(x, 3) / 6), borderColor: 'rgb(168, 85, 247)', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 },
+            approx5: { label: '近似: x - x³/6 + x⁵/120', data: labels.map(x => x - Math.pow(x, 5) / 120), borderColor: 'rgb(236, 72, 153)', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 }
+        };
+
+        function createChart(approxOrder) {
+            if (taylorChart) taylorChart.destroy();
+            let approxData;
+            switch(approxOrder) {
+                case 3: approxData = datasets.approx3; break;
+                case 5: approxData = datasets.approx5; break;
+                default: approxData = datasets.approx1;
+            }
+            taylorChart = new Chart(taylorCanvas, {
+                type: 'line',
+                data: { labels: labels, datasets: [datasets.sin, approxData] },
+                options: { responsive: true, scales: { x: { type: 'linear', position: 'bottom', title: { display: true, text: 'x' }}, y: { title: { display: true, text: 'y' }}}, plugins: { tooltip: { mode: 'index', intersect: false }}}
+            });
+        }
+        function updateChart(order) { createChart(order); }
+        window.addEventListener('load', () => createChart(1));
+
+        // --- Pendulum Script (Section 4, Revised) ---
+        const thetaSlider = document.getElementById('theta-slider');
+        const thetaValue = document.getElementById('theta-value');
+        const pendulumComment = document.getElementById('pendulum-comment');
+        const pendulumCanvas = document.getElementById('pendulum-canvas');
+        const p_ctx = pendulumCanvas.getContext('2d');
+        const graphCanvas = document.getElementById('pendulum-graph');
+        let pendulumGraph;
+
+        let animationFrameId;
+        let time = 0;
+        const GRAPH_DURATION = 10; // The total time duration the graph will show (in seconds)
+
+        class PendulumModel {
+            constructor(initialTheta, useApprox) {
+                this.theta = initialTheta * Math.PI / 180;
+                this.omega = 0; // angular velocity
+                this.useApprox = useApprox;
+                this.g = 9.8 * 5; // Increased speed for better visualization
+                this.length = 150;
+                this.dt = 1 / 60;
+            }
+
+            update() {
+                const alpha = this.useApprox ?
+                    -(this.g / this.length) * this.theta :
+                    -(this.g / this.length) * Math.sin(this.theta);
+                this.omega += alpha * this.dt;
+                this.omega *= 0.999; // A bit of damping
+                this.theta += this.omega * this.dt;
+            }
+        }
+
+        function drawPendulum(ctx, model, isGhost = false) {
+            const w = ctx.canvas.width;
+            const origin = { x: w / 2, y: 50 };
+            const bobX = origin.x + model.length * Math.sin(model.theta);
+            const bobY = origin.y + model.length * Math.cos(model.theta);
+
+            ctx.globalAlpha = isGhost ? 0.4 : 1.0;
+
+            // Rod
+            ctx.beginPath();
+            ctx.moveTo(origin.x, origin.y);
+            ctx.lineTo(bobX, bobY);
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Bob
+            ctx.beginPath();
+            ctx.arc(bobX, bobY, 15, 0, 2 * Math.PI);
+            ctx.fillStyle = isGhost ? '#a855f7' : '#1d4ed8'; // Approx: purple, Exact: blue
+            ctx.fill();
+
+            ctx.globalAlpha = 1.0;
+        }
+
+        function setupPendulumGraph() {
+            if (pendulumGraph) pendulumGraph.destroy();
+            const initialThetaRad = parseFloat(thetaSlider.value) * Math.PI / 180;
+
+            pendulumGraph = new Chart(graphCanvas, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: '正確な計算 sin(θ)',
+                        borderColor: '#1d4ed8',
+                        borderWidth: 2,
+                        data: [],
+                        pointRadius: 0,
+                        tension: 0.2
+                    }, {
+                        label: '近似計算 θ',
+                        borderColor: '#a855f7',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        data: [],
+                        pointRadius: 0,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { 
+                            type: 'linear', 
+                            title: { display: true, text: '時間 (s)' },
+                            min: 0,
+                            max: GRAPH_DURATION // Fix the x-axis
+                        },
+                        y: { 
+                            title: { display: true, text: '角度 (rad)' },
+                            min: -initialThetaRad * 1.1, // Set y-axis based on initial angle
+                            max: initialThetaRad * 1.1
+                        }
+                    },
+                    animation: {
+                        duration: 0 // No animation for drawing
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    }
+                }
+            });
+        }
+
+        let pendulumExact, pendulumApprox;
+
+        function startPendulumAnimation() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+            const initialTheta = parseFloat(thetaSlider.value);
+            thetaValue.textContent = initialTheta;
+
+            const containerWidth = pendulumCanvas.parentElement.clientWidth;
+            pendulumCanvas.width = containerWidth;
+            pendulumCanvas.height = containerWidth * 0.6;
+
+            pendulumExact = new PendulumModel(initialTheta, false);
+            pendulumApprox = new PendulumModel(initialTheta, true);
+
+            if (initialTheta <= 20) {
+                pendulumComment.textContent = "角度が小さいと、両者の動きと周期はほぼ一致しますね！";
+                pendulumComment.className = "mt-6 text-center font-medium text-green-700";
+            } else {
+                pendulumComment.textContent = "角度が大きくなると、ゴーストとのズレが大きくなり、周期も変わってきます。";
+                pendulumComment.className = "mt-6 text-center font-medium text-red-700";
+            }
+
+            time = 0;
+            setupPendulumGraph();
+            animatePendulums();
+        }
+
+        function animatePendulums() {
+            pendulumExact.update();
+            pendulumApprox.update();
+
+            p_ctx.clearRect(0, 0, p_ctx.canvas.width, p_ctx.canvas.height);
+            drawPendulum(p_ctx, pendulumApprox, true); // Draw ghost first
+            drawPendulum(p_ctx, pendulumExact, false); // Draw solid on top
+
+            // Update graph data only within the defined duration
+            time += pendulumExact.dt;
+            if (time <= GRAPH_DURATION) {
+                const datasets = pendulumGraph.data.datasets;
+                datasets[0].data.push({x: time, y: pendulumExact.theta});
+                datasets[1].data.push({x: time, y: pendulumApprox.theta});
+                pendulumGraph.update('none'); // Update without any animation
+            }
+
+            animationFrameId = requestAnimationFrame(animatePendulums);
+        }
+
+        thetaSlider.addEventListener('input', startPendulumAnimation);
+
+        const resizeObserver = new ResizeObserver(entries => {
+            // Use a timeout to avoid rapid re-renders during resize
+            if (this.resizeTimeout) clearTimeout(this.resizeTimeout);
+            this.resizeTimeout = setTimeout(startPendulumAnimation, 100);
+        });
+        resizeObserver.observe(pendulumCanvas.parentElement);
+
+        window.addEventListener('load', startPendulumAnimation);
+
+    </script>
+</body>
+</html>

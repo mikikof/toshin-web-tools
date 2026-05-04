@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【挙動修正版】逆三角関数で動くロボットアーム＆ドローン</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #030712; /* gray-950 */
+        }
+        canvas:hover {
+            cursor: crosshair;
+        }
+        .info-panel-value {
+            transition: color 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-white flex flex-col items-center justify-center min-h-screen p-4 space-y-16">
+
+    <!-- Robot Arm Demo -->
+    <section class="w-full max-w-xl">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-sky-500 mb-2">ロボットアームを動かそう！</h1>
+            <p class="text-gray-400">
+                <strong class="text-yellow-400">「位置→角度」</strong>を計算する逆三角関数の働きをイメージしよう。
+            </p>
+        </div>
+        <div class="bg-gray-900/50 backdrop-blur-sm border border-white/10 rounded-xl shadow-2xl shadow-cyan-500/10 p-4 md:p-6">
+            <canvas id="robotCanvas" class="w-full bg-gray-900 rounded-lg border-2 border-gray-700 aspect-square"></canvas>
+            <div class="mt-4 p-4 bg-gray-800/70 rounded-lg text-lg grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div><p class="text-sm text-gray-400">目標のX座標</p><p id="xCoord" class="info-panel-value font-bold text-2xl text-yellow-400">0</p></div>
+                <div><p class="text-sm text-gray-400">目標のY座標</p><p id="yCoord" class="info-panel-value font-bold text-2xl text-yellow-400">0</p></div>
+                <div><p class="text-sm text-gray-400">計算された角度 (θ)</p><p id="angleDisplay" class="info-panel-value font-bold text-2xl text-cyan-400">0.00°</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Drone Demo -->
+    <section class="w-full max-w-xl">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-green-500 mb-2">ドローンの最適な下降角度は？</h1>
+            <p class="text-gray-400">
+                ホバリングするドローンの位置を変えて、安全な着陸地点までの<strong class="text-yellow-400">「最適な下降角度」</strong>を計算しよう。
+            </p>
+        </div>
+        <div class="bg-gray-900/50 backdrop-blur-sm border border-white/10 rounded-xl shadow-2xl shadow-emerald-500/10 p-4 md:p-6">
+            <canvas id="droneCanvas" class="w-full bg-gray-900 rounded-lg border-2 border-gray-700" style="aspect-ratio: 16/9;"></canvas>
+            <div class="mt-4 p-4 bg-gray-800/70 rounded-lg text-lg grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div><p class="text-sm text-gray-400">水平距離</p><p id="droneHDist" class="info-panel-value font-bold text-2xl text-yellow-400">0 m</p></div>
+                <div><p class="text-sm text-gray-400">高度</p><p id="droneAlt" class="info-panel-value font-bold text-2xl text-yellow-400">0 m</p></div>
+                <div><p class="text-sm text-gray-400">計算された下降角度</p><p id="descentAngle" class="info-panel-value font-bold text-2xl text-emerald-400">0.00°</p></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        /**
+         * 汎用初期化関数
+         */
+        function setupCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            function resize() {
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+            }
+            resize();
+            return { canvas, ctx, dpr, resize };
+        }
+
+        /**
+         * 線形補間関数 (Lerp)
+         */
+        function lerp(start, end, amt) {
+            return (1 - amt) * start + amt * end;
+        }
+
+        /**
+         * 角度の線形補間（最短距離を考慮）
+         */
+        function lerpAngle(start, end, amt) {
+            let difference = Math.abs(end - start);
+            if (difference > Math.PI) {
+                if (end > start) {
+                    start += 2 * Math.PI;
+                } else {
+                    end += 2 * Math.PI;
+                }
+            }
+            let result = lerp(start, end, amt);
+            // 角度を -PI から PI の範囲に正規化
+            return result - Math.floor(result / (2 * Math.PI) + 0.5) * (2 * Math.PI);
+        }
+
+        // ======================================================
+        // --- ロボットアームのデモ ---
+        // ======================================================
+        function initRobotArmDemo() {
+            const setup = setupCanvas('robotCanvas');
+            if (!setup) return;
+            const { canvas, ctx, resize } = setup;
+
+            const xCoordEl = document.getElementById('xCoord');
+            const yCoordEl = document.getElementById('yCoord');
+            const angleDisplayEl = document.getElementById('angleDisplay');
+
+            let origin = { x: 0, y: 0 };
+            // ★修正: targetのY座標はCanvas座標系（下が正）で管理する
+            // 初期位置は右上なのでYは負の値
+            let target = { x: 100, y: -80 }; 
+            // ★修正: アームの回転に使う角度はCanvas座標系で計算する
+            let currentAngle = Math.atan2(target.y, target.x);
+            let targetAngle = currentAngle;
+            let armLength = Math.hypot(target.x, target.y);
+            let targetArmLength = armLength;
+            let clickEffects = [];
+
+            function updateAndDraw() {
+                const width = canvas.getBoundingClientRect().width;
+                const height = canvas.getBoundingClientRect().height;
+                ctx.clearRect(0, 0, width, height);
+                origin = { x: width / 2, y: height / 2 };
+
+                // アニメーション（Lerp）
+                // targetAngleはCanvas座標系の角度
+                currentAngle = lerpAngle(currentAngle, targetAngle, 0.08);
+                armLength = lerp(armLength, targetArmLength, 0.08);
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(0, origin.y); ctx.lineTo(width, origin.y);
+                ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, height);
+                ctx.stroke();
+
+                // ★修正: 回転にはCanvas座標系の角度をそのまま使う
+                drawRobotArm(currentAngle, origin, armLength);
+                // ★修正: targetのY座標もCanvas座標系で描画
+                drawTarget({ x: origin.x + target.x, y: origin.y + target.y });
+                drawClickEffects();
+
+                // --- 表示情報の計算 ---
+                // ★修正: 表示する角度は、単位円の定義（上が正）に合わせるため、Yを反転させて計算
+                const displayAngleDeg = Math.atan2(-target.y, target.x) * (180 / Math.PI);
+                xCoordEl.textContent = target.x.toFixed(0);
+                // ★修正: 表示するY座標も、上が正になるように反転させる
+                yCoordEl.textContent = (-target.y).toFixed(0);
+                angleDisplayEl.textContent = `${displayAngleDeg.toFixed(2)}°`;
+
+                requestAnimationFrame(updateAndDraw);
+            }
+
+            function drawRobotArm(angle, origin, length) {
+                ctx.save();
+                ctx.translate(origin.x, origin.y);
+                // ★修正: Canvasのrotateは時計回りが正なので、Canvas座標系の角度をそのまま使うと意図通りに動く
+                ctx.rotate(angle); 
+                ctx.fillStyle = '#22d3ee';
+                ctx.beginPath();
+                ctx.roundRect(15, -10, length - 25, 20, [10]);
+                ctx.fill();
+                ctx.fillStyle = '#67e8f9';
+                ctx.beginPath();
+                ctx.arc(length - 5, 0, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                ctx.fillStyle = '#0891b2';
+                ctx.beginPath();
+                ctx.arc(origin.x, origin.y, 20, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#67e8f9';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            }
+
+            function drawTarget(pos) {
+                ctx.strokeStyle = '#facc15';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(pos.x - 10, pos.y - 10); ctx.lineTo(pos.x + 10, pos.y + 10);
+                ctx.moveTo(pos.x + 10, pos.y - 10); ctx.lineTo(pos.x - 10, pos.y + 10);
+                ctx.stroke();
+            }
+
+            function drawClickEffects() {
+                for (let i = clickEffects.length - 1; i >= 0; i--) {
+                    const effect = clickEffects[i];
+                    effect.radius += 1.5;
+                    effect.opacity -= 0.02;
+                    if (effect.opacity <= 0) {
+                        clickEffects.splice(i, 1);
+                        continue;
+                    }
+                    ctx.beginPath();
+                    ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(250, 204, 21, ${effect.opacity})`;
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+            }
+
+            canvas.addEventListener('click', (event) => {
+                const rect = canvas.getBoundingClientRect();
+                // ★修正: Y座標の反転を行わず、Canvasの座標系でそのまま計算
+                target.x = event.clientX - rect.left - origin.x;
+                target.y = event.clientY - rect.top - origin.y;
+
+                // ★修正: アーム回転用の角度もCanvas座標系で計算
+                targetAngle = Math.atan2(target.y, target.x);
+                targetArmLength = Math.hypot(target.x, target.y);
+
+                clickEffects.push({ x: event.clientX - rect.left, y: event.clientY - rect.top, radius: 0, opacity: 1.0 });
+
+                [xCoordEl, yCoordEl, angleDisplayEl].forEach(el => {
+                    el.style.color = 'white';
+                    setTimeout(() => el.style.color = '', 300);
+                });
+            });
+
+            window.addEventListener('resize', () => { resize(); });
+            updateAndDraw();
+        }
+
+
+        // ======================================================
+        // --- ドローンのデモ ---
+        // ======================================================
+        function initDroneDemo() {
+            const setup = setupCanvas('droneCanvas');
+            if (!setup) return;
+            const { canvas, ctx, resize } = setup;
+
+            const hDistEl = document.getElementById('droneHDist');
+            const altEl = document.getElementById('droneAlt');
+            const angleEl = document.getElementById('descentAngle');
+
+            let landingSpot = { x: 0, y: 0 };
+            let dronePos = { x: 0, y: 0 };
+            let currentDronePos = { x: 0, y: 0 };
+            let hoverTime = 0;
+
+            function resetPositions() {
+                const width = canvas.getBoundingClientRect().width;
+                const height = canvas.getBoundingClientRect().height;
+                landingSpot = { x: width / 2, y: height - 40 };
+                dronePos = { x: width * 0.2, y: height * 0.3 };
+                currentDronePos = { ...dronePos };
+            }
+
+            function updateAndDraw() {
+                const width = canvas.getBoundingClientRect().width;
+                const height = canvas.getBoundingClientRect().height;
+                ctx.clearRect(0, 0, width, height);
+                hoverTime += 0.05;
+
+                currentDronePos.x = lerp(currentDronePos.x, dronePos.x, 0.08);
+                currentDronePos.y = lerp(currentDronePos.y, dronePos.y, 0.08);
+
+                ctx.fillStyle = '#16a34a'; // emerald-600
+                ctx.fillRect(0, landingSpot.y, width, height - landingSpot.y);
+
+                const horizontalDist = Math.abs(currentDronePos.x - landingSpot.x);
+                const altitude = landingSpot.y - currentDronePos.y;
+                const angleRad = Math.atan2(altitude, horizontalDist);
+                const angleDeg = angleRad * (180 / Math.PI);
+
+                drawDescentPath(currentDronePos, landingSpot);
+                drawLandingSpot(landingSpot);
+                const bobbingY = Math.sin(hoverTime) * 3; 
+                drawDrone({x: currentDronePos.x, y: currentDronePos.y + bobbingY}, landingSpot);
+
+                hDistEl.textContent = `${(horizontalDist * 0.5).toFixed(0)} m`;
+                altEl.textContent = `${(altitude * 0.5).toFixed(0)} m`;
+                angleEl.textContent = `${angleDeg.toFixed(2)}°`;
+
+                requestAnimationFrame(updateAndDraw);
+            }
+
+            function drawDrone(pos, target) {
+                const angle = Math.atan2(target.y - pos.y, target.x - pos.x);
+                ctx.save();
+                ctx.translate(pos.x, pos.y);
+
+                ctx.fillStyle = '#9ca3af';
+                const propAngle = hoverTime * 5;
+                ctx.save();
+                ctx.rotate(propAngle);
+                ctx.fillRect(-25, -2, 18, 4); ctx.fillRect(7, -2, 18, 4);
+                ctx.restore();
+                ctx.save();
+                ctx.rotate(-propAngle);
+                ctx.fillRect(-25, -2, 18, 4); ctx.fillRect(7, -2, 18, 4);
+                ctx.restore();
+
+                ctx.rotate(angle);
+                ctx.fillStyle = 'white'; ctx.strokeStyle = '#34d399'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.roundRect(-20, -10, 40, 20, [5]);
+                ctx.fill(); ctx.stroke();
+                ctx.restore();
+            }
+
+            function drawLandingSpot(pos) {
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 4;
+                ctx.font = 'bold 24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.fillText('H', pos.x, pos.y + 2);
+            }
+
+            function drawDescentPath(start, end) {
+                const bobbingY = Math.sin(hoverTime) * 3;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(start.x, start.y + bobbingY);
+                ctx.lineTo(end.x, end.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            canvas.addEventListener('click', (event) => {
+                const rect = canvas.getBoundingClientRect();
+                dronePos.x = event.clientX - rect.left;
+                dronePos.y = event.clientY - rect.top;
+                if (dronePos.y >= landingSpot.y - 10) dronePos.y = landingSpot.y - 10;
+
+                [hDistEl, altEl, angleEl].forEach(el => {
+                    el.style.color = 'white';
+                    setTimeout(() => el.style.color = '', 300);
+                });
+            });
+
+            window.addEventListener('resize', () => { resize(); resetPositions(); });
+            resetPositions();
+            updateAndDraw();
+        }
+
+        window.onload = () => {
+            initRobotArmDemo();
+            initDroneDemo();
+        };
+    </script>
+</body>
+</html>

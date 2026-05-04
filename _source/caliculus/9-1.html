@@ -1,0 +1,717 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;インタラクティブな楕円放物面の勾配&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Interフォントを読み込み */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden; /* スクロールバーを非表示 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f0f2f5;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* MathMLの表示を調整 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>math {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* スライダーのつまみを大きくして操作しやすく */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>input[type=range]::-webkit-slider-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>input[type=range]::-moz-range-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* トグルスイッチのスタイル */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.toggle-checkbox:checked {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transform: translateX(100%);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.toggle-checkbox:checked + .toggle-label {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #60a5fa;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="w-screen h-screen m-0 p-0 flex flex-col lg:flex-row"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- 3D表示領域 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="container" class="w-full h-2/3 lg:h-full lg:w-2/3 relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="loading" class="absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-600 z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;読み込み中...&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- コントロールパネル --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="w-full h-1/3 lg:h-full lg:w-1/3 bg-white shadow-lg p-4 md:p-6 overflow-y-auto flex flex-col"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="text-2xl font-bold text-gray-800 mb-2"&gt;勾配と接平面&lt;/h1&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Function Selector --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="function-select" class="block text-sm font-medium text-gray-700"&gt;グラフの種類:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;select id="function-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="paraboloid"&gt;楕円放物面 (Elliptic Paraboloid)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="saddle"&gt;双曲放物面 (Hyperbolic Paraboloid)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="text-sm text-gray-600 mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>3Dビューをドラッグで回転、ホイールでズームできます。平面上でマウスを動かすと、点における接平面とベクトルが表示されます。</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="flex items-center gap-2 mb-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;div id="status-display" class="flex-grow text-sm font-semibold p-2 rounded-lg text-center transition-colors duration-300"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p id="lock-status"&gt;状態: マウスに追従中 (クリックで固定)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="stationary-point-btn" class="flex-shrink-0 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors"&gt;停留点へ移動&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;ul class="text-sm text-gray-700 mb-4 list-disc list-inside space-y-2 bg-yellow-50 border border-yellow-200 p-3 rounded-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;&lt;span class="font-bold text-orange-600"&gt;薄オレンジの板 (接平面):&lt;/span&gt; 曲面上の点における「局所的な地面の傾き」を表します。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;&lt;span class="text-gray-700 font-bold"&gt;濃い灰色の矢印 (最大傾斜方向):&lt;/span&gt; 接平面上にある、最も急な坂道の3D方向を示します。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;li&gt;&lt;span class="text-orange-500 font-bold"&gt;オレンジ矢印 (勾配ベクトル):&lt;/span&gt; 濃い灰色矢印を真上から見たときの「影」です。XY平面上での方向と傾きの急さ（長さ）を示します。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/ul&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- 数式表示 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-gray-100 rounded-lg p-2 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="font-bold text-gray-700 text-lg"&gt;曲面の式&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="formula-display" class="text-center overflow-x-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- MathML will be inserted here by JavaScript --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- パラメータ制御 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="space-y-4 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="a-slider" class="block font-medium text-gray-700"&gt;パラメータ a: &lt;span id="a-value"&gt;2.0&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-xs text-gray-500 mb-1"&gt;X軸方向の曲がり具合を調整します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input id="a-slider" type="range" min="0.5" max="5" value="2" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="b-slider" class="block font-medium text-gray-700"&gt;パラメータ b: &lt;span id="b-value"&gt;3.0&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-xs text-gray-500 mb-1"&gt;Y軸方向の曲がり具合を調整します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input id="b-slider" type="range" min="0.5" max="5" value="3" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="h-slider" class="block font-medium text-gray-700"&gt;パラメータ h: &lt;span id="h-value"&gt;3.0&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-xs text-gray-500 mb-1"&gt;曲面の高さを調整します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input id="h-slider" type="range" min="1" max="5" value="3" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;div class="pt-2 border-t"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div class="flex items-center justify-between mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="vector-toggle" class="font-medium text-gray-700 select-none"&gt;ベクトルを表示&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="checkbox" name="vector-toggle" id="vector-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="vector-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center justify-between mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="wireframe-toggle" class="font-medium text-gray-700 select-none"&gt;ワイヤーフレーム表示&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="checkbox" name="wireframe-toggle" id="wireframe-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="wireframe-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="segments-slider" class="block font-medium text-gray-700"&gt;メッシュの細かさ: &lt;span id="segments-value"&gt;50&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-xs text-gray-500 mb-1"&gt;ワイヤーフレームの分割数を調整します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input id="segments-slider" type="range" min="10" max="100" value="50" step="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- 情報表示 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-blue-50 border border-blue-200 rounded-lg p-3 flex-grow"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2 class="font-bold text-gray-700 text-lg mb-2"&gt;現在の情報&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="text-sm space-y-2 text-gray-800"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;座標 (x, y): &lt;span id="coords-display" class="font-mono bg-white px-1 rounded"&gt;-&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;勾配 ∇f: &lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="gradient-display" class="ml-2 font-mono bg-white px-1 rounded overflow-x-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mtable&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mn&gt;0.00&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>&lt;mn&gt;0.00&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/mtable&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p&gt;勾配の大きさ |∇f|: &lt;span id="magnitude-display" class="font-mono bg-white px-1 rounded"&gt;-&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="importmap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{</p>
+<p class="p1"><span class="Apple-converted-space">            </span>"imports": {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="module"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>import * as THREE from 'three';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>import { OrbitControls } from 'three/addons/controls/OrbitControls.js';</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- DOM Elements ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = document.getElementById('container');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const loadingEl = document.getElementById('loading');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const aSlider = document.getElementById('a-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const bSlider = document.getElementById('b-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const hSlider = document.getElementById('h-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const segmentsSlider = document.getElementById('segments-slider');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const wireframeToggle = document.getElementById('wireframe-toggle');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const vectorToggle = document.getElementById('vector-toggle');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const stationaryPointBtn = document.getElementById('stationary-point-btn');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const functionSelect = document.getElementById('function-select');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const aValue = document.getElementById('a-value');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const bValue = document.getElementById('b-value');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const hValue = document.getElementById('h-value');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const segmentsValue = document.getElementById('segments-value');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const coordsDisplay = document.getElementById('coords-display');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const gradientDisplay = document.getElementById('gradient-display');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const magnitudeDisplay = document.getElementById('magnitude-display');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lockStatus = document.getElementById('lock-status');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const formulaDisplay = document.getElementById('formula-display');</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Three.js Setup ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let scene, camera, renderer, controls;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let paraboloidMesh, gridHelper, basePlane;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let pointOnSurface, gradientArrow, steepestArrow, tangentPlaneMesh;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let axesGroup;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const raycaster = new THREE.Raycaster();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pointer = new THREE.Vector2();</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Parameters ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let params = { a: 2.0, b: 3.0, h: 3.0, width: 10, height: 10, segments: 50 };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let isLocked = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let isWireframe = true;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let areVectorsVisible = true;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let pointerDownTime = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let pointerDownPosition = new THREE.Vector2();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const dragThreshold = 5; // 5ピクセル以上動いたらドラッグと判定</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const clickTimeThreshold = 200; // 200ms以内に離したらクリックと判定</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let currentFunctionKey = 'paraboloid';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Function Definitions ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const functions = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>paraboloid: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>name: '楕円放物面 (Elliptic Paraboloid)',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>func: (x, y, p) =&gt; p.h - (x * x) / (p.a * p.a) - (y * y) / (p.b * p.b),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gradient: (x, y, p) =&gt; ({</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>gradX: -2 * x / (p.a * p.a),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>gradY: -2 * y / (p.b * p.b)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>mathML: `</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mi&gt;z&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;h&lt;/mi&gt;&lt;mo&gt;&amp;minus;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mfrac&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;msup&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mo&gt;&amp;minus;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mfrac&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;msup&gt;&lt;mi&gt;b&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/math&gt;`,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>params: ['a', 'b', 'h']</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>saddle: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>name: '双曲放物面 (Hyperbolic Paraboloid)',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>func: (x, y, p) =&gt; 0.2 * (p.a * x * x - p.b * y * y),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gradient: (x, y, p) =&gt; ({</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>gradX: 0.2 * 2 * p.a * x,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>gradY: 0.2 * -2 * p.b * y</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>mathML: `</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mi&gt;z&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mn&gt;0.2&lt;/mn&gt;&lt;mo&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mi&gt;a&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mo&gt;&amp;minus;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mi&gt;b&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mo&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/math&gt;`,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>params: ['a', 'b']</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Initialization ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function init() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene = new THREE.Scene();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.background = new THREE.Color(0xf0f2f5);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.position.set(5, 6, 5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.lookAt(0, 0, 0);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer = new THREE.WebGLRenderer({ antialias: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setSize(container.clientWidth, container.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setPixelRatio(window.devicePixelRatio);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>container.appendChild(renderer.domElement);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(ambientLight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>directionalLight.position.set(5, 10, 7.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(directionalLight);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls = new OrbitControls(camera, renderer.domElement);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.enableDamping = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper = new THREE.GridHelper(params.width, 10, 0xcccccc, 0xcccccc);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper.position.y = -0.01;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(gridHelper);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>createAxes();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>basePlane = new THREE.Mesh(</p>
+<p class="p1"><span class="Apple-converted-space">                </span>new THREE.PlaneGeometry(params.width, params.height),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide })</p>
+<p class="p1"><span class="Apple-converted-space">            </span>);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>basePlane.rotation.x = -Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(basePlane);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>createParaboloid();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createInteractionObjects();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupEventListeners();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateUIForFunctionChange(); // 初期UI設定</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animate();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>loadingEl.style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Math Function ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function surfaceFunc(x, y) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return functions[currentFunctionKey].func(x, y, params);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 軸ラベルを作成する関数 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createAxisLabel(text, position, color) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.createElement('canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const context = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const fontSize = 80;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.width = 128; canvas.height = 128;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.font = `Bold ${fontSize}px Arial`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.fillStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.textAlign = 'center'; context.textBaseline = 'middle';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>context.fillText(text, canvas.width / 2, canvas.height / 2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const texture = new THREE.CanvasTexture(canvas);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const sprite = new THREE.Sprite(material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sprite.scale.set(1, 1, 1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sprite.position.copy(position);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return sprite;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 座標軸を作成する関数 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createAxes() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axesGroup = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const axisLength = 5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const axisRadius = 0.05;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const arrowHeight = 0.2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const arrowRadius = 0.08;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xAxisMat = new THREE.MeshBasicMaterial({ color: 0x2563eb, depthTest: false });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xAxisCylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8), xAxisMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xAxisArrow = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 8), xAxisMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>xAxisCylinder.position.x = axisLength / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>xAxisCylinder.rotation.z = -Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>xAxisArrow.position.x = axisLength;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>xAxisArrow.rotation.z = -Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axesGroup.add(xAxisCylinder, xAxisArrow);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axesGroup.add(createAxisLabel('x', new THREE.Vector3(axisLength + 0.5, 0, 0), '#2563eb'));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yAxisMat = new THREE.MeshBasicMaterial({ color: 0xdc2626, depthTest: false });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yAxisCylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8), yAxisMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yAxisArrow = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 8), yAxisMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>yAxisCylinder.position.z = axisLength / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>yAxisCylinder.rotation.x = Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>yAxisArrow.position.z = axisLength;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>yAxisArrow.rotation.x = Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axesGroup.add(yAxisCylinder, yAxisArrow);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axesGroup.add(createAxisLabel('y', new THREE.Vector3(0, 0, axisLength + 0.5), '#dc2626'));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const zAxisMat = new THREE.MeshBasicMaterial({ color: 0x16a34a, depthTest: false });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const zAxisCylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8), zAxisMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const zAxisArrow = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 8), zAxisMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>zAxisCylinder.position.y = axisLength / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>zAxisArrow.position.y = axisLength;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axesGroup.add(zAxisCylinder, zAxisArrow);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axesGroup.add(createAxisLabel('z', new THREE.Vector3(0, axisLength + 0.5, 0), '#16a34a'));</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(axesGroup);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Object Creation ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createParaboloid() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (paraboloidMesh) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.remove(paraboloidMesh);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>paraboloidMesh.geometry.dispose();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(paraboloidMesh.material.dispose) paraboloidMesh.material.dispose();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const geometry = new THREE.PlaneGeometry(params.width, params.height, params.segments, params.segments);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>geometry.rotateX(-Math.PI / 2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const vertices = geometry.attributes.position.array;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt; vertices.length; i += 3) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = vertices[i];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const z = vertices[i + 2];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>vertices[i + 1] = surfaceFunc(x, z);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>geometry.attributes.position.needsUpdate = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>geometry.computeVertexNormals();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let material;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (isWireframe) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>material = new THREE.MeshStandardMaterial({</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>wireframe: true,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>color: 0x6495ED,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>material = new THREE.MeshStandardMaterial({</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>color: 0x6495ED,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>metalness: 0.1,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>roughness: 0.5,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>side: THREE.DoubleSide,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>transparent: true,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>opacity: 0.85</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>paraboloidMesh = new THREE.Mesh(geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(paraboloidMesh);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createInteractionObjects() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pointOnSurface = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), new THREE.MeshBasicMaterial({ color: 0x000000 }));</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// --- カスタム矢印の作成 ---</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const arrowStemRadius = 0.05; // 棒の半径</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const arrowHeadRadius = 0.2;<span class="Apple-converted-space">  </span>// 矢印の頭の半径</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const arrowHeadHeight = 0.3; // 矢印の頭の高さ</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// 勾配ベクトル (オレンジ)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gradientArrow = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const gradientMat = new THREE.MeshBasicMaterial({ color: 0xf97316 });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const gradientLineGeo = new THREE.CylinderGeometry(arrowStemRadius, arrowStemRadius, 1, 8); // 長さ1の棒</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const gradientLine = new THREE.Mesh(gradientLineGeo, gradientMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gradientLine.position.y = 0.5; // Y軸に沿って配置</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const gradientConeGeo = new THREE.ConeGeometry(arrowHeadRadius, arrowHeadHeight, 8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const gradientCone = new THREE.Mesh(gradientConeGeo, gradientMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gradientCone.position.y = 1; // 棒の先端に配置</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gradientArrow.add(gradientLine);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gradientArrow.add(gradientCone);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gradientArrow.userData.line = gradientLine;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gradientArrow.userData.cone = gradientCone;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// 最大傾斜方向 (濃い灰色)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steepestArrow = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const steepestMat = new THREE.MeshBasicMaterial({ color: 0x424242 });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const steepestLineGeo = new THREE.CylinderGeometry(arrowStemRadius, arrowStemRadius, 1, 8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const steepestLine = new THREE.Mesh(steepestLineGeo, steepestMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steepestLine.position.y = 0.5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const steepestConeGeo = new THREE.ConeGeometry(arrowHeadRadius, arrowHeadHeight, 8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const steepestCone = new THREE.Mesh(steepestConeGeo, steepestMat);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steepestCone.position.y = 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steepestArrow.add(steepestLine);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steepestArrow.add(steepestCone);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steepestArrow.userData.line = steepestLine;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steepestArrow.userData.cone = steepestCone;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>tangentPlaneMesh = new THREE.Mesh(</p>
+<p class="p1"><span class="Apple-converted-space">                </span>new THREE.PlaneGeometry(2.5, 2.5),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>new THREE.MeshStandardMaterial({ color: 0xffe0b2, transparent: true, opacity: 0.8, side: THREE.DoubleSide })</p>
+<p class="p1"><span class="Apple-converted-space">            </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const edges = new THREE.EdgesGeometry(tangentPlaneMesh.geometry);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const lineMaterial = new THREE.LineDashedMaterial({</p>
+<p class="p1"><span class="Apple-converted-space">                </span>color: 0xe65100,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>linewidth: 1,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scale: 1,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dashSize: 0.1,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gapSize: 0.1,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tangentPlaneBorder = new THREE.LineSegments(edges, lineMaterial);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>tangentPlaneBorder.computeLineDistances();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>tangentPlaneMesh.add(tangentPlaneBorder);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>[pointOnSurface, gradientArrow, steepestArrow, tangentPlaneMesh].forEach(obj =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>obj.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.add(obj);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Event Listeners &amp; Update Logic ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupEventListeners() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>functionSelect.addEventListener('change', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>currentFunctionKey = e.target.value;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateUIForFunctionChange();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>createParaboloid();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateOnPointerMove(null, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>aSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>params.a = parseFloat(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>aValue.textContent = params.a.toFixed(currentFunctionKey === 'saddle' ? 2 : 1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>createParaboloid();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateOnPointerMove(null, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>bSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>params.b = parseFloat(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>bValue.textContent = params.b.toFixed(currentFunctionKey === 'saddle' ? 2 : 1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>createParaboloid();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateOnPointerMove(null, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>hSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>params.h = parseFloat(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>hValue.textContent = params.h.toFixed(1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>createParaboloid();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateOnPointerMove(null, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>segmentsSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>params.segments = parseInt(e.target.value, 10);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>segmentsValue.textContent = params.segments;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>createParaboloid();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateOnPointerMove(null, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>wireframeToggle.addEventListener('change', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>isWireframe = e.target.checked;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>createParaboloid();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateOnPointerMove(null, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vectorToggle.addEventListener('change', e =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>areVectorsVisible = e.target.checked;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateOnPointerMove(null, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>stationaryPointBtn.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>isLocked = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateLockStatusUI();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>lastKnownIntersection = new THREE.Vector3(0, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateOnPointerMove(null, true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', onWindowResize);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>container.addEventListener('pointerdown', onPointerDown);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>container.addEventListener('pointerup', onPointerUp);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>container.addEventListener('pointermove', updateOnPointerMove);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateLockStatusUI();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateUIForFunctionChange() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const selectedFunc = functions[currentFunctionKey];</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>formulaDisplay.innerHTML = selectedFunc.mathML;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const hSliderContainer = hSlider.parentElement;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const aLabel = document.querySelector('label[for="a-slider"]');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const aDesc = aLabel.nextElementSibling;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const bLabel = document.querySelector('label[for="b-slider"]');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const bDesc = bLabel.nextElementSibling;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (currentFunctionKey === 'paraboloid') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>hSliderContainer.style.display = 'block';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>aSlider.min = 0.5; aSlider.max = 5; aSlider.step = 0.1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>bSlider.min = 0.5; bSlider.max = 5; bSlider.step = 0.1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>aSlider.value = 2.0;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>bSlider.value = 3.0;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>aDesc.textContent = 'X軸方向の曲がり具合を調整します。';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>bDesc.textContent = 'Y軸方向の曲がり具合を調整します。';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else if (currentFunctionKey === 'saddle') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>hSliderContainer.style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>aSlider.min = 0.1; aSlider.max = 1.0; aSlider.step = 0.05;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>bSlider.min = 0.1; bSlider.max = 1.0; bSlider.step = 0.05;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>aSlider.value = 0.4;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>bSlider.value = 0.4;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>aDesc.textContent = 'X軸方向の曲率を調整します。';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>bDesc.textContent = 'Y軸方向の曲率を調整します。';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>params.a = parseFloat(aSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>params.b = parseFloat(bSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>aValue.textContent = params.a.toFixed(currentFunctionKey === 'saddle' ? 2 : 1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>bValue.textContent = params.b.toFixed(currentFunctionKey === 'saddle' ? 2 : 1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function onWindowResize() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.aspect = container.clientWidth / container.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setSize(container.clientWidth, container.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let lastKnownIntersection = null;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateOnPointerMove(event, forceUpdate = false) {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>if (isLocked &amp;&amp; !forceUpdate) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">             </span>let intersection;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">             </span>if (forceUpdate &amp;&amp; lastKnownIntersection) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>intersection = lastKnownIntersection;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>}</p>
+<p class="p1"><span class="Apple-converted-space">             </span>else if (event) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>const rect = renderer.domElement.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;</p>
+<p class="p2"><span class="Apple-converted-space">                 </span></p>
+<p class="p1"><span class="Apple-converted-space">                 </span>raycaster.setFromCamera(pointer, camera);</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>const intersects = raycaster.intersectObject(basePlane);</p>
+<p class="p2"><span class="Apple-converted-space">                 </span></p>
+<p class="p1"><span class="Apple-converted-space">                 </span>if (intersects.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>intersection = intersects[0].point;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>if (!isLocked) {</p>
+<p class="p1"><span class="Apple-converted-space">                         </span>lastKnownIntersection = intersection;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>}</p>
+<p class="p1"><span class="Apple-converted-space">             </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (intersection) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = intersection.x;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = intersection.z;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const z_val = surfaceFunc(x, y);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>pointOnSurface.position.set(x, z_val, y);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const { gradX, gradY } = functions[currentFunctionKey].gradient(x, y, params);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const magnitude = Math.sqrt(gradX * gradX + gradY * gradY);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// --- gradientArrow (オレンジ) の更新 ---</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const gradientDir = new THREE.Vector3(gradX, 0, gradY).normalize();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const gradientLength = magnitude &gt; 0.001 ? magnitude : 0;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>gradientArrow.position.copy(pointOnSurface.position);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gradientArrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), gradientDir);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gradientArrow.userData.line.scale.y = gradientLength;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gradientArrow.userData.line.position.y = gradientLength / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gradientArrow.userData.cone.position.y = gradientLength;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// --- steepestArrow (濃い灰色) の更新 ---</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const steepestDir = new THREE.Vector3(gradX, gradX * gradX + gradY * gradY, gradY).normalize();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const steepestLength = magnitude &gt; 0.001 ? 1.2 : 0; // 長さは固定</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>steepestArrow.position.copy(pointOnSurface.position);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>steepestArrow.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), steepestDir);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>steepestArrow.userData.line.scale.y = steepestLength;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>steepestArrow.userData.line.position.y = steepestLength / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>steepestArrow.userData.cone.position.y = steepestLength;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// --- 接平面の更新 ---</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const normal = new THREE.Vector3(-gradX, 1, -gradY).normalize();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tangentPlaneMesh.position.copy(pointOnSurface.position);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const defaultPlaneNormal = new THREE.Vector3(0, 0, 1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tangentPlaneMesh.quaternion.setFromUnitVectors(defaultPlaneNormal, normal);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>pointOnSurface.visible = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tangentPlaneMesh.visible = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gradientArrow.visible = areVectorsVisible &amp;&amp; gradientLength &gt; 0.001;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>steepestArrow.visible = areVectorsVisible &amp;&amp; steepestLength &gt; 0.001;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateInfoPanel(x, y, gradX, gradY, magnitude);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function onPointerDown(event) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pointerDownTime = Date.now();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pointerDownPosition.set(event.clientX, event.clientY);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function onPointerUp(event) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const timeElapsed = Date.now() - pointerDownTime;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const distanceMoved = pointerDownPosition.distanceTo(new THREE.Vector2(event.clientX, event.clientY));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (timeElapsed &lt; clickTimeThreshold &amp;&amp; distanceMoved &lt; dragThreshold) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>toggleLockState();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function toggleLockState() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>isLocked = !isLocked;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateLockStatusUI();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateLockStatusUI() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const statusContainer = lockStatus.parentElement;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (isLocked) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>lockStatus.textContent = '状態: 位置を固定中 (クリックで解除)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusContainer.classList.remove('bg-blue-100', 'text-blue-800');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusContainer.classList.add('bg-red-100', 'text-red-800');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>container.style.cursor = 'default';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>lockStatus.textContent = '状態: マウスに追従中 (クリックで固定)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusContainer.classList.remove('bg-red-100', 'text-red-800');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusContainer.classList.add('bg-blue-100', 'text-blue-800');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>container.style.cursor = 'crosshair';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateInfoPanel(x, y, gradX, gradY, magnitude) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>coordsDisplay.textContent = `(${x.toFixed(2)}, ${y.toFixed(2)})`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gradientDisplay.innerHTML = `</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mtable&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mn&gt;${gradX.toFixed(2)}&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;mn&gt;${gradY.toFixed(2)}&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/mtd&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/mtr&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/mtable&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>magnitudeDisplay.textContent = magnitude.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function animate() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>requestAnimationFrame(animate);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.update();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.render(scene, camera);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>init();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

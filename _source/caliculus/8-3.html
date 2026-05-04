@@ -1,0 +1,400 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;時間による偏微分：インタラクティブな可視化&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Helvetica Neue', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #111827;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #f3f4f6;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.chart-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 300px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>math {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>font-size: 1.2em; /* KaTeXのfont-sizeに合わせて調整 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.inline-math {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>vertical-align: -0.25em; /* 微調整してテキストとの高さを合わせる */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="antialiased"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 lg:p-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl lg:text-4xl font-bold text-cyan-400"&gt;時間による偏微分の直感的理解&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-2 text-lg text-gray-300"&gt;物理量が時間と空間で変化する様子を可視化します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid grid-cols-1 lg:grid-cols-2 gap-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Left Panel: Visualization --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-gray-800 p-6 rounded-2xl shadow-2xl flex flex-col items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-2xl font-bold mb-4 text-white"&gt;温度分布 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;t&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-gray-400 mb-4 text-center"&gt;下の領域は、時間と共に変化する温度分布を表します。クリックして特定の点 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt; を選択してください。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="w-full aspect-square bg-gray-900 rounded-lg shadow-inner overflow-hidden relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="heatmapCanvas" class="w-full h-full"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="selectionMarker" class="absolute w-4 h-4 border-2 border-white rounded-full pointer-events-none transform -translate-x-1/2 -translate-y-1/2 hidden"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div class="w-full mt-4 flex justify-between items-center text-sm font-mono px-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="text-blue-400"&gt;低温&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex-grow h-4 rounded-full mx-4" id="colorbar"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span class="text-red-400"&gt;高温&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Right Panel: Explanation and Chart --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-gray-800 p-6 rounded-2xl shadow-2xl flex flex-col"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-2xl font-bold mb-4 text-white"&gt;選択点における時間変化&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-gray-400 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>画像で示された概念は「同じ場所&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;を連続した動画のコマで追い、時間&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;t&lt;/mi&gt;&lt;/math&gt;が&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;&amp;Delta;&lt;/mi&gt;&lt;mi&gt;t&lt;/mi&gt;&lt;/mrow&gt;&lt;/math&gt;だけ進んだときの変化量を&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;&amp;Delta;&lt;/mi&gt;&lt;mi&gt;t&lt;/mi&gt;&lt;/mrow&gt;&lt;/math&gt;で割り、その極限をとる」というイメージです。</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>これは、ある点に定点を置いたときの物理量（ここでは温度）の時間に対する変化率を求める操作であり、数式では時間による偏微分 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;msub&gt;&lt;mo&gt;&amp;part;&lt;/mo&gt;&lt;mi&gt;t&lt;/mi&gt;&lt;/msub&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;/mrow&gt;&lt;/math&gt; として表されます。</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/p&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="my-4 p-4 bg-gray-900 rounded-lg text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;!-- MathML formula --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" display="block"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mo&gt;&amp;part;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/msub&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;f&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo&gt;&amp;equiv;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;munder&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mo&gt;lim&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;&amp;Delta;&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;&amp;rarr;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mn&gt;0&lt;/mn&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/munder&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;f&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;+&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;&amp;Delta;&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;&amp;minus;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;f&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;&amp;Delta;&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;mi&gt;t&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/mfrac&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="chart-info" class="text-center mb-4 min-h-[80px]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;p id="chart-placeholder" class="text-gray-500"&gt;左の温度分布図をクリックして、グラフを表示します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div id="chart-data" class="hidden"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-300"&gt;選択点 &lt;span id="selectedPoint" class="font-mono text-cyan-400"&gt;&lt;/span&gt; の温度変化&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-lg"&gt;現在の時間変化率 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;msub&gt;&lt;mo&gt;&amp;part;&lt;/mo&gt;&lt;mi&gt;t&lt;/mi&gt;&lt;/msub&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;/mrow&gt;&lt;/math&gt;: &lt;span id="derivativeValue" class="font-mono text-green-400 font-bold"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="chart-container mt-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="timeChart"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;footer class="text-center mt-8 text-gray-500 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;&amp;copy; 2025 Interactive Visualization Lab. All Rights Reserved.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/footer&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">document.addEventListener('DOMContentLoaded', (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Canvas and Visualization Setup ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const canvas = document.getElementById('heatmapCanvas');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const ctx = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const marker = document.getElementById('selectionMarker');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const colorbar = document.getElementById('colorbar');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>let width, height;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let animationFrameId;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let selectedPixel = null;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let history = [];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const HISTORY_LENGTH = 200;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Chart.js Setup ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chartCanvas = document.getElementById('timeChart');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chartPlaceholder = document.getElementById('chart-placeholder');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const chartDataDisplay = document.getElementById('chart-data');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const selectedPointEl = document.getElementById('selectedPoint');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const derivativeValueEl = document.getElementById('derivativeValue');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let timeChart;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function initChart() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (timeChart) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timeChart.destroy();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartCtx = chartCanvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>timeChart = new Chart(chartCtx, {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>type: 'line',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>data: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>labels: [],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>datasets: [{</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>label: '温度',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>data: [],</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderColor: 'rgb(56, 189, 248)',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>backgroundColor: 'rgba(56, 189, 248, 0.2)',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderWidth: 2,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>tension: 0.3,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>pointRadius: 0</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>label: '接線',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>data: [],</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderColor: 'rgb(74, 222, 128)',</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderWidth: 1.5,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>pointRadius: 0,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>borderDash: [5, 5],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}]</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>options: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>responsive: true,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>maintainAspectRatio: false,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scales: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>x: {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>display: false,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>y: {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>beginAtZero: false,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>max: 1,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>min: -1,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>ticks: { color: '#9ca3af' },</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>grid: { color: '#374151' }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>plugins: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>legend: {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>display: false</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>animation: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>duration: 0</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Simulation Logic ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 空間と時間によって変化する温度を定義する関数</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function getTemperature(x, y, t) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// x, y は 0-1 の範囲</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// t は秒単位</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const term1 = Math.sin(x * 6 + t) * Math.cos(y * 6 - t) * 0.5;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// 時間で移動する熱源</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const heatSourceX = 0.5 + 0.3 * Math.sin(t * 0.7);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const heatSourceY = 0.5 + 0.3 * Math.cos(t * 1.1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const distSq = (x - heatSourceX)**2 + (y - heatSourceY)**2;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const term2 = Math.exp(-distSq * 15) * (0.5 + 0.5 * Math.sin(t*2));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>return term1 + term2 - 0.5; // -1から1の範囲に正規化</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// getTemperature の時間微分（解析的）</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function getTemperatureDerivative(x, y, t) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// term1'</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const term1_dt = (Math.cos(x * 6 + t) * Math.cos(y * 6 - t) + Math.sin(x * 6 + t) * Math.sin(y * 6 - t)) * 0.5;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// term2' (product rule)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const heatSourceX = 0.5 + 0.3 * Math.sin(t * 0.7);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const heatSourceY = 0.5 + 0.3 * Math.cos(t * 1.1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const dx_dt = 0.3 * 0.7 * Math.cos(t*0.7);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const dy_dt = -0.3 * 1.1 * Math.sin(t*1.1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const distSq = (x - heatSourceX)**2 + (y - heatSourceY)**2;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const expTerm = Math.exp(-distSq * 15);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const d_distSq_dt = -2 * (x - heatSourceX) * dx_dt - 2 * (y - heatSourceY) * dy_dt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const d_expTerm_dt = expTerm * (-15 * d_distSq_dt);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const sinTerm = (0.5 + 0.5 * Math.sin(t*2));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const d_sinTerm_dt = 0.5 * 2 * Math.cos(t*2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const term2_dt = d_expTerm_dt * sinTerm + expTerm * d_sinTerm_dt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>return term1_dt + term2_dt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function tempToColor(value) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// -1 (blue) to 1 (red)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const r = 255 * Math.max(0, value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const b = 255 * Math.max(0, -value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const g = 255 - r - b;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return `rgb(${r},${g},${b})`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function drawColorbar() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const gradient = ctx.createLinearGradient(0, 0, colorbar.clientWidth, 0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0; i&lt;=10; i++){</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const value = (i/5.0) - 1.0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const color = tempToColor(value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gradient.addColorStop(i/10, color);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>colorbar.style.background = `linear-gradient(to right, ${tempToColor(-1)}, ${tempToColor(0)}, ${tempToColor(1)})`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function resizeCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const dpr = window.devicePixelRatio || 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>width = rect.width;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>height = rect.height;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>canvas.width = width * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>canvas.height = height * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>ctx.scale(dpr, dpr);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (selectedPixel) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateMarkerPosition(selectedPixel.x, selectedPixel.y);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function drawHeatmap(time) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const imageData = ctx.createImageData(canvas.width, canvas.height);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const data = imageData.data;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const t = time / 1000;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let y = 0; y &lt; canvas.height; y++) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let x = 0; x &lt; canvas.width; x++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const normX = x / canvas.width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const normY = y / canvas.height;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const temp = getTemperature(normX, normY, t);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const r = 255 * Math.max(0, temp);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const b = 255 * Math.max(0, -temp);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const g = 255 - r - b; // Simplified green component for speed</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const index = (y * canvas.width + x) * 4;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data[index] = r;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data[index + 1] = g;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data[index + 2] = b;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data[index + 3] = 255;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>ctx.putImageData(imageData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateMarkerPosition(x, y) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>marker.style.left = `${x * 100}%`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>marker.style.top = `${y * 100}%`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>marker.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateChart(time) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!selectedPixel || !timeChart) return;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const t = time / 1000;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const temp = getTemperature(selectedPixel.x, selectedPixel.y, t);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>history.push({t, temp});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (history.length &gt; HISTORY_LENGTH) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>history.shift();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const labels = history.map(p =&gt; p.t);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const data = history.map(p =&gt; p.temp);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const derivative = getTemperatureDerivative(selectedPixel.x, selectedPixel.y, t);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>derivativeValueEl.textContent = derivative.toFixed(3);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Update tangent line</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const tangentData = labels.map((label_t, index) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>// Show tangent only around the current point</p>
+<p class="p1"><span class="Apple-converted-space">             </span>if (index &gt; history.length - 20 &amp;&amp; index &lt; history.length) {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>return temp + derivative * (label_t - t);</p>
+<p class="p1"><span class="Apple-converted-space">             </span>}</p>
+<p class="p1"><span class="Apple-converted-space">             </span>return null;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>timeChart.data.labels = labels;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>timeChart.data.datasets[0].data = data;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>timeChart.data.datasets[1].data = tangentData;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>timeChart.update();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function animate(time) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>drawHeatmap(time);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (selectedPixel) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateChart(time);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>animationFrameId = requestAnimationFrame(animate);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Event Listeners ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>canvas.addEventListener('click', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = (e.clientX - rect.left) / rect.width;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = (e.clientY - rect.top) / rect.height;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>selectedPixel = { x, y };</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateMarkerPosition(x, y);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>chartPlaceholder.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chartDataDisplay.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>selectedPointEl.textContent = `(${x.toFixed(2)}, ${y.toFixed(2)})`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Reset and start chart</p>
+<p class="p1"><span class="Apple-converted-space">        </span>history = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>initChart();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.addEventListener('resize', resizeCanvas);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Initialization ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>initChart();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>resizeCanvas();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>drawColorbar();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animationFrameId = requestAnimationFrame(animate);</p>
+<p class="p1">});</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

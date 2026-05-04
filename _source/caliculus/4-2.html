@@ -1,0 +1,648 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;C2連続性の重要性を可視化するツール&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://d3js.org/d3.v7.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab-button.active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab-content {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tab-content.active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Common canvas styles */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.canvas-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 300px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f3f4f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #d1d5db;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.canvas-container svg {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>top: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>left: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#cg-canvas-container canvas {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100% !important;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 100% !important;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: grab;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#cg-canvas-container canvas:active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: grabbing;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.control-point {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: grab;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.control-point:active {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: grabbing;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-100 text-gray-800"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl md:text-4xl font-bold text-gray-900"&gt;C²級の重要性&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-2 text-md md:text-lg text-gray-600"&gt;「曲率が滑らか」だと、なぜ世界は安定し美しくなるのか？&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Tab Buttons --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-6 border-b border-gray-300"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;nav class="flex flex-wrap -mb-px" id="tab-buttons"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button data-tab="simulation" class="tab-button text-sm md:text-base font-medium text-center text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-300 py-3 px-4 active"&gt;A. スプライン補間&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button data-tab="transport" class="tab-button text-sm md:text-base font-medium text-center text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-300 py-3 px-4"&gt;B. 道路のカーブ&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button data-tab="cg" class="tab-button text-sm md:text-base font-medium text-center text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-300 py-3 px-4"&gt;C. CGのハイライト&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button data-tab="sound" class="tab-button text-sm md:text-base font-medium text-center text-gray-600 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-300 py-3 px-4"&gt;D. 音声合成&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/nav&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Tab Content --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="tab-contents"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- A. Simulation: Spline Interpolation (2D Version) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="simulation-content" class="tab-content active"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-white p-6 rounded-lg shadow-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="grid md:grid-cols-2 gap-6 items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;h2 class="text-xl font-bold mb-2"&gt;2Dスプライン曲線&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p class="text-sm text-gray-600 mb-2"&gt;黒い制御点をドラッグして、コースを自由に変更できます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div id="spline-2d-canvas" class="canvas-container"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;h2 class="text-xl font-bold mb-2"&gt;曲率の変化&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p class="text-sm text-gray-600 mb-2"&gt;コース上の「曲がり具合」をグラフ化したものです。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div id="curvature-graph" class="canvas-container"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-4 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 items-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;select id="spline-type" class="w-full sm:w-auto block pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="C0"&gt;C⁰ (折れ線)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="C1"&gt;C¹ (接線が連続)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;option value="C2" selected&gt;C² (曲率が連続)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="spline-play-button" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded whitespace-nowrap"&gt;再生/リセット&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2 class="text-xl font-bold mb-2"&gt;解説&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-700 mb-4"&gt;再生ボタンを押すと、乗り物（赤い点）がコースを走り、下のグラフでは現在位置の曲率（赤い縦線）が示されます。連続性の違いで曲率グラフがどう変わるかに注目してください。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;ul class="space-y-3 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;li&gt;&lt;strong class="text-blue-600"&gt;C⁰ (折れ線):&lt;/strong&gt; 直線部分の曲率は常に0ですが、角では無限大に発散します。グラフが途切れる点で、急転換していることを意味します。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;li&gt;&lt;strong class="text-blue-600"&gt;C¹ (接線連続):&lt;/strong&gt; 軌道は滑らかに見えますが、制御点を通過する瞬間、曲率が瞬時にジャンプします。滑らかに見えても、実は急な方向転換があることを意味しています。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;li&gt;&lt;strong class="text-blue-600"&gt;C² (曲率連続):&lt;/strong&gt; 曲率のグラフが滑らかに変化します。曲がり具合がスムーズで、衝撃のない自然な動きが実現できていることを示します。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- B. Transport: Road Curve --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="transport-content" class="tab-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div class="grid md:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-white p-6 rounded-lg shadow-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2 class="text-xl font-bold mb-2"&gt;道路カーブとハンドル操作&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-gray-600 mb-4"&gt;再生ボタンを押して、車の動きとハンドルの切れ角（＝曲率）の関係を見てみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="road-canvas" class="w-full h-64 md:h-80 bg-gray-50 rounded border relative"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4 flex items-center space-x-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button id="road-play-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"&gt;再生&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;select id="road-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="C1"&gt;円弧カーブ (C¹)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="C2" selected&gt;クロソイドカーブ (C²)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-white p-6 rounded-lg shadow-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2 class="text-xl font-bold mb-2"&gt;解説&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-700 mb-4"&gt;高速道路などでは、急なハンドル操作を避けるために曲率が滑らかに変化する「クロソイド曲線」が使われます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;ul class="space-y-3 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;li&gt;&lt;strong class="text-blue-600"&gt;円弧カーブ (C¹):&lt;/strong&gt; 直線からカーブに入る瞬間に、ハンドルを一定の角度まで「瞬時に」切る必要があります。これは曲率の不連続性（ジャンプ）が原因で、乗り心地の悪化や、高速走行ではスリップの危険性を伴います。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;li&gt;&lt;strong class="text-blue-600"&gt;クロソイドカーブ (C²):&lt;/strong&gt; 直線からカーブに向けて、徐々にハンドルを切り込んでいきます。曲率が線形に（滑らかに）変化するため、加加速度（躍度, jerk）が抑えられ、安全で快適な走行が可能になります。ロボットアームの軌道制御でも同じ考え方が使われます。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                         </span>&lt;div id="steering-graph" class="w-full h-32 mt-4 bg-gray-50 rounded border"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- C. CG: Specular Highlight --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="cg-content" class="tab-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="grid md:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-white p-6 rounded-lg shadow-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2 class="text-xl font-bold mb-2"&gt;曲面と光の反射&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-gray-600 mb-4"&gt;マウスで視点を動かし、曲面上のハイライト（光沢）がどう見えるか確認しましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="cg-canvas-container" class="w-full h-80 md:h-96 bg-black rounded border"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                             </span>&lt;label for="surface-type" class="block text-sm font-medium text-gray-700"&gt;連続性の種類:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;select id="surface-type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="G1"&gt;G¹ (接線連続)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="G2" selected&gt;G² (曲率連続)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-white p-6 rounded-lg shadow-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2 class="text-xl font-bold mb-2"&gt;解説&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-700 mb-4"&gt;工業製品のデザインでは、見た目の滑らかさを保証する幾何学的連続性（G-continuous）が重要です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;ul class="space-y-3 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>&lt;li&gt;&lt;strong class="text-blue-600"&gt;G¹ (接線連続):&lt;/strong&gt; パッチのつなぎ目で接線方向は一致しますが、曲率は一致しません。このため、光のハイライト（リフレクションライン）が「折れ曲がって」見えます。車のボディなどでこれがあると、安っぽいプラスチックのような印象を与えてしまいます。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>&lt;li&gt;&lt;strong class="text-blue-600"&gt;G² (曲率連続):&lt;/strong&gt; つなぎ目で曲率も滑らかに変化するため、ハイライトが途切れることなく綺麗に流れていきます。これにより、磨き上げられた金属や、流線形の美しいボディラインといった高品質な質感を表現できます。CAD/CAMの世界では必須の概念です。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- D. Sound: Audio Synthesis --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="sound-content" class="tab-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="grid md:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-white p-6 rounded-lg shadow-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2 class="text-xl font-bold mb-2"&gt;ピッチの変化と滑らかさ&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-sm text-gray-600 mb-4"&gt;再生ボタンで、音の高さが変化する様子を聴き比べてください。（※音量にご注意ください）&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="sound-canvas" class="w-full h-64 md:h-80 bg-gray-50 rounded border"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4 flex items-center space-x-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button id="sound-play-button" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"&gt;再生&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                             </span>&lt;select id="sound-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="C1"&gt;角のあるピッチ変化 (C¹)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;option value="C2" selected&gt;滑らかなピッチ変化 (C²)&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="bg-white p-6 rounded-lg shadow-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h2 class="text-xl font-bold mb-2"&gt;解説&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-700 mb-4"&gt;音の高さ（周波数）の変化が滑らかでないと、不自然で機械的な音に聞こえます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;ul class="space-y-3 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>&lt;li&gt;&lt;strong class="text-blue-600"&gt;角のあるピッチ変化 (C¹):&lt;/strong&gt; 周波数の変化「率」が途中で急に変わると、音の変化に「角」が感じられます。ロボットのような少し不自然なイントネーションに聞こえます。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>&lt;li&gt;&lt;strong class="text-blue-600"&gt;滑らかなピッチ変化 (C²):&lt;/strong&gt; 周波数の変化率も滑らかに変わることで、自然なポルタメント（音と音の間を滑らかにつなぐ奏法）になります。これにより、歌声や楽器の自然な音程変化が表現できます。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Tab logic ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const tabButtons = document.getElementById('tab-buttons');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const tabContents = document.getElementById('tab-contents');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let activeTab = 'simulation';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>tabButtons.addEventListener('click', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (e.target.classList.contains('tab-button')) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tabName = e.target.dataset.tab;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(tabName === activeTab) return;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>Array.from(tabButtons.children).forEach(btn =&gt; btn.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>e.target.classList.add('active');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>Array.from(tabContents.children).forEach(content =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>content.style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById(`${tabName}-content`).style.display = 'block';</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>activeTab = tabName;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Initialize tab content if it's the first time</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (tabName === 'simulation' &amp;&amp; !splineInitialized) initSpline2D();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (tabName === 'transport' &amp;&amp; !transportInitialized) initTransport();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (tabName === 'cg' &amp;&amp; !cgInitialized) initCg();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (tabName === 'sound' &amp;&amp; !soundInitialized) initSound();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- A. Spline 2D Visualization (Current version) ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let splineInitialized = false;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const splineTypeSelect = document.getElementById('spline-type');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const playButton = document.getElementById('spline-play-button');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let splineSvg, curvatureSvg, path, rider, curvaturePath, curvatureIndicator;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let controlPoints = [];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let width, height, graphWidth, graphHeight;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let isPlaying = false;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function initSpline2D() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (splineInitialized) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>splineInitialized = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const splineContainer = d3.select("#spline-2d-canvas");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const curvatureContainer = d3.select("#curvature-graph");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>splineSvg = splineContainer.append("svg");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>curvatureSvg = curvatureContainer.append("svg");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const containerRect = splineContainer.node().getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>width = containerRect.width;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>height = containerRect.height;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>controlPoints = [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ x: width * 0.1, y: height * 0.5 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ x: width * 0.3, y: height * 0.8 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ x: width * 0.5, y: height * 0.2 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ x: width * 0.7, y: height * 0.6 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ x: width * 0.9, y: height * 0.4 },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>];</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>rider = splineSvg.append("circle").attr("r", 7).attr("fill", "#ef4444").style("display", "none");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const graphRect = curvatureContainer.node().getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>graphWidth = graphRect.width;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>graphHeight = graphRect.height;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>curvatureIndicator = curvatureSvg.append("line").attr("stroke", "#ef4444").attr("stroke-width", 1.5).attr("y1", 0).attr("y2", graphHeight).style("display", "none");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>splineTypeSelect.addEventListener('change', updateVisuals);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>playButton.addEventListener('click', toggleAnimation);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>new ResizeObserver(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const newRect = splineContainer.node().getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const newGraphRect = curvatureContainer.node().getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const scaleX = newRect.width / width;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const scaleY = newRect.height / height;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width = newRect.width;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height = newRect.height;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>graphWidth = newGraphRect.width;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>graphHeight = newGraphRect.height;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controlPoints.forEach(p =&gt; { p.x *= scaleX; p.y *= scaleY; });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>curvatureIndicator.attr("y2", graphHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateVisuals();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}).observe(splineContainer.node());</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>updateVisuals();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updateVisuals() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>drawSpline();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>drawCurvatureGraph();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>drawControlPoints();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function drawSpline() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>splineSvg.selectAll("path").remove();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const type = splineTypeSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let lineGenerator;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (type === 'C0') lineGenerator = d3.line().x(d =&gt; d.x).y(d =&gt; d.y).curve(d3.curveLinear);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>else if (type === 'C1') lineGenerator = d3.line().x(d =&gt; d.x).y(d =&gt; d.y).curve(d3.curveCatmullRom.alpha(0.5));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>else lineGenerator = d3.line().x(d =&gt; d.x).y(d =&gt; d.y).curve(d3.curveCatmullRom.alpha(0));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>path = splineSvg.append("path").datum(controlPoints).attr("d", lineGenerator).attr("fill", "none").attr("stroke", "#2563eb").attr("stroke-width", 3);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function drawControlPoints() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const drag = d3.drag()</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.on("drag", function(event) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>d3.select(this).attr("cx", event.x).attr("cy", event.y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const i = d3.select(this).attr("data-index");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>controlPoints[i] = { x: event.x, y: event.y };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (isPlaying) resetAnimation();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateVisuals();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>splineSvg.selectAll(".control-point").remove();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>splineSvg.selectAll(".control-point").data(controlPoints).enter().append("circle")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("class", "control-point").attr("cx", d =&gt; d.x).attr("cy", d =&gt; d.y)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("r", 8).attr("fill", "#111827").attr("data-index", (d, i) =&gt; i).call(drag);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function calculateCurvatureData() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!path || !path.node()) return [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pathNode = path.node();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pathLength = pathNode.getTotalLength();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const samples = Math.min(500, Math.floor(pathLength));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (samples &lt; 3) return [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const data = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt; samples; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const t = i / (samples - 1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const l = t * pathLength;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const p1 = pathNode.getPointAtLength(Math.max(0, l - 0.1));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const p2 = pathNode.getPointAtLength(l);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const p3 = pathNode.getPointAtLength(Math.min(pathLength, l + 0.1));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const area = Math.abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)) / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const d12 = Math.hypot(p1.x - p2.x, p1.y - p2.y);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const d23 = Math.hypot(p2.x - p3.x, p2.y - p3.y);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const d31 = Math.hypot(p3.x - p1.x, p3.y - p1.y);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let curvature = (d12 * d23 * d31 &gt; 1e-6) ? (4 * area) / (d12 * d23 * d31) : 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const sign = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (splineTypeSelect.value === 'C0' &amp;&amp; curvature &gt; 10) data.push({ t: t, k: null });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>else data.push({ t: t, k: Math.sign(sign) * curvature });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (splineTypeSelect.value === 'C2') {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const smoothedData = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const windowSize = 5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt; data.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let sum = 0, count = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let j = -windowSize; j &lt;= windowSize; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (i + j &gt;= 0 &amp;&amp; i + j &lt; data.length &amp;&amp; data[i + j].k !== null) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>sum += data[i + j].k;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>count++;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>smoothedData.push({ t: data[i].t, k: count &gt; 0 ? sum / count : data[i].k });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return smoothedData;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return data;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function drawCurvatureGraph() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>curvatureSvg.selectAll("*").remove();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const data = calculateCurvatureData();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (data.length === 0) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const maxK = d3.max(data, d =&gt; Math.abs(d.k));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const yDomain = maxK &gt; 0.01 ? [-maxK * 1.1, maxK * 1.1] : [-0.1, 0.1];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([0, 1]).range([0, graphWidth]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain(yDomain).range([graphHeight, 0]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>curvatureSvg.append("line").attr("x1", 0).attr("x2", graphWidth).attr("y1", y(0)).attr("y2", y(0)).attr("stroke", "#9ca3af").attr("stroke-dasharray", "2,2");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().defined(d =&gt; d.k !== null).x(d =&gt; x(d.t)).y(d =&gt; y(d.k));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>curvaturePath = curvatureSvg.append("path").datum(data).attr("d", line).attr("fill", "none").attr("stroke", "#3b82f6").attr("stroke-width", 2);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>curvatureIndicator = curvatureSvg.append("line").attr("stroke", "#ef4444").attr("stroke-width", 1.5).attr("y1", 0).attr("y2", graphHeight).style("display", isPlaying ? "block" : "none");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function toggleAnimation() { isPlaying ? resetAnimation() : startAnimation(); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function resetAnimation() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>isPlaying = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>playButton.textContent = "再生/リセット";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>rider.interrupt().style("display", "none");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>curvatureIndicator.interrupt().style("display", "none");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function startAnimation() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!path || !path.node() || path.node().getTotalLength() === 0) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>isPlaying = true;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>playButton.textContent = "停止";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>rider.style("display", "block");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>curvatureIndicator.style("display", "block");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pathLength = path.node().getTotalLength();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const duration = 5000;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>rider.transition().duration(duration).ease(d3.easeLinear).attrTween("transform", () =&gt; t =&gt; `translate(${path.node().getPointAtLength(t * pathLength).x}, ${path.node().getPointAtLength(t * pathLength).y})`).on("end", resetAnimation);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>curvatureIndicator.transition().duration(duration).ease(d3.easeLinear).attrTween("transform", () =&gt; t =&gt; `translate(${t * graphWidth}, 0)`);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- B. Transport: Road Curve ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let transportInitialized = false;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function initTransport() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (transportInitialized) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transportInitialized = true;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const roadContainer = document.getElementById('road-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const roadSvg = d3.select(roadContainer).append('svg').attr('width', '100%').attr('height', '100%');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const roadTypeSelect = document.getElementById('road-type');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const roadPlayButton = document.getElementById('road-play-button');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const steeringContainer = document.getElementById('steering-graph');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const steeringSvg = d3.select(steeringContainer).append('svg').attr('width', '100%').attr('height', '100%');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let car, roadPath, steeringIndicator;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function calculatePathCurvature(pathNode, samples = 200) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!pathNode) return [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const length = pathNode.getTotalLength();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (length &lt; 1) return [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const data = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const delta = length / samples;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt; samples; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const t = i / (samples - 1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const l = t * length;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const p1 = pathNode.getPointAtLength(Math.max(0, l - delta));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const p2 = pathNode.getPointAtLength(l);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const p3 = pathNode.getPointAtLength(Math.min(length, l + delta));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const area = Math.abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)) / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const d12 = Math.hypot(p1.x - p2.x, p1.y - p2.y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const d23 = Math.hypot(p2.x - p3.x, p2.y - p3.y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const d31 = Math.hypot(p3.x - p1.x, p3.y - p1.y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let curvature = (d12 * d23 * d31 &gt; 1e-9) ? (4 * area) / (d12 * d23 * d31) : 0;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const sign = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>data.push({t: t, k: -Math.sign(sign) * curvature });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return data;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawRoad() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = roadContainer.clientWidth, h = roadContainer.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!w) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>roadSvg.selectAll('*').remove();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const type = roadTypeSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let pathData;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (type === 'C1') {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>pathData = `M 0,${h*0.8} L ${w*0.25},${h*0.8} A ${w*0.25},${w*0.25} 0 0 1 ${w*0.75},${h*0.8} L ${w},${h*0.8}`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else { // C2</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pathData = `M 0,${h*0.8} C ${w*0.4},${h*0.8} ${w*0.6},${h*0.2} ${w},${h*0.2}`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>roadPath = roadSvg.append('path').attr('d', pathData).attr('fill', 'none').attr('stroke', '#6b7280').attr('stroke-width', 15).attr('stroke-linecap', 'round');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const startPoint = roadPath.node().getPointAtLength(0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>car = roadSvg.append('circle').attr('r', 10).attr('fill', '#ef4444').attr('transform', `translate(${startPoint.x}, ${startPoint.y})`);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawSteeringGraph();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawSteeringGraph() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steeringSvg.selectAll('*').remove();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const type = roadTypeSelect.value;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const rawData = calculatePathCurvature(roadPath.node());</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (rawData.length === 0) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let graphData;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (type === 'C1') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const threshold = 0.001;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const arcCurvatures = rawData.filter(d =&gt; Math.abs(d.k) &gt; threshold).map(d =&gt; d.k);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const avgCurvature = arcCurvatures.length &gt; 0 ? arcCurvatures.reduce((a, b) =&gt; a + b, 0) / arcCurvatures.length : 0;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>graphData = rawData.map(d =&gt; ({ t: d.t, k: Math.abs(d.k) &gt; threshold ? avgCurvature : 0 }));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else { // C2</p>
+<p class="p1"><span class="Apple-converted-space">                </span>graphData = [];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const windowSize = 15; // Strong smoothing</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; rawData.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let sum = 0, count = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let j = -windowSize; j &lt;= windowSize; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (i + j &gt;= 0 &amp;&amp; i + j &lt; rawData.length) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>sum += rawData[i + j].k;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>count++;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>graphData.push({ t: rawData[i].t, k: count &gt; 0 ? sum / count : 0 });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = steeringContainer.clientWidth, h = steeringContainer.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const x = d3.scaleLinear().domain([0, 1]).range([0, w]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yMax = d3.max(graphData, d =&gt; Math.abs(d.k)) * 1.2 || 0.01;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const y = d3.scaleLinear().domain([-yMax, yMax]).range([h, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>steeringSvg.append('line').attr('x1', 0).attr('x2', w).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', '#ccc');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steeringSvg.append('text').attr('x', 5).attr('y', 15).text('ハンドルの切れ角').attr('font-size', '10px').attr('fill', '#6b7280');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const line = d3.line().x(d =&gt; x(d.t)).y(d =&gt; y(d.k));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steeringSvg.append('path').datum(graphData).attr('d', line).attr('fill', 'none').attr('stroke', '#3b82f6').attr('stroke-width', 2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steeringIndicator = steeringSvg.append('line').attr('stroke', '#ef4444').attr('stroke-width', 1.5).attr('y1', 0).attr('y2', h).style('display', 'none');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>roadPlayButton.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (car) car.interrupt();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!roadPath || !roadPath.node()) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const length = roadPath.node().getTotalLength();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (length === 0) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>car.style('display', 'block');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>steeringIndicator.style('display', 'block');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>car.transition().duration(5000).ease(d3.easeLinear)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.attrTween('transform', () =&gt; t =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const p = roadPath.node().getPointAtLength(t * length);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>steeringIndicator.attr('transform', `translate(${t * steeringContainer.clientWidth}, 0)`);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return `translate(${p.x}, ${p.y})`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>})</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.on('end', () =&gt; steeringIndicator.style('display', 'none'));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>roadTypeSelect.addEventListener('change', drawRoad);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>new ResizeObserver(drawRoad).observe(roadContainer);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- C. CG Specular Highlight ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let cgInitialized = false;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function initCg() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (cgInitialized) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>cgInitialized = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const cgContainer = document.getElementById('cg-canvas-container');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const surfaceTypeSelect = document.getElementById('surface-type');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let scene, camera, renderer, mesh, controls;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>scene = new THREE.Scene();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>scene.background = new THREE.Color(0x111111);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>camera = new THREE.PerspectiveCamera(75, cgContainer.clientWidth / cgContainer.clientHeight, 0.1, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>camera.position.z = 3;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderer = new THREE.WebGLRenderer({ antialias: true });</p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderer.setSize(cgContainer.clientWidth, cgContainer.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>cgContainer.appendChild(renderer.domElement);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>controls = new THREE.OrbitControls(camera, renderer.domElement);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>controls.enableDamping = true;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const light = new THREE.DirectionalLight(0xffffff, 1.5);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>light.position.set(2, 5, 5);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>scene.add(light);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>scene.add(new THREE.AmbientLight(0x404040, 1.2));</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createSurface() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const type = surfaceTypeSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const material = new THREE.MeshPhongMaterial({ color: 0x049ef4, shininess: 100, specular: 0xeeeeee, side: THREE.DoubleSide });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let parametricFunction;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (type === 'G1') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>parametricFunction = (u, v, target) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>u = u * 2 - 1; v *= Math.PI * 2;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const r = (u &lt; 0) ? 0.5 : 0.5 + u * 0.5;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>target.set(u, Math.cos(v) * r, Math.sin(v) * r);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else { // G2</p>
+<p class="p1"><span class="Apple-converted-space">                </span>parametricFunction = (u, v, target) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>u = u * 4 - 2; v *= Math.PI * 2;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>target.set(u, Math.sin(v) * (1 - u*u/4), Math.cos(v) * (1 - u*u/4));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>mesh = new THREE.Mesh(new THREE.ParametricGeometry(parametricFunction, 50, 50), material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(mesh);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function animateCg() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>requestAnimationFrame(animateCg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.update();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.render(scene, camera);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>surfaceTypeSelect.addEventListener('change', createSurface);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>new ResizeObserver(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.aspect = cgContainer.clientWidth / cgContainer.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setSize(cgContainer.clientWidth, cgContainer.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}).observe(cgContainer);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>createSurface();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>animateCg();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- D. Sound Synthesis ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let soundInitialized = false;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function initSound() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (soundInitialized) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>soundInitialized = true;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const soundContainer = document.getElementById('sound-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const soundSvg = d3.select(soundContainer).append('svg').attr('width', '100%').attr('height', '100%');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const soundTypeSelect = document.getElementById('sound-type');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const soundPlayButton = document.getElementById('sound-play-button');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let oscillator;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function drawSoundEnvelope() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = soundContainer.clientWidth, h = soundContainer.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!w) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>soundSvg.selectAll('*').remove();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const type = soundTypeSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const startFreq = 220, midFreq = 880, endFreq = 440;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const x = d3.scaleLinear().domain([0, 1]).range([0, w]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const y = d3.scaleLog().domain([100, 2000]).range([h, 0]).clamp(true);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>soundSvg.append('g').selectAll('line').data(y.ticks(4)).enter().append('line').attr('x1', 0).attr('x2', w).attr('y1', d =&gt; y(d)).attr('y2', d =&gt; y(d)).attr('stroke', '#e5e7eb').attr('stroke-dasharray', '2,2');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>soundSvg.append('g').selectAll('text').data(y.ticks(4)).enter().append('text').attr('x', 5).attr('y', d =&gt; y(d) - 2).text(d =&gt; `${d.toFixed(0)} Hz`).attr('font-size', '10px').attr('fill', '#9ca3af');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let pathData;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (type === 'C1') pathData = d3.line().x(d =&gt; x(d[0])).y(d =&gt; y(d[1]))([[0, startFreq], [0.5, midFreq], [1, endFreq]]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>else pathData = d3.line().x(d =&gt; x(d[0])).y(d =&gt; y(d[1])).curve(d3.curveBasis)([[0, startFreq], [0.5, midFreq], [1, endFreq]]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>soundSvg.append('path').attr('d', pathData).attr('fill', 'none').attr('stroke', '#3b82f6').attr('stroke-width', 3);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>soundPlayButton.addEventListener('click', async () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!oscillator) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>await Tone.start();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>oscillator = new Tone.Oscillator(440, "sine").toDestination();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const type = soundTypeSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const duration = 1.5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const now = Tone.now();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const startFreq = 220, midFreq = 880, endFreq = 440;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>oscillator.start(now);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>oscillator.frequency.cancelScheduledValues(now);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>oscillator.frequency.setValueAtTime(startFreq, now);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (type === 'C1') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>oscillator.frequency.linearRampTo(midFreq, duration / 2, now);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>oscillator.frequency.linearRampTo(endFreq, duration / 2, now + duration / 2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>oscillator.frequency.setTargetAtTime(midFreq, now, 0.2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>oscillator.frequency.setTargetAtTime(endFreq, now + duration / 2, 0.2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>oscillator.stop(now + duration);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>soundTypeSelect.addEventListener('change', drawSoundEnvelope);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>new ResizeObserver(drawSoundEnvelope).observe(soundContainer);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Initialize first tab</p>
+<p class="p1"><span class="Apple-converted-space">    </span>initSpline2D();</p>
+<p class="p1">});</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

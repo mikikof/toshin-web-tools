@@ -1,0 +1,816 @@
+{\rtf1\ansi\ansicpg932\cocoartf2869
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red109\green109\blue109;\red246\green247\blue249;\red251\green0\blue7;
+\red46\green49\blue51;\red42\green42\blue42;\red20\green67\blue174;\red18\green115\blue126;\red162\green0\blue16;
+\red21\green98\blue39;\red97\green3\blue173;\red19\green118\blue70;\red9\green60\blue148;\red77\green80\blue85;
+}
+{\*\expandedcolortbl;;\cssrgb\c50196\c50196\c50196;\cssrgb\c97255\c97647\c98039;\cssrgb\c100000\c0\c0;
+\cssrgb\c23529\c25098\c26275;\cssrgb\c21961\c21961\c21961;\cssrgb\c9412\c35294\c73725;\cssrgb\c3529\c52157\c56863;\cssrgb\c70196\c7843\c7059;
+\cssrgb\c7451\c45098\c20000;\cssrgb\c46275\c15294\c73333;\cssrgb\c3529\c52549\c34510;\cssrgb\c1569\c31765\c64706;\cssrgb\c37255\c38824\c40784;
+}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs26 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 <!DOCTYPE\cf4 \strokec4  html\cf2 \strokec2 >\cf5 \cb1 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 <\cf7 \strokec7 html\cf5 \strokec5  \cf8 \strokec8 lang\cf6 \strokec6 =\cf9 \strokec9 "ja"\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cf6 \cb3 \strokec6 <\cf7 \strokec7 head\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     \cf6 \strokec6 <\cf7 \strokec7 meta\cf5 \strokec5  \cf8 \strokec8 charset\cf6 \strokec6 =\cf9 \strokec9 "UTF-8"\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3     \cf6 \strokec6 <\cf7 \strokec7 meta\cf5 \strokec5  \cf8 \strokec8 name\cf6 \strokec6 =\cf9 \strokec9 "viewport"\cf5 \strokec5  \cf8 \strokec8 content\cf6 \strokec6 =\cf9 \strokec9 "width=device-width, initial-scale=1.0"\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3     \cf6 \strokec6 <\cf7 \strokec7 title\cf6 \strokec6 >\cf5 \strokec5 Matrix Linear Transformation Visualizer\cf6 \strokec6 </\cf7 \strokec7 title\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3     \cf10 \strokec10 <!-- Tailwind CSS for styling -->\cf5 \cb1 \strokec5 \
+\cb3     \cf6 \strokec6 <\cf7 \strokec7 script\cf5 \strokec5  \cf8 \strokec8 src\cf6 \strokec6 =\cf9 \strokec9 "https://cdn.tailwindcss.com"\cf6 \strokec6 ></\cf7 \strokec7 script\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3     \cf10 \strokec10 <!-- React and ReactDOM -->\cf5 \cb1 \strokec5 \
+\cb3     \cf6 \strokec6 <\cf7 \strokec7 script\cf5 \strokec5  \cf8 \strokec8 crossorigin\cf5 \strokec5  \cf8 \strokec8 src\cf6 \strokec6 =\cf9 \strokec9 "https://unpkg.com/react@18/umd/react.development.js"\cf6 \strokec6 ></\cf7 \strokec7 script\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3     \cf6 \strokec6 <\cf7 \strokec7 script\cf5 \strokec5  \cf8 \strokec8 crossorigin\cf5 \strokec5  \cf8 \strokec8 src\cf6 \strokec6 =\cf9 \strokec9 "https://unpkg.com/react-dom@18/umd/react-dom.development.js"\cf6 \strokec6 ></\cf7 \strokec7 script\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3     \cf10 \strokec10 <!-- Babel for JSX -->\cf5 \cb1 \strokec5 \
+\cb3     \cf6 \strokec6 <\cf7 \strokec7 script\cf5 \strokec5  \cf8 \strokec8 src\cf6 \strokec6 =\cf9 \strokec9 "https://unpkg.com/@babel/standalone/babel.min.js"\cf6 \strokec6 ></\cf7 \strokec7 script\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3     \cf10 \strokec10 <!-- Lucide Icons -->\cf5 \cb1 \strokec5 \
+\cb3     \cf6 \strokec6 <\cf7 \strokec7 script\cf5 \strokec5  \cf8 \strokec8 src\cf6 \strokec6 =\cf9 \strokec9 "https://unpkg.com/lucide@latest"\cf6 \strokec6 ></\cf7 \strokec7 script\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3     \cb1 \
+\cb3     \cf6 \strokec6 <\cf7 \strokec7 style\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3         \cf11 \strokec11 body\cf5 \strokec5  \{\cb1 \
+\cb3             \cf8 \strokec8 margin:\cf5 \strokec5  \cf12 \strokec12 0\cf5 \strokec5 ;\cb1 \
+\cb3             \cf8 \strokec8 overflow:\cf5 \strokec5  \cf9 \strokec9 hidden\cf5 \strokec5 ;\cb1 \
+\cb3             \cf8 \strokec8 background-color:\cf5 \strokec5  \cf13 \strokec13 #0f172a\cf5 \strokec5 ; \cf14 \strokec14 /* Slate 900 */\cf5 \cb1 \strokec5 \
+\cb3             \cf8 \strokec8 color:\cf5 \strokec5  \cf13 \strokec13 #e2e8f0\cf5 \strokec5 ;\cb1 \
+\cb3             \cf8 \strokec8 font-family:\cf5 \strokec5  \cf9 \strokec9 'Helvetica Neue'\cf5 \strokec5 , \cf9 \strokec9 Arial\cf5 \strokec5 , \cf9 \strokec9 sans-serif\cf5 \strokec5 ;\cb1 \
+\cb3         \}\cb1 \
+\cb3         \cf11 \strokec11 math\cf5 \strokec5  \{\cb1 \
+\cb3             \cf8 \strokec8 font-family:\cf5 \strokec5  \cf9 \strokec9 'Times New Roman'\cf5 \strokec5 , \cf9 \strokec9 serif\cf5 \strokec5 ;\cb1 \
+\cb3             \cf8 \strokec8 font-size:\cf5 \strokec5  \cf12 \strokec12 1.1em\cf5 \strokec5 ;\cb1 \
+\cb3         \}\cb1 \
+\cb3         \cf11 \strokec11 .glass-panel\cf5 \strokec5  \{\cb1 \
+\cb3             \cf8 \strokec8 background:\cf5 \strokec5  \cf9 \strokec9 rgba(\cf12 \strokec12 30\cf5 \strokec5 , \cf12 \strokec12 41\cf5 \strokec5 , \cf12 \strokec12 59\cf5 \strokec5 , \cf12 \strokec12 0.75\cf9 \strokec9 )\cf5 \strokec5 ;\cb1 \
+\cb3             \cf8 \strokec8 backdrop-filter:\cf5 \strokec5  \cf9 \strokec9 blur(\cf12 \strokec12 12px\cf9 \strokec9 )\cf5 \strokec5 ;\cb1 \
+\cb3             \cf8 \strokec8 -webkit-backdrop-filter:\cf5 \strokec5  \cf9 \strokec9 blur(\cf12 \strokec12 12px\cf9 \strokec9 )\cf5 \strokec5 ;\cb1 \
+\cb3             \cf8 \strokec8 border:\cf5 \strokec5  \cf12 \strokec12 1px\cf5 \strokec5  \cf9 \strokec9 solid\cf5 \strokec5  \cf9 \strokec9 rgba(\cf12 \strokec12 255\cf5 \strokec5 , \cf12 \strokec12 255\cf5 \strokec5 , \cf12 \strokec12 255\cf5 \strokec5 , \cf12 \strokec12 0.1\cf9 \strokec9 )\cf5 \strokec5 ;\cb1 \
+\cb3         \}\cb1 \
+\cb3         \cf14 \strokec14 /* Custom scrollbar for panel */\cf5 \cb1 \strokec5 \
+\cb3         \cf11 \strokec11 ::-webkit-scrollbar\cf5 \strokec5  \{\cb1 \
+\cb3             \cf8 \strokec8 width:\cf5 \strokec5  \cf12 \strokec12 6px\cf5 \strokec5 ;\cb1 \
+\cb3         \}\cb1 \
+\cb3         \cf11 \strokec11 ::-webkit-scrollbar-track\cf5 \strokec5  \{\cb1 \
+\cb3             \cf8 \strokec8 background:\cf5 \strokec5  \cf9 \strokec9 rgba(\cf12 \strokec12 0\cf5 \strokec5 ,\cf12 \strokec12 0\cf5 \strokec5 ,\cf12 \strokec12 0\cf5 \strokec5 ,\cf12 \strokec12 0.2\cf9 \strokec9 )\cf5 \strokec5 ;\cb1 \
+\cb3         \}\cb1 \
+\cb3         \cf11 \strokec11 ::-webkit-scrollbar-thumb\cf5 \strokec5  \{\cb1 \
+\cb3             \cf8 \strokec8 background:\cf5 \strokec5  \cf9 \strokec9 rgba(\cf12 \strokec12 255\cf5 \strokec5 ,\cf12 \strokec12 255\cf5 \strokec5 ,\cf12 \strokec12 255\cf5 \strokec5 ,\cf12 \strokec12 0.2\cf9 \strokec9 )\cf5 \strokec5 ;\cb1 \
+\cb3             \cf8 \strokec8 border-radius:\cf5 \strokec5  \cf12 \strokec12 3px\cf5 \strokec5 ;\cb1 \
+\cb3         \}\cb1 \
+\cb3         \cf14 \strokec14 /* Toggle Switch */\cf5 \cb1 \strokec5 \
+\cb3         \cf11 \strokec11 .toggle-checkbox:checked\cf5 \strokec5  \{\cb1 \
+\cb3             \cf8 \strokec8 right:\cf5 \strokec5  \cf12 \strokec12 0\cf5 \strokec5 ;\cb1 \
+\cb3             \cf8 \strokec8 border-color:\cf5 \strokec5  \cf13 \strokec13 #22d3ee\cf5 \strokec5 ; \cf14 \strokec14 /* cyan-400 */\cf5 \cb1 \strokec5 \
+\cb3         \}\cb1 \
+\cb3         \cf11 \strokec11 .toggle-checkbox:checked\cf5 \strokec5  + \cf11 \strokec11 .toggle-label\cf5 \strokec5  \{\cb1 \
+\cb3             \cf8 \strokec8 background-color:\cf5 \strokec5  \cf13 \strokec13 #22d3ee\cf5 \strokec5 ; \cf14 \strokec14 /* cyan-400 */\cf5 \cb1 \strokec5 \
+\cb3         \}\cb1 \
+\cb3     \cf6 \strokec6 </\cf7 \strokec7 style\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 </\cf7 \strokec7 head\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cf6 \cb3 \strokec6 <\cf7 \strokec7 body\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+\cf5 \cb3     \cf6 \strokec6 <\cf7 \strokec7 div\cf5 \strokec5  \cf8 \strokec8 id\cf6 \strokec6 =\cf9 \strokec9 "root"\cf6 \strokec6 ></\cf7 \strokec7 div\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\
+\cb3     \cf6 \strokec6 <\cf7 \strokec7 script\cf5 \strokec5  \cf8 \strokec8 type\cf6 \strokec6 =\cf9 \strokec9 "text/babel"\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cb3         const \{ useState, useEffect, useRef, useMemo \} = React;\cb1 \
+\
+\cb3         // --- Helper Functions ---\cb1 \
+\cb3         \cb1 \
+\cb3         const formatNum = (num) => \{\cb1 \
+\cb3             if (typeof num !== 'number') return num;\cb1 \
+\cb3             return parseFloat(num.toFixed(4));\cb1 \
+\cb3         \};\cb1 \
+\
+\cb3         const multiplyMatrices = (A, B) => \{\cb1 \
+\cb3             return \{\cb1 \
+\cb3                 a: A.a * B.a + A.b * B.c,\cb1 \
+\cb3                 b: A.a * B.b + A.b * B.d,\cb1 \
+\cb3                 c: A.c * B.a + A.d * B.c,\cb1 \
+\cb3                 d: A.c * B.b + A.d * B.d,\cb1 \
+\cb3             \};\cb1 \
+\cb3         \};\cb1 \
+\
+\cb3         const invertMatrix = (m) => \{\cb1 \
+\cb3             const det = m.a * m.d - m.b * m.c;\cb1 \
+\cb3             if (Math.abs(det) < 0.0001) return \{ a: 1, b: 0, c: 0, d: 1 \}; // Fallback\cb1 \
+\cb3             return \{\cb1 \
+\cb3                 a: m.d / det,\cb1 \
+\cb3                 b: -m.b / det,\cb1 \
+\cb3                 c: -m.c / det,\cb1 \
+\cb3                 d: m.a / det\cb1 \
+\cb3             \};\cb1 \
+\cb3         \};\cb1 \
+\
+\cb3         const lerpMatrix = (A, B, t) => \{\cb1 \
+\cb3             return \{\cb1 \
+\cb3                 a: A.a + (B.a - A.a) * t,\cb1 \
+\cb3                 b: A.b + (B.b - A.b) * t,\cb1 \
+\cb3                 c: A.c + (B.c - A.c) * t,\cb1 \
+\cb3                 d: A.d + (B.d - A.d) * t,\cb1 \
+\cb3             \};\cb1 \
+\cb3         \};\cb1 \
+\
+\cb3         const IDENTITY_MATRIX = \{ a: 1, b: 0, c: 0, d: 1 \};\cb1 \
+\
+\cb3         // --- Helper Components ---\cb1 \
+\
+\cb3         // Robust MathML Matrix Component\cb1 \
+\cb3         const MathMatrix = (\{ a, b \}) => \{\cb1 \
+\cb3             return (\cb1 \
+\cb3                 <math>\cb1 \
+\cb3                     <mrow>\cb1 \
+\cb3                         <mo>[</mo>\cb1 \
+\cb3                         <mtable>\cb1 \
+\cb3                             <mtr><mtd><mn>\{formatNum(a)\}</mn></mtd></mtr>\cb1 \
+\cb3                             <mtr><mtd><mn>\{formatNum(b)\}</mn></mtd></mtr>\cb1 \
+\cb3                         </mtable>\cb1 \
+\cb3                         <mo>]</mo>\cb1 \
+\cb3                     </mrow>\cb1 \
+\cb3                 </math>\cb1 \
+\cb3             );\cb1 \
+\cb3         \};\cb1 \
+\cb3         \cb1 \
+\cb3         const MathMatrix2x2 = (\{ a, b, c, d \}) => \{\cb1 \
+\cb3             return (\cb1 \
+\cb3                 <math>\cb1 \
+\cb3                     <mrow>\cb1 \
+\cb3                         <mo>[</mo>\cb1 \
+\cb3                         <mtable>\cb1 \
+\cb3                             <mtr>\cb1 \
+\cb3                                 <mtd><mn>\{formatNum(a)\}</mn></mtd>\cb1 \
+\cb3                                 <mtd><mn>\{formatNum(b)\}</mn></mtd>\cb1 \
+\cb3                             </mtr>\cb1 \
+\cb3                             <mtr>\cb1 \
+\cb3                                 <mtd><mn>\{formatNum(c)\}</mn></mtd>\cb1 \
+\cb3                                 <mtd><mn>\{formatNum(d)\}</mn></mtd>\cb1 \
+\cb3                             </mtr>\cb1 \
+\cb3                         </mtable>\cb1 \
+\cb3                         <mo>]</mo>\cb1 \
+\cb3                     </mrow>\cb1 \
+\cb3                 </math>\cb1 \
+\cb3             );\cb1 \
+\cb3         \};\cb1 \
+\
+\cb3         // Matrix Input Component\cb1 \
+\cb3         const MatrixInput = (\{ label, subLabel, matrix, onChange, disabled, colorClass = "text-cyan-400" \}) => \{\cb1 \
+\cb3             const handleChange = (key, val) => \{\cb1 \
+\cb3                 const num = parseFloat(val);\cb1 \
+\cb3                 if (!isNaN(num)) \{\cb1 \
+\cb3                     onChange(\{ ...matrix, [key]: num \});\cb1 \
+\cb3                 \}\cb1 \
+\cb3             \};\cb1 \
+\
+\cb3             return (\cb1 \
+\cb3                 <div className="flex items-center justify-center space-x-2 my-2 p-3 rounded-xl bg-slate-800/50 border border-slate-700">\cb1 \
+\cb3                     <span className=\{`text-xl font-serif italic $\{colorClass\}`\}>\{label\}</span>\cb1 \
+\cb3                     \{subLabel && <span className=\{`text-xs $\{colorClass\} self-end mb-1 ml-1`\}>\{subLabel\}</span>\}\cb1 \
+\cb3                     <span className="text-xl">=</span>\cb1 \
+\cb3                     <div className="relative flex items-center px-2">\cb1 \
+\cb3                         \{/* Bracket Left */\}\cb1 \
+\cb3                         <div className="absolute left-0 top-0 bottom-0 w-3 border-l-2 border-t-2 border-b-2 border-slate-400"></div>\cb1 \
+\cb3                         \cb1 \
+\cb3                         <div className="grid grid-cols-2 gap-2 mx-1">\cb1 \
+\cb3                             \{['a', 'b', 'c', 'd'].map((key) => (\cb1 \
+\cb3                                 <input\cb1 \
+\cb3                                     key=\{key\}\cb1 \
+\cb3                                     type="number"\cb1 \
+\cb3                                     step="0.1"\cb1 \
+\cb3                                     value=\{matrix[key]\}\cb1 \
+\cb3                                     onChange=\{(e) => handleChange(key, e.target.value)\}\cb1 \
+\cb3                                     disabled=\{disabled\}\cb1 \
+\cb3                                     className=\{`w-14 h-9 text-center bg-slate-900 border border-slate-600 rounded-sm $\{colorClass.replace('text-', 'text-')\} focus:border-current focus:outline-none focus:ring-1 focus:ring-current transition-all font-mono text-sm`\}\cb1 \
+\cb3                                 />\cb1 \
+\cb3                             ))\}\cb1 \
+\cb3                         </div>\cb1 \
+\
+\cb3                         \{/* Bracket Right */\}\cb1 \
+\cb3                         <div className="absolute right-0 top-0 bottom-0 w-3 border-r-2 border-t-2 border-b-2 border-slate-400"></div>\cb1 \
+\cb3                     </div>\cb1 \
+\cb3                 </div>\cb1 \
+\cb3             );\cb1 \
+\cb3         \};\cb1 \
+\
+\cb3         // Dynamic Math Explanation\cb1 \
+\cb3         const MathExplanation = (\{ currentMatrix, vector, t, isComposite, matrixA, matrixB, isReverseOrder \}) => \{\cb1 \
+\cb3             const det = currentMatrix.a * currentMatrix.d - currentMatrix.b * currentMatrix.c;\cb1 \
+\cb3             \cb1 \
+\cb3             // Calculate transformed vector results\cb1 \
+\cb3             const resX = currentMatrix.a * vector.x + currentMatrix.b * vector.y;\cb1 \
+\cb3             const resY = currentMatrix.c * vector.x + currentMatrix.d * vector.y;\cb1 \
+\cb3             \cb1 \
+\cb3             const vectorLabel = t > 0.01 ? "y" : "x";\cb1 \
+\
+\cb3             // Product Calculation Display logic\cb1 \
+\cb3             let productMatrix = null;\cb1 \
+\cb3             let firstMat = null;\cb1 \
+\cb3             let secondMat = null;\cb1 \
+\cb3             let firstLabel = "";\cb1 \
+\cb3             let secondLabel = "";\cb1 \
+\cb3             let firstColor = "";\cb1 \
+\cb3             let secondColor = "";\cb1 \
+\cb3             let stepText = "";\cb1 \
+\
+\cb3             if (isComposite) \{\cb1 \
+\cb3                 if (isReverseOrder) \{\cb1 \
+\cb3                     // B * A\cb1 \
+\cb3                     productMatrix = multiplyMatrices(matrixB, matrixA);\cb1 \
+\cb3                     firstMat = matrixB;\cb1 \
+\cb3                     secondMat = matrixA;\cb1 \
+\cb3                     firstLabel = "B";\cb1 \
+\cb3                     secondLabel = "A";\cb1 \
+\cb3                     firstColor = "text-purple-400";\cb1 \
+\cb3                     secondColor = "text-cyan-400";\cb1 \
+\cb3                     \cb1 \
+\cb3                     if (t === 0) stepText = "\uc0\u21021 \u26399 \u29366 \u24907 ";\cb1 \
+\cb3                     else if (t <= 0.5) stepText = `Step 1: A (\uc0\u21491 \u20596 ) \u12434 \u36969 \u29992 \u20013 ... $\{(t*200).toFixed(0)\}%`;\cb1 \
+\cb3                     else stepText = `Step 2: B (\uc0\u24038 \u20596 ) \u12434 \u12373 \u12425 \u12395 \u36969 \u29992 \u20013 ... $\{((t-0.5)*200).toFixed(0)\}%`;\cb1 \
+\
+\cb3                 \} else \{\cb1 \
+\cb3                     // A * B\cb1 \
+\cb3                     productMatrix = multiplyMatrices(matrixA, matrixB);\cb1 \
+\cb3                     firstMat = matrixA;\cb1 \
+\cb3                     secondMat = matrixB;\cb1 \
+\cb3                     firstLabel = "A";\cb1 \
+\cb3                     secondLabel = "B";\cb1 \
+\cb3                     firstColor = "text-cyan-400";\cb1 \
+\cb3                     secondColor = "text-purple-400";\cb1 \
+\
+\cb3                     if (t === 0) stepText = "\uc0\u21021 \u26399 \u29366 \u24907 ";\cb1 \
+\cb3                     else if (t <= 0.5) stepText = `Step 1: B (\uc0\u21491 \u20596 ) \u12434 \u36969 \u29992 \u20013 ... $\{(t*200).toFixed(0)\}%`;\cb1 \
+\cb3                     else stepText = `Step 2: A (\uc0\u24038 \u20596 ) \u12434 \u12373 \u12425 \u12395 \u36969 \u29992 \u20013 ... $\{((t-0.5)*200).toFixed(0)\}%`;\cb1 \
+\cb3                 \}\cb1 \
+\cb3             \} else \{\cb1 \
+\cb3                 stepText = `\uc0\u22793 \u25563  A \u12434 \u36969 \u29992 \u20013 ... $\{(t*100).toFixed(0)\}%`;\cb1 \
+\cb3             \}\cb1 \
+\
+\cb3             return (\cb1 \
+\cb3                 <div className="text-sm text-slate-300 space-y-3 mt-2 bg-slate-900/80 p-4 rounded-lg border border-slate-600 shadow-inner">\cb1 \
+\cb3                     <div className="flex justify-between items-center mb-1">\cb1 \
+\cb3                         <p className="font-bold text-yellow-400 flex items-center gap-2">\cb1 \
+\cb3                              <i data-lucide="activity" className="w-4 h-4"></i>\cb1 \
+\cb3                              \{stepText\}\cb1 \
+\cb3                         </p>\cb1 \
+\cb3                     </div>\cb1 \
+\
+\cb3                     \{isComposite && (\cb1 \
+\cb3                         <div className="mb-3 pb-3 border-b border-slate-700 overflow-x-auto">\cb1 \
+\cb3                             <p className="text-xs text-slate-400 mb-1">\cb1 \
+\cb3                                 \uc0\u34892 \u21015 \u12398 \u31309  (\{isReverseOrder ? "B\'d7A" : "A\'d7B"\}):\cb1 \
+\cb3                                 <span className="ml-2 text-[10px] text-slate-500">\uc0\u8251  \{isReverseOrder ? "A\u12434 \u36969 \u29992 \u24460 \u12395 B" : "B\u12434 \u36969 \u29992 \u24460 \u12395 A"\}</span>\cb1 \
+\cb3                             </p>\cb1 \
+\cb3                             <div className="flex items-center gap-2 whitespace-nowrap">\cb1 \
+\cb3                                 <span className=\{`$\{firstColor\} font-serif italic`\}>\{firstLabel\}</span>\cb1 \
+\cb3                                 <span className=\{`$\{secondColor\} font-serif italic`\}>\{secondLabel\}</span>\cb1 \
+\cb3                                 <span>=</span>\cb1 \
+\cb3                                 <div className="scale-75 origin-left -mr-4"><MathMatrix2x2 \{...firstMat\} /></div>\cb1 \
+\cb3                                 <div className="scale-75 origin-left -mr-4"><MathMatrix2x2 \{...secondMat\} /></div>\cb1 \
+\cb3                                 <span>=</span>\cb1 \
+\cb3                                 <div className="scale-75 origin-left"><MathMatrix2x2 \{...productMatrix\} /></div>\cb1 \
+\cb3                             </div>\cb1 \
+\cb3                         </div>\cb1 \
+\cb3                     )\}\cb1 \
+\
+\cb3                     <div className="flex flex-wrap items-center justify-center gap-2 overflow-x-auto pb-2 min-h-[60px]">\cb1 \
+\cb3                         \{isComposite ? (\cb1 \
+\cb3                              <span className="text-slate-400 italic font-serif text-lg">\cb1 \
+\cb3                                 \{isReverseOrder ? "(BA)" : "(AB)"\}\cb1 \
+\cb3                              </span>\cb1 \
+\cb3                         ) : (\cb1 \
+\cb3                              <span className="text-slate-400 italic font-serif text-lg">A</span>\cb1 \
+\cb3                         )\}\cb1 \
+\cb3                         <span className="text-slate-300 font-bold italic font-serif">x</span>\cb1 \
+\cb3                         <span className="text-slate-400">=</span>\cb1 \
+\cb3                         \{/* Current Matrix */\}\cb1 \
+\cb3                         <div className="bg-slate-800 px-1 rounded border border-slate-700">\cb1 \
+\cb3                              <MathMatrix2x2 \{...currentMatrix\} />\cb1 \
+\cb3                         </div>\cb1 \
+\cb3                         \{/* Input Vector */\}\cb1 \
+\cb3                         <div className="bg-slate-800 px-1 rounded border border-slate-700">\cb1 \
+\cb3                             <MathMatrix a=\{vector.x\} b=\{vector.y\} />\cb1 \
+\cb3                         </div>\cb1 \
+\cb3                         <span className="text-slate-400">=</span>\cb1 \
+\cb3                         \{/* Result Vector */\}\cb1 \
+\cb3                         <div className="bg-slate-700 px-1 rounded border border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.2)]">\cb1 \
+\cb3                             <MathMatrix a=\{resX\} b=\{resY\} />\cb1 \
+\cb3                         </div>\cb1 \
+\cb3                         \cb1 \
+\cb3                         <span className="text-slate-400 ml-1">\cb1 \
+\cb3                             ( <span className="text-yellow-400 font-bold italic font-serif">\{vectorLabel\}</span> )\cb1 \
+\cb3                         </span>\cb1 \
+\cb3                     </div>\cb1 \
+\
+\cb3                     <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-400 border-t border-slate-700 pt-2">\cb1 \
+\cb3                         <div>\cb1 \
+\cb3                              \uc0\u34892 \u21015 \u24335 : <span className=\{det < 0 ? "text-pink-400" : "text-emerald-400"\}>\{formatNum(det)\}</span>\cb1 \
+\cb3                         </div>\cb1 \
+\cb3                         <div className="text-right text-yellow-500">\cb1 \
+\cb3                              \uc0\u32080 \u26524 : (\{formatNum(resX)\}, \{formatNum(resY)\})\cb1 \
+\cb3                         </div>\cb1 \
+\cb3                     </div>\cb1 \
+\cb3                 </div>\cb1 \
+\cb3             );\cb1 \
+\cb3         \};\cb1 \
+\
+\cb3         // --- Main Application ---\cb1 \
+\cb3         const App = () => \{\cb1 \
+\cb3             const [matrixA, setMatrixA] = useState(\{ a: 1, b: 0, c: 0, d: 1 \});\cb1 \
+\cb3             const [matrixB, setMatrixB] = useState(\{ a: 1, b: 0, c: 0, d: 1 \});\cb1 \
+\cb3             const [userVector, setUserVector] = useState(\{ x: 1, y: 1 \});\cb1 \
+\cb3             const [t, setT] = useState(0); \cb1 \
+\cb3             const [isAnimating, setIsAnimating] = useState(false);\cb1 \
+\cb3             const [zoom, setZoom] = useState(1.0); \cb1 \
+\cb3             const [showOriginalGrid, setShowOriginalGrid] = useState(false);\cb1 \
+\cb3             const [showComposite, setShowComposite] = useState(false);\cb1 \
+\cb3             const [isReverseOrder, setIsReverseOrder] = useState(false); \cb1 \
+\cb3             \cb1 \
+\cb3             const canvasRef = useRef(null);\cb1 \
+\cb3             const containerRef = useRef(null);\cb1 \
+\cb3             \cb1 \
+\cb3             // --- Two-Stage Interpolation Logic ---\cb1 \
+\cb3             const currentMatrix = useMemo(() => \{\cb1 \
+\cb3                 // If Single Matrix Mode\cb1 \
+\cb3                 if (!showComposite) \{\cb1 \
+\cb3                     return lerpMatrix(IDENTITY_MATRIX, matrixA, t);\cb1 \
+\cb3                 \}\cb1 \
+\
+\cb3                 // If Composite Mode (Two Stages)\cb1 \
+\cb3                 // Determine order\cb1 \
+\cb3                 let firstMatrix, secondMatrix;\cb1 \
+\cb3                 if (isReverseOrder) \{ // BA -> Apply A first, then B\cb1 \
+\cb3                     firstMatrix = matrixA;\cb1 \
+\cb3                     secondMatrix = matrixB;\cb1 \
+\cb3                 \} else \{ // AB -> Apply B first, then A\cb1 \
+\cb3                     firstMatrix = matrixB;\cb1 \
+\cb3                     secondMatrix = matrixA;\cb1 \
+\cb3                 \}\cb1 \
+\
+\cb3                 if (t <= 0.5) \{\cb1 \
+\cb3                     const t1 = t * 2; // Normalize 0-0.5 to 0-1\cb1 \
+\cb3                     return lerpMatrix(IDENTITY_MATRIX, firstMatrix, t1);\cb1 \
+\cb3                 \} else \{\cb1 \
+\cb3                     const t2 = (t - 0.5) * 2; // Normalize 0.5-1 to 0-1\cb1 \
+\cb3                     const transformMatrix = lerpMatrix(IDENTITY_MATRIX, secondMatrix, t2);\cb1 \
+\cb3                     return multiplyMatrices(transformMatrix, firstMatrix);\cb1 \
+\cb3                 \}\cb1 \
+\
+\cb3             \}, [matrixA, matrixB, t, showComposite, isReverseOrder]);\cb1 \
+\
+\cb3             // Animation Loop\cb1 \
+\cb3             useEffect(() => \{\cb1 \
+\cb3                 let animationFrameId;\cb1 \
+\cb3                 if (isAnimating) \{\cb1 \
+\cb3                     const step = 0.01; \cb1 \
+\cb3                     const animate = () => \{\cb1 \
+\cb3                         setT(prev => \{\cb1 \
+\cb3                             if (prev >= 1) \{\cb1 \
+\cb3                                 setIsAnimating(false);\cb1 \
+\cb3                                 return 1;\cb1 \
+\cb3                             \}\cb1 \
+\cb3                             return prev + step;\cb1 \
+\cb3                         \});\cb1 \
+\cb3                         animationFrameId = requestAnimationFrame(animate);\cb1 \
+\cb3                     \};\cb1 \
+\cb3                     animationFrameId = requestAnimationFrame(animate);\cb1 \
+\cb3                 \}\cb1 \
+\cb3                 return () => cancelAnimationFrame(animationFrameId);\cb1 \
+\cb3             \}, [isAnimating]);\cb1 \
+\
+\cb3             // Drawing Logic\cb1 \
+\cb3             useEffect(() => \{\cb1 \
+\cb3                 const canvas = canvasRef.current;\cb1 \
+\cb3                 const ctx = canvas.getContext('2d');\cb1 \
+\cb3                 const container = containerRef.current;\cb1 \
+\
+\cb3                 const resize = () => \{\cb1 \
+\cb3                     canvas.width = container.clientWidth;\cb1 \
+\cb3                     canvas.height = container.clientHeight;\cb1 \
+\cb3                 \};\cb1 \
+\cb3                 if (canvas.width !== container.clientWidth) resize();\cb1 \
+\cb3                 window.addEventListener('resize', resize);\cb1 \
+\
+\cb3                 const w = canvas.width;\cb1 \
+\cb3                 const h = canvas.height;\cb1 \
+\cb3                 const centerX = w / 2;\cb1 \
+\cb3                 const centerY = h / 2;\cb1 \
+\cb3                 const scale = (Math.min(w, h) / 10) * zoom;\cb1 \
+\
+\cb3                 const transform = (x, y) => \{\cb1 \
+\cb3                     const nx = currentMatrix.a * x + currentMatrix.b * y;\cb1 \
+\cb3                     const ny = currentMatrix.c * x + currentMatrix.d * y;\cb1 \
+\cb3                     return \{\cb1 \
+\cb3                         x: centerX + nx * scale,\cb1 \
+\cb3                         y: centerY - ny * scale\cb1 \
+\cb3                     \};\cb1 \
+\cb3                 \};\cb1 \
+\
+\cb3                 const transformOriginal = (x, y) => \{\cb1 \
+\cb3                     return \{\cb1 \
+\cb3                         x: centerX + x * scale,\cb1 \
+\cb3                         y: centerY - y * scale\cb1 \
+\cb3                     \};\cb1 \
+\cb3                 \};\cb1 \
+\
+\cb3                 const drawArrow = (from, to, color, width = 3, headSize = 10, alpha = 1.0) => \{\cb1 \
+\cb3                     const angle = Math.atan2(to.y - from.y, to.x - from.x);\cb1 \
+\cb3                     ctx.save();\cb1 \
+\cb3                     ctx.globalAlpha = alpha;\cb1 \
+\cb3                     ctx.beginPath();\cb1 \
+\cb3                     ctx.moveTo(from.x, from.y);\cb1 \
+\cb3                     ctx.lineTo(to.x, to.y);\cb1 \
+\cb3                     ctx.strokeStyle = color;\cb1 \
+\cb3                     ctx.lineWidth = width;\cb1 \
+\cb3                     ctx.stroke();\cb1 \
+\cb3                     ctx.beginPath();\cb1 \
+\cb3                     ctx.moveTo(to.x, to.y);\cb1 \
+\cb3                     ctx.lineTo(to.x - headSize * Math.cos(angle - Math.PI / 6), to.y - headSize * Math.sin(angle - Math.PI / 6));\cb1 \
+\cb3                     ctx.lineTo(to.x - headSize * Math.cos(angle + Math.PI / 6), to.y - headSize * Math.sin(angle + Math.PI / 6));\cb1 \
+\cb3                     ctx.fillStyle = color;\cb1 \
+\cb3                     ctx.fill();\cb1 \
+\cb3                     ctx.restore();\cb1 \
+\cb3                 \};\cb1 \
+\
+\cb3                 const fPoints = [\cb1 \
+\cb3                     \{x: 1, y: 1\}, \{x: 1, y: 4\}, \{x: 3.5, y: 4\},\cb1 \
+\cb3                     \{x: 3.5, y: 3.2\}, \{x: 1.8, y: 3.2\}, \{x: 1.8, y: 2.8\},\cb1 \
+\cb3                     \{x: 3, y: 2.8\}, \{x: 3, y: 2\}, \{x: 1.8, y: 2\}, \{x: 1.8, y: 1\},\cb1 \
+\cb3                 ];\cb1 \
+\
+\cb3                 ctx.fillStyle = "#0f172a";\cb1 \
+\cb3                 ctx.fillRect(0, 0, w, h);\cb1 \
+\
+\cb3                 const gridSize = 30;\cb1 \
+\
+\cb3                 // --- Draw Ghost Elements ---\cb1 \
+\cb3                 if (showOriginalGrid) \{\cb1 \
+\cb3                     ctx.lineWidth = 1;\cb1 \
+\cb3                     ctx.setLineDash([5, 5]); \cb1 \
+\cb3                     for (let i = -gridSize; i <= gridSize; i++) \{\cb1 \
+\cb3                         const startV = transformOriginal(i, -gridSize);\cb1 \
+\cb3                         const endV = transformOriginal(i, gridSize);\cb1 \
+\cb3                         ctx.beginPath(); ctx.moveTo(startV.x, startV.y); ctx.lineTo(endV.x, endV.y);\cb1 \
+\cb3                         ctx.strokeStyle = i === 0 ? "rgba(255, 255, 255, 0.3)" : "rgba(255, 255, 255, 0.08)"; ctx.stroke();\cb1 \
+\
+\cb3                         const startH = transformOriginal(-gridSize, i);\cb1 \
+\cb3                         const endH = transformOriginal(gridSize, i);\cb1 \
+\cb3                         ctx.beginPath(); ctx.moveTo(startH.x, startH.y); ctx.lineTo(endH.x, endH.y);\cb1 \
+\cb3                         ctx.strokeStyle = i === 0 ? "rgba(255, 255, 255, 0.3)" : "rgba(255, 255, 255, 0.08)"; ctx.stroke();\cb1 \
+\cb3                     \}\cb1 \
+\cb3                     ctx.setLineDash([]); \cb1 \
+\
+\cb3                     if (fPoints.length > 0) \{\cb1 \
+\cb3                         ctx.fillStyle = "rgba(255, 255, 255, 0.05)";\cb1 \
+\cb3                         ctx.beginPath();\cb1 \
+\cb3                         const startP = transformOriginal(fPoints[0].x, fPoints[0].y);\cb1 \
+\cb3                         ctx.moveTo(startP.x, startP.y);\cb1 \
+\cb3                         for (let i = 1; i < fPoints.length; i++) \{\cb1 \
+\cb3                             const p = transformOriginal(fPoints[i].x, fPoints[i].y);\cb1 \
+\cb3                             ctx.lineTo(p.x, p.y);\cb1 \
+\cb3                         \}\cb1 \
+\cb3                         ctx.closePath(); ctx.fill(); ctx.strokeStyle = "rgba(255, 255, 255, 0.1)"; ctx.lineWidth = 1; ctx.stroke();\cb1 \
+\cb3                     \}\cb1 \
+\
+\cb3                     const originOrig = transformOriginal(0, 0);\cb1 \
+\cb3                     const iHatOrig = transformOriginal(1, 0);\cb1 \
+\cb3                     const jHatOrig = transformOriginal(0, 1);\cb1 \
+\cb3                     drawArrow(originOrig, iHatOrig, "#ef4444", 2, 8, 0.3);\cb1 \
+\cb3                     drawArrow(originOrig, jHatOrig, "#10b981", 2, 8, 0.3);\cb1 \
+\cb3                 \}\cb1 \
+\
+\cb3                 // --- Draw Transformed Grid ---\cb1 \
+\cb3                 ctx.lineWidth = 1;\cb1 \
+\cb3                 for (let i = -gridSize; i <= gridSize; i++) \{\cb1 \
+\cb3                     ctx.beginPath();\cb1 \
+\cb3                     const startV = transform(i, -gridSize);\cb1 \
+\cb3                     const endV = transform(i, gridSize);\cb1 \
+\cb3                     ctx.moveTo(startV.x, startV.y); ctx.lineTo(endV.x, endV.y);\cb1 \
+\cb3                     if (i === 0) \{ ctx.strokeStyle = "rgba(255, 255, 255, 0.4)"; ctx.lineWidth = 2; \} \cb1 \
+\cb3                     else \{ ctx.strokeStyle = "rgba(255, 255, 255, 0.05)"; ctx.lineWidth = 1; \}\cb1 \
+\cb3                     ctx.stroke(); if (i === 0) ctx.lineWidth = 1;\cb1 \
+\
+\cb3                     ctx.beginPath();\cb1 \
+\cb3                     const startH = transform(-gridSize, i);\cb1 \
+\cb3                     const endH = transform(gridSize, i);\cb1 \
+\cb3                     ctx.moveTo(startH.x, startH.y); ctx.lineTo(endH.x, endH.y);\cb1 \
+\cb3                     if (i === 0) \{ ctx.strokeStyle = "rgba(255, 255, 255, 0.4)"; ctx.lineWidth = 2; \} \cb1 \
+\cb3                     else \{ ctx.strokeStyle = "rgba(255, 255, 255, 0.05)"; ctx.lineWidth = 1; \}\cb1 \
+\cb3                     ctx.stroke();\cb1 \
+\cb3                 \}\cb1 \
+\
+\cb3                 // --- Draw "F" Shape ---\cb1 \
+\cb3                 ctx.fillStyle = "rgba(244, 114, 182, 0.2)";\cb1 \
+\cb3                 ctx.beginPath();\cb1 \
+\cb3                 if (fPoints.length > 0) \{\cb1 \
+\cb3                     const startP = transform(fPoints[0].x, fPoints[0].y);\cb1 \
+\cb3                     ctx.moveTo(startP.x, startP.y);\cb1 \
+\cb3                     for (let i = 1; i < fPoints.length; i++) \{\cb1 \
+\cb3                         const p = transform(fPoints[i].x, fPoints[i].y);\cb1 \
+\cb3                         ctx.lineTo(p.x, p.y);\cb1 \
+\cb3                     \}\cb1 \
+\cb3                     ctx.closePath(); ctx.fill(); ctx.strokeStyle = "rgba(244, 114, 182, 0.8)"; ctx.lineWidth = 2; ctx.stroke();\cb1 \
+\cb3                 \}\cb1 \
+\
+\cb3                 const origin = transform(0, 0);\cb1 \
+\cb3                 const i_hat = transform(1, 0);\cb1 \
+\cb3                 const j_hat = transform(0, 1);\cb1 \
+\cb3                 \cb1 \
+\cb3                 // --- Draw User Vector ---\cb1 \
+\cb3                 const v_pos = transform(userVector.x, userVector.y);\cb1 \
+\cb3                 const v_x_comp = transform(userVector.x, 0);\cb1 \
+\cb3                 const v_y_comp = transform(0, userVector.y);\cb1 \
+\cb3                 \cb1 \
+\cb3                 ctx.setLineDash([4, 4]); ctx.strokeStyle = "rgba(250, 204, 21, 0.5)"; ctx.lineWidth = 1;\cb1 \
+\cb3                 ctx.beginPath(); ctx.moveTo(v_x_comp.x, v_x_comp.y); ctx.lineTo(v_pos.x, v_pos.y); ctx.lineTo(v_y_comp.x, v_y_comp.y); ctx.stroke();\cb1 \
+\cb3                 ctx.setLineDash([]);\cb1 \
+\
+\cb3                 drawArrow(origin, v_pos, "#facc15", 4, 12);\cb1 \
+\cb3                 \cb1 \
+\cb3                 const vecLabel = t > 0.01 ? "y" : "x";\cb1 \
+\cb3                 ctx.fillStyle = "#facc15"; ctx.font = "bold 16px Arial"; ctx.fillText(vecLabel, v_pos.x + 10, v_pos.y - 10);\cb1 \
+\
+\cb3                 // --- Draw Basis Vectors ---\cb1 \
+\cb3                 drawArrow(origin, i_hat, "#ef4444", 3);\cb1 \
+\cb3                 drawArrow(origin, j_hat, "#10b981", 3);\cb1 \
+\
+\cb3                 ctx.font = "bold 14px Arial";\cb1 \
+\cb3                 ctx.fillStyle = "#ef4444"; ctx.fillText("u", i_hat.x + 5, i_hat.y + 15);\cb1 \
+\cb3                 ctx.fillStyle = "#10b981"; ctx.fillText("v", j_hat.x + 5, j_hat.y - 5);\cb1 \
+\
+\cb3                 return () => window.removeEventListener('resize', resize);\cb1 \
+\cb3             \}, [currentMatrix, userVector, zoom, showOriginalGrid, t]);\cb1 \
+\
+\cb3             const generateEducationalMatrix = () => \{\cb1 \
+\cb3                 const types = ['rotation', 'shear', 'scale', 'integer'];\cb1 \
+\cb3                 const type = types[Math.floor(Math.random() * types.length)];\cb1 \
+\cb3                 let m = \{ a: 1, b: 0, c: 0, d: 1 \};\cb1 \
+\cb3                 switch (type) \{\cb1 \
+\cb3                     case 'rotation':\cb1 \
+\cb3                         const angles = [30, 45, 60, 90, 120, 135, 150, 180, -45, -90];\cb1 \
+\cb3                         const deg = angles[Math.floor(Math.random() * angles.length)];\cb1 \
+\cb3                         const rad = deg * Math.PI / 180;\cb1 \
+\cb3                         m = \{ a: Math.cos(rad), b: -Math.sin(rad), c: Math.sin(rad), d: Math.cos(rad) \}; break;\cb1 \
+\cb3                     case 'shear':\cb1 \
+\cb3                         const k = (Math.floor(Math.random() * 4) + 1) * 0.5 * (Math.random() < 0.5 ? 1 : -1); \cb1 \
+\cb3                         m = (Math.random() < 0.5) ? \{ a: 1, b: k, c: 0, d: 1 \} : \{ a: 1, b: 0, c: k, d: 1 \}; break;\cb1 \
+\cb3                     case 'scale':\cb1 \
+\cb3                         const sx = (Math.floor(Math.random() * 3) + 1) * 0.5 * (Math.random() < 0.2 ? -1 : 1);\cb1 \
+\cb3                         const sy = (Math.floor(Math.random() * 3) + 1) * 0.5 * (Math.random() < 0.2 ? -1 : 1);\cb1 \
+\cb3                         m = \{ a: sx, b: 0, c: 0, d: sy \}; break;\cb1 \
+\cb3                     case 'integer':\cb1 \
+\cb3                         const randInt = () => Math.floor(Math.random() * 5) - 2; \cb1 \
+\cb3                         m = \{ a: randInt(), b: randInt(), c: randInt(), d: randInt() \};\cb1 \
+\cb3                         if (m.a === 1 && m.d === 1 && m.b === 0 && m.c === 0) m.b = 1;\cb1 \
+\cb3                         if (m.a === 0 && m.b === 0 && m.c === 0 && m.d === 0) m.a = 1; break;\cb1 \
+\cb3                 \}\cb1 \
+\cb3                 return m;\cb1 \
+\cb3             \};\cb1 \
+\
+\cb3             const applyPreset = (type) => \{\cb1 \
+\cb3                 setT(0);\cb1 \
+\cb3                 setTimeout(() => \{\cb1 \
+\cb3                     if (type === 'inverse') \{\cb1 \
+\cb3                         // Inverse Demo: Force Composite, Shear Mat, Inverse Mat\cb1 \
+\cb3                         setShowComposite(true);\cb1 \
+\cb3                         setIsReverseOrder(false); // A -> B (A transforms, B untransforms)\cb1 \
+\cb3                         const demoMat = \{a: 1, b: 1, c: 0, d: 1\}; // Shear X\cb1 \
+\cb3                         setMatrixA(demoMat);\cb1 \
+\cb3                         setMatrixB(invertMatrix(demoMat));\cb1 \
+\cb3                     \} else if (showComposite) \{\cb1 \
+\cb3                          if(type === 'random') setMatrixA(generateEducationalMatrix());\cb1 \
+\cb3                          else \{\cb1 \
+\cb3                             switch(type) \{\cb1 \
+\cb3                                 case 'identity': setMatrixA(\{a:1, b:0, c:0, d:1\}); break;\cb1 \
+\cb3                                 case 'rotate': setMatrixA(\{a:0.707, b:-0.707, c:0.707, d:0.707\}); break;\cb1 \
+\cb3                                 case 'shear': setMatrixA(\{a:1, b:1, c:0, d:1\}); break;\cb1 \
+\cb3                                 case 'scale': setMatrixA(\{a:2, b:0, c:0, d:0.5\}); break;\cb1 \
+\cb3                                 case 'reflect': setMatrixA(\{a:-1, b:0, c:0, d:1\}); break;\cb1 \
+\cb3                             \}\cb1 \
+\cb3                          \}\cb1 \
+\cb3                     \} else \{\cb1 \
+\cb3                          if(type === 'random') setMatrixA(generateEducationalMatrix());\cb1 \
+\cb3                          else \{\cb1 \
+\cb3                             switch(type) \{\cb1 \
+\cb3                                 case 'identity': setMatrixA(\{a:1, b:0, c:0, d:1\}); break;\cb1 \
+\cb3                                 case 'rotate': setMatrixA(\{a:0.707, b:-0.707, c:0.707, d:0.707\}); break;\cb1 \
+\cb3                                 case 'shear': setMatrixA(\{a:1, b:1, c:0, d:1\}); break;\cb1 \
+\cb3                                 case 'scale': setMatrixA(\{a:2, b:0, c:0, d:0.5\}); break;\cb1 \
+\cb3                                 case 'reflect': setMatrixA(\{a:-1, b:0, c:0, d:1\}); break;\cb1 \
+\cb3                             \}\cb1 \
+\cb3                          \}\cb1 \
+\cb3                     \}\cb1 \
+\cb3                     setIsAnimating(true);\cb1 \
+\cb3                 \}, 50);\cb1 \
+\cb3             \};\cb1 \
+\
+\cb3             const vecLabelLegend = t > 0.01 ? "y (\uc0\u22793 \u25563 \u24460 )" : "x (\u21021 \u26399 \u20516 )";\cb1 \
+\cb3             \cb1 \
+\cb3             let targetLabel = "A (\uc0\u30446 \u27161 )";\cb1 \
+\cb3             if (showComposite) \{\cb1 \
+\cb3                 targetLabel = isReverseOrder ? "BA (\uc0\u30446 \u27161 )" : "AB (\u30446 \u27161 )";\cb1 \
+\cb3             \}\cb1 \
+\
+\cb3             return (\cb1 \
+\cb3                 <div className="flex flex-col md:flex-row h-screen w-full overflow-hidden">\cb1 \
+\cb3                     \{/* Left Panel */\}\cb1 \
+\cb3                     <div className="w-full md:w-96 glass-panel h-1/2 md:h-full p-4 flex flex-col z-10 overflow-y-auto shrink-0 relative">\cb1 \
+\cb3                         <h1 className="text-xl font-bold mb-2 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">\cb1 \
+\cb3                             \uc0\u34892 \u21015 \u12392 \u12505 \u12463 \u12488 \u12523 \u12398 \u22793 \u24418 \cb1 \
+\cb3                         </h1>\cb1 \
+\cb3                         \cb1 \
+\cb3                         \{/* Presets */\}\cb1 \
+\cb3                         <div className="grid grid-cols-3 gap-2 mb-4">\cb1 \
+\cb3                             \{[\cb1 \
+\cb3                                 \{id: 'identity', label: '\uc0\u12522 \u12475 \u12483 \u12488 '\},\cb1 \
+\cb3                                 \{id: 'rotate', label: '\uc0\u22238 \u36578 '\},\cb1 \
+\cb3                                 \{id: 'shear', label: '\uc0\u12379 \u12435 \u26029 '\},\cb1 \
+\cb3                                 \{id: 'scale', label: '\uc0\u25313 \u22823 '\},\cb1 \
+\cb3                                 \{id: 'reflect', label: '\uc0\u21453 \u36578 '\},\cb1 \
+\cb3                                 \{id: 'inverse', label: '\uc0\u36870 \u34892 \u21015  (\u20803 \u12395 \u25147 \u12377 )', highlight: true, color: 'bg-emerald-600 hover:bg-emerald-500'\},\cb1 \
+\cb3                                 \{id: 'random', label: '\uc0\u12521 \u12531 \u12480 \u12512 ', highlight: true\},\cb1 \
+\cb3                             ].map(p => (\cb1 \
+\cb3                                 <button \cb1 \
+\cb3                                     key=\{p.id\}\cb1 \
+\cb3                                     onClick=\{() => applyPreset(p.id)\}\cb1 \
+\cb3                                     className=\{`px-2 py-1.5 rounded text-xs font-semibold transition-all\cb1 \
+\cb3                                         $\{p.color \cb1 \
+\cb3                                             ? `$\{p.color\} text-white shadow-lg shadow-emerald-500/30 border border-emerald-400`\cb1 \
+\cb3                                             : p.highlight \cb1 \
+\cb3                                                 ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-500/30 border border-rose-400' \cb1 \
+\cb3                                                 : 'bg-slate-700 hover:bg-slate-600 text-slate-200'\cb1 \
+\cb3                                         \}\cb1 \
+\cb3                                         $\{p.id === 'random' ? 'col-span-2' : ''\}\cb1 \
+\cb3                                         `\}\cb1 \
+\cb3                                 >\cb1 \
+\cb3                                     \{p.label\}\cb1 \
+\cb3                                 </button>\cb1 \
+\cb3                             ))\}\cb1 \
+\cb3                         </div>\cb1 \
+\
+\cb3                         \{/* Composite Toggle */\}\cb1 \
+\cb3                         <div className="flex flex-col gap-2 mb-3 bg-slate-800/40 p-2 rounded border border-slate-700">\cb1 \
+\cb3                              <div className="flex items-center justify-between">\cb1 \
+\cb3                                  <span className="text-xs font-bold text-slate-300">\uc0\u34892 \u21015 \u12398 \u31309  (\u21512 \u25104 ) \u12514 \u12540 \u12489 </span>\cb1 \
+\cb3                                  <div className="relative inline-block w-10 mr-2 align-middle select-none">\cb1 \
+\cb3                                     <input type="checkbox" name="compToggle" id="compToggle" \cb1 \
+\cb3                                         checked=\{showComposite\}\cb1 \
+\cb3                                         onChange=\{() => \{\cb1 \
+\cb3                                             setShowComposite(!showComposite);\cb1 \
+\cb3                                             setT(0);\cb1 \
+\cb3                                             if(!showComposite) setMatrixB(\{a:1, b:0, c:0, d:1\});\cb1 \
+\cb3                                         \}\}\cb1 \
+\cb3                                         className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300 left-0"\cb1 \
+\cb3                                         style=\{\{ top: 0 \}\}\cb1 \
+\cb3                                     />\cb1 \
+\cb3                                     <label htmlFor="compToggle" className=\{`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer transition-colors duration-300 $\{showComposite ? 'bg-purple-500' : 'bg-slate-600'\}`\}></label>\cb1 \
+\cb3                                  </div>\cb1 \
+\cb3                              </div>\cb1 \
+\cb3                              \cb1 \
+\cb3                              \{/* Reverse Order Toggle (Only in Composite Mode) */\}\cb1 \
+\cb3                              <div className=\{`flex items-center justify-between pt-2 border-t border-slate-700/50 transition-all duration-300 $\{showComposite ? 'opacity-100 max-h-10' : 'opacity-0 max-h-0 overflow-hidden'\}`\}>\cb1 \
+\cb3                                 <span className="text-xs text-slate-400 pl-2">\uc0\u38918 \u24207 \u12434 \u20837 \u12428 \u26367 \u12360  (<math><mi>B</mi><mo>\'d7</mo><mi>A</mi></math>)</span>\cb1 \
+\cb3                                 <div className="mr-2">\cb1 \
+\cb3                                    <input type="checkbox" \cb1 \
+\cb3                                         checked=\{isReverseOrder\}\cb1 \
+\cb3                                         onChange=\{() => \{setIsReverseOrder(!isReverseOrder); setT(0);\}\}\cb1 \
+\cb3                                         className="w-4 h-4 rounded text-cyan-400 focus:ring-0 bg-slate-700 border-slate-500 cursor-pointer"\cb1 \
+\cb3                                    />\cb1 \
+\cb3                                 </div>\cb1 \
+\cb3                              </div>\cb1 \
+\cb3                         </div>\cb1 \
+\
+\cb3                         \{/* Matrix Inputs */\}\cb1 \
+\cb3                         <div className="mb-2 space-y-2">\cb1 \
+\cb3                              <MatrixInput \cb1 \
+\cb3                                 label="A" \cb1 \
+\cb3                                 subLabel=\{showComposite ? "(\uc0\u24038 )" : "(\u30446 \u27161 )"\} \cb1 \
+\cb3                                 matrix=\{matrixA\} \cb1 \
+\cb3                                 onChange=\{(m) => \{setMatrixA(m); setT(0);\}\} \cb1 \
+\cb3                                 colorClass="text-cyan-400"\cb1 \
+\cb3                              />\cb1 \
+\cb3                              \cb1 \
+\cb3                              \{showComposite && (\cb1 \
+\cb3                                 <MatrixInput \cb1 \
+\cb3                                     label="B" \cb1 \
+\cb3                                     subLabel="(\uc0\u21491 )" \cb1 \
+\cb3                                     matrix=\{matrixB\} \cb1 \
+\cb3                                     onChange=\{(m) => \{setMatrixB(m); setT(0);\}\} \cb1 \
+\cb3                                     colorClass="text-purple-400"\cb1 \
+\cb3                                 />\cb1 \
+\cb3                              )\}\cb1 \
+\cb3                         </div>\cb1 \
+\
+\cb3                         \{/* Vector Input */\}\cb1 \
+\cb3                         <div className="mb-2 bg-slate-800/30 p-3 rounded-lg border border-slate-700">\cb1 \
+\cb3                              <h2 className="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-2 flex items-center justify-between">\cb1 \
+\cb3                                  \uc0\u21021 \u26399 \u12505 \u12463 \u12488 \u12523  x\cb1 \
+\cb3                                  <span className="text-[10px] font-normal text-slate-400">\uc0\u12473 \u12521 \u12452 \u12480 \u12540 \u12391 \u35519 \u25972 </span>\cb1 \
+\cb3                              </h2>\cb1 \
+\cb3                              <div className="space-y-2">\cb1 \
+\cb3                                 <div className="flex items-center gap-2">\cb1 \
+\cb3                                     <span className="text-xs font-mono text-yellow-200 w-4">x</span>\cb1 \
+\cb3                                     <input \cb1 \
+\cb3                                         type="range" min="-3" max="3" step="0.1" \cb1 \
+\cb3                                         value=\{userVector.x\} \cb1 \
+\cb3                                         onChange=\{(e) => setUserVector(\{...userVector, x: parseFloat(e.target.value)\})\}\cb1 \
+\cb3                                         className="flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-yellow-400"\cb1 \
+\cb3                                     />\cb1 \
+\cb3                                     <span className="text-xs font-mono text-right w-8">\{userVector.x.toFixed(1)\}</span>\cb1 \
+\cb3                                 </div>\cb1 \
+\cb3                                 <div className="flex items-center gap-2">\cb1 \
+\cb3                                     <span className="text-xs font-mono text-yellow-200 w-4">y</span>\cb1 \
+\cb3                                     <input \cb1 \
+\cb3                                         type="range" min="-3" max="3" step="0.1" \cb1 \
+\cb3                                         value=\{userVector.y\} \cb1 \
+\cb3                                         onChange=\{(e) => setUserVector(\{...userVector, y: parseFloat(e.target.value)\})\}\cb1 \
+\cb3                                         className="flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-yellow-400"\cb1 \
+\cb3                                     />\cb1 \
+\cb3                                     <span className="text-xs font-mono text-right w-8">\{userVector.y.toFixed(1)\}</span>\cb1 \
+\cb3                                 </div>\cb1 \
+\cb3                              </div>\cb1 \
+\cb3                         </div>\cb1 \
+\
+\cb3                         \{/* Controls (Zoom + Ghost) */\}\cb1 \
+\cb3                         <div className="mb-4 bg-slate-800/30 p-2 rounded-lg border border-slate-700/50 space-y-3">\cb1 \
+\cb3                              <div className="flex justify-between items-center text-xs text-slate-400">\cb1 \
+\cb3                                 <span className="font-bold text-slate-300">\uc0\u34920 \u31034 \u12469 \u12452 \u12474  (Zoom)</span>\cb1 \
+\cb3                                 <span>\{zoom.toFixed(1)\}x</span>\cb1 \
+\cb3                             </div>\cb1 \
+\cb3                             <input \cb1 \
+\cb3                                 type="range" min="0.5" max="3.0" step="0.1" \cb1 \
+\cb3                                 value=\{zoom\} \cb1 \
+\cb3                                 onChange=\{(e) => setZoom(parseFloat(e.target.value))\}\cb1 \
+\cb3                                 className="w-full h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-slate-400"\cb1 \
+\cb3                             />\cb1 \
+\
+\cb3                             <div className="flex items-center justify-between border-t border-slate-700/50 pt-2">\cb1 \
+\cb3                                 <span className="text-xs font-bold text-slate-300">\uc0\u21021 \u26399 \u12464 \u12522 \u12483 \u12489 \u12434 \u34920 \u31034 </span>\cb1 \
+\cb3                                 <div className="relative inline-block w-10 mr-2 align-middle select-none">\cb1 \
+\cb3                                     <input type="checkbox" name="toggle" id="toggle" \cb1 \
+\cb3                                         checked=\{showOriginalGrid\}\cb1 \
+\cb3                                         onChange=\{() => setShowOriginalGrid(!showOriginalGrid)\}\cb1 \
+\cb3                                         className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300 left-0"\cb1 \
+\cb3                                         style=\{\{ top: 0 \}\}\cb1 \
+\cb3                                     />\cb1 \
+\cb3                                     <label htmlFor="toggle" className=\{`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer transition-colors duration-300 $\{showOriginalGrid ? 'bg-cyan-400' : 'bg-slate-600'\}`\}></label>\cb1 \
+\cb3                                 </div>\cb1 \
+\cb3                             </div>\cb1 \
+\cb3                         </div>\cb1 \
+\
+\cb3                         \{/* Slider */\}\cb1 \
+\cb3                         <div className="mb-4 relative">\cb1 \
+\cb3                             <div className="flex justify-between text-xs text-slate-400 mb-1">\cb1 \
+\cb3                                 <span>I (\uc0\u21021 \u26399 )</span>\cb1 \
+\cb3                                 \{showComposite && <span className="absolute left-1/2 -translate-x-1/2 text-slate-500">Step 2\uc0\u12408 </span>\}\cb1 \
+\cb3                                 <span className=\{`font-bold $\{showComposite ? 'text-purple-400' : 'text-cyan-400'\}`\}>\{(t*100).toFixed(0)\}%</span>\cb1 \
+\cb3                                 <span>\{targetLabel\}</span>\cb1 \
+\cb3                             </div>\cb1 \
+\cb3                             <input \cb1 \
+\cb3                                 type="range" \cb1 \
+\cb3                                 min="0" \cb1 \
+\cb3                                 max="1" \cb1 \
+\cb3                                 step="0.005"\cb1 \
+\cb3                                 value=\{t\}\cb1 \
+\cb3                                 onChange=\{(e) => \{setT(parseFloat(e.target.value)); setIsAnimating(false);\}\}\cb1 \
+\cb3                                 className=\{`w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer $\{showComposite ? 'accent-purple-400' : 'accent-cyan-400'\}`\}\cb1 \
+\cb3                             />\cb1 \
+\cb3                             \{/* Midpoint Marker for Composite Mode */\}\cb1 \
+\cb3                             \{showComposite && (\cb1 \
+\cb3                                 <div className="absolute top-6 left-1/2 w-0.5 h-2 bg-slate-500 -translate-x-1/2 pointer-events-none"></div>\cb1 \
+\cb3                             )\}\cb1 \
+\cb3                         </div>\cb1 \
+\
+\cb3                         \{/* Real-time Math Explanation */\}\cb1 \
+\cb3                         <MathExplanation \cb1 \
+\cb3                             currentMatrix=\{currentMatrix\} \cb1 \
+\cb3                             vector=\{userVector\} \cb1 \
+\cb3                             t=\{t\}\cb1 \
+\cb3                             isComposite=\{showComposite\}\cb1 \
+\cb3                             matrixA=\{matrixA\}\cb1 \
+\cb3                             matrixB=\{matrixB\}\cb1 \
+\cb3                             isReverseOrder=\{isReverseOrder\}\cb1 \
+\cb3                         />\cb1 \
+\cb3                     </div>\cb1 \
+\
+\cb3                     \{/* Right Panel */\}\cb1 \
+\cb3                     <div className="w-full md:flex-1 h-1/2 md:h-full relative bg-slate-900" ref=\{containerRef\}>\cb1 \
+\cb3                         <canvas ref=\{canvasRef\} className="block w-full h-full cursor-crosshair" />\cb1 \
+\cb3                         <div className="absolute top-4 right-4 pointer-events-none space-y-1 text-right bg-slate-900/50 p-2 rounded backdrop-blur-sm">\cb1 \
+\cb3                              <div className="text-xs text-red-400 font-bold">\uc0\u9679  u (\u22522 \u26412 \u12505 \u12463 \u12488 \u12523 )</div>\cb1 \
+\cb3                              <div className="text-xs text-emerald-400 font-bold">\uc0\u9679  v (\u22522 \u26412 \u12505 \u12463 \u12488 \u12523 )</div>\cb1 \
+\cb3                              <div className="text-xs text-yellow-400 font-bold">\uc0\u9679  \{vecLabelLegend\}</div>\cb1 \
+\cb3                         </div>\cb1 \
+\cb3                     </div>\cb1 \
+\cb3                 </div>\cb1 \
+\cb3             );\cb1 \
+\cb3         \};\cb1 \
+\
+\cb3         const root = ReactDOM.createRoot(document.getElementById('root'));\cb1 \
+\cb3         root.render(<App />);\cb1 \
+\cb3     \cf6 \strokec6 </\cf7 \strokec7 script\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\pard\pardeftab720\partightenfactor0
+\cf6 \cb3 \strokec6 </\cf7 \strokec7 body\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+\cf6 \cb3 \strokec6 </\cf7 \strokec7 html\cf6 \strokec6 >\cf5 \cb1 \strokec5 \
+}

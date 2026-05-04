@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行列とベクトルの変形（3D）</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        math {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.0em;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+
+        // --- Math & Helper Functions ---
+
+        const rotatePoint = (x, y, z, angleX, angleY) => {
+            let cosY = Math.cos(angleY);
+            let sinY = Math.sin(angleY);
+            let x1 = x * cosY - z * sinY;
+            let z1 = x * sinY + z * cosY;
+
+            let cosX = Math.cos(angleX);
+            let sinX = Math.sin(angleX);
+            let y2 = y * cosX - z1 * sinX;
+            let z2 = y * sinX + z1 * cosX;
+
+            return { x: x1, y: y2, z: z2 };
+        };
+
+        const project = (visX, visY, visZ, width, height, scale, angleX, angleY) => {
+            const rotated = rotatePoint(visX, visY, visZ, angleX, angleY);
+            return {
+                x: width / 2 + rotated.x * scale,
+                y: height / 2 - rotated.y * scale,
+                z: rotated.z 
+            };
+        };
+
+        // Matrix Multiplication (3x3 * 3x3)
+        const multiplyMatrices = (m1, m2) => {
+            const res = {};
+            for (let i = 1; i <= 3; i++) {
+                for (let j = 1; j <= 3; j++) {
+                    let sum = 0;
+                    for (let k = 1; k <= 3; k++) {
+                        sum += m1[`a${i}${k}`] * m2[`a${k}${j}`];
+                    }
+                    res[`a${i}${j}`] = sum;
+                }
+            }
+            return res;
+        };
+
+        const identityMatrix = {
+            a11: 1, a12: 0, a13: 0,
+            a21: 0, a22: 1, a23: 0,
+            a31: 0, a32: 0, a33: 1
+        };
+
+        // --- 3D Model: "The House" ---
+        // Normalized House Model
+        const houseModel = {
+            vertices: [
+                {x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:1, y:1, z:0}, {x:0, y:1, z:0}, // Floor
+                {x:0, y:0, z:1}, {x:1, y:0, z:1}, {x:1, y:1, z:1}, {x:0, y:1, z:1}, // Ceiling
+                {x:0.5, y:0.5, z:1.5} // Roof Apex
+            ],
+            faces: [
+                { indices: [0, 1, 5, 4], color: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.5)' },
+                { indices: [1, 2, 6, 5], color: 'rgba(59, 130, 246, 0.25)', border: 'rgba(59, 130, 246, 0.5)' },
+                { indices: [2, 3, 7, 6], color: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.5)' },
+                { indices: [3, 0, 4, 7], color: 'rgba(59, 130, 246, 0.25)', border: 'rgba(59, 130, 246, 0.5)' },
+                { indices: [0, 3, 2, 1], color: 'rgba(100, 116, 139, 0.2)', border: 'rgba(148, 163, 184, 0.5)' },
+                { indices: [4, 5, 8], color: 'rgba(234, 179, 8, 0.3)', border: 'rgba(250, 204, 21, 0.8)' },
+                { indices: [5, 6, 8], color: 'rgba(234, 179, 8, 0.4)', border: 'rgba(250, 204, 21, 0.8)' },
+                { indices: [6, 7, 8], color: 'rgba(234, 179, 8, 0.3)', border: 'rgba(250, 204, 21, 0.8)' },
+                { indices: [7, 4, 8], color: 'rgba(234, 179, 8, 0.4)', border: 'rgba(250, 204, 21, 0.8)' },
+            ]
+        };
+
+        // --- Components ---
+
+        const MathMatrix3x1 = ({ x, y, z, dim = 3 }) => (
+            <math>
+                <mrow>
+                    <mo>[</mo>
+                    <mtable>
+                        <mtr><mtd><mn>{x.toFixed(2)}</mn></mtd></mtr>
+                        <mtr><mtd><mn>{y.toFixed(2)}</mn></mtd></mtr>
+                        {dim === 3 && <mtr><mtd><mn>{z.toFixed(2)}</mn></mtd></mtr>}
+                    </mtable>
+                    <mo>]</mo>
+                </mrow>
+            </math>
+        );
+
+        const MathMatrixGeneral = ({ m, rows, cols }) => (
+            <math>
+                <mrow>
+                    <mo>[</mo>
+                    <mtable>
+                        {Array.from({ length: rows }).map((_, i) => (
+                            <mtr key={i}>
+                                {Array.from({ length: cols }).map((_, j) => (
+                                    <mtd key={j}><mn>{m[`a${i+1}${j+1}`].toFixed(1)}</mn></mtd>
+                                ))}
+                            </mtr>
+                        ))}
+                    </mtable>
+                    <mo>]</mo>
+                </mrow>
+            </math>
+        );
+
+        const MatrixInputGeneral = ({ matrix, onChange, disabled, label, colorClass = "text-cyan-400", rows, cols }) => {
+            const handleChange = (r, c, val) => {
+                const num = parseFloat(val);
+                if (!isNaN(num)) {
+                    onChange({ ...matrix, [`a${r}${c}`]: num });
+                }
+            };
+
+            return (
+                <div className="flex items-center justify-center space-x-2 my-2 p-3 rounded-xl bg-slate-800/50 border border-slate-700 shadow-md">
+                    <span className={`text-lg font-serif italic ${colorClass}`}>{label}</span>
+                    <span className="text-lg text-slate-400">=</span>
+                    <div className="relative flex items-center px-2 py-1">
+                        <div className="absolute left-0 top-0 bottom-0 w-2 border-l-2 border-t-2 border-b-2 border-slate-400 rounded-l-sm"></div>
+                        <div className="grid gap-1 mx-1" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+                            {Array.from({ length: rows }).map((_, i) => (
+                                Array.from({ length: cols }).map((_, j) => {
+                                    const r = i + 1;
+                                    const c = j + 1;
+                                    const key = `a${r}${c}`;
+                                    return (
+                                        <input
+                                            key={key}
+                                            type="number"
+                                            step="0.5"
+                                            value={matrix[key]}
+                                            onChange={(e) => handleChange(r, c, e.target.value)}
+                                            disabled={disabled}
+                                            className={`w-10 h-8 text-center bg-slate-900 border ${
+                                                r === c ? "border-slate-600 text-slate-300" : "border-slate-700 text-slate-400"
+                                            } rounded hover:border-cyan-500 focus:border-cyan-400 focus:text-white focus:outline-none transition-all font-mono text-xs`}
+                                        />
+                                    );
+                                })
+                            ))}
+                        </div>
+                        <div className="absolute right-0 top-0 bottom-0 w-2 border-r-2 border-t-2 border-b-2 border-slate-400 rounded-r-sm"></div>
+                    </div>
+                </div>
+            );
+        };
+
+        const MathExplanation = ({ currentMatrix, vector, result, config, matrixA, matrixB }) => {
+            const { mode, type, dims } = config;
+
+            return (
+                <div className="text-sm text-slate-300 space-y-3 mt-4 bg-slate-900/80 p-4 rounded-lg border border-slate-600 shadow-inner">
+                    <div className="flex justify-between items-center border-b border-slate-700 pb-2 mb-2">
+                        <p className="font-bold text-yellow-400 flex items-center gap-2">
+                             <i data-lucide="calculator" className="w-4 h-4"></i>
+                             計算結果
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-2 overflow-x-auto pb-2 min-h-[80px]">
+                        {mode === 'product' ? (
+                            <>
+                                <span className="text-slate-500 text-xs italic">A</span>
+                                <div className="scale-90"><MathMatrixGeneral m={matrixA} rows={dims.out} cols={dims.mid} /></div>
+                                <span className="text-slate-500 text-xs italic">B</span>
+                                <div className="scale-90"><MathMatrixGeneral m={matrixB} rows={dims.mid} cols={dims.in} /></div>
+                            </>
+                        ) : (
+                            <div className="scale-90"><MathMatrixGeneral m={matrixA} rows={dims.out} cols={dims.in} /></div>
+                        )}
+
+                        <span className="text-slate-500 text-xs italic ml-2">v</span>
+                        <span className="text-slate-400">=</span>
+                        {/* Result Vector */}
+                        <div className="bg-slate-700 px-1 py-1 rounded border border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                            <MathMatrix3x1 {...result} dim={dims.out} />
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Configuration Types ---
+        const CONFIGS = {
+            '3-3': { mode: 'single', type: 'standard', label: '3D → 3D (Standard)', dims: { in: 3, mid: 3, out: 3 } },
+            '2-3': { mode: 'single', type: 'embed', label: '2D → 3D (Embedding)', dims: { in: 2, mid: 2, out: 3 } }, // 3x2 Matrix
+            '3-2': { mode: 'single', type: 'project', label: '3D → 2D (Projection)', dims: { in: 3, mid: 3, out: 2 } }, // 2x3 Matrix
+            '2-3-2': { mode: 'product', type: 'prod_232', label: '2D → 3D → 2D', dims: { in: 2, mid: 3, out: 2 } }, // B(3x2), A(2x3)
+            '3-2-3': { mode: 'product', type: 'prod_323', label: '3D → 2D → 3D', dims: { in: 3, mid: 2, out: 3 } }, // B(2x3), A(3x2)
+        };
+
+        const App = () => {
+            const [configKey, setConfigKey] = useState('3-3');
+            const config = CONFIGS[configKey];
+            const { mode, dims } = config;
+
+            // Matrix A & B (Always maintain 3x3 internal state, mask externally)
+            const [matrixA, setMatrixA] = useState(identityMatrix);
+            const [matrixB, setMatrixB] = useState(identityMatrix);
+            const [userVector, setUserVector] = useState({ x: 1, y: 1, z: 1 });
+
+            const [t, setT] = useState(0); 
+            const [isAnimating, setIsAnimating] = useState(false);
+            const [zoom, setZoom] = useState(1.0);
+            const [showHouse, setShowHouse] = useState(true);
+            const [camera, setCamera] = useState({ x: 0.5, y: 0.8 });
+
+            const [isDragging, setIsDragging] = useState(false);
+            const lastMousePos = useRef({ x: 0, y: 0 });
+            const canvasRef = useRef(null);
+            const containerRef = useRef(null);
+
+            // Reset state when config changes
+            useEffect(() => {
+                resetViewAndValues();
+            }, [configKey]);
+
+            // Reset Function
+            const resetViewAndValues = () => {
+                setT(0);
+                setIsAnimating(false);
+                setMatrixA(identityMatrix);
+                setMatrixB(identityMatrix);
+                setCamera({ x: 0.5, y: 0.8 });
+                setZoom(1.0);
+
+                // For 2D input modes, reset Z vector to 0
+                const defaultV = { x: 1, y: 1, z: 1 };
+                if (CONFIGS[configKey].dims.in === 2) {
+                    defaultV.z = 0;
+                }
+                setUserVector(defaultV);
+            };
+
+            // Calculate Effective Current Matrix (Interpolated)
+            const currentMatrix = useMemo(() => {
+                const interpolate = (startM, endM, factor) => {
+                    const res = {};
+                    for (let key in startM) {
+                        res[key] = startM[key] + (endM[key] - startM[key]) * factor;
+                    }
+                    return res;
+                };
+
+                let effA = {...matrixA};
+                let effB = {...matrixB};
+
+                // Apply constraints to A and B based on dimensions
+                // If single mode (A):
+                if (mode === 'single') {
+                    // dims.in (cols), dims.out (rows)
+                    if (dims.out === 2) { effA.a31=0; effA.a32=0; effA.a33=0; } // Row 3 = 0
+                    if (dims.in === 2) { effA.a13=0; effA.a23=0; effA.a33=0; } // Col 3 = 0 (Effectively)
+                } else {
+                    // Product mode: B is first (in -> mid), A is second (mid -> out)
+                    // Matrix B constraints
+                    if (dims.mid === 2) { effB.a31=0; effB.a32=0; effB.a33=0; } // B Row 3 = 0
+                    if (dims.in === 2) { effB.a13=0; effB.a23=0; effB.a33=0; } // B Col 3 = 0
+
+                    // Matrix A constraints
+                    if (dims.out === 2) { effA.a31=0; effA.a32=0; effA.a33=0; } // A Row 3 = 0
+                    if (dims.mid === 2) { effA.a13=0; effA.a23=0; effA.a33=0; } // A Col 3 = 0
+                }
+
+                if (mode === 'single') {
+                    return interpolate(identityMatrix, effA, t);
+                } else {
+                    // Phase 1 (0 <= t < 0.5): I -> B
+                    if (t <= 0.5) {
+                        const factor = t * 2;
+                        return interpolate(identityMatrix, effB, factor);
+                    } else {
+                        // Phase 2 (0.5 <= t <= 1): B -> AB
+                        const factor = (t - 0.5) * 2;
+                        const partialA = interpolate(identityMatrix, effA, factor);
+                        return multiplyMatrices(partialA, effB);
+                    }
+                }
+            }, [matrixA, matrixB, t, configKey]);
+
+            // Final Result Vector Calculation (for display)
+            const resultVector = useMemo(() => {
+                const m = currentMatrix;
+                // Force input vector z=0 if dims.in is 2
+                const v = dims.in === 2 ? { ...userVector, z: 0 } : userVector;
+
+                const res = {
+                    x: m.a11 * v.x + m.a12 * v.y + m.a13 * v.z,
+                    y: m.a21 * v.x + m.a22 * v.y + m.a23 * v.z,
+                    z: m.a31 * v.x + m.a32 * v.y + m.a33 * v.z
+                };
+
+                // Force output vector z=0 if dims.out is 2 (just to be clean)
+                if (dims.out === 2) res.z = 0;
+
+                return res;
+            }, [currentMatrix, userVector, dims]);
+
+            useEffect(() => {
+                let animationFrameId;
+                if (isAnimating) {
+                    const step = 0.005;
+                    const animate = () => {
+                        setT(prev => {
+                            if (prev >= 1) {
+                                setIsAnimating(false);
+                                return 1;
+                            }
+                            return prev + step;
+                        });
+                        animationFrameId = requestAnimationFrame(animate);
+                    };
+                    animationFrameId = requestAnimationFrame(animate);
+                }
+                return () => cancelAnimationFrame(animationFrameId);
+            }, [isAnimating]);
+
+            useEffect(() => { lucide.createIcons(); }, []);
+
+            // --- Drawing Logic ---
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const container = containerRef.current;
+
+                const w = container.clientWidth;
+                const h = container.clientHeight;
+                if (w === 0 || h === 0) return;
+                canvas.width = w; canvas.height = h;
+
+                const scale = (Math.min(w, h) / 6) * zoom; 
+
+                ctx.fillStyle = "#0f172a";
+                ctx.fillRect(0, 0, w, h);
+
+                // Helper to enforce 2D input
+                const enforceInputDim = (p) => dims.in === 2 ? { ...p, z: 0 } : p;
+
+                const transform = (p) => {
+                    // Apply dimension constraint to input point
+                    const pIn = enforceInputDim(p);
+                    const m = currentMatrix;
+                    return {
+                        x: m.a11 * pIn.x + m.a12 * pIn.y + m.a13 * pIn.z,
+                        y: m.a21 * pIn.x + m.a22 * pIn.y + m.a23 * pIn.z,
+                        z: m.a31 * pIn.x + m.a32 * pIn.y + m.a33 * pIn.z
+                    };
+                };
+
+                const toScreen = (p) => project(p.x, p.z, p.y, w, h, scale, camera.x, camera.y);
+
+                const drawLine = (p1, p2, color, width = 1, dashed = false) => {
+                    const s1 = toScreen(p1);
+                    const s2 = toScreen(p2);
+                    ctx.beginPath();
+                    ctx.moveTo(s1.x, s1.y);
+                    ctx.lineTo(s2.x, s2.y);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = width;
+                    if (dashed) ctx.setLineDash([4, 4]); else ctx.setLineDash([]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                };
+
+                const drawDot = (p, color, radius = 3) => {
+                    const s = toScreen(p);
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                };
+
+                const origin = { x: 0, y: 0, z: 0 };
+
+                // Grid (Floor)
+                const gridSize = 4;
+                ctx.lineWidth = 1;
+                for (let i = -gridSize; i <= gridSize; i++) {
+                    drawLine({x: i, y: -gridSize, z: 0}, {x: i, y: gridSize, z: 0}, "rgba(255, 255, 255, 0.05)", 1);
+                    drawLine({x: -gridSize, y: i, z: 0}, {x: gridSize, y: i, z: 0}, "rgba(255, 255, 255, 0.05)", 1);
+                }
+
+                // Axes
+                drawLine({x:0, y:0, z:0}, {x:5, y:0, z:0}, "rgba(239, 68, 68, 0.2)", 1);
+                drawLine({x:0, y:0, z:0}, {x:0, y:5, z:0}, "rgba(16, 185, 129, 0.2)", 1);
+                // Hide Z axis line if input is 2D and currently at t=0 (to emphasize 2D-ness)
+                // But generally useful to keep for reference frame.
+                drawLine({x:0, y:0, z:0}, {x:0, y:0, z:5}, "rgba(59, 130, 246, 0.2)", 1);
+
+                // Object (House or Flat Square if 2D input)
+                if (showHouse) {
+                    // Use house model, but if dims.in is 2, the Z values of house are flattened.
+                    // Actually house has Z height. If dims.in is 2, we should probably just project it to floor or use a 2D shape.
+                    // Let's flatten the house model if dims.in == 2
+
+                    const effectiveModelVertices = dims.in === 2 
+                        ? houseModel.vertices.map(v => ({...v, z: 0})) // Flatten to floor
+                        : houseModel.vertices;
+
+                    const tVerts = effectiveModelVertices.map(transform);
+                    const screenVerts = tVerts.map(toScreen);
+
+                    // Sorting faces
+                    const sortedFaces = houseModel.faces.map(face => {
+                        let zSum = 0;
+                        face.indices.forEach(idx => { zSum += screenVerts[idx].z; });
+                        return { ...face, zDepth: zSum / face.indices.length };
+                    }).sort((a, b) => b.zDepth - a.zDepth);
+
+                    sortedFaces.forEach(face => {
+                        ctx.beginPath();
+                        const first = screenVerts[face.indices[0]];
+                        ctx.moveTo(first.x, first.y);
+                        for(let i=1; i<face.indices.length; i++) {
+                            const v = screenVerts[face.indices[i]];
+                            ctx.lineTo(v.x, v.y);
+                        }
+                        ctx.closePath();
+                        ctx.fillStyle = face.color;
+                        ctx.fill();
+                        ctx.strokeStyle = face.border;
+                        ctx.lineWidth = 1.5;
+                        ctx.stroke();
+                    });
+                } else {
+                    // Cube fallback
+                    const cubeVerts = [{x:0,y:0,z:0}, {x:1,y:0,z:0}, {x:1,y:1,z:0}, {x:0,y:1,z:0}, {x:0,y:0,z:1}, {x:1,y:0,z:1}, {x:1,y:1,z:1}, {x:0,y:1,z:1}];
+                    const tVerts = cubeVerts.map(v => transform(dims.in === 2 ? {...v, z:0} : v));
+                    const edges = [[0,1], [1,2], [2,3], [3,0], [4,5], [5,6], [6,7], [7,4], [0,4], [1,5], [2,6], [3,7]];
+                    edges.forEach(edge => {
+                        drawLine(tVerts[edge[0]], tVerts[edge[1]], "rgba(148, 163, 184, 0.2)", 1);
+                    });
+                }
+
+                // Basis Vectors
+                const i_hat = transform({x:1, y:0, z:0});
+                const j_hat = transform({x:0, y:1, z:0});
+                const k_hat = transform({x:0, y:0, z:1});
+
+                const drawArrow = (to, color, label) => {
+                    const sFrom = toScreen(origin);
+                    const sTo = toScreen(to);
+                    ctx.beginPath();
+                    ctx.moveTo(sFrom.x, sFrom.y);
+                    ctx.lineTo(sTo.x, sTo.y);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    ctx.fillStyle = color;
+                    ctx.font = "bold 14px Arial";
+                    ctx.fillText(label, sTo.x + 5, sTo.y - 5);
+                    drawDot(to, color, 4);
+                };
+
+                drawArrow(i_hat, "#ef4444", "i'"); 
+                drawArrow(j_hat, "#10b981", "j'"); 
+                if (dims.in === 3) drawArrow(k_hat, "#3b82f6", "k'"); // Only show k if input is 3D
+
+                // User Vector
+                const effectiveUserVector = enforceInputDim(userVector);
+                const v_transformed = transform(effectiveUserVector);
+                if (t < 1) drawLine(origin, effectiveUserVector, "rgba(250, 204, 21, 0.3)", 1, true);
+                drawArrow(v_transformed, "#facc15", "v");
+
+                // Component path (visualize for 3D only to keep 2D clean, or simplify)
+                // ... omitted for clarity in mixed dimensions ...
+
+            }, [currentMatrix, userVector, zoom, camera, configKey, showHouse]); 
+
+            // Interaction
+            const handleMouseDown = (e) => { setIsDragging(true); lastMousePos.current = { x: e.clientX, y: e.clientY }; };
+            const handleMouseMove = (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - lastMousePos.current.x;
+                const dy = e.clientY - lastMousePos.current.y;
+                setCamera(prev => ({ x: Math.max(-1.5, Math.min(1.5, prev.x + dy * 0.01)), y: prev.y + dx * 0.01 }));
+                lastMousePos.current = { x: e.clientX, y: e.clientY };
+            };
+            const handleMouseUp = () => setIsDragging(false);
+
+            // Presets for various dimensions
+            const applyPreset = (presetName) => {
+                setT(0);
+                setTimeout(() => {
+                    let mA = identityMatrix;
+                    let mB = identityMatrix;
+
+                    if (configKey === '2-3') { // 2D -> 3D (Embedding)
+                         if (presetName === 'random') mA = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:0.5, a32:0.5, a33:0 };
+                         if (presetName === 'twist')  mA = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:1, a32:-1, a33:0 };
+                    } else if (configKey === '3-2') { // 3D -> 2D (Projection)
+                         if (presetName === 'random') mA = { a11:1, a12:0, a13:0.5, a21:0, a22:1, a23:0.5, a31:0, a32:0, a33:0 };
+                         if (presetName === 'iso')    mA = { a11:0.7, a12:-0.7, a13:0, a21:0.4, a22:0.4, a23:-0.8, a31:0, a32:0, a33:0 };
+                    } else if (configKey === '2-3-2') { // 2D -> 3D -> 2D
+                         if (presetName === 'random') {
+                             mB = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:1, a32:0, a33:0 }; // Lift x to z
+                             mA = { a11:1, a12:0, a13:0, a21:0, a22:0, a23:1, a31:0, a32:0, a33:0 }; // Drop y, map z to y
+                         }
+                    } else if (configKey === '3-2-3') { // 3D -> 2D -> 3D
+                         if (presetName === 'random') {
+                             mB = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:0, a32:0, a33:0 }; // Flatten Z
+                             mA = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:0.5, a32:0.5, a33:0 }; // Lift back up
+                         }
+                    } else {
+                        // Standard 3-3 (3D -> 3D)
+                        // Restoring requested standard presets
+                         switch(presetName) {
+                            case 'rotateZ': 
+                                const rad = Math.PI / 4;
+                                mA = { ...identityMatrix, a11: Math.cos(rad), a12: -Math.sin(rad), a21: Math.sin(rad), a22: Math.cos(rad) }; 
+                                break;
+                            case 'scale': mA = { ...identityMatrix, a11: 1.5, a22: 1.5, a33: 1.5 }; break;
+                            case 'shear': mA = { ...identityMatrix, a12: 1 }; break; // Shear X by Y
+                            case 'reflect': mA = { ...identityMatrix, a11: -1 }; break; // Reflect X
+                            case 'random': mA = { a11: Math.random(), a12: Math.random()-0.5, a13: 0, a21: 0, a22: 1, a23: 0, a31: 0, a32: 0, a33: 1 }; break;
+                        }
+                    }
+                    setMatrixA(mA);
+                    setMatrixB(mB);
+                    setIsAnimating(true);
+                }, 50);
+            };
+
+            const renderPresets = () => {
+                if (configKey === '3-3') {
+                     return (
+                         <div className="grid grid-cols-3 gap-2 mb-4">
+                             <button onClick={() => applyPreset('rotateZ')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600">回転 (Z)</button>
+                             <button onClick={() => applyPreset('scale')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600">拡大縮小</button>
+                             <button onClick={() => applyPreset('shear')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600">せん断</button>
+                             <button onClick={() => applyPreset('reflect')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600">反転 (X)</button>
+                             <button onClick={() => applyPreset('random')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600">ランダム</button>
+                         </div>
+                     );
+                } else {
+                    return (
+                        <div className="grid grid-cols-2 gap-2 mb-4">
+                             <button onClick={() => applyPreset('random')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600">
+                                ランダム例
+                            </button>
+                             <button onClick={() => applyPreset(configKey.includes('2-3') ? 'twist' : 'iso')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600">
+                                特殊な例
+                            </button>
+                        </div>
+                    );
+                }
+            };
+
+            return (
+                <div className="flex flex-col md:flex-row h-screen w-full overflow-hidden" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+
+                    {/* Left Panel */}
+                    <div className="w-full md:w-[450px] glass-panel h-2/5 md:h-full p-6 flex flex-col z-10 overflow-y-auto shrink-0 shadow-2xl relative">
+                        <div className="flex justify-between items-center mb-4">
+                            <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                                行列とベクトルの変形（3D）
+                            </h1>
+                            <button 
+                                onClick={resetViewAndValues}
+                                className="flex items-center gap-1 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded border border-slate-600 transition-colors"
+                                title="視点と数値をリセット"
+                            >
+                                <i data-lucide="rotate-ccw" className="w-3 h-3"></i> リセット
+                            </button>
+                        </div>
+
+                        {/* Config Dropdown */}
+                        <div className="mb-4">
+                            <label className="text-xs text-slate-400 font-bold block mb-1">変換モード (次元)</label>
+                            <select 
+                                value={configKey} 
+                                onChange={(e) => setConfigKey(e.target.value)}
+                                className="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                            >
+                                {Object.entries(CONFIGS).map(([key, conf]) => (
+                                    <option key={key} value={key}>{conf.label}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Presets */}
+                        {renderPresets()}
+
+                        <div className="flex items-center gap-2 mb-4 bg-slate-800/50 p-2 rounded">
+                            <input type="checkbox" id="showHouse" checked={showHouse} onChange={(e) => setShowHouse(e.target.checked)} className="w-4 h-4 accent-cyan-400 cursor-pointer"/>
+                            <label htmlFor="showHouse" className="text-sm text-slate-300 cursor-pointer select-none">オブジェクトを表示</label>
+                        </div>
+
+                        {/* Matrix Inputs */}
+                        <div className="space-y-4 mb-4 relative">
+                            {mode === 'product' && (
+                                <div className="relative">
+                                    <div className="absolute -left-3 top-4 bottom-4 w-1 bg-gradient-to-b from-slate-700 via-emerald-500/50 to-slate-700 rounded"></div>
+                                    <div className="pl-2">
+                                        <p className="text-[10px] text-emerald-400 font-bold mb-1">STEP 1: 最初の変換 (B)</p>
+                                        <MatrixInputGeneral 
+                                            matrix={matrixB} 
+                                            onChange={(m) => {setMatrixB(m); setT(0);}} 
+                                            label="B"
+                                            colorClass="text-emerald-400"
+                                            rows={dims.mid}
+                                            cols={dims.in}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="relative">
+                                {mode === 'product' && <div className="absolute -left-3 top-4 bottom-4 w-1 bg-gradient-to-b from-slate-700 via-cyan-500/50 to-slate-700 rounded"></div>}
+                                <div className={mode === 'product' ? "pl-2" : ""}>
+                                    <p className={`text-[10px] font-bold mb-1 ${mode==='product' ? 'text-cyan-400' : 'text-slate-400'}`}>
+                                        {mode === 'product' ? 'STEP 2: 次の変換 (A)' : '変換行列 (A)'}
+                                    </p>
+                                    <MatrixInputGeneral 
+                                        matrix={matrixA} 
+                                        onChange={(m) => {setMatrixA(m); setT(mode==='product'?0.5:1);}} 
+                                        label="A" 
+                                        colorClass="text-cyan-400"
+                                        rows={dims.out}
+                                        cols={mode === 'product' ? dims.mid : dims.in}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Vector Input */}
+                        <div className="mb-4 bg-slate-800/40 p-4 rounded-xl border border-slate-700">
+                             <h2 className="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+                                 ベクトル v (入力次元: {dims.in}D)
+                             </h2>
+                             {['x', 'y', 'z'].slice(0, dims.in).map(axis => (
+                                <div key={axis} className="flex items-center gap-3 mb-2">
+                                    <span className={`text-sm font-mono font-bold w-4 uppercase ${axis==='x'?'text-red-400':axis==='y'?'text-emerald-400':'text-blue-400'}`}>{axis}</span>
+                                    <input type="range" min="-3" max="3" step="0.1" value={userVector[axis]} onChange={(e) => setUserVector({...userVector, [axis]: parseFloat(e.target.value)})} className="flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-white"/>
+                                    <input type="number" value={userVector[axis]} onChange={(e) => setUserVector({...userVector, [axis]: parseFloat(e.target.value)})} className="w-12 bg-slate-900 border border-slate-700 rounded text-right text-xs p-1 text-slate-200"/>
+                                </div>
+                             ))}
+                        </div>
+
+                        {/* Slider */}
+                        <div className="mb-2">
+                            <div className="flex justify-between text-xs text-slate-400 mb-1 font-mono">
+                                <span>Start</span>
+                                <span className="text-cyan-400">t = {t.toFixed(2)}</span>
+                                <span>End</span>
+                            </div>
+                            <input type="range" min="0" max="1" step="0.001" value={t} onChange={(e) => {setT(parseFloat(e.target.value)); setIsAnimating(false);}} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400"/>
+                        </div>
+
+                        <MathExplanation currentMatrix={currentMatrix} vector={userVector} result={resultVector} config={config} matrixA={matrixA} matrixB={matrixB} />
+                    </div>
+
+                    {/* Right Panel (Canvas) */}
+                    <div className="w-full md:flex-1 h-3/5 md:h-full relative bg-slate-900 overflow-hidden cursor-move" ref={containerRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove}>
+                        <canvas ref={canvasRef} className="block w-full h-full" />
+
+                        <div className="absolute top-4 right-4 pointer-events-none space-y-1 text-right bg-slate-900/60 p-3 rounded-lg backdrop-blur border border-slate-700/50">
+                             <div className="text-xs text-slate-400 font-bold mb-1">凡例 (Z-up)</div>
+                             <div className="text-xs text-red-400 font-bold flex items-center justify-end gap-2">X軸 <span className="w-2 h-2 rounded-full bg-red-400"></span></div>
+                             <div className="text-xs text-emerald-400 font-bold flex items-center justify-end gap-2">Y軸 <span className="w-2 h-2 rounded-full bg-emerald-400"></span></div>
+                             {dims.in === 3 && <div className="text-xs text-blue-400 font-bold flex items-center justify-end gap-2">Z軸 <span className="w-2 h-2 rounded-full bg-blue-400"></span></div>}
+                             <div className="text-xs text-yellow-400 font-bold flex items-center justify-end gap-2 mt-2">v <span className="w-2 h-2 rounded-full bg-yellow-400"></span></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

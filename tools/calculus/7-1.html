@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>インタラクティブな多変数関数イントロダクション</title>
+
+    <!-- three.js (3Dグラフィックライブラリ) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- GSAP (アニメーションライブラリ) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --bg-color: #F1F5F9;
+            --text-color: #1E293B;
+            --panel-bg: rgba(255, 255, 255, 0.7);
+            --panel-border: rgba(226, 232, 240, 0.8);
+            --input-bg: #F8FAFC;
+            --input-border: #CBD5E1;
+            --slider-track: #CBD5E1;
+            --button-secondary-bg: #475569;
+            --button-secondary-hover: #334155;
+            --icon-color: #475569;
+        }
+
+        body.dark {
+            --bg-color: #111827;
+            --text-color: #F9FAFB;
+            --panel-bg: rgba(31, 41, 55, 0.7);
+            --panel-border: rgba(75, 85, 99, 0.5);
+            --input-bg: #374151;
+            --input-border: #4B5563;
+            --slider-track: #4B5563;
+            --button-secondary-bg: #4B5563;
+            --button-secondary-hover: #374151;
+            --icon-color: #F9FAFB;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .section {
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .content-container {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem;
+            align-items: center;
+            transition: grid-template-columns 0.5s ease-in-out, gap 0.5s ease-in-out;
+        }
+        @media (max-width: 768px) {
+            .content-container { grid-template-columns: 1fr; }
+            .section { flex-direction: column; padding-top: 5rem; }
+        }
+        .text-panel {
+            background-color: var(--panel-bg);
+            border-color: var(--panel-border);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            border-width: 1px;
+            transition: all 0.5s ease-in-out;
+            overflow: hidden;
+        }
+        #graph-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            outline: none;
+            z-index: -1;
+        }
+        .scroll-down-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }
+            40% { transform: translate(-50%, -30px); }
+            60% { transform: translate(-50%, -15px); }
+        }
+        .black-box {
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        body.dark .black-box {
+             box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        #standalone-canvas-container {
+            width: 100%;
+            height: 60vh;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            background-color: rgba(0,0,0,0.1);
+        }
+        body.dark #standalone-canvas-container {
+             background-color: rgba(0,0,0,0.2);
+        }
+        #standalone-3d-canvas { width: 100%; height: 100%; }
+
+        /* パネル非表示モード */
+        .panels-hidden .content-container { grid-template-columns: 0 1fr; gap: 0; }
+        .panels-hidden .text-panel { opacity: 0; transform: translateX(-120%); pointer-events: none; padding: 0; }
+        @media (max-width: 768px) {
+            .panels-hidden .content-container { grid-template-columns: 1fr; }
+            .panels-hidden .text-panel { transform: translateY(-50px); max-height: 0; padding: 0 2rem; border-width: 0; }
+        }
+
+        /* UI要素のテーマ対応 */
+        .themed-input { background-color: var(--input-bg); border-color: var(--input-border); }
+        .themed-slider { background-color: var(--slider-track); }
+        .themed-button-secondary { background-color: var(--button-secondary-bg); }
+        .themed-button-secondary:hover { background-color: var(--button-secondary-hover); }
+        .themed-icon { color: var(--icon-color); }
+
+        /* MathML スタイル */
+        math {
+            font-size: 1.1em;
+        }
+        .inline-math {
+            display: inline-block;
+            vertical-align: -0.2em;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="graph-canvas"></canvas>
+
+    <!-- UIボタンコンテナ -->
+    <div class="fixed top-4 right-4 z-50 flex gap-2">
+        <button id="toggle-theme-btn" class="p-3 bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-full text-white hover:bg-gray-700 transition-colors" aria-label="テーマを切り替える">
+            <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        </button>
+        <button id="toggle-panels-btn" class="p-3 bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-full text-white hover:bg-gray-700 transition-colors" aria-label="テキストパネルの表示を切り替える">
+            <svg id="icon-show" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+            <svg id="icon-hide" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .847 0 1.67.127 2.455.364m0 11.458A9.961 9.961 0 0021.542 12c-1.274-4.057-5.064-7-9.542-7a9.96 9.96 0 00-1.036.08M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" /></svg>
+        </button>
+    </div>
+
+    <main id="main-container">
+        <!-- セクション1: 1変数関数 -->
+        <section id="section1" class="section">
+            <div class="content-container">
+                <div class="text-panel" id="panel1">
+                    <h1 class="text-3xl font-bold mb-4">おなじみの世界</h1>
+                    <p class="mb-6">これは、中学校で学んだおなじみの放物線です。数式は <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>y</mi><mo>=</mo><mi>a</mi><msup><mi>x</mi><mn>2</mn></msup></mrow></math>。</p>
+                    <p class="mb-4">私たちは普段、<span class="font-bold text-cyan-500">x</span> が変数で、<span class="font-bold text-amber-500">a</span> はグラフの形を決めるための<strong class="text-amber-500">定数 (パラメーター)</strong>だと考えています。</p>
+                    <p class="mb-4">下のスライダーを動かして、<span class="font-bold text-amber-500">a</span> の値がグラフの形をどう変えるか確認してみましょう。</p>
+                    <div class="mt-6">
+                        <label for="a-slider" class="block mb-2 text-sm font-medium">定数 <span class="font-bold text-amber-500">a</span> = <span id="a-value">1.00</span></label>
+                        <input id="a-slider" type="range" min="-2" max="2" value="1" step="0.01" class="w-full h-2 themed-slider rounded-lg appearance-none cursor-pointer">
+                    </div>
+                </div>
+                <div></div>
+            </div>
+            <div id="indicator1" class="scroll-down-indicator themed-icon">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+        </section>
+
+        <!-- セクション2: ブラックボックス -->
+        <section id="section2" class="section">
+            <div class="content-container">
+                <div class="text-panel" id="panel2">
+                    <h1 class="text-3xl font-bold mb-4">発想の転換</h1>
+                    <p class="mb-4">ここで、少し考え方を変えてみましょう。</p>
+                    <p>もし、<span class="font-bold text-amber-500">a</span> も <span class="font-bold text-cyan-500">x</span> と同じように、結果を出すために必要な<strong>「入力」</strong>だとしたら？</p>
+                    <p>この関数は、2つの値を入れて初めて1つの答えが出てくる「ブラックボックス」と考えることができます。</p>
+                </div>
+                <div class="flex items-center justify-center h-full">
+                    <div class="w-full max-w-md">
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col items-center space-y-4">
+                                <label for="input-x">入力 <span class="font-bold text-cyan-500">x</span></label>
+                                <input id="input-x" type="number" value="1.5" step="0.1" class="w-24 themed-input border rounded-md p-2 text-center">
+                                <label for="input-a">入力 <span class="font-bold text-amber-500">a</span></label>
+                                <input id="input-a" type="number" value="1.0" step="0.1" class="w-24 themed-input border rounded-md p-2 text-center">
+                            </div>
+                            <div class="text-5xl text-gray-400 dark:text-gray-500 mx-4">&rarr;</div>
+                            <div id="black-box-anim" class="black-box w-48 h-32 flex items-center justify-center">
+                                <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>y</mi><mo>=</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>a</mi><mo>)</mo></mrow></math>
+                            </div>
+                            <div class="text-5xl text-gray-400 dark:text-gray-500 mx-4">&rarr;</div>
+                            <div class="flex flex-col items-center space-y-2">
+                                <label>出力 y</label>
+                                <div id="output-f" class="w-24 h-10 themed-input border rounded-md p-2 text-center flex items-center justify-center">2.25</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div id="indicator2" class="scroll-down-indicator themed-icon">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+        </section>
+
+        <!-- セクション3: 2変数関数へ -->
+        <section id="section3" class="section">
+            <div class="content-container">
+                <div class="text-panel" id="panel3">
+                    <h1 class="text-3xl font-bold mb-4">次元を拡張</h1>
+                    <p class="mb-4">今度は、<strong class="text-amber-500">a</strong> も変数として捉え、<strong class="text-cyan-500">x</strong> と共に変化させてみましょう。数式は <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>y</mi><mo>=</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>a</mi><mo>)</mo><mo>=</mo><mi>a</mi><msup><mi>x</mi><mn>2</mn></msup></mrow></math>。</p>
+                    <p class="mb-4">スライダーを動かすと、<span class="font-bold text-amber-500">a</span> の値に応じて異なる放物線が描かれます。この無数の放物線が集まると、何が見えてくるでしょう…？</p>
+                    <p class="mb-6">下のボタンを押すか、下にスクロールして、新しい次元へ拡張してみましょう。</p>
+                    <div class="mt-6">
+                         <label for="a-var-slider" class="block mb-2 text-sm font-medium">変数 <span class="font-bold text-amber-500">a</span> = <span id="a-var-value">1.00</span></label>
+                        <input id="a-var-slider" type="range" min="-2" max="2" value="1" step="0.01" class="w-full h-2 themed-slider rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <button id="to-3d-btn" class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
+                        3Dで見る
+                    </button>
+                </div>
+                 <div></div>
+            </div>
+        </section>
+
+        <!-- セクション4: 3Dグラフ -->
+        <section id="section4" class="section">
+            <div class="content-container">
+                <div class="text-panel" id="panel4">
+                    <h1 class="text-3xl font-bold mb-4">多変数関数の世界</h1>
+                    <p class="mb-4">3次元の世界。数式は <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>y</mi><mo>=</mo><mi>a</mi><msup><mi>x</mi><mn>2</mn></msup></mrow></math>。</p>
+                     <p class="mb-4">縦軸が <strong class="text-green-500">y</strong>, 横軸が <strong class="text-cyan-500">x</strong>, そして奥行きが <strong class="text-amber-500">a</strong> の3次元空間です。マウスでグラフを自由に動かせます。</p>
+                    <div class="mt-6 space-y-4">
+                        <div>
+                            <label for="a-slice-slider" class="block mb-2 text-sm font-medium">断面の位置 <span class="font-bold text-amber-500">a</span> = <span id="a-slice-value">1.00</span></label>
+                            <input id="a-slice-slider" type="range" min="-2" max="2" value="1" step="0.01" class="w-full h-2 themed-slider rounded-lg appearance-none cursor-pointer">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">断面の放物線をハイライトします。</p>
+                        </div>
+                    </div>
+                     <button id="reset-view-btn" class="mt-8 w-full themed-button-secondary text-white font-bold py-3 px-4 rounded-lg transition duration-300">
+                        視点をリセット
+                    </button>
+                </div>
+                 <div></div>
+            </div>
+        </section>
+
+        <!-- セクション5: 独立した3Dグラフ -->
+        <section id="section5" class="section">
+            <div class="content-container">
+                <div class="text-panel">
+                    <h1 class="text-3xl font-bold mb-4">グラフを動かしてみる</h1>
+                    <p class="mb-4">このグラフは、スクロールの影響を受けません。回転、ズーム、そして断面を動かして、多変数関数の形を観察してみましょう。</p>
+                    <div class="mt-6 space-y-4">
+                        <div>
+                            <label for="standalone-a-slice-slider" class="block mb-2 text-sm font-medium">断面の位置 <span class="font-bold text-amber-500">a</span> = <span id="standalone-a-slice-value">1.00</span></label>
+                            <input id="standalone-a-slice-slider" type="range" min="-2" max="2" value="1" step="0.01" class="w-full h-2 themed-slider rounded-lg appearance-none cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+                <div id="standalone-canvas-container">
+                    <canvas id="standalone-3d-canvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- グローバル変数 ---
+        let scene, camera, renderer, controls;
+        let scene2, camera2, renderer2, controls2;
+        let currentSection = 0;
+        const sections = document.querySelectorAll('.section');
+
+        let parabola, axes2D, ghostParabolas = [];
+        let surface, axes3D, gridHelper, crossSectionLine;
+        let surface2, axes3D_2, gridHelper2, crossSectionLine2;
+
+        const params = {
+            a: 1.0, a_var: 1.0, is3D: false,
+            cameraPos2D: { x: 0, y: 0, z: 10 },
+            cameraPos3D: { x: 5, y: 5, z: 12 },
+        };
+        const params2 = { a_slice: 1.0 };
+
+        const colors = {
+            dark: {
+                parabola: 0x67e8f9,
+                ghost: 0x818cf8,
+                crossSection: 0xfbbf24,
+                surface: 0x818cf8,
+                grid: 0x4B5563,
+            },
+            light: {
+                parabola: 0x3B82F6,
+                ghost: 0x93C5FD,
+                crossSection: 0xEF4444,
+                surface: 0x60A5FA,
+                grid: 0xCBD5E1,
+            }
+        };
+        let currentColors = colors.dark;
+
+        // --- UI要素 ---
+        const ui = {
+            aSlider: document.getElementById('a-slider'),
+            aValue: document.getElementById('a-value'),
+            aVarSlider: document.getElementById('a-var-slider'),
+            aVarValue: document.getElementById('a-var-value'),
+            aSliceSlider: document.getElementById('a-slice-slider'),
+            aSliceValue: document.getElementById('a-slice-value'),
+            to3DBtn: document.getElementById('to-3d-btn'),
+            resetViewBtn: document.getElementById('reset-view-btn'),
+            inputX: document.getElementById('input-x'),
+            inputA: document.getElementById('input-a'),
+            outputF: document.getElementById('output-f'),
+            standaloneSliceSlider: document.getElementById('standalone-a-slice-slider'),
+            standaloneSliceYValue: document.getElementById('standalone-a-slice-value'),
+            togglePanelsBtn: document.getElementById('toggle-panels-btn'),
+            mainContainer: document.getElementById('main-container'),
+            iconShow: document.getElementById('icon-show'),
+            iconHide: document.getElementById('icon-hide'),
+            toggleThemeBtn: document.getElementById('toggle-theme-btn'),
+            iconSun: document.getElementById('icon-sun'),
+            iconMoon: document.getElementById('icon-moon'),
+        };
+
+        // --- 初期化 ---
+        function init() {
+            scene = new THREE.Scene();
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('graph-canvas'), antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(params.cameraPos2D.x, params.cameraPos2D.y, params.cameraPos2D.z);
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enabled = false;
+
+            create2DGraph();
+            create3DGraph();
+            initStandalone3D();
+            setupEventListeners();
+            setupScrollAnimations();
+            setupTheme();
+            animate();
+            handleSectionChange(0);
+        }
+
+        // --- ユーティリティ関数 ---
+        const parabolaRadius = 0.05;
+
+        function createParabolaPoints2D(a_val) {
+            const points = [];
+            if (Math.abs(a_val) < 0.01) a_val = 0.01 * (a_val >= 0 ? 1 : -1);
+            const xMax = Math.sqrt(Math.abs(5 / a_val));
+            for (let i = -100; i <= 100; i++) {
+                const x = (i / 100) * xMax;
+                const y = a_val * x * x;
+                if (Math.abs(y) <= 5) points.push(new THREE.Vector3(x, y, 0));
+            }
+            return points;
+        }
+
+        function createParabolaPoints3D(a_val) {
+            const points = [];
+            if (Math.abs(a_val) < 0.01) a_val = 0.01 * (a_val >= 0 ? 1 : -1);
+            const scale = 1 / 4;
+            const xMax = Math.sqrt(Math.abs(5 / (a_val * scale)));
+            for (let i = -100; i <= 100; i++) {
+                const x = (i / 100) * xMax;
+                const y_output = a_val * x * x * scale;
+                if (Math.abs(y_output) <= 5) points.push(new THREE.Vector3(x, y_output, 0));
+            }
+            return points;
+        }
+
+        function createParabolaTube(points, material) {
+            if (points.length < 2) return new THREE.Mesh();
+            const curve = new THREE.CatmullRomCurve3(points);
+            const geometry = new THREE.TubeGeometry(curve, 64, parabolaRadius, 8, false);
+            return new THREE.Mesh(geometry, material);
+        }
+
+        function updateParabolaTube(tubeMesh, points) {
+             if (points.length < 2) { tubeMesh.visible = false; return; }
+             tubeMesh.visible = true;
+             const curve = new THREE.CatmullRomCurve3(points);
+             tubeMesh.geometry.dispose();
+             tubeMesh.geometry = new THREE.TubeGeometry(curve, 64, parabolaRadius, 8, false);
+        }
+
+        function createAxes(size, thickness) {
+            const axes = new THREE.Group();
+            const materials = [ new THREE.MeshBasicMaterial({ color: 0x38bdf8 }), new THREE.MeshBasicMaterial({ color: 0x4ade80 }) ];
+            const geometries = [ new THREE.BoxGeometry(size, thickness, thickness), new THREE.BoxGeometry(thickness, size, thickness) ];
+            const xAxis = new THREE.Mesh(geometries[0], materials[0]);
+            xAxis.position.x = size / 2;
+            const yAxis = new THREE.Mesh(geometries[1], materials[1]);
+            yAxis.position.y = size / 2;
+            axes.add(xAxis, yAxis);
+            return axes;
+        }
+
+        function createAxes3D(size, thickness) {
+            const axes = new THREE.Group();
+            const materials = [ new THREE.MeshBasicMaterial({ color: 0x38bdf8 }), new THREE.MeshBasicMaterial({ color: 0x4ade80 }), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }) ]; // x, y, a
+            const geometries = [ new THREE.BoxGeometry(size, thickness, thickness), new THREE.BoxGeometry(thickness, size, thickness), new THREE.BoxGeometry(thickness, thickness, size) ];
+            const xAxis = new THREE.Mesh(geometries[0], materials[0]); // x-axis
+            xAxis.position.x = size / 2;
+            const yAxis = new THREE.Mesh(geometries[1], materials[1]); // y-axis (output)
+            yAxis.position.y = size / 2;
+            const aAxis = new THREE.Mesh(geometries[2], materials[2]); // a-axis (parameter, depth)
+            aAxis.position.z = -size / 2;
+            axes.add(xAxis, yAxis, aAxis);
+            return axes;
+        }
+
+        // --- グラフ作成 ---
+        function create2DGraph() {
+            axes2D = createAxes(10, 0.02);
+            scene.add(axes2D);
+            const material = new THREE.MeshBasicMaterial({ color: currentColors.parabola });
+            const points = createParabolaPoints2D(params.a);
+            parabola = createParabolaTube(points, material);
+            scene.add(parabola);
+        }
+
+        function create3DGraph() {
+            const surfaceFunc = (u, v, target) => {
+                const x = (u - 0.5) * 8; // x-axis
+                const a_param = (v - 0.5) * 8; // a-axis (parameter)
+                const y_output = a_param * x * x / 4; // y-axis (output)
+                target.set(x, y_output, -a_param); // map (x, y_out, a_in) to (x, y, z)
+            };
+            const geometry = new THREE.ParametricGeometry(surfaceFunc, 50, 50);
+            const material = new THREE.MeshStandardMaterial({ color: currentColors.surface, side: THREE.DoubleSide, metalness: 0.3, roughness: 0.6, transparent: true, opacity: 0.8 });
+            surface = new THREE.Mesh(geometry, material);
+            surface.visible = false;
+            scene.add(surface);
+
+            axes3D = createAxes3D(5, 0.03);
+            axes3D.visible = false;
+            scene.add(axes3D);
+
+            gridHelper = new THREE.GridHelper(10, 10, currentColors.grid, currentColors.grid);
+            gridHelper.rotation.x = Math.PI / 2;
+            gridHelper.visible = false;
+            scene.add(gridHelper);
+
+            const crossSectionMaterial = new THREE.MeshBasicMaterial({ color: currentColors.crossSection });
+            const points = createParabolaPoints3D(params.a_var);
+            crossSectionLine = createParabolaTube(points, crossSectionMaterial);
+            crossSectionLine.visible = false;
+            scene.add(crossSectionLine);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5);
+            scene.add(directionalLight);
+        }
+
+        // --- 独立3Dシーン ---
+        function initStandalone3D() {
+            const canvas = document.getElementById('standalone-3d-canvas');
+            const container = document.getElementById('standalone-canvas-container');
+
+            scene2 = new THREE.Scene();
+
+            renderer2 = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer2.setPixelRatio(window.devicePixelRatio);
+
+            camera2 = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera2.position.set(params.cameraPos3D.x, params.cameraPos3D.y, params.cameraPos3D.z);
+            camera2.lookAt(0,0,0);
+
+            controls2 = new THREE.OrbitControls(camera2, renderer2.domElement);
+
+            const onResize = () => {
+                renderer2.setSize(container.clientWidth, container.clientHeight);
+                camera2.aspect = container.clientWidth / container.clientHeight;
+                camera2.updateProjectionMatrix();
+            };
+            onResize();
+            new ResizeObserver(onResize).observe(container);
+
+            const surfaceFunc = (u, v, target) => {
+                const x = (u - 0.5) * 8;
+                const a_param = (v - 0.5) * 8;
+                const y_output = a_param * x * x / 4;
+                target.set(x, y_output, -a_param);
+            };
+            const geometry = new THREE.ParametricGeometry(surfaceFunc, 50, 50);
+            const material = new THREE.MeshStandardMaterial({ color: currentColors.surface, side: THREE.DoubleSide, metalness: 0.3, roughness: 0.6 });
+            surface2 = new THREE.Mesh(geometry, material);
+            scene2.add(surface2);
+
+            axes3D_2 = createAxes3D(5, 0.03);
+            scene2.add(axes3D_2);
+
+            gridHelper2 = new THREE.GridHelper(10, 10, currentColors.grid, currentColors.grid);
+            gridHelper2.rotation.x = Math.PI / 2;
+            scene2.add(gridHelper2);
+
+            const crossSectionMaterial = new THREE.MeshBasicMaterial({ color: currentColors.crossSection });
+            const points = createParabolaPoints3D(params2.a_slice);
+            crossSectionLine2 = createParabolaTube(points, crossSectionMaterial);
+            crossSectionLine2.position.z = -params2.a_slice;
+            scene2.add(crossSectionLine2);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene2.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5);
+            scene2.add(directionalLight);
+        }
+
+        // --- 更新関数 ---
+        function updateParabola() {
+            const points = createParabolaPoints2D(params.a);
+            updateParabolaTube(parabola, points);
+        }
+
+        function addGhostParabola() {
+            if (ghostParabolas.length > 20) {
+                const oldGhost = ghostParabolas.shift();
+                scene.remove(oldGhost);
+                oldGhost.geometry.dispose();
+                oldGhost.material.dispose();
+            }
+            const ghostMaterial = new THREE.MeshBasicMaterial({ color: currentColors.ghost, transparent: true, opacity: 0.25 });
+            const points = createParabolaPoints2D(params.a_var);
+            const ghost = createParabolaTube(points, ghostMaterial);
+            ghostParabolas.push(ghost);
+            scene.add(ghost);
+        }
+
+        function clearGhostParabolas() {
+            ghostParabolas.forEach(ghost => {
+                scene.remove(ghost);
+                ghost.geometry.dispose();
+                ghost.material.dispose();
+            });
+            ghostParabolas.length = 0;
+        }
+
+        function updateCrossSection() {
+            if(crossSectionLine) {
+                const points = createParabolaPoints3D(params.a_var);
+                updateParabolaTube(crossSectionLine, points);
+                crossSectionLine.position.z = -params.a_var;
+            }
+        }
+
+        function updateStandaloneCrossSection() {
+            if(crossSectionLine2) {
+                const points = createParabolaPoints3D(params2.a_slice);
+                updateParabolaTube(crossSectionLine2, points);
+                crossSectionLine2.position.z = -params2.a_slice;
+            }
+        }
+
+        // --- イベントリスナー ---
+        function setupEventListeners() {
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }, false);
+
+            ui.aSlider.addEventListener('input', (e) => {
+                params.a = parseFloat(e.target.value);
+                ui.aValue.textContent = params.a.toFixed(2);
+                updateParabola();
+            });
+
+            const syncAndUpdateA = (value) => {
+                const newA = parseFloat(value);
+                params.a_var = newA;
+                ui.aVarSlider.value = newA;
+                ui.aSliceSlider.value = newA;
+                ui.aVarValue.textContent = newA.toFixed(2);
+                ui.aSliceValue.textContent = newA.toFixed(2);
+            };
+
+            ui.aVarSlider.addEventListener('input', (e) => {
+                syncAndUpdateA(e.target.value);
+                const points = createParabolaPoints2D(params.a_var);
+                updateParabolaTube(parabola, points);
+                addGhostParabola();
+                updateCrossSection();
+            });
+
+            ui.aSliceSlider.addEventListener('input', (e) => {
+                syncAndUpdateA(e.target.value);
+                updateCrossSection();
+                if(currentSection === 2) {
+                   const points = createParabolaPoints2D(params.a_var);
+                   updateParabolaTube(parabola, points);
+                   addGhostParabola();
+                }
+            });
+
+            ui.standaloneSliceSlider.addEventListener('input', (e) => {
+                params2.a_slice = parseFloat(e.target.value);
+                ui.standaloneSliceYValue.textContent = params2.a_slice.toFixed(2);
+                updateStandaloneCrossSection();
+            });
+
+            ui.to3DBtn.addEventListener('click', () => {
+                window.scrollTo({ top: sections[3].offsetTop, behavior: 'smooth' });
+            });
+
+            ui.resetViewBtn.addEventListener('click', () => {
+                if (params.is3D) {
+                    gsap.to(camera.position, {
+                        duration: 1, x: params.cameraPos3D.x, y: params.cameraPos3D.y, z: params.cameraPos3D.z, ease: 'power2.inOut'
+                    });
+                }
+            });
+
+            [ui.inputX, ui.inputA].forEach(input => {
+                input.addEventListener('input', updateBlackBox);
+            });
+
+            ui.togglePanelsBtn.addEventListener('click', () => {
+                ui.mainContainer.classList.toggle('panels-hidden');
+                const isHidden = ui.mainContainer.classList.contains('panels-hidden');
+                ui.iconShow.classList.toggle('hidden', isHidden);
+                ui.iconHide.classList.toggle('hidden', !isHidden);
+            });
+        }
+
+        function updateBlackBox() {
+            const x = parseFloat(ui.inputX.value);
+            const a = parseFloat(ui.inputA.value);
+            if (!isNaN(x) && !isNaN(a)) {
+                const result = a * x * x;
+                ui.outputF.textContent = result.toFixed(2);
+                gsap.fromTo("#black-box-anim", {scale: 1}, {scale: 1.05, duration: 0.2, yoyo: true, repeat: 1, ease: "power1.inOut"});
+            }
+        }
+
+        // --- スクロールアニメーション ---
+        function setupScrollAnimations() {
+            gsap.registerPlugin(ScrollTrigger);
+            sections.forEach((section, i) => {
+                if (i >= sections.length -1) return;
+                const panel = section.querySelector('.text-panel, .flex.items-center.justify-center');
+                gsap.fromTo(panel, 
+                    { opacity: 0, y: 50 },
+                    {
+                        opacity: 1, y: 0, duration: 1,
+                        scrollTrigger: {
+                            trigger: section, start: 'top center', end: 'center center', scrub: 1,
+                            onEnter: () => handleSectionChange(i),
+                            onEnterBack: () => handleSectionChange(i),
+                        }
+                    }
+                );
+            });
+        }
+
+        function handleSectionChange(index) {
+            currentSection = index;
+            document.querySelectorAll('.scroll-down-indicator').forEach((indicator, i) => {
+                 gsap.to(indicator, { opacity: i === index && i < sections.length - 2 ? 1 : 0, duration: 0.5 });
+            });
+
+            if (index < 3) {
+                if (params.is3D) transitionTo2D();
+                const newParam = index === 2 ? params.a_var : params.a;
+                const points = createParabolaPoints2D(newParam);
+                updateParabolaTube(parabola, points);
+                if (index < 2) clearGhostParabolas();
+            } else {
+                if (!params.is3D) transitionTo3D();
+            }
+        }
+
+        function transitionTo3D() {
+            params.is3D = true;
+            controls.enabled = true;
+            controls.target.set(0, 0, 0);
+            gsap.to(camera.position, { 
+                duration: 2, x: params.cameraPos3D.x, y: params.cameraPos3D.y, z: params.cameraPos3D.z, ease: 'power3.inOut',
+                onUpdate: () => { camera.lookAt(0, 0, 0); }
+            });
+            parabola.visible = false;
+            ghostParabolas.forEach(g => g.visible = false);
+            axes2D.visible = false;
+            surface.visible = true;
+            axes3D.visible = true;
+            gridHelper.visible = true;
+            crossSectionLine.visible = true;
+            gsap.fromTo(surface.material, {opacity: 0}, {opacity: 0.8, duration: 1.5, delay: 0.5});
+        }
+
+        function transitionTo2D() {
+            params.is3D = false;
+            controls.enabled = false;
+            gsap.timeline()
+                .to(camera.position, { duration: 2, x: params.cameraPos2D.x, y: params.cameraPos2D.y, z: params.cameraPos2D.z, ease: 'power3.inOut' })
+                .to(camera.rotation, { duration: 2, x: 0, y: 0, z: 0, ease: 'power3.inOut' }, "<");
+            parabola.visible = true;
+            ghostParabolas.forEach(g => g.visible = currentSection === 2);
+            axes2D.visible = true;
+            surface.visible = false;
+            axes3D.visible = false;
+            gridHelper.visible = false;
+            crossSectionLine.visible = false;
+        }
+
+        // --- テーマ切り替え ---
+        function setupTheme() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                setTheme('dark');
+            } else {
+                setTheme('light');
+            }
+
+            ui.toggleThemeBtn.addEventListener('click', () => {
+                const newTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+        }
+
+        function setTheme(theme) {
+            localStorage.setItem('theme', theme);
+            currentColors = colors[theme];
+
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+                ui.iconSun.classList.add('hidden');
+                ui.iconMoon.classList.remove('hidden');
+            } else {
+                document.body.classList.remove('dark');
+                ui.iconSun.classList.remove('hidden');
+                ui.iconMoon.classList.add('hidden');
+            }
+            updateAllColors();
+        }
+
+        function updateAllColors() {
+            if (!parabola) return; // 未初期化の場合は何もしない
+            parabola.material.color.set(currentColors.parabola);
+            surface.material.color.set(currentColors.surface);
+            crossSectionLine.material.color.set(currentColors.crossSection);
+            gridHelper.material.color.set(currentColors.grid);
+
+            surface2.material.color.set(currentColors.surface);
+            crossSectionLine2.material.color.set(currentColors.crossSection);
+            gridHelper2.material.color.set(currentColors.grid);
+
+            // ゴーストは動的に生成されるため、色変更は生成時に行う
+            clearGhostParabolas();
+        }
+
+        // --- アニメーションループ ---
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+
+            if (renderer2) {
+                controls2.update();
+                renderer2.render(scene2, camera2);
+            }
+        }
+
+        init();
+    });
+    </script>
+</body>
+</html>

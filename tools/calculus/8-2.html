@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>関数の連続性と偏微分可能性の可視化</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Set theme on initial load
+        if (localStorage.theme === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+            document.documentElement.classList.remove('dark')
+        } else {
+            document.documentElement.classList.add('dark')
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            overscroll-behavior: none;
+        }
+        math {
+            font-size: 1.1em;
+        }
+        .control-panel {
+            scrollbar-width: thin;
+        }
+        /* Dark scrollbar */
+        .dark .control-panel { scrollbar-color: #4a5568 #2d3748; }
+        .dark .control-panel::-webkit-scrollbar { width: 8px; }
+        .dark .control-panel::-webkit-scrollbar-track { background: #2d3748; }
+        .dark .control-panel::-webkit-scrollbar-thumb { background-color: #4a5568; border-radius: 4px; }
+        /* Light scrollbar */
+        .light .control-panel { scrollbar-color: #a0aec0 #e2e8f0; }
+        .light .control-panel::-webkit-scrollbar { width: 8px; }
+        .light .control-panel::-webkit-scrollbar-track { background: #e2e8f0; }
+        .light .control-panel::-webkit-scrollbar-thumb { background-color: #a0aec0; border-radius: 4px; }
+
+        /* Toggle Switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #38bdf8; /* cyan-400 */
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #38bdf8; /* cyan-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white flex flex-col h-screen antialiased transition-colors duration-300">
+
+    <header class="bg-white dark:bg-gray-800 text-center p-3 shadow-lg z-10 flex justify-between items-center">
+        <div class="w-10"></div> <!-- Spacer -->
+        <h1 class="text-xl md:text-2xl font-bold text-cyan-600 dark:text-cyan-400">関数の連続性と偏微分可能性：直感的な探求</h1>
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            <!-- Moon Icon -->
+            <svg id="theme-icon-dark" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            <!-- Sun Icon -->
+            <svg id="theme-icon-light" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </button>
+    </header>
+
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+        <!-- 3D Visualization -->
+        <div id="canvas-container" class="flex-1 relative w-full h-2/3 md:h-full">
+             <canvas id="3d-canvas"></canvas>
+             <div id="loading" class="absolute inset-0 bg-gray-100 dark:bg-gray-900 bg-opacity-80 flex items-center justify-center">
+                <p class="text-2xl animate-pulse">3Dグラフを生成中...</p>
+             </div>
+        </div>
+
+        <!-- Controls and Explanation Panel -->
+        <div class="w-full md:w-96 bg-white dark:bg-gray-800 p-6 overflow-y-auto control-panel h-1/3 md:h-full transition-colors duration-300">
+            <div class="space-y-6">
+                <!-- Function Display -->
+                <div>
+                    <h2 class="text-lg font-semibold mb-2 border-b-2 border-cyan-500 pb-1">対象の関数</h2>
+                    <div id="function-display">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                          <mrow>
+                            <mi>z</mi>
+                            <mo>=</mo>
+                            <mi>f</mi>
+                            <mo stretchy="false">(</mo>
+                            <mi>x</mi>
+                            <mo>,</mo>
+                            <mi>y</mi>
+                            <mo stretchy="false">)</mo>
+                            <mo>=</mo>
+                            <mrow>
+                              <mo>{</mo>
+                              <mtable columnalign="left left">
+                                <mtr>
+                                  <mtd>
+                                    <mfrac>
+                                      <mrow>
+                                        <mn>2</mn>
+                                        <mi>x</mi>
+                                        <mi>y</mi>
+                                      </row>
+                                      <mrow>
+                                        <msup>
+                                          <mi>x</mi>
+                                          <mn>2</mn>
+                                        </msup>
+                                        <mo>+</mo>
+                                        <msup>
+                                          <mi>y</mi>
+                                          <mn>2</mn>
+                                        </msup>
+                                      </row>
+                                    </mfrac>
+                                  </mtd>
+                                  <mtd>
+                                    <mo>,</mo>
+                                    <mspace width="0.5em"></mspace>
+                                    <mo stretchy="false">(</mo>
+                                    <mi>x</mi>
+                                    <mo>,</mo>
+                                    <mi>y</mi>
+                                    <mo stretchy="false">)</mo>
+                                    <mo>≠</mo>
+                                    <mo stretchy="false">(</mo>
+                                    <mn>0</mn>
+                                    <mo>,</mo>
+                                    <mn>0</mn>
+                                    <mo stretchy="false">)</mo>
+                                  </mtd>
+                                </mtr>
+                                <mtr>
+                                  <mtd>
+                                    <mn>0</mn>
+                                  </mtd>
+                                  <mtd>
+                                    <mo>,</mo>
+                                    <mspace width="0.5em"></mspace>
+                                    <mo stretchy="false">(</mo>
+                                    <mi>x</mi>
+                                    <mo>,</mo>
+                                    <mi>y</mi>
+                                    <mo stretchy="false">)</mo>
+                                    <mo>=</mo>
+                                    <mo stretchy="false">(</mo>
+                                    <mn>0</mn>
+                                    <mo>,</mo>
+                                    <mn>0</mn>
+                                    <mo stretchy="false">)</mo>
+                                  </mtd>
+                                </mtr>
+                              </mtable>
+                            </mrow>
+                          </mrow>
+                        </math>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">この関数は、原点 (0,0) で偏微分可能でありながら、連続ではないという興味深い性質を持っています。</p>
+                </div>
+
+                <!-- Section 1: Continuity -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-3 border-b-2 border-cyan-500 pb-1">1. 連続性の探求</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">原点 (0,0) に近づく道筋を変えると、関数の値はどうなるでしょうか？ 直線 y=mx に沿って原点に近づいてみましょう。</p>
+
+                    <div class="space-y-3 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg">
+                        <label for="slope-slider" class="block text-base">直線の傾き <math xmlns="http://www.w3.org/1998/Math/MathML" style="display: inline-block; vertical-align: middle;"><mi>m</mi></math>: <span id="slope-value" class="font-bold text-cyan-600 dark:text-cyan-400">1.00</span></label>
+                        <input id="slope-slider" type="range" min="-5" max="5" value="1" step="0.01" class="w-full h-2 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <p class="mt-4 text-center text-base">
+                        y=mx に沿った極限値:
+                        <span id="limit-result" class="block text-xl text-yellow-600 dark:text-yellow-400 bg-gray-100 dark:bg-gray-900 p-2 rounded-md mt-2"></span>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+                        傾き m を変えると、極限値が変化することがわかります。近づき方によって値が異なるため、この関数は原点で<strong class="text-red-500 dark:text-red-400">連続ではありません</strong>。
+                    </p>
+                </div>
+
+                <!-- Section 2: Partial Differentiability -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-3 border-b-2 border-cyan-500 pb-1">2. 偏微分可能性の探求</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">では、なぜ偏微分は可能なのでしょうか？ x軸、y軸に沿った断面（スライス）を見てみましょう。</p>
+                    <div class="flex space-x-2">
+                        <button id="show-x-slice" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">x軸スライス (y=0)</button>
+                        <button id="show-y-slice" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">y軸スライス (x=0)</button>
+                    </div>
+                     <button id="reset-view" class="w-full mt-2 bg-gray-500 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">リセット</button>
+
+                    <!-- 2D Slice Visualization -->
+                    <div id="slice-2d-container" class="mt-4 bg-gray-100 dark:bg-gray-900 p-2 rounded-lg hidden">
+                        <h4 class="text-base font-semibold text-center mb-2" id="slice-2d-title"></h4>
+                        <canvas id="2d-slice-canvas" class="bg-gray-200 dark:bg-gray-800 rounded-md w-full h-48"></canvas>
+                    </div>
+
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+                        x軸に沿う (y=0) と、常に f(x,0)=0 です。同様にy軸に沿う (x=0) と、常に f(0,y)=0 です。
+                        2Dグラフが示す通り、これらの軸上では関数は平坦であり、原点での接線の傾きは 0 です。
+                    </p>
+                    <p class="text-base text-center mt-3 bg-gray-100 dark:bg-gray-900 p-2 rounded-md">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                          <mrow>
+                            <msub>
+                              <mi>f</mi>
+                              <mi>x</mi>
+                            </msub>
+                            <mo stretchy="false">(</mo>
+                            <mn>0</mn>
+                            <mo>,</mo>
+                            <mn>0</mn>
+                            <mo stretchy="false">)</mo>
+                            <mo>=</mo>
+                            <mn>0</mn>
+                          </mrow>
+                          <mo>,</mo>
+                          <mspace width="1em" />
+                          <mrow>
+                            <msub>
+                              <mi>f</mi>
+                              <mi>y</mi>
+                            </msub>
+                            <mo stretchy="false">(</mo>
+                            <mn>0</mn>
+                            <mo>,</mo>
+                            <mn>0</mn>
+                            <mo stretchy="false">)</mo>
+                            <mo>=</mo>
+                            <mn>0</mn>
+                          </mrow>
+                        </math>
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                        よって、偏微分係数が存在し、この関数は原点で<strong class="text-green-600 dark:text-green-400">偏微分可能</strong>です。
+                    </p>
+                </div>
+
+                <!-- Section 3: Display Options -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-3 border-b-2 border-cyan-500 pb-1">3. 表示オプション</h3>
+                    <div class="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label for="mesh-toggle" class="text-base">メッシュ表示</label>
+                            <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                <input type="checkbox" name="toggle" id="mesh-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer right-4 transition-all duration-200 ease-in-out"/>
+                                <label for="mesh-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"></label>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label for="slope-toggle" class="text-base">傾きの線を表示</label>
+                            <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                                <input type="checkbox" name="toggle" id="slope-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer right-4 transition-all duration-200 ease-in-out" checked/>
+                                <label for="slope-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Summary -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-3 border-b-2 border-cyan-500 pb-1">4. まとめ</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        3Dグラフの「切断面」と2Dグラフを合わせ見ることで、原点に存在する「断崖」の様子がより明確になります。
+                        x軸とy軸という特定の道筋（割れ目の底）から見ると滑らか（微分可能）ですが、少しでも斜めの道筋から近づくと不連続になっていることが、これで直感的に理解できるはずです。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.skypack.dev/three@0.136';
+        import { OrbitControls } from 'https://cdn.skypack.dev/three@0.136/examples/jsm/controls/OrbitControls.js';
+
+        let scene, camera, renderer, controls, surfaceMesh, pathLine, axisLine, slicePlaneMesh;
+
+        // UI Elements
+        const canvasContainer = document.getElementById('canvas-container');
+        const canvas = document.getElementById('3d-canvas');
+        const loadingEl = document.getElementById('loading');
+        const slopeSlider = document.getElementById('slope-slider');
+        const slopeValue = document.getElementById('slope-value');
+        const limitResult = document.getElementById('limit-result');
+        const btnXSlice = document.getElementById('show-x-slice');
+        const btnYSlice = document.getElementById('show-y-slice');
+        const btnReset = document.getElementById('reset-view');
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIconDark = document.getElementById('theme-icon-dark');
+        const themeIconLight = document.getElementById('theme-icon-light');
+        const meshToggle = document.getElementById('mesh-toggle');
+        const slopeToggle = document.getElementById('slope-toggle');
+
+        const colors = {
+            dark: { bg: 0x111827, text: 0xffffff },
+            light: { bg: 0xf9fafb, text: 0x111827 }
+        };
+
+        // The mathematical function to visualize
+        function func(x, y) {
+            if (x === 0 && y === 0) return 0;
+            return (2 * x * y) / (x * x + y * y);
+        }
+
+        function init() {
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 1000);
+            camera.position.set(2.5, 2, 2.5);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+
+            createThickAxes();
+            createSurface();
+            updatePathLine(parseFloat(slopeSlider.value));
+
+            // Event Listeners setup
+            slopeSlider.addEventListener('input', (e) => {
+                const m = parseFloat(e.target.value);
+                slopeValue.textContent = m.toFixed(2);
+                updatePathLine(m);
+                updateLimitText(m);
+            });
+            btnXSlice.addEventListener('click', () => showAxisSlice('x'));
+            btnYSlice.addEventListener('click', () => showAxisSlice('y'));
+            btnReset.addEventListener('click', resetView);
+            themeToggle.addEventListener('click', toggleTheme);
+            meshToggle.addEventListener('change', (e) => {
+                if (surfaceMesh) {
+                    surfaceMesh.material.wireframe = e.target.checked;
+                    surfaceMesh.material.opacity = e.target.checked ? 0.15 : 0.9;
+                }
+            });
+            slopeToggle.addEventListener('change', (e) => {
+                if (pathLine) {
+                    pathLine.visible = e.target.checked;
+                }
+            });
+            window.addEventListener('resize', onWindowResize, false);
+
+            updateLimitText(parseFloat(slopeSlider.value));
+            updateTheme();
+            animate();
+
+            setTimeout(() => {
+                loadingEl.style.display = 'none';
+            }, 500);
+        }
+
+        function createSurface() {
+            const range = 2;
+            const segments = 80;
+            const geometry = new THREE.PlaneGeometry(range * 2, range * 2, segments, segments);
+            geometry.rotateX(-Math.PI / 2); // Rotate to lie on the XZ plane
+
+            const vertices = geometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                const x = vertices[i];     // Corresponds to math x
+                const y = vertices[i + 2]; // Corresponds to math y
+                const z = func(x, y);      // Corresponds to math z (height)
+                vertices[i + 1] = z;       // Set height on the Scene's Y axis
+            }
+            geometry.attributes.position.needsUpdate = true;
+            geometry.computeVertexNormals();
+
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x818cf8, // Indigo color from reference
+                side: THREE.DoubleSide,
+                roughness: 0.7,
+                metalness: 0.1,
+                transparent: true,
+                opacity: 0.9,
+                wireframe: false
+            });
+            surfaceMesh = new THREE.Mesh(geometry, material);
+            scene.add(surfaceMesh);
+        }
+
+        function createAxisLabel(text, position, color, background) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const size = 256;
+            canvas.width = size; canvas.height = size;
+
+            context.font = `Bold 90px Arial`;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+
+            context.fillStyle = background;
+            context.arc(size / 2, size / 2, size / 2.2, 0, 2 * Math.PI);
+            context.fill();
+
+            context.fillStyle = color;
+            context.fillText(text, size / 2, size / 2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(0.4, 0.4, 0.4);
+            sprite.position.copy(position);
+            scene.add(sprite);
+        }
+
+        function createThickAxes() {
+            const axisLength = 2.5, axisRadius = 0.015, arrowRadius = 0.05, arrowHeight = 0.2;
+
+            const createAxis = (color, direction) => {
+                const material = new THREE.MeshStandardMaterial({ color, metalness: 0.3, roughness: 0.5 });
+                const group = new THREE.Group();
+                const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 12), material);
+                const cone = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 12), material);
+                cone.position.y = axisLength / 2;
+                group.add(cylinder, cone);
+                if (!direction.equals(new THREE.Vector3(0, 1, 0))) {
+                    group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+                }
+                scene.add(group);
+            };
+
+            const colorX = 0x60a5fa, colorY = 0xf87171, colorZ = 0x4ade80; // Blue, Red, Green
+            createAxis(colorX, new THREE.Vector3(1, 0, 0)); // X-axis (math x)
+            createAxis(colorY, new THREE.Vector3(0, 0, 1)); // Z-axis (math y)
+            createAxis(colorZ, new THREE.Vector3(0, 1, 0)); // Y-axis (math z, height)
+
+            const labelPos = axisLength / 2 + 0.3;
+            createAxisLabel('x', new THREE.Vector3(labelPos, 0, 0), '#fff', '#60a5fa');
+            createAxisLabel('y', new THREE.Vector3(0, 0, labelPos), '#fff', '#f87171');
+            createAxisLabel('z', new THREE.Vector3(0, labelPos, 0), '#fff', '#4ade80');
+        }
+
+        function clearSliceVisuals() {
+            if (axisLine) {
+                scene.remove(axisLine);
+                axisLine.geometry.dispose(); axisLine.material.dispose(); axisLine = null;
+            }
+            if (slicePlaneMesh) {
+                scene.remove(slicePlaneMesh);
+                slicePlaneMesh.geometry.dispose(); slicePlaneMesh.material.dispose(); slicePlaneMesh = null;
+            }
+            document.getElementById('slice-2d-container').classList.add('hidden');
+        }
+
+        function updatePathLine(m) {
+            if (pathLine) {
+                scene.remove(pathLine);
+                pathLine.geometry.dispose(); pathLine.material.dispose();
+            }
+            clearSliceVisuals();
+
+            const points = [];
+            const range = 2.1;
+            for (let x = -range; x <= range; x += 0.04) {
+                const y = m * x; // math y
+                if(Math.sqrt(x*x + y*y) > range) continue;
+                const z = func(x, y); // math z (height)
+                points.push(new THREE.Vector3(x, z, y)); // map to scene (math x, math z, math y)
+            }
+
+            if (points.length < 2) return; // Not enough points to form a curve
+
+            // Create a thick tube instead of a thin line for better visibility
+            const curve = new THREE.CatmullRomCurve3(points);
+            const tubeGeometry = new THREE.TubeGeometry(curve, 64, 0.025, 8, false); // path, segments, radius, radialSegments, closed
+            const tubeMaterial = new THREE.MeshBasicMaterial({ color: 0xfacc15 }); // yellow-400
+            pathLine = new THREE.Mesh(tubeGeometry, tubeMaterial);
+            pathLine.visible = slopeToggle.checked;
+            scene.add(pathLine);
+        }
+
+        function showAxisSlice(axis) {
+            if (pathLine) {
+                scene.remove(pathLine);
+                pathLine.geometry.dispose(); pathLine.material.dispose(); pathLine = null;
+            }
+            clearSliceVisuals();
+
+            const points = [];
+            const range = 2.1;
+            for (let p = -range; p <= range; p += 0.04) {
+                 const x = (axis === 'x') ? p : 0;
+                 const y = (axis === 'y') ? p : 0;
+                 const z = func(x, y);
+                 points.push(new THREE.Vector3(x, z, y));
+            }
+
+            const color = (axis === 'x') ? 0x60a5fa : 0xf87171; // Blue for x-slice, Red for y-slice
+            const material = new THREE.LineBasicMaterial({ color: color, linewidth: 5 });
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            axisLine = new THREE.Line(geometry, material);
+            scene.add(axisLine);
+
+            const planeGeom = new THREE.PlaneGeometry(4.2, 3);
+            const planeMat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.2, side: THREE.DoubleSide });
+            slicePlaneMesh = new THREE.Mesh(planeGeom, planeMat);
+
+            if (axis === 'y') { // y-slice (math x=0) should be on the scene's YZ plane
+                slicePlaneMesh.rotation.y = Math.PI / 2;
+            }
+            // For x-slice (math y=0), the plane should be on the scene's XY plane, which is the default for PlaneGeometry. No rotation needed.
+
+            scene.add(slicePlaneMesh);
+
+            const container2d = document.getElementById('slice-2d-container');
+            const title2d = document.getElementById('slice-2d-title');
+            container2d.classList.remove('hidden');
+            title2d.textContent = axis === 'x' ? 'x軸による断面 (y=0)' : 'y軸による断面 (x=0)';
+            draw2DSlice(axis);
+        }
+
+        function draw2DSlice(axis) {
+            const canvas = document.getElementById('2d-slice-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            // High-DPI scaling for crisp rendering
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            const w = canvas.clientWidth;
+            const h = canvas.clientHeight;
+
+            const isDark = document.documentElement.classList.contains('dark');
+            ctx.clearRect(0, 0, w, h);
+
+            const range = 2; // Match 3D range
+            const pixelsPerUnitX = w / (range * 2.2); // Give some padding
+            const pixelsPerUnitY = h / 3; // z range is [-1, 1], give some padding
+
+            const originX = w / 2;
+            const originY = h / 2;
+
+            ctx.save();
+            ctx.translate(0.5, 0.5); // For sharper lines
+
+            // Draw axes
+            ctx.strokeStyle = isDark ? '#4a5568' : '#cbd5e0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, originY); ctx.lineTo(w, originY); // Horizontal axis
+            ctx.moveTo(originX, 0); ctx.lineTo(originX, h); // Vertical axis
+            ctx.stroke();
+
+            // Draw ticks and labels
+            ctx.fillStyle = isDark ? '#9ca3af' : '#6b7280';
+            ctx.font = '10px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            for (let i = -range; i <= range; i++) {
+                if (i === 0) continue;
+                const posX = originX + i * pixelsPerUnitX;
+                ctx.beginPath();
+                ctx.moveTo(posX, originY - 4); ctx.lineTo(posX, originY + 4);
+                ctx.stroke();
+                ctx.fillText(i, posX, originY + 8);
+            }
+
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            for (let i = -1; i <= 1; i++) {
+                 if (i === 0) continue;
+                const posY = originY - i * pixelsPerUnitY;
+                ctx.beginPath();
+                ctx.moveTo(originX - 4, posY); ctx.lineTo(originX + 4, posY);
+                ctx.stroke();
+                ctx.fillText(i, originX + 8, posY);
+            }
+
+            // Axis labels
+            ctx.fillStyle = isDark ? '#cbd5e0' : '#4a5568';
+            ctx.font = '13px Inter';
+            const hLabel = axis === 'x' ? 'x' : 'y';
+            const vLabel = 'z';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(hLabel, w - 8, originY - 8);
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText(vLabel, originX + 8, 8);
+
+            // Draw function curve: f(p,0)=0
+            ctx.strokeStyle = (axis === 'x') ? '#60a5fa' : '#f87171'; // Blue for x, Red for y
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, originY);
+            ctx.lineTo(w, originY);
+            ctx.stroke();
+
+            // Draw tangent line at origin
+            ctx.strokeStyle = '#facc15'; // yellow-400
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            const tangentLength = 80; // pixels
+            ctx.moveTo(originX - tangentLength / 2, originY);
+            ctx.lineTo(originX + tangentLength / 2, originY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = '#facc15';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('接線 (傾き = 0)', originX, originY - 8);
+
+            ctx.restore();
+        }
+
+        function resetView() {
+            slopeSlider.value = 1;
+            slopeSlider.dispatchEvent(new Event('input'));
+        }
+
+        function updateLimitText(m) {
+            const limit = (m === Infinity || m === -Infinity) ? 0 : (2 * m) / (1 + m * m);
+            limitResult.innerHTML = `<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                  <mrow>
+                    <munder>
+                      <mo>lim</mo>
+                      <mrow>
+                        <mi>x</mi>
+                        <mo>→</mo>
+                        <mn>0</mn>
+                      </mrow>
+                    </munder>
+                    <mi>f</mi>
+                    <mo stretchy="false">(</mo>
+                    <mi>x</mi>
+                    <mo>,</mo>
+                    <mi>m</mi>
+                    <mi>x</mi>
+                    <mo stretchy="false">)</mo>
+                    <mo>=</mo>
+                    <mfrac>
+                      <mrow>
+                        <mn>2</mn>
+                        <mi>m</mi>
+                      </row>
+                      <mrow>
+                        <mn>1</mn>
+                        <mo>+</mo>
+                        <msup>
+                          <mi>m</mi>
+                          <mn>2</mn>
+                        </msup>
+                      </row>
+                    </mfrac>
+                    <mo>=</mo>
+                    <mn>${limit.toFixed(2)}</mn>
+                  </mrow>
+                </math>`;
+        }
+
+        function onWindowResize() {
+            camera.aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+            if (!document.getElementById('slice-2d-container').classList.contains('hidden')) {
+                 const currentAxis = document.getElementById('slice-2d-title').textContent.includes('x軸') ? 'x' : 'y';
+                draw2DSlice(currentAxis);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            updateTheme();
+        }
+
+        function updateTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if(isDark) {
+                themeIconDark.classList.remove('hidden');
+                themeIconLight.classList.add('hidden');
+                scene.background = new THREE.Color(colors.dark.bg);
+                renderer.setClearColor(colors.dark.bg, 1);
+            } else {
+                themeIconDark.classList.add('hidden');
+                themeIconLight.classList.remove('hidden');
+                scene.background = new THREE.Color(colors.light.bg);
+                renderer.setClearColor(colors.light.bg, 1);
+            }
+            if (!document.getElementById('slice-2d-container').classList.contains('hidden')) {
+                const currentAxis = document.getElementById('slice-2d-title').textContent.includes('x軸') ? 'x' : 'y';
+                draw2DSlice(currentAxis);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>見てわかる！微分積分と車の動き</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+        .road {
+            position: relative;
+            height: 80px;
+            background-color: #4a5568;
+            overflow: hidden;
+        }
+        .road-lines {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background-image: linear-gradient(90deg, #edf2f7 50%, transparent 50%);
+            background-size: 80px 10px;
+            background-repeat: repeat-x;
+        }
+        .car {
+            width: 100px;
+            height: 50px;
+            position: absolute;
+            bottom: 15px;
+            left: calc(50% - 50px); /* 車を中央に固定 */
+            animation: car-jiggle-paused 0.4s infinite;
+        }
+        .car.moving {
+             animation-name: car-jiggle;
+        }
+        .brake-light {
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .car.braking .brake-light {
+            opacity: 1;
+        }
+
+        @keyframes car-jiggle {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+            100% { transform: translateY(0); }
+        }
+        @keyframes car-jiggle-paused {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">微分積分と車の動き</h1>
+            <p class="mt-2 text-lg text-gray-600">車の動きで微積分学の基本定理を体感しよう</p>
+        </header>
+
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+
+            <!-- 車のアニメーション -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold mb-4 text-center">アニメーション</h2>
+                <div class="road rounded-lg">
+                    <div id="road-lines" class="road-lines"></div>
+                    <svg id="car-svg" class="car" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+                        <g transform="translate(0, 10)">
+                            <path d="M42.32,71.22A19.33,19.33,0,0,0,24,65.48,19.5,19.5,0,0,0,6.2,71.55c-2.3,1.4-4.81,2.33-7.22,2.33A19.33,19.33,0,0,0,42.32,71.22Z" transform="translate(10.78 -1.88)" fill="#2c5282"/>
+                            <path d="M185.9,71.22a19.33,19.33,0,0,0-18.32-5.74,19.5,19.5,0,0,0-17.8,6.07c-2.3,1.4-4.81,2.33-7.22,2.33A19.33,19.33,0,0,0,185.9,71.22Z" transform="translate(10.78 -1.88)" fill="#2c5282"/>
+                            <path d="M192.5,47.12,175,25.32a12.34,12.34,0,0,0-10.43-5.32H42.32a12.34,12.34,0,0,0-10.43,5.32L15.09,47.12A19.8,19.8,0,0,0,10.78,59v9.57a6.5,6.5,0,0,0,6.5,6.5H190a6.5,6.5,0,0,0,6.5-6.5V59A19.8,19.8,0,0,0,192.5,47.12Z" transform="translate(10.78 -1.88)" fill="#4299e1"/>
+                            <rect x="74.78" y="27.12" width="57" height="30" rx="5" fill="#bee3f8"/>
+                            <rect class="brake-light" x="15.78" y="45.12" width="10" height="15" fill="#ef4444"/>
+                            <rect class="brake-light" x="181.78" y="45.12" width="10" height="15" fill="#ef4444"/>
+                            <circle cx="40.78" cy="75.12" r="18" fill="#2d3748"/><circle cx="40.78" cy="75.12" r="10" fill="#e2e8f0"/>
+                            <circle cx="165.78" cy="75.12" r="18" fill="#2d3748"/><circle cx="165.78" cy="75.12" r="10" fill="#e2e8f0"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-gray-50 rounded-lg p-4 flex justify-around items-center">
+                    <div class="flex flex-col space-y-4">
+                        <div class="text-center"><p class="text-sm font-medium text-gray-500">経過時間 (t)</p><p class="text-3xl font-bold text-indigo-600"><span id="time-display">0.0</span> 秒</p></div>
+                        <div class="text-center"><p class="text-sm font-medium text-gray-500">今の速度 f(t)</p><p class="text-3xl font-bold text-blue-600"><span id="speed-display">0</span> km/h</p></div>
+                        <div class="text-center"><p class="text-sm font-medium text-gray-500">走行距離 F(x)</p><p class="text-3xl font-bold text-green-600"><span id="distance-display">0.0</span> m</p></div>
+                    </div>
+                    <div>
+                        <canvas id="speedometer-canvas" width="180" height="180"></canvas>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 flex flex-col justify-center items-center">
+                     <h3 class="text-lg font-bold mb-3">操作パネル</h3>
+                    <div class="flex space-x-3 mb-4">
+                        <button id="start-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg">スタート</button>
+                        <button id="stop-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg">ストップ</button>
+                        <button id="reset-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md hover:shadow-lg">リセット</button>
+                    </div>
+                    <div class="w-full px-4 space-y-3">
+                        <div><label for="accel-slider" class="block text-center font-medium mb-1">アクセル</label><input type="range" id="accel-slider" min="0" max="10" value="0" step="1" class="w-full h-3 bg-gray-300 rounded-lg appearance-none cursor-pointer"></div>
+                        <div><label for="brake-slider" class="block text-center font-medium mb-1">ブレーキ</label><input type="range" id="brake-slider" min="0" max="10" value="0" step="1" class="w-full h-3 bg-red-200 rounded-lg appearance-none cursor-pointer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- グラフ -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold mb-2 text-center">距離-時間 グラフ</h2>
+                    <div class="bg-gray-50 p-2 rounded-lg relative"><canvas id="time-distance-chart" width="400" height="300"></canvas></div>
+                    <p class="text-center mt-2 text-sm text-gray-600">グラフの<span class="font-bold text-purple-600">傾き</span>が<span class="font-bold text-blue-600">速度</span>に対応</p>
+                </div>
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold mb-2 text-center">速度-時間 グラフ</h2>
+                    <div class="bg-gray-50 p-2 rounded-lg relative"><canvas id="time-speed-chart" width="400" height="300"></canvas></div>
+                    <p class="text-center mt-2 text-sm text-gray-600">グラフの<span class="font-bold text-green-600">面積</span>が<span class="font-bold text-purple-600">距離</span>に対応</p>
+                </div>
+            </div>
+
+            <!-- 解説 -->
+            <div class="mt-8">
+                <h2 class="text-2xl font-bold mb-4 text-center">解説：微分と積分のつながり</h2>
+                <div class="space-y-6">
+                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-r-lg">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-2">結論：微分と積分は逆の操作！</h3>
+                        <p class="font-bold">「積分は微分の逆演算」という関係が、微積分学の基本定理の核心です。2つのグラフの関係を見てみましょう。</p>
+                        <ul class="list-disc list-inside mt-2 space-y-2">
+                            <li><span class="font-bold text-blue-600">速度</span>を<span class="font-bold text-green-600">積分（面積を計算）</span>すると<span class="font-bold text-purple-600">距離</span>になります。</li>
+                            <li class="border-t pt-2 mt-2"><span class="font-bold text-purple-600">距離</span>を<span class="font-bold text-blue-600">微分（傾きを計算）</span>すると<span class="font-bold text-blue-600">速度</span>に戻ります。</li>
+                        </ul>
+                        <p class="mt-2">グラフにカーソルを合わせると、この関係が視覚的に表示されます。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer class="text-center mt-8 text-gray-500 text-sm"><p>&copy; 2025 微分積分ビジュアライザー</p></footer>
+    </div>
+
+    <script>
+        // DOM要素の取得
+        const timeDisplay = document.getElementById('time-display');
+        const speedDisplay = document.getElementById('speed-display');
+        const distanceDisplay = document.getElementById('distance-display');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const accelSlider = document.getElementById('accel-slider');
+        const brakeSlider = document.getElementById('brake-slider');
+        const car = document.getElementById('car-svg');
+        const roadLines = document.getElementById('road-lines');
+
+        const timeDistCanvas = document.getElementById('time-distance-chart');
+        const tdCtx = timeDistCanvas.getContext('2d');
+        const timeSpeedCanvas = document.getElementById('time-speed-chart');
+        const tsCtx = timeSpeedCanvas.getContext('2d');
+        const speedometerCanvas = document.getElementById('speedometer-canvas');
+        const spCtx = speedometerCanvas.getContext('2d');
+
+        let time = 0, speed = 0, distance = 0, acceleration = 0, deceleration = 0;
+        let animationFrameId = null, lastTimestamp = 0;
+        let data = [];
+        let roadOffset = 0;
+        let hoverTime = null;
+
+        const MAX_SPEED = 120;
+        const ACCEL_FACTOR = 1.5;
+        const BRAKE_FACTOR = 3.0;
+        const INITIAL_MAX_TIME = 30;
+
+        function resizeCanvases() {
+            [timeDistCanvas, timeSpeedCanvas].forEach(canvas => {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientWidth * 1.0; 
+            });
+            drawAllCharts();
+        }
+
+        function drawSpeedometer() {
+            const ctx = spCtx;
+            const canvas = speedometerCanvas;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const x = canvas.width / 2;
+            const y = canvas.height / 2 + 10;
+            const radius = canvas.width / 2 - 40;
+            const maxSpeed = MAX_SPEED;
+
+            const startAngleDeg = 135, endAngleDeg = 405;
+            const totalAngleDeg = endAngleDeg - startAngleDeg;
+            const startAngleRad = startAngleDeg * Math.PI / 180;
+            const endAngleRad = endAngleDeg * Math.PI / 180;
+            const totalAngleRad = totalAngleDeg * Math.PI / 180;
+
+            ctx.beginPath();
+            ctx.arc(x, y, radius, startAngleRad, endAngleRad);
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 15;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            const speedRatio = Math.max(0, Math.min(speed, maxSpeed)) / maxSpeed;
+            const currentAngleRad = startAngleRad + (totalAngleRad * speedRatio);
+
+            if (speedRatio > 0) {
+                ctx.beginPath();
+                ctx.arc(x, y, radius, startAngleRad, currentAngleRad);
+                ctx.strokeStyle = '#4299e1';
+                ctx.lineWidth = 15;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(currentAngleRad);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(radius - 10, 0);
+            ctx.strokeStyle = '#1a202c';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 0, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#1a202c';
+            ctx.fill();
+            ctx.restore();
+
+            ctx.font = 'bold 12px Inter';
+            ctx.fillStyle = '#4a5568';
+            const drawLabel = (value) => {
+                const labelRatio = value / maxSpeed;
+                const labelAngleRad = startAngleRad + (totalAngleRad * labelRatio);
+                const labelRadius = radius + 20;
+                const labelX = x + labelRadius * Math.cos(labelAngleRad);
+                const labelY = y + labelRadius * Math.sin(labelAngleRad);
+                ctx.fillText(value, labelX, labelY);
+            };
+            drawLabel(0);
+            drawLabel(60);
+            drawLabel(120);
+        }
+
+        function drawTimeDistChart() {
+            tdCtx.clearRect(0, 0, timeDistCanvas.width, timeDistCanvas.height);
+            const padding = 40;
+            const chartWidth = timeDistCanvas.width - padding * 2;
+            const chartHeight = timeDistCanvas.height - padding * 2;
+            const xMax = Math.max(INITIAL_MAX_TIME, time);
+            const yMax = Math.max(100, data.length > 0 ? Math.max(...data.map(p => p.distance)) : 100);
+
+            drawAxes(tdCtx, timeDistCanvas, padding, '時間 (s)', '距離 (m)');
+            drawGridAndTicks(tdCtx, padding, chartWidth, chartHeight, xMax, yMax, Math.ceil(xMax / 6 / 5) * 5, Math.ceil(yMax / 5 / 50) * 50);
+            drawPath(tdCtx, padding, chartWidth, chartHeight, data, p => p.time, p => p.distance, xMax, yMax, '#805ad5');
+
+            if (hoverTime && data.length > 1) {
+                const hoverIndex = findClosestIndex(data, hoverTime);
+                const point = data[hoverIndex];
+
+                const x = padding + (point.time / xMax) * chartWidth;
+                const y = timeDistCanvas.height - padding - (point.distance / yMax) * chartHeight;
+
+                const speed_ms = point.speed * 1000 / 3600;
+                const canvasSlope = -speed_ms * (chartHeight / yMax) / (chartWidth / xMax);
+
+                const lineLength = 40;
+                const dx = lineLength / Math.sqrt(1 + canvasSlope * canvasSlope);
+                const dy = canvasSlope * dx;
+
+                tdCtx.beginPath();
+                tdCtx.moveTo(x - dx, y - dy);
+                tdCtx.lineTo(x + dx, y + dy);
+                tdCtx.strokeStyle = '#3182ce';
+                tdCtx.lineWidth = 2;
+                tdCtx.stroke();
+
+                drawMarker(tdCtx, x, y, '#805ad5');
+
+                const infoText = [
+                    `傾き (速度): ${point.speed.toFixed(1)} km/h`,
+                    `速度グラフの値: ${point.speed.toFixed(1)} km/h`
+                ];
+                drawInfoBox(tdCtx, x, y, infoText);
+            }
+        }
+
+        function drawTimeSpeedChart() {
+            tsCtx.clearRect(0, 0, timeSpeedCanvas.width, timeSpeedCanvas.height);
+            const padding = 40;
+            const chartWidth = timeSpeedCanvas.width - padding * 2;
+            const chartHeight = timeSpeedCanvas.height - padding * 2;
+            const xMax = Math.max(INITIAL_MAX_TIME, time);
+            const yMax = MAX_SPEED;
+
+            drawAxes(tsCtx, timeSpeedCanvas, padding, '時間 (s)', '速度 (km/h)');
+            drawGridAndTicks(tsCtx, padding, chartWidth, chartHeight, xMax, yMax, Math.ceil(xMax / 6 / 5) * 5, 20);
+
+            drawPath(tsCtx, padding, chartWidth, chartHeight, data, p => p.time, p => p.speed, xMax, yMax, '#3182ce');
+
+            if (hoverTime && data.length > 1) {
+                tsCtx.fillStyle = 'rgba(129, 230, 129, 0.5)';
+                tsCtx.beginPath();
+                tsCtx.moveTo(padding, timeSpeedCanvas.height - padding);
+                data.forEach(p => {
+                    if (p.time > hoverTime) return;
+                    const x = padding + (p.time / xMax) * chartWidth;
+                    const y = timeSpeedCanvas.height - padding - (p.speed / yMax) * chartHeight;
+                    tsCtx.lineTo(x, y);
+                });
+                const lastHoverPoint = data[findClosestIndex(data, hoverTime)];
+                tsCtx.lineTo(padding + (lastHoverPoint.time / xMax) * chartWidth, timeSpeedCanvas.height - padding);
+                tsCtx.closePath();
+                tsCtx.fill();
+
+                const hoverIndex = findClosestIndex(data, hoverTime);
+                const point = data[hoverIndex];
+                const x = padding + (point.time / xMax) * chartWidth;
+                const y = timeSpeedCanvas.height - padding - (point.speed / yMax) * chartHeight;
+
+                drawMarker(tsCtx, x, y, '#3182ce');
+
+                const infoText = [
+                    `面積 (距離): ${point.distance.toFixed(1)} m`,
+                    `距離グラフの値: ${point.distance.toFixed(1)} m`
+                ];
+                drawInfoBox(tsCtx, x, y, infoText);
+            }
+        }
+
+        function drawAllCharts() {
+            drawTimeDistChart();
+            drawTimeSpeedChart();
+            drawSpeedometer();
+
+            if (hoverTime && data.length > 0) {
+                const xMax = Math.max(INITIAL_MAX_TIME, time);
+                const padding = 40;
+
+                const hoverIndex = findClosestIndex(data, hoverTime);
+                const point = data[hoverIndex];
+
+                const xPixel = padding + (point.time / xMax) * (timeDistCanvas.width - padding * 2);
+
+                [tdCtx, tsCtx].forEach(ctx => {
+                    ctx.beginPath();
+                    ctx.moveTo(xPixel, padding);
+                    ctx.lineTo(xPixel, ctx.canvas.height - padding);
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                    ctx.setLineDash([4, 2]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                });
+            }
+        }
+
+        function drawInfoBox(ctx, x, y, lines) {
+            ctx.font = 'bold 12px Inter';
+            const textMetrics = lines.map(line => ctx.measureText(line));
+            const maxWidth = Math.max(...textMetrics.map(m => m.width));
+
+            const padding = 8;
+            const lineHeight = 18;
+            const boxWidth = maxWidth + padding * 2;
+            const boxHeight = lines.length * lineHeight + padding;
+
+            let boxX = x + 20;
+            let boxY = y - boxHeight / 2;
+
+            if (boxX + boxWidth > ctx.canvas.width - 10) {
+                boxX = x - boxWidth - 20;
+            }
+            if (boxY < 10) {
+                boxY = 10;
+            }
+            if (boxY + boxHeight > ctx.canvas.height - 10) {
+                boxY = ctx.canvas.height - 10 - boxHeight;
+            }
+
+            ctx.fillStyle = 'rgba(26, 32, 44, 0.8)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.rect(boxX, boxY, boxWidth, boxHeight);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            lines.forEach((line, index) => {
+                ctx.fillText(line, boxX + padding, boxY + padding / 2 + index * lineHeight);
+            });
+        }
+
+        function drawAxes(ctx, canvas, padding, xLabel, yLabel) {
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.strokeStyle = '#a0aec0';
+            ctx.stroke();
+            ctx.fillStyle = '#4a5568';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.font = '12px Noto Sans JP';
+            ctx.fillText(xLabel, canvas.width / 2, canvas.height - padding + 15);
+            ctx.save();
+            ctx.translate(padding - 30, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(yLabel, 0, 0);
+            ctx.restore();
+        }
+
+        function drawGridAndTicks(ctx, padding, width, height, xMax, yMax, xInterval, yInterval) {
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            for (let i = 0; i <= xMax; i += xInterval) {
+                const xPos = padding + (i / xMax) * width;
+                if(xPos <= ctx.canvas.width - padding) drawTick(ctx, xPos, ctx.canvas.height - padding, Math.round(i), 'bottom');
+            }
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let i = 0; i <= yMax; i += yInterval) {
+                const yPos = ctx.canvas.height - padding - (i / yMax) * height;
+                drawTick(ctx, padding, yPos, Math.round(i), 'left');
+            }
+        }
+
+        function drawTick(ctx, x, y, text, position) {
+            ctx.fillStyle = '#718096';
+            ctx.font = '10px Inter';
+            if (position === 'bottom') {
+                ctx.fillText(text, x, y + 5);
+            } else { 
+                ctx.fillText(text, x - 5, y);
+            }
+        }
+
+        function drawPath(ctx, padding, width, height, data, getX, getY, xMax, yMax, color, yMin = 0) {
+            const yRange = yMax - yMin;
+            ctx.beginPath();
+            if (data.length > 0) {
+                 const startX = padding + (getX(data[0]) / xMax) * width;
+                 const startY = ctx.canvas.height - padding - (getY(data[0]) - yMin) / yRange * height;
+                 ctx.moveTo(startX, startY);
+            }
+            data.forEach(p => {
+                const x = padding + (getX(p) / xMax) * width;
+                const y = ctx.canvas.height - padding - (getY(p) - yMin) / yRange * height;
+                ctx.lineTo(x, y);
+            });
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.lineWidth = 1;
+        }
+
+        function drawMarker(ctx, x, y, color) {
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function findClosestIndex(arr, targetTime) {
+            let closestIndex = 0;
+            let minDiff = Infinity;
+            arr.forEach((point, index) => {
+                const diff = Math.abs(point.time - targetTime);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIndex = index;
+                }
+            });
+            return closestIndex;
+        }
+
+        function gameLoop(timestamp) {
+            if (!animationFrameId) return;
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const deltaTime = (timestamp - lastTimestamp) / 1000;
+            lastTimestamp = timestamp;
+
+            time += deltaTime;
+            const totalAcceleration = acceleration - deceleration;
+            speed += totalAcceleration * deltaTime;
+            speed = Math.max(0, Math.min(speed, MAX_SPEED));
+            const speed_ms = speed * 1000 / 3600;
+            distance += speed_ms * deltaTime;
+            roadOffset -= speed_ms * 3;
+            roadLines.style.backgroundPositionX = roadOffset + 'px';
+
+            data.push({ time, speed, distance, accel: totalAcceleration });
+
+            car.classList.toggle('moving', speed > 1 && animationFrameId);
+            car.classList.toggle('braking', deceleration > 0 && speed > 0);
+
+            drawAllCharts();
+            updateDisplay();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function updateDisplay() {
+            timeDisplay.textContent = time.toFixed(1);
+            speedDisplay.textContent = Math.round(speed);
+            distanceDisplay.textContent = distance.toFixed(1);
+        }
+
+        startBtn.addEventListener('click', () => { if (!animationFrameId) { lastTimestamp = null; animationFrameId = requestAnimationFrame(gameLoop); } });
+        stopBtn.addEventListener('click', () => { if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; car.classList.remove('moving'); } });
+
+        resetBtn.addEventListener('click', () => {
+            if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+            time = 0; speed = 0; distance = 0; acceleration = 0; deceleration = 0;
+            accelSlider.value = 0; brakeSlider.value = 0;
+            data = []; roadOffset = 0; hoverTime = null;
+            roadLines.style.backgroundPositionX = '0px';
+            car.classList.remove('moving', 'braking');
+            drawAllCharts();
+            updateDisplay();
+        });
+
+        accelSlider.addEventListener('input', (e) => { acceleration = e.target.value * ACCEL_FACTOR; });
+        brakeSlider.addEventListener('input', (e) => { deceleration = e.target.value * BRAKE_FACTOR; });
+
+        [timeDistCanvas, timeSpeedCanvas].forEach(canvas => {
+            canvas.addEventListener('mousemove', (e) => {
+                if (data.length === 0 || animationFrameId) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const padding = 40;
+                const chartWidth = canvas.width - padding * 2;
+                const xMax = Math.max(INITIAL_MAX_TIME, time);
+                const mouseTime = (x - padding) / chartWidth * xMax;
+                if (mouseTime >= 0 && mouseTime <= time) {
+                    hoverTime = mouseTime;
+                    drawAllCharts();
+                }
+            });
+            canvas.addEventListener('mouseleave', () => {
+                if(animationFrameId) return;
+                hoverTime = null;
+                drawAllCharts();
+            });
+        });
+
+        window.addEventListener('resize', resizeCanvases);
+
+        // 初期化
+        resizeCanvases();
+        updateDisplay();
+    </script>
+
+</body>
+</html>

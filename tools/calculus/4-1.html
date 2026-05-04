@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>逆関数の微分 可視化ツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0KOVEMVIhbCwHMAq2EVqFlyhKtxDFFFb1I3lQdN755Hr4rYNCs2vU" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .katex {
+            font-size: 1.1em;
+        }
+        .legend-color-box {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">逆関数の微分 可視化ツール</h1>
+            <p class="mt-2 text-lg text-gray-600">関数の接線と、その逆関数の接線の関係を探ってみましょう。</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Panel: Visualization -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+                <canvas id="graphCanvas"></canvas>
+                <div class="mt-4">
+                    <label for="xSlider" class="block mb-2 font-medium text-gray-700">x の値を動かす:</label>
+                    <input type="range" id="xSlider" min="0.1" max="3" step="0.01" value="1.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Right Panel: Information -->
+            <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col justify-center">
+                <div>
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2">凡例と情報</h2>
+                    <div class="space-y-3 mb-6 text-gray-700">
+                        <div class="flex items-center"><div class="legend-color-box bg-blue-500"></div><span id="func-f"></span></div>
+                        <div class="flex items-center"><div class="legend-color-box bg-green-500"></div><span id="func-g"></span></div>
+                        <div class="flex items-center"><div class="legend-color-box bg-gray-400 border border-gray-400" style="background-image: linear-gradient(135deg, #fff 50%, transparent 50%), linear-gradient(45deg, transparent 50%, #fff 50%); background-size: 6px 6px;"></div><span id="func-yx">y = x</span></div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="p-4 bg-blue-50 rounded-lg">
+                            <h3 class="font-bold text-blue-800">元の関数上の点 P</h3>
+                            <p id="pointP" class="font-mono"></p>
+                            <p id="slopeP" class="font-mono"></p>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-lg">
+                            <h3 class="font-bold text-green-800">逆関数上の点 Q</h3>
+                            <p id="pointQ" class="font-mono"></p>
+                            <p id="slopeQ" class="font-mono"></p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-yellow-50 rounded-lg text-center">
+                        <h3 class="font-bold text-yellow-800 mb-2">傾きの関係</h3>
+                        <p id="slope-relation" class="text-lg font-bold text-yellow-900"></p>
+                        <p class="text-sm text-yellow-700 mt-1">傾きが互いに逆数になっています</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4">解説</h2>
+            <p class="mb-4">
+                グラフは、関数 <span id="explanation-f"></span> とその逆関数 <span id="explanation-g"></span> を示しています。これらは直線 <span class="text-gray-600 font-semibold">y = x</span> に関して対称です。
+            </p>
+            <p class="mb-4">
+                スライダーを動かすと、点P <span class="font-mono">(a, b)</span> が青い曲線上を動き、それに対応する点Q <span class="font-mono">(b, a)</span> が緑の曲線上を動きます。それぞれの点における接線（点線）も描かれます。
+            </p>
+            <p class="mb-4">
+                注目すべきは、2つの接線の傾きの関係です。点Pでの傾きを <span class="font-mono">m₁</span>、点Qでの傾きを <span class="font-mono">m₂</span> とすると、常に <span id="explanation-m2"></span> という関係が成り立ちます。これは、逆関数の微分公式を示しています。
+            </p>
+            <div class="p-4 bg-gray-100 rounded-lg flex flex-col md:flex-row justify-around items-center space-y-4 md:space-y-0">
+                <div id="formula1" class="text-xl"></div>
+                <div class="text-gray-400 text-2xl">⇔</div>
+                <div id="formula2" class="text-xl"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // KaTeXによる数式描画
+            const katexElements = [
+                { id: 'func-f', expression: 'y = f(x) = 0.1x^3 + 0.5x' },
+                { id: 'func-g', expression: 'x = f^{-1}(y)' },
+                { id: 'explanation-f', expression: 'f(x)' },
+                { id: 'explanation-g', expression: 'f^{-1}(y)' },
+                { id: 'explanation-m2', expression: 'm_2 = 1 / m_1' },
+                { id: 'formula1', expression: `\\frac{dx}{dy} = \\frac{1}{\\frac{dy}{dx}}` },
+                { id: 'formula2', expression: `(f^{-1})'(y) = \\frac{1}{f'(x)}` },
+            ];
+            katexElements.forEach(item => {
+                try {
+                    katex.render(item.expression, document.getElementById(item.id), {
+                        throwOnError: false
+                    });
+                } catch (e) {
+                    console.error(`KaTeX rendering failed for ID ${item.id}:`, e);
+                    document.getElementById(item.id).textContent = item.expression;
+                }
+            });
+
+            const canvas = document.getElementById('graphCanvas');
+            const ctx = canvas.getContext('2d');
+            const slider = document.getElementById('xSlider');
+
+            const pointPElement = document.getElementById('pointP');
+            const slopePElement = document.getElementById('slopeP');
+            const pointQElement = document.getElementById('pointQ');
+            const slopeQElement = document.getElementById('slopeQ');
+            const slopeRelationElement = document.getElementById('slope-relation');
+
+            let scale = 50;
+            let originX, originY;
+
+            // 元の関数とその導関数
+            const f = x => 0.1 * Math.pow(x, 3) + 0.5 * x;
+            const f_prime = x => 0.3 * Math.pow(x, 2) + 0.5;
+
+            function setupCanvas() {
+                const container = canvas.parentElement;
+                const size = Math.min(container.clientWidth, 600);
+                canvas.width = size;
+                canvas.height = size;
+                originX = canvas.width * 0.1;
+                originY = canvas.height * 0.9;
+                scale = Math.min(canvas.width, canvas.height) / 10;
+                draw();
+            }
+
+            function toCanvasX(x) { return originX + x * scale; }
+            function toCanvasY(y) { return originY - y * scale; }
+            function fromCanvasX(cx) { return (cx - originX) / scale; }
+
+            function drawAxes() {
+                ctx.beginPath();
+                ctx.strokeStyle = '#9ca3af'; // gray-400
+                ctx.lineWidth = 1;
+                // X axis
+                ctx.moveTo(0, originY);
+                ctx.lineTo(canvas.width, originY);
+                // Y axis
+                ctx.moveTo(originX, 0);
+                ctx.lineTo(originX, canvas.height);
+                ctx.stroke();
+
+                // Axis labels
+                ctx.fillStyle = '#4b5563'; // gray-600
+                ctx.font = '14px Inter';
+                ctx.fillText('x', canvas.width - 15, originY - 10);
+                ctx.fillText('y', originX + 10, 15);
+
+                // Ticks
+                for(let i = 1; i * scale < canvas.width - originX; i++) {
+                    ctx.fillText(i, toCanvasX(i), originY + 15);
+                    ctx.beginPath();
+                    ctx.moveTo(toCanvasX(i), originY - 3);
+                    ctx.lineTo(toCanvasX(i), originY + 3);
+                    ctx.stroke();
+                }
+                for(let i = 1; i * scale < originY; i++) {
+                    ctx.fillText(i, originX - 20, toCanvasY(i) + 5);
+                    ctx.beginPath();
+                    ctx.moveTo(originX - 3, toCanvasY(i));
+                    ctx.lineTo(originX + 3, toCanvasY(i));
+                    ctx.stroke();
+                }
+            }
+
+            function drawFunction(func, color) {
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                let firstPoint = true;
+                for (let cx = 0; cx < canvas.width; cx++) {
+                    const x = fromCanvasX(cx);
+                    if (x >= 0) {
+                        const y = func(x);
+                        const cy = toCanvasY(y);
+                        if (firstPoint) {
+                            ctx.moveTo(cx, cy);
+                            firstPoint = false;
+                        } else {
+                            ctx.lineTo(cx, cy);
+                        }
+                    }
+                }
+                ctx.stroke();
+            }
+
+            function drawInverse(func, color) {
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                let firstPoint = true;
+                for (let cx = 0; cx < canvas.width; cx++) {
+                    const x = fromCanvasX(cx);
+                     if (x >= 0) {
+                        const y = func(x);
+                        // Swap x and y to draw the inverse
+                        const inv_cx = toCanvasX(y);
+                        const inv_cy = toCanvasY(x);
+                        if (inv_cx > originX) {
+                            if (firstPoint) {
+                                ctx.moveTo(inv_cx, inv_cy);
+                                firstPoint = false;
+                            } else {
+                                ctx.lineTo(inv_cx, inv_cy);
+                            }
+                        }
+                    }
+                }
+                ctx.stroke();
+            }
+
+            function drawLine(y_intercept, slope, color, dashed = false) {
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                if (dashed) {
+                    ctx.setLineDash([5, 5]);
+                }
+                const x0 = 0;
+                const y0 = slope * (x0 - fromCanvasX(0)) + y_intercept;
+                const x1 = fromCanvasX(canvas.width);
+                const y1 = slope * (x1 - fromCanvasX(0)) + y_intercept;
+
+                ctx.moveTo(toCanvasX(x0), toCanvasY(y0));
+                ctx.lineTo(toCanvasX(x1), toCanvasY(y1));
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            function drawTangent(px, py, slope, color) {
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+
+                const length = 1.5;
+                const angle = Math.atan(slope);
+                const dx = length * Math.cos(angle);
+                const dy = length * Math.sin(angle);
+
+                ctx.moveTo(toCanvasX(px - dx), toCanvasY(py - dy));
+                ctx.lineTo(toCanvasX(px + dx), toCanvasY(py + dy));
+
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            function drawPoint(x, y, color) {
+                ctx.beginPath();
+                ctx.fillStyle = color;
+                ctx.arc(toCanvasX(x), toCanvasY(y), 6, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawAxes();
+
+                // Draw y = x
+                ctx.save();
+                ctx.beginPath();
+                ctx.strokeStyle = '#9ca3af'; // gray-400
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([3, 3]);
+                ctx.moveTo(0, canvas.height);
+                ctx.lineTo(canvas.width, 0);
+                ctx.stroke();
+                ctx.restore();
+
+                // Draw functions
+                drawFunction(f, '#3b82f6'); // blue-500
+                drawInverse(f, '#22c55e'); // green-500
+
+                // Get current point
+                const a = parseFloat(slider.value);
+                const b = f(a);
+
+                // Point P on f(x)
+                const px = a;
+                const py = b;
+                const slope_p = f_prime(a);
+                drawTangent(px, py, slope_p, '#60a5fa'); // blue-400
+                drawPoint(px, py, '#1d4ed8'); // blue-700
+
+                // Point Q on f^-1(y)
+                const qx = b;
+                const qy = a;
+                const slope_q = 1 / slope_p;
+                drawTangent(qx, qy, slope_q, '#4ade80'); // green-400
+                drawPoint(qx, qy, '#15803d'); // green-700
+
+                // Update info text
+                pointPElement.textContent = `P(a, b) = (${px.toFixed(2)}, ${py.toFixed(2)})`;
+                slopePElement.textContent = `傾き f'(a) = ${slope_p.toFixed(3)}`;
+                pointQElement.textContent = `Q(b, a) = (${qx.toFixed(2)}, ${qy.toFixed(2)})`;
+                slopeQElement.textContent = `傾き (f⁻¹)'(b) = ${slope_q.toFixed(3)}`;
+
+                slopeRelationElement.textContent = `${slope_p.toFixed(3)} × ${slope_q.toFixed(3)} ≈ 1`;
+            }
+
+            slider.addEventListener('input', draw);
+            window.addEventListener('resize', setupCanvas);
+
+            setupCanvas();
+        });
+    </script>
+</body>
+</html>

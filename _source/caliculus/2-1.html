@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;【挙動修正版】逆三角関数で動くロボットアーム＆ドローン&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'M PLUS Rounded 1c', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #030712; /* gray-950 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>canvas:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: crosshair;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.info-panel-value {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: color 0.3s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-950 text-white flex flex-col items-center justify-center min-h-screen p-4 space-y-16"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Robot Arm Demo --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="w-full max-w-xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-center mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-sky-500 mb-2"&gt;ロボットアームを動かそう！&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-gray-400"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;strong class="text-yellow-400"&gt;「位置→角度」&lt;/strong&gt;を計算する逆三角関数の働きをイメージしよう。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-gray-900/50 backdrop-blur-sm border border-white/10 rounded-xl shadow-2xl shadow-cyan-500/10 p-4 md:p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;canvas id="robotCanvas" class="w-full bg-gray-900 rounded-lg border-2 border-gray-700 aspect-square"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-4 p-4 bg-gray-800/70 rounded-lg text-lg grid grid-cols-1 md:grid-cols-3 gap-4 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;&lt;p class="text-sm text-gray-400"&gt;目標のX座標&lt;/p&gt;&lt;p id="xCoord" class="info-panel-value font-bold text-2xl text-yellow-400"&gt;0&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;&lt;p class="text-sm text-gray-400"&gt;目標のY座標&lt;/p&gt;&lt;p id="yCoord" class="info-panel-value font-bold text-2xl text-yellow-400"&gt;0&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;&lt;p class="text-sm text-gray-400"&gt;計算された角度 (θ)&lt;/p&gt;&lt;p id="angleDisplay" class="info-panel-value font-bold text-2xl text-cyan-400"&gt;0.00°&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Drone Demo --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="w-full max-w-xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="text-center mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-green-500 mb-2"&gt;ドローンの最適な下降角度は？&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-gray-400"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ホバリングするドローンの位置を変えて、安全な着陸地点までの&lt;strong class="text-yellow-400"&gt;「最適な下降角度」&lt;/strong&gt;を計算しよう。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="bg-gray-900/50 backdrop-blur-sm border border-white/10 rounded-xl shadow-2xl shadow-emerald-500/10 p-4 md:p-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;canvas id="droneCanvas" class="w-full bg-gray-900 rounded-lg border-2 border-gray-700" style="aspect-ratio: 16/9;"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="mt-4 p-4 bg-gray-800/70 rounded-lg text-lg grid grid-cols-1 md:grid-cols-3 gap-4 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;&lt;p class="text-sm text-gray-400"&gt;水平距離&lt;/p&gt;&lt;p id="droneHDist" class="info-panel-value font-bold text-2xl text-yellow-400"&gt;0 m&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;&lt;p class="text-sm text-gray-400"&gt;高度&lt;/p&gt;&lt;p id="droneAlt" class="info-panel-value font-bold text-2xl text-yellow-400"&gt;0 m&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;&lt;p class="text-sm text-gray-400"&gt;計算された下降角度&lt;/p&gt;&lt;p id="descentAngle" class="info-panel-value font-bold text-2xl text-emerald-400"&gt;0.00°&lt;/p&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* 汎用初期化関数</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupCanvas(canvasId) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.getElementById(canvasId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!canvas) return null;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ctx = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const dpr = window.devicePixelRatio || 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function resize() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.width = rect.width * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.height = rect.height * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.scale(dpr, dpr);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>resize();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return { canvas, ctx, dpr, resize };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* 線形補間関数 (Lerp)</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function lerp(start, end, amt) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return (1 - amt) * start + amt * end;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/**</p>
+<p class="p1"><span class="Apple-converted-space">         </span>* 角度の線形補間（最短距離を考慮）</p>
+<p class="p1"><span class="Apple-converted-space">         </span>*/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function lerpAngle(start, end, amt) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let difference = Math.abs(end - start);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (difference &gt; Math.PI) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (end &gt; start) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>start += 2 * Math.PI;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>end += 2 * Math.PI;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let result = lerp(start, end, amt);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// 角度を -PI から PI の範囲に正規化</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return result - Math.floor(result / (2 * Math.PI) + 0.5) * (2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- ロボットアームのデモ ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function initRobotArmDemo() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const setup = setupCanvas('robotCanvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!setup) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const { canvas, ctx, resize } = setup;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xCoordEl = document.getElementById('xCoord');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yCoordEl = document.getElementById('yCoord');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const angleDisplayEl = document.getElementById('angleDisplay');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let origin = { x: 0, y: 0 };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// ★修正: targetのY座標はCanvas座標系（下が正）で管理する</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// 初期位置は右上なのでYは負の値</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let target = { x: 100, y: -80 };<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// ★修正: アームの回転に使う角度はCanvas座標系で計算する</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let currentAngle = Math.atan2(target.y, target.x);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let targetAngle = currentAngle;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let armLength = Math.hypot(target.x, target.y);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let targetArmLength = armLength;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let clickEffects = [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function updateAndDraw() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const width = canvas.getBoundingClientRect().width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const height = canvas.getBoundingClientRect().height;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.clearRect(0, 0, width, height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>origin = { x: width / 2, y: height / 2 };</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// アニメーション（Lerp）</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// targetAngleはCanvas座標系の角度</p>
+<p class="p1"><span class="Apple-converted-space">                </span>currentAngle = lerpAngle(currentAngle, targetAngle, 0.08);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>armLength = lerp(armLength, targetArmLength, 0.08);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(0, origin.y); ctx.lineTo(width, origin.y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// ★修正: 回転にはCanvas座標系の角度をそのまま使う</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawRobotArm(currentAngle, origin, armLength);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// ★修正: targetのY座標もCanvas座標系で描画</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawTarget({ x: origin.x + target.x, y: origin.y + target.y });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawClickEffects();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// --- 表示情報の計算 ---</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// ★修正: 表示する角度は、単位円の定義（上が正）に合わせるため、Yを反転させて計算</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const displayAngleDeg = Math.atan2(-target.y, target.x) * (180 / Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>xCoordEl.textContent = target.x.toFixed(0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// ★修正: 表示するY座標も、上が正になるように反転させる</p>
+<p class="p1"><span class="Apple-converted-space">                </span>yCoordEl.textContent = (-target.y).toFixed(0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>angleDisplayEl.textContent = `${displayAngleDeg.toFixed(2)}°`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>requestAnimationFrame(updateAndDraw);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawRobotArm(angle, origin, length) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.save();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.translate(origin.x, origin.y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// ★修正: Canvasのrotateは時計回りが正なので、Canvas座標系の角度をそのまま使うと意図通りに動く</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.rotate(angle);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#22d3ee';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.roundRect(15, -10, length - 25, 20, [10]);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#67e8f9';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(length - 5, 0, 10, 0, Math.PI * 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.restore();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#0891b2';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(origin.x, origin.y, 20, 0, Math.PI * 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = '#67e8f9';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 4;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawTarget(pos) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = '#facc15';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 3;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(pos.x - 10, pos.y - 10); ctx.lineTo(pos.x + 10, pos.y + 10);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(pos.x + 10, pos.y - 10); ctx.lineTo(pos.x - 10, pos.y + 10);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawClickEffects() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = clickEffects.length - 1; i &gt;= 0; i--) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const effect = clickEffects[i];</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>effect.radius += 1.5;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>effect.opacity -= 0.02;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (effect.opacity &lt;= 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>clickEffects.splice(i, 1);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>continue;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.strokeStyle = `rgba(250, 204, 21, ${effect.opacity})`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.lineWidth = 3;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.addEventListener('click', (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// ★修正: Y座標の反転を行わず、Canvasの座標系でそのまま計算</p>
+<p class="p1"><span class="Apple-converted-space">                </span>target.x = event.clientX - rect.left - origin.x;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>target.y = event.clientY - rect.top - origin.y;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// ★修正: アーム回転用の角度もCanvas座標系で計算</p>
+<p class="p1"><span class="Apple-converted-space">                </span>targetAngle = Math.atan2(target.y, target.x);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>targetArmLength = Math.hypot(target.x, target.y);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>clickEffects.push({ x: event.clientX - rect.left, y: event.clientY - rect.top, radius: 0, opacity: 1.0 });</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>[xCoordEl, yCoordEl, angleDisplayEl].forEach(el =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>el.style.color = 'white';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>setTimeout(() =&gt; el.style.color = '', 300);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', () =&gt; { resize(); });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateAndDraw();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- ドローンのデモ ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ======================================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function initDroneDemo() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const setup = setupCanvas('droneCanvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!setup) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const { canvas, ctx, resize } = setup;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const hDistEl = document.getElementById('droneHDist');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const altEl = document.getElementById('droneAlt');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const angleEl = document.getElementById('descentAngle');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let landingSpot = { x: 0, y: 0 };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let dronePos = { x: 0, y: 0 };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let currentDronePos = { x: 0, y: 0 };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let hoverTime = 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function resetPositions() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const width = canvas.getBoundingClientRect().width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const height = canvas.getBoundingClientRect().height;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>landingSpot = { x: width / 2, y: height - 40 };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dronePos = { x: width * 0.2, y: height * 0.3 };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>currentDronePos = { ...dronePos };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function updateAndDraw() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const width = canvas.getBoundingClientRect().width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const height = canvas.getBoundingClientRect().height;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.clearRect(0, 0, width, height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>hoverTime += 0.05;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>currentDronePos.x = lerp(currentDronePos.x, dronePos.x, 0.08);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>currentDronePos.y = lerp(currentDronePos.y, dronePos.y, 0.08);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#16a34a'; // emerald-600</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(0, landingSpot.y, width, height - landingSpot.y);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const horizontalDist = Math.abs(currentDronePos.x - landingSpot.x);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const altitude = landingSpot.y - currentDronePos.y;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const angleRad = Math.atan2(altitude, horizontalDist);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const angleDeg = angleRad * (180 / Math.PI);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawDescentPath(currentDronePos, landingSpot);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawLandingSpot(landingSpot);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const bobbingY = Math.sin(hoverTime) * 3;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawDrone({x: currentDronePos.x, y: currentDronePos.y + bobbingY}, landingSpot);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>hDistEl.textContent = `${(horizontalDist * 0.5).toFixed(0)} m`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>altEl.textContent = `${(altitude * 0.5).toFixed(0)} m`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>angleEl.textContent = `${angleDeg.toFixed(2)}°`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>requestAnimationFrame(updateAndDraw);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawDrone(pos, target) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const angle = Math.atan2(target.y - pos.y, target.x - pos.x);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.save();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.translate(pos.x, pos.y);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#9ca3af';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const propAngle = hoverTime * 5;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.save();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.rotate(propAngle);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(-25, -2, 18, 4); ctx.fillRect(7, -2, 18, 4);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.restore();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.save();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.rotate(-propAngle);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(-25, -2, 18, 4); ctx.fillRect(7, -2, 18, 4);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.restore();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.rotate(angle);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = 'white'; ctx.strokeStyle = '#34d399'; ctx.lineWidth = 3;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath(); ctx.roundRect(-20, -10, 40, 20, [5]);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill(); ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.restore();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawLandingSpot(pos) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = 'white';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 4;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.font = 'bold 24px sans-serif';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.textAlign = 'center';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.textBaseline = 'middle';</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(pos.x, pos.y, 25, 0, Math.PI * 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText('H', pos.x, pos.y + 2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawDescentPath(start, end) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const bobbingY = Math.sin(hoverTime) * 3;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.setLineDash([5, 5]);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(start.x, start.y + bobbingY);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(end.x, end.y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.setLineDash([]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.addEventListener('click', (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dronePos.x = event.clientX - rect.left;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dronePos.y = event.clientY - rect.top;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (dronePos.y &gt;= landingSpot.y - 10) dronePos.y = landingSpot.y - 10;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>[hDistEl, altEl, angleEl].forEach(el =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>el.style.color = 'white';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>setTimeout(() =&gt; el.style.color = '', 300);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', () =&gt; { resize(); resetPositions(); });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>resetPositions();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateAndDraw();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.onload = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initRobotArmDemo();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initDroneDemo();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

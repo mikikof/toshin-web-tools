@@ -1,0 +1,435 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;2変数関数ビジュアライザー&lt;/title&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Plotly.js for charting --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.plot.ly/plotly-2.33.0.min.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Google Fonts --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.gstatic" crossorigin&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--bg-color: #111827;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--text-color: #f3f4f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--panel-bg: #1f2937;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--header-bg: rgba(31, 41, 55, 0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--control-bg: #374151;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--button-bg: #4b5563;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--button-hover-bg: #0891b2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--accent-color: #22d3ee;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--border-color: #4b5563;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--explanation-bg: #374151;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--explanation-border: #0891b2;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.light-mode {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--bg-color: #f3f4f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--text-color: #111827;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--panel-bg: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--header-bg: rgba(255, 255, 255, 0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--control-bg: #f9fafb;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--button-bg: #e5e7eb;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--button-hover-bg: #0e7490;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--accent-color: #0e7490;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--border-color: #d1d5db;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--explanation-bg: #f9fafb;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--explanation-border: #0e7490;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--bg-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--text-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.3s, color 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 1200px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 auto;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--panel-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 25px 40px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 8px 30px rgba(0,0,0,0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>h1, h2 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid var(--accent-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding-bottom: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--text-color);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.interactive-area {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-wrap: wrap;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 30px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.plot-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex: 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>min-width: 400px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 500px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid var(--border-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.controls {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--control-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid var(--border-color);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.control-grid {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-wrap: wrap;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>label {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-right: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>select, input[type="range"] {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid var(--border-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--panel-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--text-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vertical-align: middle;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.slider-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#slider-value {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--accent-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>min-width: 120px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.explanation {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--explanation-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 5px solid var(--explanation-border);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 15px 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 25px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0 8px 8px 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.header-controls {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>flex-wrap: wrap;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#theme-toggle {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: var(--button-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 9999px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.2s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#theme-toggle:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: var(--button-hover-bg);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#theme-toggle svg {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>stroke: var(--text-color);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#formula-display {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--accent-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: rgba(0,0,0,0.2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>min-height: 40px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* MathML Styles */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>math {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>font-size: 1.1em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.inline-math {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>vertical-align: -0.3em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;div class="container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="header-controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1&gt;2変数関数の等高線と俯瞰図&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="theme-toggle" title="テーマを切り替え"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" class="hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;p&gt;地点<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>における山の高さを<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;z&lt;/mi&gt;&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>で表すとき、その関係は<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;z&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>という&lt;strong&gt;2変数関数&lt;/strong&gt;で表現できます。このサイトでは、抽象的な数式で表される地形を、誰もが直感的に理解できるよう、動かせる3Dモデルと2Dの地図として視覚化します。&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="controls"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="control-grid"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="func-select"&gt;地形を選択:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;select id="func-select"&gt;&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label for="colorscale-select"&gt;カラーパレット:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;select id="colorscale-select"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="Viridis"&gt;Viridis&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="Plasma"&gt;Plasma&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="Inferno"&gt;Inferno&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="Cividis"&gt;Cividis&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="Electric"&gt;Electric&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="Jet"&gt;Jet&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;option value="RdBu"&gt;Red-Blue&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="formula-display"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="slider-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="z-slider"&gt;等高線の高さ (C):&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="range" id="z-slider" min="-2" max="2" step="0.01" value="0.5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span id="slider-value"&gt;C = 0.50&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="interactive-area"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="plot3d" class="plot-container"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="plot2d" class="plot-container"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2&gt;グラフの解説&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="explanation"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h3&gt;左: 3D俯瞰図 - 地形を空から眺める&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p&gt;これは関数<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;z&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>の形を立体的に表現したものです。マウスでドラッグして、好きな角度から地形の起伏を観察してみてください。スライダーで動く半透明の面は、指定した「高さ<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;C&lt;/mi&gt;&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>」の水平な面を表しています。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="explanation"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h3&gt;右: 2D等高線図 - 地図で高さを知る&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p&gt;こちらは同じ地形を真上から見た地図です。描かれている線は&lt;strong&gt;等高線&lt;/strong&gt;といい、&lt;strong&gt;同じ高さの地点を結んだ線&lt;/strong&gt;です。線の間隔が狭い場所は傾斜が急で、広い場所はなだらかであることを示しています。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const plot3dDiv = document.getElementById('plot3d');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const plot2dDiv = document.getElementById('plot2d');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const funcSelect = document.getElementById('func-select');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const colorscaleSelect = document.getElementById('colorscale-select');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const zSlider = document.getElementById('z-slider');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const sliderValue = document.getElementById('slider-value');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const formulaDisplay = document.getElementById('formula-display');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const themeToggle = document.getElementById('theme-toggle');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const funcs = {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>gaussian: { name: "なだらかな山", func: (x, y) =&gt; 2 * Math.exp(-(x * x + y * y)), mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;msup&gt;&lt;mi&gt;e&lt;/mi&gt;&lt;mrow&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/msup&gt;&lt;/math&gt;' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>caldera: { name: "カルデラ", func: (x, y) =&gt; -2 * Math.exp(-(x * x + y * y)), mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;msup&gt;&lt;mi&gt;e&lt;/mi&gt;&lt;mrow&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/msup&gt;&lt;/math&gt;' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>saddle: { name: "峠（鞍点）", func: (x, y) =&gt; x * x - y * y, mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/math&gt;' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>waves: { name: "波紋", func: (x, y) =&gt; Math.sin(Math.sqrt(x * x + y * y) * 3), mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;sin&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mn&gt;3&lt;/mn&gt;&lt;msqrt&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/msqrt&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;'},</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sombrero: { name: "ソンブレロ", func: (x, y) =&gt; { const r = Math.sqrt(x*x+y*y) + 1e-9; return Math.sin(r*5)/r; }, mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mi&gt;sin&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mn&gt;5&lt;/mn&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;/mfrac&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mspace width="0.3em"&gt;&lt;/mspace&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;msqrt&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/msqrt&gt;&lt;/math&gt;'},</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pyramid: { name: "角錐", func: (x, y) =&gt; 2 - Math.abs(x + y) - Math.abs(x - y), mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mo&gt;|&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;|&lt;/mo&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mo&gt;|&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;|&lt;/mo&gt;&lt;/math&gt;' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>paraboloid: { name: "お椀型 (放物面)", func: (x, y) =&gt; x*x + y*y, mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/math&gt;' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>plane: { name: "傾いた平面", func: (x, y) =&gt; x + 2*y, mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;/math&gt;' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>log_funnel: { name: "対数の渦", func: (x, y) =&gt; Math.log(x*x + y*y + 1e-9), mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;log&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;' },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>cusp: { name: "カスプ曲線", func: (x, y) =&gt; y*y - x*x*x, mathML: '&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;-&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;3&lt;/mn&gt;&lt;/msup&gt;&lt;/math&gt;' }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>let currentFuncKey = 'gaussian';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let currentData = null;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ★★★ 変更点: Plotlyが期待するデータ構造(z[y][x])に合うようにループ順を修正 ★★★</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function generateData(func, range = 2, steps = 60, funcKey) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = [], y = [], z = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const step = (2 * range) / (steps - 1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let zMin = Infinity, zMax = -Infinity;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// xとyの座標ベクトルを先に作成</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt; steps; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const val = -range + i * step;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>x.push(val);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>y.push(val);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// yを外側、xを内側のループにすることで z[y][x] の構造を作る</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt; steps; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yi = y[i];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const z_row = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let j = 0; j &lt; steps; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const xj = x[j];</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>let val;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// お椀型の場合、円の外側のデータをnullにして円形に描画</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (funcKey === 'paraboloid') {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const r = Math.sqrt(xj*xj + yi*yi);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (r &gt; range) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>val = null;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>val = func(xj, yi);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>val = func(xj, yi);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>z_row.push(val);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (val !== null) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (val &lt; zMin) zMin = val;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (val &gt; zMax) zMax = val;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z.push(z_row);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return { x, y, z, zMin, zMax };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function updatePlots() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!currentData) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const C = parseFloat(zSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>sliderValue.textContent = `C = ${C.toFixed(2)}`;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const isLight = document.body.classList.contains('light-mode');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const themeColors = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>paper: isLight ? '#ffffff' : '#1f2937',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text: isLight ? '#111827' : '#f3f4f6',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>grid: isLight ? '#e5e7eb' : '#4b5563'</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const selectedColorscale = colorscaleSelect.value;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const surfaceData = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>x: currentData.x, y: currentData.y, z: currentData.z, type: 'surface',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>colorscale: selectedColorscale, showscale: false, cmin: currentData.zMin, cmax: currentData.zMax, hoverinfo: 'none'</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const planeData = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>x: currentData.x, y: currentData.y, z: Array(currentData.y.length).fill(Array(currentData.x.length).fill(C)),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>type: 'surface', colorscale: [['0', 'rgba(239, 68, 68, 0.6)'], ['1', 'rgba(239, 68, 68, 0.6)']],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>showscale: false, opacity: 0.7, hoverinfo: 'none'</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const layout3d = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>title: '3D俯瞰図 (z = f(x, y))',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>xaxis: { title: 'x', color: themeColors.text, gridcolor: themeColors.grid },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>yaxis: { title: 'y', color: themeColors.text, gridcolor: themeColors.grid },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>zaxis: {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>title: 'z (高さ)',<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>range: [currentData.zMin, currentData.zMax],</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>color: themeColors.text,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>gridcolor: themeColors.grid<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: { l: 0, r: 0, b: 0, t: 40 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>paper_bgcolor: themeColors.paper,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font: { color: themeColors.text }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>Plotly.newPlot(plot3dDiv, [surfaceData, planeData], layout3d, {responsive: true});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const contourData = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>x: currentData.x, y: currentData.y, z: currentData.z, type: 'contour',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>colorscale: selectedColorscale, contours: { coloring: 'heatmap' }, cmin: currentData.zMin, cmax: currentData.zMax</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const highlightContour = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>x: currentData.x, y: currentData.y, z: currentData.z, type: 'contour', showscale: false,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>contours: { coloring: 'lines', type: 'constraint', value: C, operation: '=' },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>line: { color: '#ef4444', width: 4 }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const layout2d = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>title: '2D等高線図 (f(x, y) = C)',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>xaxis: { title: 'x', scaleanchor: 'y', scaleratio: 1, color: themeColors.text, gridcolor: themeColors.grid },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>yaxis: { title: 'y', color: themeColors.text, gridcolor: themeColors.grid },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>paper_bgcolor: themeColors.paper,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>plot_bgcolor: themeColors.paper,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font: { color: themeColors.text }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>Plotly.newPlot(plot2dDiv, [contourData, highlightContour], layout2d, {responsive: true});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function handleFunctionChange() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>currentFuncKey = funcSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const selectedFunc = funcs[currentFuncKey];</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>currentData = generateData(selectedFunc.func, 2, 60, currentFuncKey);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>zSlider.min = currentData.zMin;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>zSlider.max = currentData.zMax;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// スライダーの刻みを範囲に合わせて調整 (0除算を避ける)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const range = currentData.zMax - currentData.zMin;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>zSlider.step = range &gt; 1e-9 ? range / 100 : 0.01;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>zSlider.value = (currentData.zMin + currentData.zMax) / 2;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>formulaDisplay.innerHTML = selectedFunc.mathML;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>updatePlots();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function toggleTheme() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.body.classList.toggle('light-mode');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const isLight = document.body.classList.contains('light-mode');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('theme-icon-sun').classList.toggle('hidden', isLight);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('theme-icon-moon').classList.toggle('hidden', !isLight);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>updatePlots();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Initialization ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>Object.keys(funcs).forEach(key =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const option = document.createElement('option');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>option.value = key;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>option.textContent = funcs[key].name;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>funcSelect.appendChild(option);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>funcSelect.addEventListener('change', handleFunctionChange);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>colorscaleSelect.addEventListener('change', updatePlots);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>zSlider.addEventListener('input', updatePlots);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>themeToggle.addEventListener('click', toggleTheme);</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.addEventListener('load', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (window.matchMedia &amp;&amp; window.matchMedia('(prefers-color-scheme: light)').matches) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.body.classList.add('light-mode');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('theme-icon-sun').classList.toggle('hidden', document.body.classList.contains('light-mode'));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('theme-icon-moon').classList.toggle('hidden', !document.body.classList.contains('light-mode'));</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>handleFunctionChange();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

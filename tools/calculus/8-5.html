@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>データサイエンスの数理 | インタラクティブな探求</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #F9FAFB; /* text-gray-50 */
+        }
+        .concept-card {
+            background-color: #1F2937; /* bg-gray-800 */
+            border: 1px solid #374151; /* border-gray-700 */
+            border-radius: 0.75rem; /* rounded-xl */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 40px rgba(79, 70, 229, 0.2);
+        }
+        canvas {
+            border-radius: 0.5rem;
+            background-color: #374151; /* bg-gray-700 */
+            cursor: crosshair;
+        }
+        math {
+          font-size: 1.1em;
+        }
+       .inline-math {
+         display: inline-block;
+         vertical-align: -0.2em;
+       }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Main page container -->
+    <div class="container mx-auto p-4 md:p-8">
+
+        <!-- Header Section -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 mb-2">データサイエンスの数理</h1>
+            <p class="text-lg text-gray-300">複雑な概念を、インタラクティブな体験を通して直感的に理解する。</p>
+        </header>
+
+        <!-- Grid container for the interactive cards -->
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- Card 1: Gradient Descent Visualization -->
+            <article class="concept-card p-6 flex flex-col space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0 bg-indigo-500/20 text-indigo-300 rounded-lg p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-100">学習の勾配 (Gradient Descent)</h2>
+                </div>
+                <p class="text-gray-300 text-sm md:text-base">
+                    損失関数 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>L</mi><mo>(</mo><mi>θ</mi><mo>)</mo></mrow></math> を最小化するため、各パラメータで偏微分し、勾配 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mo>∇</mo><mi>L</mi></mrow></math> の逆方向へ進むことで最適化します。坂道を下るように、最も傾きが急な方向を探して少しずつ進むイメージです。
+                </p>
+                <div class="flex-grow flex items-center justify-center">
+                    <canvas id="grad-canvas" width="400" height="300"></canvas>
+                </div>
+                <div class="text-center">
+                    <button id="grad-reset" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400">リセット</button>
+                    <p class="text-sm text-gray-400 mt-2">キャンバスをクリックして開始地点を選んでください。</p>
+                </div>
+            </article>
+
+            <!-- Card 2: Image Edge Detection Visualization -->
+            <article class="concept-card p-6 flex flex-col space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0 bg-rose-500/20 text-rose-300 rounded-lg p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5" /></svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-100">画像処理 (Edge Detection)</h2>
+                </div>
+                <p class="text-gray-300 text-sm md:text-base">
+                    画像の明るさ <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>I</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></mrow></math> の変化が急な場所が「エッジ」です。<math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>x</mi></math>方向（横）の変化 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><msub><mo>∂</mo><mi>x</mi></msub><mi>I</mi></mrow></math> と <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>y</mi></math>方向（縦）の変化 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><msub><mo>∂</mo><mi>y</mi></msub><mi>I</mi></mrow></math> を計算することがエッジ検出の基本となります。
+                </p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-center text-sm text-gray-400 mb-1">元画像</p>
+                        <canvas id="edge-original-canvas" width="200" height="200"></canvas>
+                    </div>
+                    <div>
+                        <p class="text-center text-sm text-gray-400 mb-1">エッジ検出後</p>
+                        <canvas id="edge-detect-canvas" width="200" height="200"></canvas>
+                    </div>
+                </div>
+                 <p class="text-sm text-gray-400 mt-2 text-center">左の元画像の上でマウスを動かしてください。</p>
+            </article>
+
+            <!-- Card 3: Logistic Regression Visualization -->
+            <article class="concept-card p-6 flex flex-col space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0 bg-amber-500/20 text-amber-300 rounded-lg p-2">
+                       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-100">ロジスティック回帰</h2>
+                </div>
+                <p class="text-gray-300 text-sm md:text-base">
+                    対数尤度 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>L</mi></mrow></math> の偏微分 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mfrac><mrow><mo>∂</mo><mi>L</mi></mrow><mrow><mo>∂</mo><msub><mi>w</mi><mi>j</mi></msub></mrow></mfrac></mrow></math> は「予測誤差 $\times$ 特徴量」で表され、パラメータ更新の指標となります。誤差が大きいほど、特徴量が大きいほど、パラメータは大きく修正されます。
+                </p>
+                <div class="flex-grow flex items-center justify-center">
+                    <canvas id="logistic-canvas" width="400" height="300"></canvas>
+                </div>
+                <div class="text-center">
+                    <button id="logistic-reset" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-white font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400">リセット</button>
+                    <p class="text-sm text-gray-400 mt-2">キャンバスをクリックしてデータを追加してください。</p>
+                </div>
+            </article>
+
+            <!-- Card 4: Diffusion / Noise Removal Visualization -->
+            <article class="concept-card p-6 flex flex-col space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="flex-shrink-0 bg-teal-500/20 text-teal-300 rounded-lg p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.293 2.293a1 1 0 010 1.414L13 12l2.293 2.293a1 1 0 010 1.414L13 18m5-16l2.293 2.293a1 1 0 010 1.414L18 12l2.293 2.293a1 1 0 010 1.414L18 18" /></svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-100">拡散 | 正則化 (Noise Removal)</h2>
+                </div>
+                <p class="text-gray-300 text-sm md:text-base">
+                    熱が拡散して均一になるように、ノイズも周囲のピクセルと馴染ませることで除去できます。この過程は熱方程式 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><msub><mo>∂</mo><mi>t</mi></msub><mi>u</mi><mo>=</mo><mi>D</mi><msup><mo>∇</mo><mn>2</mn></msup><mi>u</mi></mrow></math> でモデル化され、ノイズ除去に応用されます。
+                </p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-center text-sm text-gray-400 mb-1">ノイズ画像</p>
+                        <canvas id="noise-original-canvas" width="200" height="200"></canvas>
+                    </div>
+                    <div>
+                        <p class="text-center text-sm text-gray-400 mb-1">ノイズ除去後</p>
+                        <canvas id="noise-denoised-canvas" width="200" height="200"></canvas>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label for="diffusion-slider" class="text-sm text-gray-400">平滑化の強さ:</label>
+                    <input id="diffusion-slider" type="range" min="0" max="10" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </article>
+        </main>
+    </div>
+
+    <script type="module">
+        // --- Global Setup ---
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialize all interactive visualizations
+            setupGradientDescent();
+            setupEdgeDetection();
+            setupLogisticRegression();
+            setupDiffusion();
+        });
+
+        // --- Visualization 1: Gradient Descent ---
+        function setupGradientDescent() {
+            const canvas = document.getElementById('grad-canvas');
+            const ctx = canvas.getContext('2d');
+            const resetButton = document.getElementById('grad-reset');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            let animationId;
+            let path = [];
+            let pos = { x: w * 0.2, y: h * 0.2 };
+            let running = false;
+
+            // The loss function: f(x, y) = a*x^2 + b*y^2
+            const lossFn = (x, y) => {
+                const normX = (x - w / 2) / (w / 2);
+                const normY = (y - h / 2) / (h / 2);
+                return 0.5 * normX**2 + 1 * normY**2;
+            };
+
+            // The gradient of the loss function
+            const gradient = (x, y) => {
+                const normX = (x - w / 2) / (w / 2);
+                const normY = (y - h / 2) / (h / 2);
+                return {
+                    dx: (1 / (w / 2)) * normX,
+                    dy: (2 / (h / 2)) * normY
+                };
+            };
+
+            const drawBackground = () => {
+                const imageData = ctx.createImageData(w, h);
+                let maxVal = -Infinity;
+                let minVal = Infinity;
+                const values = [];
+
+                for (let i = 0; i < w; i++) {
+                    for (let j = 0; j < h; j++) {
+                        const val = lossFn(i, j);
+                        values.push(val);
+                        if (val > maxVal) maxVal = val;
+                        if (val < minVal) minVal = val;
+                    }
+                }
+
+                for (let i = 0; i < values.length; i++) {
+                    const normalized = (values[i] - minVal) / (maxVal - minVal);
+                    const intensity = 255 * (1 - Math.pow(normalized, 0.5));
+                    const [r,g,b] = [31 + intensity * 0.2, 41 + intensity * 0.3, 55 + intensity*0.5];
+
+                    imageData.data[i * 4] = r;
+                    imageData.data[i * 4 + 1] = g;
+                    imageData.data[i * 4 + 2] = b;
+                    imageData.data[i * 4 + 3] = 255;
+                }
+                ctx.putImageData(imageData, 0, 0);
+            };
+
+            const drawPath = () => {
+                if (path.length < 2) return;
+                ctx.beginPath();
+                ctx.moveTo(path[0].x, path[0].y);
+                for(let i=1; i<path.length; i++) {
+                    ctx.lineTo(path[i].x, path[i].y);
+                }
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            };
+
+            const drawPoint = () => {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#a78bfa'; // violet-400
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            };
+
+            const animate = () => {
+                const grad = gradient(pos.x, pos.y);
+                const learningRate = 50;
+
+                pos.x -= learningRate * grad.dx;
+                pos.y -= learningRate * grad.dy;
+                path.push({x: pos.x, y: pos.y});
+
+                draw();
+
+                if (Math.abs(grad.dx) + Math.abs(grad.dy) > 0.0001 && path.length < 200) {
+                    animationId = requestAnimationFrame(animate);
+                } else {
+                    running = false;
+                }
+            };
+
+            const draw = () => {
+                ctx.clearRect(0, 0, w, h);
+                drawBackground();
+                drawPath();
+                drawPoint();
+            };
+
+            const start = (event) => {
+                if (running) return;
+                running = true;
+                const rect = canvas.getBoundingClientRect();
+                pos = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+                path = [{x: pos.x, y: pos.y}];
+                cancelAnimationFrame(animationId);
+                animate();
+            };
+
+            const reset = () => {
+                running = false;
+                cancelAnimationFrame(animationId);
+                path = [];
+                pos = { x: w * 0.2, y: h * 0.2 };
+                draw();
+            }
+
+            canvas.addEventListener('click', start);
+            resetButton.addEventListener('click', reset);
+            reset();
+        }
+
+        // --- Visualization 2: Edge Detection ---
+        function setupEdgeDetection() {
+            const originalCanvas = document.getElementById('edge-original-canvas');
+            const octx = originalCanvas.getContext('2d');
+            const detectCanvas = document.getElementById('edge-detect-canvas');
+            const dctx = detectCanvas.getContext('2d');
+            const w = originalCanvas.width;
+            const h = originalCanvas.height;
+
+            const drawOriginal = () => {
+                octx.fillStyle = '#4b5563'; // bg-gray-600
+                octx.fillRect(0, 0, w, h);
+                octx.fillStyle = '#e5e7eb'; // text-gray-200
+                octx.fillRect(40, 40, 80, 80);
+                octx.beginPath();
+                octx.arc(140, 140, 40, 0, Math.PI * 2);
+                octx.fill();
+            };
+
+            const sobel = (pixels) => {
+                const grayscale = new Uint8ClampedArray(w * h);
+                for (let i = 0; i < pixels.data.length; i += 4) {
+                    const lightness = (pixels.data[i] + pixels.data[i+1] + pixels.data[i+2]) / 3;
+                    grayscale[i/4] = lightness;
+                }
+
+                const output = new Uint8ClampedArray(pixels.data.length);
+                const kx = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
+                const ky = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]];
+
+                for (let y = 1; y < h - 1; y++) {
+                    for (let x = 1; x < w - 1; x++) {
+                        let Gx = 0, Gy = 0;
+                        for (let i = -1; i <= 1; i++) {
+                            for (let j = -1; j <= 1; j++) {
+                                const val = grayscale[(y + j) * w + (x + i)];
+                                Gx += val * kx[j + 1][i + 1];
+                                Gy += val * ky[j + 1][i + 1];
+                            }
+                        }
+                        const magnitude = Math.sqrt(Gx * Gx + Gy * Gy);
+                        const idx = (y * w + x) * 4;
+                        output[idx] = output[idx+1] = output[idx+2] = magnitude;
+                        output[idx+3] = 255;
+                    }
+                }
+                return new ImageData(output, w, h);
+            };
+
+            drawOriginal();
+            const originalImageData = octx.getImageData(0, 0, w, h);
+            const edgeImageData = sobel(originalImageData);
+
+            originalCanvas.addEventListener('mousemove', (e) => {
+                const rect = originalCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                dctx.clearRect(0,0,w,h);
+                dctx.globalAlpha = 0.5;
+                dctx.putImageData(edgeImageData, 0, 0);
+                dctx.globalAlpha = 1.0;
+
+                const radius = 30;
+                dctx.save();
+                dctx.beginPath();
+                dctx.arc(x, y, radius, 0, Math.PI*2);
+                dctx.clip();
+                dctx.putImageData(edgeImageData, 0, 0);
+                dctx.restore();
+            });
+
+             originalCanvas.addEventListener('mouseleave', () => {
+                dctx.clearRect(0,0,w,h);
+            });
+        }
+
+        // --- Visualization 3: Logistic Regression ---
+        function setupLogisticRegression() {
+            const canvas = document.getElementById('logistic-canvas');
+            const ctx = canvas.getContext('2d');
+            const resetButton = document.getElementById('logistic-reset');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            let points = [];
+            let weights = { w1: 0.1, w2: -0.1, b: 0 }; // w1*x + w2*y + b = 0
+
+            const sigmoid = (z) => 1 / (1 + Math.exp(-z));
+
+            const drawBackground = () => {
+                 const imageData = ctx.createImageData(w, h);
+                 for (let x = 0; x < w; x++) {
+                     for (let y = 0; y < h; y++) {
+                        const score = weights.w1 * (x - w/2) + weights.w2 * (y - h/2) + weights.b;
+                        const prob = sigmoid(score * 0.05); // scale score
+                        const idx = (y * w + x) * 4;
+                        imageData.data[idx] = 251 * (1 - prob) + 129 * prob; // amber-300 to blue-400
+                        imageData.data[idx+1] = 191 * (1 - prob) + 140 * prob;
+                        imageData.data[idx+2] = 36 * (1 - prob) + 247 * prob;
+                        imageData.data[idx+3] = 255;
+                     }
+                 }
+                 ctx.putImageData(imageData, 0, 0);
+            };
+
+            const drawPoints = () => {
+                points.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+                    ctx.fillStyle = p.label === 1 ? '#60a5fa' : '#fcd34d'; // blue-400 : amber-300
+                    ctx.fill();
+                    ctx.strokeStyle = '#1f2937';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                });
+            };
+
+            const drawBoundary = () => {
+                ctx.beginPath();
+                // w1*x + w2*y + b = 0 => y = (-w1*x - b) / w2
+                const y1 = (-weights.w1 * (0 - w/2) - weights.b) / weights.w2 + h/2;
+                const y2 = (-weights.w1 * (w - w/2) - weights.b) / weights.w2 + h/2;
+                ctx.moveTo(0, y1);
+                ctx.lineTo(w, y2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            };
+
+            const updateWeights = (point) => {
+                const learningRate = 0.1;
+                const score = weights.w1 * (point.x - w/2) + weights.w2 * (point.y - h/2) + weights.b;
+                const prediction = sigmoid(score * 0.05);
+                const error = point.label - prediction;
+
+                weights.w1 += learningRate * error * (point.x-w/2) * 0.01;
+                weights.w2 += learningRate * error * (point.y-h/2) * 0.01;
+                weights.b += learningRate * error;
+            };
+
+            const addPoint = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const score = weights.w1 * (x - w/2) + weights.w2 * (y - h/2) + weights.b;
+                const label = score > 0 ? 1 : 0;
+
+                const newPoint = { x, y, label };
+                points.push(newPoint);
+                updateWeights(newPoint);
+                draw();
+            };
+
+            const draw = () => {
+                ctx.clearRect(0,0,w,h);
+                drawBackground();
+                drawPoints();
+                // drawBoundary(); // Boundary is implicit in background
+            };
+
+            const reset = () => {
+                points = [];
+                weights = { w1: 0.1, w2: -0.1, b: 0 };
+                // Add some initial points for clarity
+                for(let i=0; i<10; i++){
+                    points.push({ x: w*0.25 + Math.random()*50-25, y: h*0.5 + Math.random()*100-50, label: 0 });
+                    points.push({ x: w*0.75 + Math.random()*50-25, y: h*0.5 + Math.random()*100-50, label: 1 });
+                }
+                draw();
+            };
+
+            canvas.addEventListener('click', addPoint);
+            resetButton.addEventListener('click', reset);
+            reset();
+        }
+
+        // --- Visualization 4: Diffusion / Noise Removal ---
+        function setupDiffusion() {
+            const originalCanvas = document.getElementById('noise-original-canvas');
+            const octx = originalCanvas.getContext('2d', { willReadFrequently: true });
+            const denoisedCanvas = document.getElementById('noise-denoised-canvas');
+            const dctx = denoisedCanvas.getContext('2d');
+            const slider = document.getElementById('diffusion-slider');
+            const w = originalCanvas.width;
+            const h = originalCanvas.height;
+
+            let noisyImageData;
+
+            const generateBaseImage = (ctx) => {
+                ctx.fillStyle = '#4b5563'; // bg-gray-600
+                ctx.fillRect(0, 0, w, h);
+                ctx.fillStyle = '#e5e7eb'; // text-gray-200
+                ctx.fillRect(40, 40, 80, 80);
+                ctx.beginPath();
+                ctx.arc(140, 140, 40, 0, Math.PI * 2);
+                ctx.fill();
+            };
+
+            const addNoise = (imageData) => {
+                const d = imageData.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    if (Math.random() < 0.15) { // 15% noise
+                        const color = Math.random() > 0.5 ? 255 : 0;
+                        d[i] = d[i+1] = d[i+2] = color;
+                    }
+                }
+                return imageData;
+            };
+
+            const applyBlur = (srcData, iterations) => {
+                let src = new Uint8ClampedArray(srcData.data);
+                let dst = new Uint8ClampedArray(srcData.data.length);
+
+                for(let iter=0; iter<iterations; iter++) {
+                    for(let y=1; y<h-1; y++) {
+                        for(let x=1; x<w-1; x++) {
+                            for (let c=0; c<3; c++) { // R, G, B channels
+                                let sum = 0;
+                                for(let j=-1; j<=1; j++) {
+                                    for(let i=-1; i<=1; i++) {
+                                        sum += src[((y+j) * w + (x+i))*4 + c];
+                                    }
+                                }
+                                dst[((y*w+x)*4)+c] = sum / 9;
+                            }
+                           dst[((y*w+x)*4)+3] = 255; // Alpha
+                        }
+                    }
+                    src.set(dst);
+                }
+                return new ImageData(dst, w, h);
+            };
+
+            const init = () => {
+                generateBaseImage(octx);
+                const baseImageData = octx.getImageData(0, 0, w, h);
+                noisyImageData = addNoise(baseImageData);
+                octx.putImageData(noisyImageData, 0, 0);
+                updateDenoised();
+            };
+
+            const updateDenoised = () => {
+                const iterations = parseInt(slider.value);
+                if (iterations === 0) {
+                    dctx.clearRect(0,0,w,h);
+                    dctx.putImageData(noisyImageData, 0,0);
+                    return;
+                }
+                const denoisedData = applyBlur(noisyImageData, iterations);
+                dctx.putImageData(denoisedData, 0, 0);
+            };
+
+            slider.addEventListener('input', updateDenoised);
+            init();
+        }
+
+    </script>
+</body>
+</html>

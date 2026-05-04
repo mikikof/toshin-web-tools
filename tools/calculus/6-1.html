@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カヴァリエリの原理：インタラクティブ・ビジュアライゼーション</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .canvas-container {
+            width: 100%;
+            height: 450px;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .slider-thumb::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #3b82f6;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+        }
+        .label-3d {
+            position: absolute;
+            bottom: 10px;
+            width: 50%;
+            text-align: center;
+            font-weight: bold;
+            color: #374151;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <!-- ヘッダーと説明 -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">積分の起源</h1>
+            <p class="text-lg md:text-xl text-blue-600 font-semibold">「測りたい」という根源的欲求</p>
+        </header>
+
+        <div class="card mb-12">
+            <h2 class="text-2xl font-bold mb-4">すべては「面積や体積を測りたい」から始まった 📏</h2>
+            <p class="text-base md:text-lg leading-relaxed">
+                古代の挑戦：曲線で囲まれた図形の面積や、複雑な立体の体積をどうやって正確に求めるか？これは古代ギリシャ時代からの難問でした。<br>
+                17世紀、カヴァリエリはこの難問に光を当てます。「<strong>切断した面積が常に等しいなら、全体の体積も等しい</strong>」という原理を提唱しました。
+                これは、対象を無数の「薄い層（スライス）」に分割し、その集合として全体を捉えるという画期的なアイデアです。この考え方こそ、積分の中核にある<strong>「無限小に分割して、それらを足し合わせる (summation)」</strong>という思考の源流なのです。
+            </p>
+            <div class="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                <p class="font-semibold text-blue-800">💡 ポイント：積分計算の本質は、複雑で捉えどころのない全体量を、把握可能な単純なパーツの和として理解することにあります。</p>
+            </div>
+        </div>
+
+        <!-- 2Dデモ: 円の面積 -->
+        <div class="card mb-12">
+            <h2 class="text-3xl font-bold text-center mb-2">2D: 円の面積</h2>
+            <p class="text-center text-gray-600 mb-6">円を細い長方形にスライスして表現します。</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div id="canvas-2d-container" class="canvas-container"></div>
+                <div class="flex flex-col items-center justify-center">
+                    <p class="text-lg mb-4">スライスの数: <span id="slices-2d-label" class="font-bold text-blue-600">50</span></p>
+                    <input id="slices-2d-slider" type="range" min="10" max="200" value="50" class="w-full max-w-sm h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    <p class="mt-4 text-center text-sm text-gray-500">スライスの数を増やすほど、より滑らかな円に近づきます。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3Dデモ: 球の構成 -->
+        <div class="card mb-12">
+            <h2 class="text-3xl font-bold text-center mb-2">3D: 球の構成</h2>
+            <p class="text-center text-gray-600 mb-6">球を薄い円盤にスライスして表現します。（マウスでドラッグして視点を変えられます）</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div id="canvas-3d-sphere-container" class="canvas-container"></div>
+                <div class="flex flex-col items-center justify-center">
+                    <p class="text-lg mb-4">スライスの数: <span id="slices-3d-sphere-label" class="font-bold text-blue-600">20</span></p>
+                    <input id="slices-3d-sphere-slider" type="range" min="4" max="100" value="20" class="w-full max-w-sm h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+                     <p class="mt-4 text-center text-sm text-gray-500">スライスの数を増やすほど、カクカクした集合体が滑らかな球に近づいていきます。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3Dデモ: カヴァリエリの原理 -->
+        <div class="card">
+            <h2 class="text-3xl font-bold text-center mb-2">3D: 球の体積の探求（カヴァリエリの原理）</h2>
+            <p class="text-center text-gray-600 mb-6">
+                一見違う形の「半球」と「円柱-円錐」。同じ高さでスライスすると、断面積は常に等しくなります。<br>
+                （マウスでドラッグして視点を変えられます）
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                <div id="canvas-3d-container" class="canvas-container col-span-1 lg:col-span-3">
+                     <div class="label-3d" style="left: 0;">円柱 - 円錐</div>
+                     <div class="label-3d" style="left: 50%;">半球</div>
+                </div>
+                <div class="flex flex-col items-center justify-center col-span-1 lg:col-span-2">
+                    <p class="text-lg mb-4">スライスの高さ: <span id="slice-height-label" class="font-bold text-blue-600">0.50</span> / R</p>
+                    <input id="slice-height-slider" type="range" min="0" max="100" value="50" class="w-full max-w-sm h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    <div id="area-display" class="mt-8 p-4 bg-gray-100 rounded-lg w-full max-w-sm text-center">
+                        <p class="font-semibold mb-2">断面積の比較 (A = π(R² - h²))</p>
+                        <p class="text-sm text-blue-700">A (円柱-円錐): <span id="area-a"></span></p>
+                        <p class="text-sm text-green-700">A (半球): <span id="area-b"></span></p>
+                        <p class="font-bold mt-2 text-lg" id="area-equality">面積は等しい！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- グローバル変数 ---
+        let scene2D, camera2D, renderer2D, circleGroup;
+        let sceneCavalieri, cameraCavalieri, rendererCavalieri, controlsCavalieri;
+        let sceneSphere, cameraSphere, rendererSphere, controlsSphere, sphereSliceGroup;
+        let hemisphere, cylinder, cone, slicePlane, crossSectionHemi, crossSectionCyl;
+
+        const R = 1; // 3Dオブジェクトの基準半径
+        const cavalieriFrustumSize = 4.5; // カメラの表示領域サイズ
+
+        // UI要素
+        const SLICES_2D_SLIDER = document.getElementById('slices-2d-slider');
+        const SLICES_2D_LABEL = document.getElementById('slices-2d-label');
+
+        const SLICE_HEIGHT_SLIDER = document.getElementById('slice-height-slider');
+        const SLICE_HEIGHT_LABEL = document.getElementById('slice-height-label');
+        const AREA_A_LABEL = document.getElementById('area-a');
+        const AREA_B_LABEL = document.getElementById('area-b');
+
+        const SLICES_3D_SPHERE_SLIDER = document.getElementById('slices-3d-sphere-slider');
+        const SLICES_3D_SPHERE_LABEL = document.getElementById('slices-3d-sphere-label');
+
+        // --- 初期化処理 ---
+        function init() {
+            init2D();
+            initSphereDemo();
+            initCavalieriDemo();
+            animate();
+            setupEventListeners();
+            updateSliceHeight(parseFloat(SLICE_HEIGHT_SLIDER.value) / 100);
+        }
+
+        // --- 2Dデモの初期化 ---
+        function init2D() {
+            const container = document.getElementById('canvas-2d-container');
+            scene2D = new THREE.Scene();
+            scene2D.background = new THREE.Color(0xffffff);
+            camera2D = new THREE.OrthographicCamera(container.clientWidth / -2, container.clientWidth / 2, container.clientHeight / 2, container.clientHeight / -2, 1, 1000);
+            camera2D.position.z = 10;
+            camera2D.zoom = 2.5;
+            camera2D.updateProjectionMatrix();
+            renderer2D = new THREE.WebGLRenderer({ antialias: true });
+            renderer2D.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer2D.domElement);
+            circleGroup = new THREE.Group();
+            scene2D.add(circleGroup);
+            createCircleSlices(parseInt(SLICES_2D_SLIDER.value));
+        }
+
+        // --- 球体構成デモの初期化 ---
+        function initSphereDemo() {
+            const container = document.getElementById('canvas-3d-sphere-container');
+            sceneSphere = new THREE.Scene();
+            sceneSphere.background = new THREE.Color(0xffffff);
+
+            cameraSphere = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            cameraSphere.position.set(0, 1.5, 3.5);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            sceneSphere.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
+            directionalLight.position.set(1.5, 2.5, 1.5);
+            sceneSphere.add(directionalLight);
+
+            rendererSphere = new THREE.WebGLRenderer({ antialias: true });
+            rendererSphere.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(rendererSphere.domElement);
+
+            controlsSphere = new OrbitControls(cameraSphere, rendererSphere.domElement);
+            controlsSphere.enableDamping = true;
+
+            sphereSliceGroup = new THREE.Group();
+            sceneSphere.add(sphereSliceGroup);
+
+            createFullSphereSlices(parseInt(SLICES_3D_SPHERE_SLIDER.value));
+        }
+
+        // --- カヴァリエリの原理デモの初期化 ---
+        function initCavalieriDemo() {
+            const container = document.getElementById('canvas-3d-container');
+            sceneCavalieri = new THREE.Scene();
+            sceneCavalieri.background = new THREE.Color(0xffffff);
+
+            // ★修正点: PerspectiveCameraからOrthographicCameraに変更
+            const aspect = container.clientWidth / container.clientHeight;
+            cameraCavalieri = new THREE.OrthographicCamera(cavalieriFrustumSize * aspect / -2, cavalieriFrustumSize * aspect / 2, cavalieriFrustumSize / 2, cavalieriFrustumSize / -2, 0.1, 100);
+            cameraCavalieri.position.set(0, 1.5, 10); // 平行投影なのでZの位置はズームに影響しないが、クリッピングのために設定
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            sceneCavalieri.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 2.2);
+            directionalLight.position.set(2, 3, 2);
+            sceneCavalieri.add(directionalLight);
+
+            rendererCavalieri = new THREE.WebGLRenderer({ antialias: true });
+            rendererCavalieri.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(rendererCavalieri.domElement);
+
+            controlsCavalieri = new OrbitControls(cameraCavalieri, rendererCavalieri.domElement);
+            controlsCavalieri.enableDamping = true;
+            controlsCavalieri.target.set(0, R / 2, 0);
+            // 平行投影カメラではズームが直感的でないため、無効化
+            controlsCavalieri.enableZoom = false;
+
+            createCavalieriObjects();
+        }
+
+        // --- 2D円のスライスを作成 ---
+        function createCircleSlices(numSlices) {
+            circleGroup.clear();
+            const radius = 60;
+            const sliceWidth = (radius * 2) / numSlices;
+
+            for (let i = 0; i < numSlices; i++) {
+                const x = -radius + sliceWidth * (i + 0.5);
+                const height = 2 * Math.sqrt(Math.max(0, radius * radius - x * x));
+
+                const geometry = new THREE.PlaneGeometry(sliceWidth, height);
+                const color = new THREE.Color(`hsl(${(i / numSlices) * 360}, 90%, 70%)`);
+                const material = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+                const slice = new THREE.Mesh(geometry, material);
+
+                slice.position.x = x;
+                circleGroup.add(slice);
+            }
+        }
+
+        // --- 球のスライスを作成 ---
+        function createFullSphereSlices(numSlices) {
+            sphereSliceGroup.clear();
+            const radius = 1.2;
+            const sliceHeight = (radius * 2) / numSlices;
+
+            for (let i = 0; i < numSlices; i++) {
+                const y = -radius + sliceHeight * (i + 0.5);
+                const sliceRadius = Math.sqrt(radius * radius - y * y);
+
+                const geometry = new THREE.CylinderGeometry(sliceRadius, sliceRadius, sliceHeight, 32);
+                const color = new THREE.Color(`hsl(${((y + radius) / (radius*2)) * 360}, 90%, 70%)`);
+                const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.5, metalness: 0.1 });
+                const slice = new THREE.Mesh(geometry, material);
+
+                slice.position.y = y;
+                sphereSliceGroup.add(slice);
+            }
+        }
+
+        // --- カヴァリエリの原理用オブジェクト作成 ---
+        function createCavalieriObjects() {
+            const group = new THREE.Group();
+            const separation = R * 2.5;
+
+            const hemiGeom = new THREE.SphereGeometry(R, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2);
+            const hemiMat = new THREE.MeshStandardMaterial({ color: 0x4ade80, transparent: true, opacity: 0.3, side: THREE.DoubleSide });
+            hemisphere = new THREE.Mesh(hemiGeom, hemiMat);
+            hemisphere.position.x = separation / 2;
+            group.add(hemisphere);
+
+            const cylGeom = new THREE.CylinderGeometry(R, R, R, 64, 1, true);
+            const cylMat = new THREE.MeshStandardMaterial({ color: 0x60a5fa, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+            cylinder = new THREE.Mesh(cylGeom, cylMat);
+            cylinder.position.set(-separation / 2, R / 2, 0);
+            group.add(cylinder);
+
+            const coneGeom = new THREE.ConeGeometry(R, R, 64, 1, true);
+            const coneMat = new THREE.MeshStandardMaterial({ color: 0x4b5563, side: THREE.BackSide });
+            cone = new THREE.Mesh(coneGeom, coneMat);
+            cone.position.set(-separation / 2, R / 2, 0);
+            cone.rotation.x = Math.PI;
+            group.add(cone);
+
+            const planeGeom = new THREE.PlaneGeometry(separation + R * 2, R * 1.5);
+            const planeMat = new THREE.MeshBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.08, side: THREE.DoubleSide });
+            slicePlane = new THREE.Mesh(planeGeom, planeMat);
+            slicePlane.rotation.x = -Math.PI / 2;
+            group.add(slicePlane);
+
+            const crossHemiGeom = new THREE.RingGeometry(0, 1, 64);
+            const crossHemiMat = new THREE.MeshBasicMaterial({ color: 0x16a34a, side: THREE.DoubleSide, depthTest: false });
+            crossSectionHemi = new THREE.Mesh(crossHemiGeom, crossHemiMat);
+            crossSectionHemi.rotation.x = -Math.PI / 2;
+            crossSectionHemi.position.x = separation / 2;
+            crossSectionHemi.renderOrder = 1; 
+            group.add(crossSectionHemi);
+
+            const crossCylGeom = new THREE.RingGeometry(0, R, 64);
+            const crossCylMat = new THREE.MeshBasicMaterial({ color: 0x2563eb, side: THREE.DoubleSide, depthTest: false });
+            crossSectionCyl = new THREE.Mesh(crossCylGeom, crossCylMat);
+            crossSectionCyl.rotation.x = -Math.PI / 2;
+            crossSectionCyl.position.x = -separation / 2;
+            crossSectionCyl.renderOrder = 1; 
+            group.add(crossSectionCyl);
+
+            sceneCavalieri.add(group);
+        }
+
+        // --- スライスの高さを更新 ---
+        function updateSliceHeight(h_ratio) {
+            const h = h_ratio * R;
+            SLICE_HEIGHT_LABEL.textContent = h.toFixed(2);
+            slicePlane.position.y = h;
+            const r_hemi_sq = R * R - h * h;
+            const r_hemi = Math.sqrt(Math.max(0, r_hemi_sq));
+            crossSectionHemi.scale.set(r_hemi, r_hemi, 1);
+            crossSectionHemi.position.y = h + 0.001;
+            const r_cone = h; 
+            sceneCavalieri.remove(crossSectionCyl);
+            crossSectionCyl.geometry.dispose();
+            const newCrossCylGeom = new THREE.RingGeometry(r_cone, R, 64);
+            crossSectionCyl.geometry = newCrossCylGeom;
+            sceneCavalieri.add(crossSectionCyl);
+            crossSectionCyl.position.y = h + 0.001; 
+            crossSectionCyl.position.x = -(R * 2.5) / 2;
+            crossSectionCyl.rotation.x = -Math.PI / 2;
+            const area = Math.PI * r_hemi_sq;
+            if (area >= 0) {
+                AREA_A_LABEL.textContent = area.toFixed(4);
+                AREA_B_LABEL.textContent = area.toFixed(4);
+            } else {
+                AREA_A_LABEL.textContent = "0.0000";
+                AREA_B_LABEL.textContent = "0.0000";
+            }
+        }
+
+        // --- イベントリスナーの設定 ---
+        function setupEventListeners() {
+            SLICES_2D_SLIDER.addEventListener('input', (e) => {
+                const numSlices = parseInt(e.target.value);
+                SLICES_2D_LABEL.textContent = numSlices;
+                createCircleSlices(numSlices);
+            });
+
+            SLICE_HEIGHT_SLIDER.addEventListener('input', (e) => {
+                updateSliceHeight(parseFloat(e.target.value) / 100);
+            });
+
+            SLICES_3D_SPHERE_SLIDER.addEventListener('input', (e) => {
+                const numSlices = parseInt(e.target.value);
+                SLICES_3D_SPHERE_LABEL.textContent = numSlices;
+                createFullSphereSlices(numSlices);
+            });
+
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        // --- ウィンドウリサイズ処理 ---
+        function onWindowResize() {
+            // 2D
+            const container2D = document.getElementById('canvas-2d-container');
+            if(container2D && renderer2D) {
+                camera2D.left = container2D.clientWidth / -2;
+                camera2D.right = container2D.clientWidth / 2;
+                camera2D.top = container2D.clientHeight / 2;
+                camera2D.bottom = container2D.clientHeight / -2;
+                camera2D.updateProjectionMatrix();
+                renderer2D.setSize(container2D.clientWidth, container2D.clientHeight);
+            }
+
+            // Sphere Demo
+            const containerSphere = document.getElementById('canvas-3d-sphere-container');
+             if(containerSphere && rendererSphere) {
+                cameraSphere.aspect = containerSphere.clientWidth / containerSphere.clientHeight;
+                cameraSphere.updateProjectionMatrix();
+                rendererSphere.setSize(containerSphere.clientWidth, containerSphere.clientHeight);
+            }
+
+            // Cavalieri Demo
+            const containerCavalieri = document.getElementById('canvas-3d-container');
+            if(containerCavalieri && rendererCavalieri) {
+                // ★修正点: OrthographicCameraのリサイズ処理
+                const aspect = containerCavalieri.clientWidth / containerCavalieri.clientHeight;
+                cameraCavalieri.left = cavalieriFrustumSize * aspect / -2;
+                cameraCavalieri.right = cavalieriFrustumSize * aspect / 2;
+                cameraCavalieri.top = cavalieriFrustumSize / 2;
+                cameraCavalieri.bottom = cavalieriFrustumSize / -2;
+                cameraCavalieri.updateProjectionMatrix();
+                rendererCavalieri.setSize(containerCavalieri.clientWidth, containerCavalieri.clientHeight);
+            }
+        }
+
+        // --- アニメーションループ ---
+        function animate() {
+            requestAnimationFrame(animate);
+            if(renderer2D) renderer2D.render(scene2D, camera2D);
+            if(rendererSphere) {
+                controlsSphere.update();
+                rendererSphere.render(sceneSphere, cameraSphere);
+            }
+            if(rendererCavalieri) {
+                controlsCavalieri.update();
+                rendererCavalieri.render(sceneCavalieri, cameraCavalieri);
+            }
+        }
+
+        // --- 実行 ---
+        init();
+
+    </script>
+</body>
+</html>

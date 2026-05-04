@@ -1,0 +1,1130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja" class="scroll-smooth"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;インタラクティブで学ぶ広義積分&lt;/title&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Tailwind CSS for styling --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- D3.js for data visualization --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://d3js.org/d3.v7.min.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-font-smoothing: antialiased;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-moz-osx-font-smoothing: grayscale;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.content-card {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: white;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: all 0.3s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .content-card {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #1f2937; /* gray-800 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.interactive-graph-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #e5e7eb; /* gray-200 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .interactive-graph-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: #4b5563; /* gray-600 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.slider {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 5px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #d1d5db; /* gray-300 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>outline: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 0.7;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: opacity .2s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .slider {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #4b5563; /* gray-600 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.slider:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.slider::-webkit-slider-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #3b82f6; /* blue-500 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.slider::-moz-range-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #3b82f6; /* blue-500 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.toggle-btn {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f3f4f6; /* gray-100 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #d1d5db; /* gray-300 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.375rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.5rem 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 500;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: all 0.2s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .toggle-btn {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #374151; /* gray-700 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: #4b5563; /* gray-600 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.toggle-btn:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #e5e7eb; /* gray-200 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: #9ca3af; /* gray-400 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .toggle-btn:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #4b5563; /* gray-600 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: #6b7280; /* gray-500 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.toggle-content {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-left: 3px solid #3b82f6; /* blue-500 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f9fafb; /* gray-50 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .toggle-content {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #1f2937; /* gray-800 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>h2 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.875rem; /* text-3xl */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding-bottom: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 2px solid #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>h3 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.5rem; /* text-2xl */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>h4 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.25rem; /* text-xl */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 1.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Styles for formula images */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.formula {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vertical-align: -0.1em;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 0.1em;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 1.1em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.formula-frac {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 2.2em;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vertical-align: -0.7em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.formula-block img {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 1em auto;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0.5em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .formula,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.dark .formula-block img {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>filter: invert(1) hue-rotate(180deg);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8 max-w-4xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-4xl md:text-5xl font-bold text-blue-600 dark:text-blue-400"&gt;インタラクティブに広義積分を考える&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-4 text-lg text-gray-600 dark:text-gray-400"&gt;“はみ出した” 積分の取り扱いを、動くグラフで直感的に理解する&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;main&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Section 1: 広義積分の2つのパターン --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;section id="finite-interval"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 id="chap:improper"&gt;広義積分の2つのパターン&lt;/h2&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;動機とイメージ&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;広義積分が扱う「普通の積分では計算できない面積」には、大きく分けて2つのパターンがあります。&lt;/p&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-4 font-semibold text-lg"&gt;パターン1：積分区間は有限だが、関数が無限大になる&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;区間の中で、グラフがどこかで無限大に吹き上がってしまう場合です。たとえば、下のグラフ &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y=\frac{1}{\sqrt{x}}" alt="y = 1/√x"&gt; を区間 (0, 1] で考えます。x=0 に近づくにつれて y は天井知らずに大きくなります。この「はみ出した」部分を扱うのが広義積分です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-2"&gt;特異点 x=0 を直接は計算できないため、まず微小な区間 &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"&gt; だけ避けて積分し、最後に &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 0" alt="ε → 0"&gt; の極限を取ります。この例では、面積はある有限の値 2 に&lt;strong&gt;収束&lt;/strong&gt;します。&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="interactive-graph-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center font-semibold"&gt;グラフ: &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{x}}" alt="y = 1/√x"&gt; (特異点あり)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="graph1"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="epsilon-slider" class="block mb-2"&gt;特異点からの距離 &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"&gt; (下限) を動かす:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="range" id="epsilon-slider" min="0.001" max="0.99" step="0.001" value="0.5" class="slider"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex justify-between mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 0" alt="ε → 0"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="epsilon-value"&gt;&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon = 0.500" alt="ε = 0.500"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 1" alt="ε → 1"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="mt-4 p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center flex justify-center items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;計算された面積:&lt;/span&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;img class="h-10 dark:filter dark:invert dark:hue-rotate-180" src="https://latex.codecogs.com/svg.latex?\int_{\varepsilon}^{1} \frac{1}{\sqrt{x}}\,dx" alt="∫ε to 1 of 1/√x dx"&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="text-2xl font-light"&gt;≈&lt;/span&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="area-value1" class="font-bold text-xl"&gt;1.414&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;hr class="my-8 border-gray-300 dark:border-gray-700"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-4 font-semibold text-lg"&gt;パターン2：関数は有限だが、積分区間が無限に続く&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;もう一つのパターンは、グラフが無限の彼方まで続いている場合です。例えば、関数 &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y=\frac{1}{x^2}" alt="y = 1/x²"&gt; で、x=2 から無限遠点までの面積を考えてみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-2"&gt;この場合、まず有限な区間 [2, N] で面積を計算し、そのあとで上限 N を無限大に飛ばす極限を考えます。この例では、グラフの減衰が速いため、N を大きくしても面積は有限の値 0.5 に&lt;strong&gt;収束&lt;/strong&gt;します。&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="interactive-graph-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center font-semibold"&gt;グラフ: &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{x^2}" alt="y = 1/x²"&gt; (無限区間)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="graph1_infinite"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="N-slider" class="block mb-2"&gt;積分の上限 N を動かす:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="range" id="N-slider" min="2" max="200" step="1" value="2" class="slider"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex justify-between mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;N → 2&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="N-value"&gt;N = 2&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;N → ∞&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="mt-4 p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center flex justify-center items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;計算された面積:&lt;/span&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;img class="h-10 dark:filter dark:invert dark:hue-rotate-180" src="https://latex.codecogs.com/svg.latex?\int_{2}^{N} \frac{1}{x^2}\,dx" alt="∫2 to N of 1/x² dx"&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="text-2xl font-light"&gt;≈&lt;/span&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="area-value1-infinite" class="font-bold text-xl"&gt;0.000&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-6"&gt;このように「一見アウト」に見える2つのパターンを、&lt;strong&gt;極限操作&lt;/strong&gt;で救済（あるいは発散することを確認）するのが&lt;strong&gt;広義積分&lt;/strong&gt;の考え方です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;定義&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;区間 [a,b] 内に特異点 c がただ一つだけ存在し、それ以外では可積分な関数 f に対して、広義積分を次のように定義します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="formula-block"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;img src="https://latex.codecogs.com/svg.latex?\int_{a}^{b} f(x)\,dx \;\overset{\text{def}}{=}\; \lim_{\varepsilon\to0%2B} \left( \int_{a}^{c-\varepsilon} f(x)\,dx %2B \int_{c%2B\varepsilon}^{b} f(x)\,dx \right)" alt="∫a to b of f(x)dx = lim ε→0+ (∫a to c-ε of f(x)dx + ∫c+ε to b of f(x)dx)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;この極限が存在するとき、「広義積分は&lt;strong&gt;収束する&lt;/strong&gt;」と言います。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;解説&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;ul class="list-disc list-inside space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;strong&gt;“特異点”とは？&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>関数値が &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\pm\infty" alt="±∞"&gt; になったり、定義されない（分母が0になるなど）点を指します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;strong&gt;なぜ &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"&gt; で切り取るのか？&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>問題となる特異点を直接扱うことはできません。そこで、まず特異点の周りに幅 &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"&gt; の「立ち入り禁止区域」を設けて安全な範囲で積分します。その後、この禁止区域を限りなく狭く (&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 0" alt="ε → 0"&gt;) していったときに、積分値がどうなるかを調べるのです。これが極限の考え方です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;strong&gt;複数の特異点がある場合&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>特異点が複数ある場合は、区間を特異点ごとに分割し、それぞれの区間で同様に極限を取ります。全ての部分積分が収束する場合に限り、全体の積分も収束します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;可視化：複数の特異点を扱う&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;区間 [0, 1] 上の関数 &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{|(x-0.25)(x-0.75)|}}" alt="y = 1/√( |(x-0.25)(x-0.75)| )"&gt; を考えてみましょう。この関数は x=0.25 と x=0.75 の2箇所に特異点（グラフが無限大に発散する点）を持ちます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-2"&gt;この場合、2つの特異点の周りにそれぞれ「立ち入り禁止区域」（赤色の部分）を設けます。そして、それ以外の安全な領域（青色の部分）で積分を計算し、最後に &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 0" alt="ε → 0"&gt; の極限を取ります。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="interactive-graph-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center font-semibold"&gt;グラフ: &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{|(x-0.25)(x-0.75)|}}" alt="y = 1/√( |(x-0.25)(x-0.75)| )"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="graph-multi-singularity"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="epsilon-slider2" class="block mb-2"&gt;立ち入り禁止区域の幅 &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"&gt; を動かす:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="range" id="epsilon-slider2" min="0.01" max="0.1" step="0.001" value="0.05" class="slider"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex justify-between mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;狭く&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="epsilon-value2"&gt;&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon = 0.050" alt="ε = 0.050"&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;広く&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs md:text-sm text-center overflow-x-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>&lt;p&gt;&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int_0^1 f(x)dx = \lim_{\varepsilon \to 0^%2B} \left( \int_0^{c_1-\varepsilon}\! f(x)dx %2B \int_{c_1%2B\varepsilon}^{c_2-\varepsilon}\! f(x)dx %2B \int_{c_2%2B\varepsilon}^1\! f(x)dx \right)" alt="Full integral formula for multiple singularities"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;典型例：べき型特異点&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;区間 (0, 1] における関数 &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f_s(x) = \frac{1}{x^s}" alt="f_s(x) = 1/x^s"&gt; (s&gt;0) を考えます。この積分が収束するかどうかは、指数 s の値に依存します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="formula-block"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;img src="https://latex.codecogs.com/svg.latex?\int_0^{1} \frac{1}{x^s}\,dx = \lim_{\varepsilon\to0%2B} \int_{\varepsilon}^{1} x^{-s}\,dx = \begin{cases} \frac{1}{1-s}, &amp; 0 &lt; s &lt; 1 \\ \text{発散}, &amp; s \ge 1 \end{cases}" alt="Integral of 1/x^s from 0 to 1 results"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;下のグラフで指数 s を動かして、収束と発散の境界が s=1 であることを確かめてみましょう。面積が&lt;span class="text-blue-500 font-bold"&gt;青色&lt;/span&gt;なら収束、&lt;span class="text-red-500 font-bold"&gt;赤色&lt;/span&gt;なら発散を示します。&lt;/p&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="interactive-graph-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center font-semibold"&gt;グラフ: &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{x^s}" alt="y = 1/x^s"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="graph2"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="s-param-slider" class="block mb-2"&gt;指数 s を動かす:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="range" id="s-param-slider" min="0.1" max="2.0" step="0.01" value="0.5" class="slider"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                             </span>&lt;div class="flex justify-between mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;s = 0.1&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="s-param-value"&gt;s = 0.50&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;s = 2.0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div id="convergence-status1" class="mt-4 p-3 rounded-lg text-center font-bold text-lg"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;演習問題&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;&lt;strong&gt;問1:&lt;/strong&gt; 次の積分が収束するか判定し、収束する場合は値を求めよ。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{0}^{1}\sqrt{\frac{\ln\frac{1}{x}}{x}}\,dx" alt="∫0 to 1 of √(ln(1/x)/x) dx"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="toggle-btn" onclick="toggleAnswer(this)"&gt;解答を見る&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="toggle-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;strong&gt;解答:&lt;/strong&gt; &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?t = \sqrt{\ln(1/x)}" alt="t = √(ln(1/x))"&gt; と置換する。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?x=e^{-t^2}" alt="x=e^(-t²)"&gt;, &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?dx = -2te^{-t^2}dt" alt="dx = -2te^(-t²)dt"&gt;。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?x \to 0%2B" alt="x → 0+"&gt; のとき &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?t \to \infty" alt="t → ∞"&gt;、x=1 のとき t=0。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>よって積分は、</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/p&gt;&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{\infty}^{0} \frac{t}{e^{-t^2/2}} (-2te^{-t^2}) dt = \int_0^\infty 2t^2 e^{-t^2/2} dt" alt="Integral transformation"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>これは収束する（ガウス積分の変形）。値は &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\sqrt{2\pi}" alt="√(2π)"&gt; となる。（詳細な計算は省略）</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="exercise mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;&lt;strong&gt;問2:&lt;/strong&gt; &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f(x)=\frac{\sin x}{x}" alt="f(x) = sin(x)/x"&gt; を (0,1] 上で積分し、x=0 の周辺挙動を分析せよ。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="toggle-btn" onclick="toggleAnswer(this)"&gt;解答を見る&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="toggle-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;strong&gt;解答:&lt;/strong&gt; x=0 は見かけ上の特異点である。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?x \to 0" alt="x → 0"&gt; のとき、&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\sin x \approx x" alt="sin(x) ≈ x"&gt; なので、&lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{\sin x}{x} \to 1" alt="sin(x)/x → 1"&gt; となる。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>関数は x=0 で有限値に収束するため、特異点ではなく、積分は通常の意味で存在する（収束する）。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/section&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;hr class="my-12 border-gray-300 dark:border-gray-700"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Section 2: 無限区間の場合 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;section id="infinite-interval"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2&gt;区間が無限に延びる場合&lt;/h2&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;定義&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;関数 f が [a, ∞) の任意の有界閉区間で可積分であるとき、無限区間での広義積分を次のように定義します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{a}^{\infty} f(x)\,dx \;\overset{\text{def}}{=}\; \lim_{N\to\infty}\int_{a}^{N} f(x)\,dx" alt="∫a to ∞ of f(x)dx = lim N→∞ ∫a to N of f(x)dx"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;この極限が存在すれば「収束する」と呼びます。(-∞, b] の場合も同様です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;解説&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;ul class="list-disc list-inside space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;strong&gt;端点が“見えない”ときの面積測定&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>これは、果てしなく長い廊下の床をワックスがけする場面に似ています。まず玄関から N メートル先までを塗り、その面積（必要なワックス量）を計算します。次に N をどんどん大きくしていったとき、必要なワックスの総量が有限の値に収まるかどうかを調べる、というイメージです。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;strong&gt;左右とも無限大に延びる場合 (-∞ から ∞)&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>この場合は、途中の適当な点（例えば x=0）で区間を二つに分け、</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/p&gt;&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} f(x)\,dx = \int_{-\infty}^{0} f(x)\,dx %2B \int_{0}^{\infty} f(x)\,dx" alt="∫-∞ to ∞ = ∫-∞ to 0 + ∫0 to ∞"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;として、二つの積分が&lt;strong&gt;両方とも収束する&lt;/strong&gt;ことを確認する必要があります。「左右対称だから大丈夫」と安易に判断するのは危険です（例：&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} x\,dx" alt="∫-∞ to ∞ of x dx"&gt; は発散）。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;h4 class="mt-6"&gt;可視化：-∞ から ∞ への積分&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;正規分布の確率密度関数でもおなじみのガウス関数 &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?y = e^{-x^2}" alt="y=e^(-x²)"&gt; を例に、-∞ から ∞ までの積分を見てみましょう。この積分は、まず原点で2つに分割し、対称な区間 [-R, R] で積分したあと、&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?R \to \infty" alt="R→∞"&gt; の極限を取ることで計算します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} e^{-x^2} dx = \lim_{R\to\infty} \int_{-R}^{R} e^{-x^2} dx = \sqrt{\pi}" alt="∫-∞ to ∞ of e^(-x²)dx = √π"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="interactive-graph-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center font-semibold"&gt;グラフ: &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?y = e^{-x^2}" alt="y=e^(-x²)"&gt; (収束)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="graph-infinity-both-ways"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="R-slider" class="block mb-2"&gt;積分の区間 [-R, R] を動かす:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="range" id="R-slider" min="0.1" max="5" step="0.05" value="2" class="slider"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex justify-between mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;R → 0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="R-value"&gt;R = 2.00&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;R → ∞&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="mt-4 p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center flex justify-center items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;計算された面積:&lt;/span&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;img class="h-10 dark:filter dark:invert dark:hue-rotate-180" src="https://latex.codecogs.com/svg.latex?\int_{-R}^{R} e^{-x^2}\,dx" alt="∫-R to R of e^(-x²)dx"&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="text-2xl font-light"&gt;≈&lt;/span&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="area-value-both-ways" class="font-bold text-xl"&gt;1.764&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p class="text-center mt-2 text-sm text-gray-600 dark:text-gray-400"&gt;R を大きくすると、面積が &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\sqrt{\pi} \approx 1.772" alt="√π ≈ 1.772"&gt; に収束していく様子が分かります。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;hr class="my-8 border-gray-300 dark:border-gray-700"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4 class="mt-6"&gt;比較：発산する例&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;一方、見た目は似ていても、無限遠での減衰が遅いと積分は発散します。例えば、&lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{1%2Bx^2}}" alt="y = 1/√(1+x²)"&gt; という関数を見てみましょう。x が大きいとき、この関数は &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{1}{x}" alt="1/x"&gt; に近い振る舞いをします。このわずかな違いが、収束と発散を分けるのです。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} \frac{1}{\sqrt{1%2Bx^2}} dx = \lim_{R\to\infty} \int_{-R}^{R} \frac{1}{\sqrt{1%2Bx^2}} dx \to \infty \quad (\text{発散})" alt="∫-∞ to ∞ of 1/√(1+x²)dx → ∞ (diverges)"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="interactive-graph-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center font-semibold"&gt;グラフ: &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{1%2Bx^2}}" alt="y = 1/√(1+x²)"&gt; (発散)&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="graph-infinity-diverge"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="R-slider-diverge" class="block mb-2"&gt;積分の区間 [-R, R] を動かす:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="range" id="R-slider-diverge" min="0.1" max="50" step="0.1" value="10" class="slider"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex justify-between mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;R → 0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="R-value-diverge"&gt;R = 10.0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;R → ∞&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="mt-4 p-3 bg-red-100 dark:bg-red-900/50 rounded-lg text-center flex justify-center items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;計算された面積:&lt;/span&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;img class="h-10 dark:filter dark:invert dark:hue-rotate-180" src="https://latex.codecogs.com/svg.latex?\int_{-R}^{R} \frac{1}{\sqrt{1%2Bx^2}}\,dx" alt="∫-R to R of 1/√(1+x²)dx"&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span class="text-2xl font-light"&gt;≈&lt;/span&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="area-value-diverge" class="font-bold text-xl"&gt;5.991&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;典型例：べき関数&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;区間 [1, ∞) における関数 &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f_p(x) = \frac{1}{x^p}" alt="f_p(x)=1/x^p"&gt; を考えます。この場合も、収束性は指数 p の値に依存します。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{1}^{\infty} \frac{dx}{x^p} = \begin{cases} \frac{1}{p-1}, &amp; p &gt; 1 \\ \text{発散}, &amp; p \le 1 \end{cases}" alt="Integral of 1/x^p from 1 to ∞ results"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;ここでも p=1 が臨界点となります。有限区間の場合とは収束条件が逆になっている点に注目してください。面積が&lt;span class="text-blue-500 font-bold"&gt;青色&lt;/span&gt;なら収束、&lt;span class="text-red-500 font-bold"&gt;赤色&lt;/span&gt;なら発散を示します。&lt;/p&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="interactive-graph-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center font-semibold"&gt;グラフ: &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{x^p}" alt="y=1/x^p"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="graph3"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="p-param-slider" class="block mb-2"&gt;指数 p を動かす:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="range" id="p-param-slider" min="0.1" max="2.0" step="0.01" value="1.5" class="slider"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                             </span>&lt;div class="flex justify-between mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;p = 0.1&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span id="p-param-value"&gt;p = 1.50&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span&gt;p = 2.0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div id="convergence-status2" class="mt-4 p-3 rounded-lg text-center font-bold text-lg"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;演習問題&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="exercise"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;&lt;strong&gt;問3:&lt;/strong&gt; 次の積分を評価せよ。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{0}^{\infty} e^{-\alpha x}\,dx \quad (\alpha &gt; 0)" alt="∫0 to ∞ of e^(-αx)dx, α&gt;0"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="toggle-btn" onclick="toggleAnswer(this)"&gt;解答を見る&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="toggle-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;strong&gt;解答:&lt;/strong&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/p&gt;&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\lim_{N\to\infty} \int_0^N e^{-\alpha x} dx = \lim_{N\to\infty} \left[ -\frac{1}{\alpha}e^{-\alpha x} \right]_0^N = \lim_{N\to\infty} \left( -\frac{e^{-\alpha N}}{\alpha} %2B \frac{1}{\alpha} \right)" alt="Limit calculation of the integral"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\alpha &gt; 0" alt="α&gt;0"&gt; なので &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?N\to\infty" alt="N→∞"&gt; のとき &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?e^{-\alpha N} \to 0" alt="e^(-αN)→0"&gt;。よって、積分は &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{1}{\alpha}" alt="1/α"&gt; に収束する。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="exercise mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;&lt;strong&gt;問4:&lt;/strong&gt; 次の積分が零になる理由を、奇関数／偶関数の観点から説明せよ。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty}\frac{x}{1%2Bx^{4}}\,dx" alt="∫-∞ to ∞ of x/(1+x^4)dx"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="interactive-graph-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p class="text-center font-semibold"&gt;可視化: 奇関数 &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{x}{1%2Bx^4}" alt="y=x/(1+x^4)"&gt; の積分&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p class="text-sm text-center mt-1 text-gray-600 dark:text-gray-400"&gt;下のスライダーを動かして、対称な区間 [-R, R] での積分を観察してみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div id="graph-odd-function"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;label for="R-slider-odd" class="block mb-2"&gt;積分の区間 [-R, R] を動かす:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;input type="range" id="R-slider-odd" min="0.1" max="5" step="0.05" value="2.5" class="slider"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="flex justify-between mt-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;span&gt;R → 0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;span id="R-value-odd"&gt;R = 2.50&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;span&gt;R → ∞&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-2 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;div class="p-2 bg-red-100 dark:bg-red-900/50 rounded"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>負の面積: &lt;span id="area-value-negative" class="font-bold"&gt;-0.393&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;div class="p-2 bg-blue-100 dark:bg-blue-900/50 rounded"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>正の面積: &lt;span id="area-value-positive" class="font-bold"&gt;+0.393&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                     </span>&lt;div class="p-2 bg-gray-200 dark:bg-gray-700 rounded"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>合計面積: &lt;span id="area-value-total" class="font-bold"&gt;0.00&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button class="toggle-btn mt-4" onclick="toggleAnswer(this)"&gt;解答を見る&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="toggle-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;strong&gt;解答:&lt;/strong&gt; 被積分関数 &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f(x) = \frac{x}{1%2Bx^4}" alt="f(x)=x/(1+x^4)"&gt; は奇関数である（&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?f(-x) = -f(x)" alt="f(-x)=-f(x)"&gt;）。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>まず、この積分が収束することを確認する必要がある。&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?x \to \infty" alt="x→∞"&gt; で &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f(x) \approx \frac{1}{x^3}" alt="f(x)≈1/x³"&gt; であり、p=3&gt;1 なので &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int_1^\infty f(x)dx" alt="∫1 to ∞ of f(x)dx"&gt; は収束する。同様に &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{-1} f(x)dx" alt="∫-∞ to -1 of f(x)dx"&gt; も収束する。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>積分が収束することから、主値積分と値が一致し、</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/p&gt;&lt;div class="formula-block"&gt;&lt;img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} f(x)\,dx = \lim_{R\to\infty} \int_{-R}^{R} f(x)\,dx" alt="∫-∞ to ∞ f(x)dx = lim R→∞ ∫-R to R f(x)dx"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>奇関数の対称区間での積分は常に 0 なので、この値は 0 となる。</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/section&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;hr class="my-12 border-gray-300 dark:border-gray-700"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Section 3: 絶対収束と条件収束 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;section id="absolute-convergence"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2&gt;絶対収束と条件収束&lt;/h2&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;定義&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;広義積分 &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int f(x)\,dx" alt="∫f(x)dx"&gt; が収束し、さらに絶対値をとった積分 &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int |f(x)|\,dx" alt="∫|f(x)|dx"&gt; も収束するとき、f の積分は&lt;strong&gt;絶対収束&lt;/strong&gt;すると言います。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-2"&gt;一方で、&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int f(x)\,dx" alt="∫f(x)dx"&gt; は収束するが &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int |f(x)|\,dx" alt="∫|f(x)|dx"&gt; は発散するとき、この積分は&lt;strong&gt;条件収束&lt;/strong&gt;すると言います。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mt-2"&gt;絶対収束は、数列の世界と同様に非常に強い収束性を示します。直感的には「プラスとマイナスの打ち消し合いに頼らずとも収束する」安定した状態です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h4&gt;例： &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{\sin x}{x}" alt="sin(x)/x"&gt; の場合&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;無限区間での積分 &lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int_1^\infty \frac{\sin x}{x} dx" alt="∫1 to ∞ of sin(x)/x dx"&gt; は、条件収束する代表的な例です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;下のグラフは &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{\sin x}{x}" alt="y=sin(x)/x"&gt; と、その絶対値 &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = |\frac{\sin x}{x}|" alt="y=|sin(x)/x|"&gt; を示しています。</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>元の関数は、正の面積と負の面積が交互に現れ、互いに打ち消し合いながら振動が減衰していくため、積分値は有限の値に収束します。</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>しかし、絶対値を取ると全ての面積が正となり、その和は発散してしまいます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="interactive-graph-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center font-semibold"&gt;グラフ: &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{\sin x}{x}" alt="y=sin(x)/x"&gt; と &lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = |\frac{\sin x}{x}|" alt="y=|sin(x)/x|"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div id="graph4"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="mt-4 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int_1^\infty \frac{\sin x}{x} dx" alt="∫1 to ∞ of sin(x)/x dx"&gt; は &lt;span class="font-bold text-green-500"&gt;条件収束&lt;/span&gt; する。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p&gt;&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\int_1^\infty |\frac{\sin x}{x}| dx" alt="∫1 to ∞ of |sin(x)/x| dx"&gt; は &lt;span class="font-bold text-red-500"&gt;発散&lt;/span&gt; する。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/section&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;hr class="my-12 border-gray-300 dark:border-gray-700"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Section 4: まとめ --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;section id="summary"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2&gt;まとめ&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="content-card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;ul class="list-disc list-inside space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;広義積分は、特異点を「&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"&gt; で避ける」か、無限区間を「N で打ち切る」かして、最後に極限を取るのが基本手順。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;収束するかどうかのカギは、&lt;strong&gt;特異点の強さ&lt;/strong&gt;（&lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{1}{x^s}" alt="1/x^s"&gt; の s）と、&lt;strong&gt;無限遠での減衰スピード&lt;/strong&gt;（&lt;img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{1}{x^p}" alt="1/x^p"&gt; の p）が握っている。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li&gt;絶対収束するかどうかは、積分の値の安定性を測るリトマス試験紙のようなもの。プラスとマイナスの打ち消し合いに頼っている収束（条件収束）と区別できる。&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/main&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;footer class="text-center mt-12 py-6 border-t border-gray-200 dark:border-gray-800"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-gray-500 dark:text-gray-400"&gt;インタラクティブ広義積分解説&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/footer&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Toggle Answer Visibility ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.toggleAnswer = function(button) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const content = button.nextElementSibling;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (content.style.display === 'block') {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content.style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>button.textContent = '解答を見る';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content.style.display = 'block';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>button.textContent = '解答を隠す';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- D3 Graphing ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const isDarkMode = () =&gt; document.documentElement.classList.contains('dark');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let strokeColor = isDarkMode() ? '#e5e7eb' : '#1f2937';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let gridColor = isDarkMode() ? '#374151' : '#e5e7eb';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let convergenceColor = 'rgba(59, 130, 246, 0.5)';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let divergenceColor = 'rgba(239, 68, 68, 0.5)';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let exclusionColor = 'rgba(239, 68, 68, 0.4)';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Graph 1: 1/sqrt(x) with singularity ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const setupGraph1 = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = d3.select("#graph1");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>container.html(""); // Clear previous graph</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const margin = {top: 20, right: 20, bottom: 30, left: 40};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const width = container.node().getBoundingClientRect().width - margin.left - margin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const height = 300 - margin.top - margin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", width + margin.left + margin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", height + margin.top + margin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${margin.left},${margin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([0, 1]).range([0, width]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain([0, 10]).range([height, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").call(d3.axisLeft(y));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const func = (x_val) =&gt; x_val &gt; 0 ? 1 / Math.sqrt(x_val) : y.domain()[1];</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().x(d =&gt; x(d.x)).y(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const data = d3.range(0.01, 1.01, 0.01).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("path").datum(data).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const area = d3.area().x(d =&gt; x(d.x)).y0(height).y1(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaPath = svg.append("path").attr("fill", convergenceColor);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function update(epsilon) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const areaData = d3.range(epsilon, 1.01, 0.01).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>areaPath.datum(areaData).attr("d", area);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const integralValue = 2 * (Math.sqrt(1) - Math.sqrt(epsilon));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#area-value1").text(integralValue.toFixed(3));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#epsilon-value").html(`&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?%5Cvarepsilon%20=${epsilon.toFixed(3)}" alt="ε = ${epsilon.toFixed(3)}"&gt;`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slider = d3.select("#epsilon-slider");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>slider.on("input", (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>update(+event.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>update(+slider.property("value"));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Graph 1b: 1/x^2 on infinite interval ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const setupGraph1_infinite = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = d3.select("#graph1_infinite");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!container.node()) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>container.html("");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const margin = {top: 20, right: 20, bottom: 30, left: 40};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const width = container.node().getBoundingClientRect().width - margin.left - margin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const height = 300 - margin.top - margin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", width + margin.left + margin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", height + margin.top + margin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${margin.left},${margin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const a = 2; // Starting point of integration</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const xMax = 30; // Visual limit for the x-axis</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([0, xMax]).range([0, width]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain([0, 0.3]).range([height, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").call(d3.axisLeft(y).ticks(5));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const func = (x_val) =&gt; 1 / (x_val * x_val);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lineData = d3.range(1, xMax + 0.5, 0.5).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().x(d =&gt; x(d.x)).y(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("path").datum(lineData).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("line")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("x1", x(a))</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("x2", x(a))</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("y1", 0)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("y2", height)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("stroke", "#16a34a") // green-600</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("stroke-width", 2.5)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("stroke-dasharray", "6,4");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const area = d3.area().x(d =&gt; x(d.x)).y0(height).y1(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaPath = svg.append("path").attr("fill", convergenceColor);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function update(N) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const displayN = Math.min(N, xMax);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const areaData = d3.range(a, displayN + 0.1, 0.1).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (areaData.length &gt; 1) {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>areaPath.datum(areaData).attr("d", area);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>areaPath.attr("d", null);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const integralValue = (1 / a) - (1 / N);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#area-value1-infinite").text(integralValue.toFixed(3));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#N-value").text(`N = ${Math.round(N)}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slider = d3.select("#N-slider");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>slider.on("input", (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>update(+event.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>update(+slider.property("value"));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Graph: Multiple Singularities ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const setupGraphMultiSingularity = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = d3.select("#graph-multi-singularity");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>container.html("");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const margin = {top: 20, right: 20, bottom: 30, left: 40};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const width = container.node().getBoundingClientRect().width - margin.left - margin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const height = 300 - margin.top - margin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", width + margin.left + margin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", height + margin.top + margin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${margin.left},${margin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([0, 1]).range([0, width]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain([0, 15]).range([height, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").call(d3.axisLeft(y));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const c1 = 0.25, c2 = 0.75;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const func = (x_val) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const denominator = Math.abs((x_val - c1) * (x_val - c2));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return denominator &gt; 1e-6 ? 1 / Math.sqrt(denominator) : y.domain()[1];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Draw singularity lines</p>
+<p class="p1"><span class="Apple-converted-space">        </span>[c1, c2].forEach(c =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>svg.append("line")</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.attr("x1", x(c)).attr("x2", x(c))</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.attr("y1", 0).attr("y2", height)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.attr("stroke", "red")</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.attr("stroke-width", 1.5)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.attr("stroke-dasharray", "4,4");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().x(d =&gt; x(d.x)).y(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const data = d3.range(0, 1.001, 0.002).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("path").datum(data).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const area = d3.area().x(d =&gt; x(d.x)).y0(height).y1(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const exclusionZone1 = svg.append("rect").attr("fill", exclusionColor).attr("y", 0).attr("height", height);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const exclusionZone2 = svg.append("rect").attr("fill", exclusionColor).attr("y", 0).attr("height", height);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function update(epsilon) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>exclusionZone1.attr("x", x(c1 - epsilon)).attr("width", x(c1 + epsilon) - x(c1 - epsilon));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>exclusionZone2.attr("x", x(c2 - epsilon)).attr("width", x(c2 + epsilon) - x(c2 - epsilon));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const areaData1 = d3.range(0, c1 - epsilon, 0.005).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const areaData2 = d3.range(c1 + epsilon, c2 - epsilon, 0.005).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const areaData3 = d3.range(c2 + epsilon, 1, 0.005).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>svg.selectAll(".integrated-area").remove();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>[areaData1, areaData2, areaData3].forEach(d =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>if(d.length &gt; 1) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>svg.append("path")</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>.datum(d)</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>.attr("class", "integrated-area")</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>.attr("fill", convergenceColor)</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>.attr("d", area);</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#epsilon-value2").html(`&lt;img class="formula" src="https://latex.codecogs.com/svg.latex?%5Cvarepsilon%20=${epsilon.toFixed(3)}" alt="ε = ${epsilon.toFixed(3)}"&gt;`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slider = d3.select("#epsilon-slider2");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>slider.on("input", (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>update(+event.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>update(+slider.property("value"));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Graph 2: 1/x^s ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const setupGraph2 = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = d3.select("#graph2");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>container.html("");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const margin = {top: 20, right: 20, bottom: 30, left: 40};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const width = container.node().getBoundingClientRect().width - margin.left - margin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const height = 300 - margin.top - margin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", width + margin.left + margin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", height + margin.top + margin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${margin.left},${margin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([0, 1]).range([0, width]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain([0, 10]).range([height, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").call(d3.axisLeft(y));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().x(d =&gt; x(d.x)).y(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const path = svg.append("path").attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const area = d3.area().x(d =&gt; x(d.x)).y0(height).y1(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaPath = svg.append("path");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function update(s) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const func = (x_val) =&gt; x_val &gt; 0 ? 1 / Math.pow(x_val, s) : y.domain()[1];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const data = d3.range(0.01, 1.01, 0.01).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>path.datum(data).attr("d", line);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>areaPath.datum(data).attr("d", area);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const statusDiv = d3.select("#convergence-status1");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (s &lt; 1) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusDiv.text("収束 (s &lt; 1)").style("color", "#22c55e").style("background-color", "rgba(34, 197, 94, 0.1)");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>areaPath.attr("fill", convergenceColor);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusDiv.text("発散 (s ≥ 1)").style("color", "#ef4444").style("background-color", "rgba(239, 68, 68, 0.1)");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>areaPath.attr("fill", divergenceColor);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#s-param-value").text(`s = ${s.toFixed(2)}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slider = d3.select("#s-param-slider");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>slider.on("input", (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>update(+event.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>update(+slider.property("value"));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Graph 3: 1/x^p ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const setupGraph3 = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = d3.select("#graph3");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>container.html("");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const margin = {top: 20, right: 20, bottom: 30, left: 40};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const width = container.node().getBoundingClientRect().width - margin.left - margin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const height = 300 - margin.top - margin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", width + margin.left + margin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", height + margin.top + margin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${margin.left},${margin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([1, 20]).range([0, width]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain([0, 1.2]).range([height, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").call(d3.axisLeft(y));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().x(d =&gt; x(d.x)).y(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const path = svg.append("path").attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const area = d3.area().x(d =&gt; x(d.x)).y0(height).y1(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaPath = svg.append("path");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function update(p) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const func = (x_val) =&gt; 1 / Math.pow(x_val, p);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const data = d3.range(1, 20.1, 0.1).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>path.datum(data).attr("d", line);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>areaPath.datum(data).attr("d", area);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const statusDiv = d3.select("#convergence-status2");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (p &gt; 1) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusDiv.text("収束 (p &gt; 1)").style("color", "#22c55e").style("background-color", "rgba(34, 197, 94, 0.1)");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>areaPath.attr("fill", convergenceColor);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusDiv.text("発散 (p ≤ 1)").style("color", "#ef4444").style("background-color", "rgba(239, 68, 68, 0.1)");</p>
+<p class="p1"><span class="Apple-converted-space">                </span>areaPath.attr("fill", divergenceColor);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#p-param-value").text(`p = ${p.toFixed(2)}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slider = d3.select("#p-param-slider");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>slider.on("input", (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>update(+event.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>update(+slider.property("value"));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Graph 4: sin(x)/x ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const setupGraph4 = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = d3.select("#graph4");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>container.html("");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const margin = {top: 20, right: 20, bottom: 30, left: 40};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const width = container.node().getBoundingClientRect().width - margin.left - margin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const height = 350 - margin.top - margin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", width + margin.left + margin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", height + margin.top + margin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${margin.left},${margin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([1, 30]).range([0, width]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain([-0.5, 1]).range([height, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").call(d3.axisLeft(y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("line").attr("x1", 0).attr("x2", width).attr("y1", y(0)).attr("y2", y(0)).attr("stroke", gridColor).attr("stroke-dasharray", "4");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const func = (x_val) =&gt; Math.sin(x_val) / x_val;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const data = d3.range(1, 30.1, 0.1).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().x(d =&gt; x(d.x)).y(d =&gt; y(d.y));</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Original function</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("path")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.datum(data)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("fill", "none")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("stroke", "#3b82f6") // blue-500</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("stroke-width", 2)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("d", line);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Absolute value function</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const absData = data.map(d =&gt; ({x: d.x, y: Math.abs(d.y)}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("path")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.datum(absData)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("fill", "none")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("stroke", "#f43f5e") // rose-500</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("stroke-width", 1.5)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("stroke-dasharray", "5,5")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("d", line);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Legend</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("circle").attr("cx",width-120).attr("cy",10).attr("r", 6).style("fill", "#3b82f6")</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("text").attr("x", width-110).attr("y", 10).text("sin(x)/x").style("font-size", "12px").attr("alignment-baseline","middle").attr("fill", strokeColor)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("circle").attr("cx",width-120).attr("cy",30).attr("r", 6).style("fill", "#f43f5e")</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("text").attr("x", width-110).attr("y", 30).text("|sin(x)/x|").style("font-size", "12px").attr("alignment-baseline","middle").attr("fill", strokeColor)</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Graph: -inf to +inf ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const setupGraphInfinityBothWays = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = d3.select("#graph-infinity-both-ways");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!container.node()) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>container.html("");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const margin = {top: 20, right: 20, bottom: 30, left: 40};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const width = container.node().getBoundingClientRect().width - margin.left - margin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const height = 300 - margin.top - margin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", width + margin.left + margin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", height + margin.top + margin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${margin.left},${margin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const xMax = 5;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([-xMax, xMax]).range([0, width]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain([0, 1.2]).range([height, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").call(d3.axisLeft(y).ticks(5));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const func = (x_val) =&gt; Math.exp(-x_val * x_val);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lineData = d3.range(-xMax, xMax + 0.1, 0.1).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().x(d =&gt; x(d.x)).y(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("path").datum(lineData).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const area = d3.area().x(d =&gt; x(d.x)).y0(height).y1(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaPath = svg.append("path").attr("fill", convergenceColor);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const numericalIntegral = (f, a, b, n) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const h = (b - a) / n;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let sum = 0.5 * (f(a) + f(b));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 1; i &lt; n; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sum += f(a + i * h);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return sum * h;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function update(R) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const displayR = Math.min(R, xMax);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const areaData = d3.range(-displayR, displayR + 0.1, 0.1).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (areaData.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>areaPath.datum(areaData).attr("d", area);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>areaPath.attr("d", null);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const integralValue = numericalIntegral(func, -R, R, 200);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#area-value-both-ways").text(integralValue.toFixed(3));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#R-value").text(`R = ${R.toFixed(2)}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slider = d3.select("#R-slider");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>slider.on("input", (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>update(+event.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>update(+slider.property("value"));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Graph: -inf to +inf (Diverging example) ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const setupGraphInfinityDiverge = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = d3.select("#graph-infinity-diverge");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!container.node()) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>container.html("");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const margin = {top: 20, right: 20, bottom: 30, left: 40};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const width = container.node().getBoundingClientRect().width - margin.left - margin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const height = 300 - margin.top - margin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", width + margin.left + margin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", height + margin.top + margin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${margin.left},${margin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const xMax = 50;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([-xMax, xMax]).range([0, width]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain([0, 1.2]).range([height, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").call(d3.axisLeft(y).ticks(5));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const func = (x_val) =&gt; 1 / Math.sqrt(1 + x_val * x_val);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lineData = d3.range(-xMax, xMax + 0.5, 0.5).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().x(d =&gt; x(d.x)).y(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("path").datum(lineData).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const area = d3.area().x(d =&gt; x(d.x)).y0(height).y1(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaPath = svg.append("path").attr("fill", divergenceColor);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Analytical integral is 2 * asinh(R)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const analyticalIntegral = (R) =&gt; 2 * Math.asinh(R);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function update(R) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const displayR = Math.min(R, xMax);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const areaData = d3.range(-displayR, displayR + 0.1, 0.1).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (areaData.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>areaPath.datum(areaData).attr("d", area);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>areaPath.attr("d", null);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const integralValue = analyticalIntegral(R);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#area-value-diverge").text(integralValue.toFixed(3));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#R-value-diverge").text(`R = ${R.toFixed(1)}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slider = d3.select("#R-slider-diverge");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>slider.on("input", (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>update(+event.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>update(+slider.property("value"));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Graph: Odd function x/(1+x^4) ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const setupGraphOddFunction = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = d3.select("#graph-odd-function");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!container.node()) return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>container.html("");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const margin = {top: 20, right: 20, bottom: 30, left: 40};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const width = container.node().getBoundingClientRect().width - margin.left - margin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const height = 300 - margin.top - margin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", width + margin.left + margin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", height + margin.top + margin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${margin.left},${margin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const xMax = 5;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const yMax = 0.5;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = d3.scaleLinear().domain([-xMax, xMax]).range([0, width]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = d3.scaleLinear().domain([-yMax, yMax]).range([height, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("g").call(d3.axisLeft(y).ticks(5));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("line")</p>
+<p class="p1"><span class="Apple-converted-space">           </span>.attr("x1", 0)</p>
+<p class="p1"><span class="Apple-converted-space">           </span>.attr("x2", width)</p>
+<p class="p1"><span class="Apple-converted-space">           </span>.attr("y1", y(0))</p>
+<p class="p1"><span class="Apple-converted-space">           </span>.attr("y2", y(0))</p>
+<p class="p1"><span class="Apple-converted-space">           </span>.attr("stroke", gridColor);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const func = (x_val) =&gt; x_val / (1 + Math.pow(x_val, 4));</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lineData = d3.range(-xMax, xMax + 0.1, 0.1).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const line = d3.line().x(d =&gt; x(d.x)).y(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>svg.append("path").datum(lineData).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaPositive = d3.area().x(d =&gt; x(d.x)).y0(y(0)).y1(d =&gt; y(d.y));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaNegative = d3.area().x(d =&gt; x(d.x)).y0(y(0)).y1(d =&gt; y(d.y));</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaPathPositive = svg.append("path").attr("fill", convergenceColor); // Blue</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const areaPathNegative = svg.append("path").attr("fill", divergenceColor); // Red</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const numericalIntegral = (f, a, b, n) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const h = (b - a) / n;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let sum = 0.5 * (f(a) + f(b));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 1; i &lt; n; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sum += f(a + i * h);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return sum * h;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function update(R) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const displayR = Math.min(R, xMax);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const areaDataPositive = d3.range(0, displayR + 0.05, 0.05).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const areaDataNegative = d3.range(-displayR, 0 + 0.05, 0.05).map(d =&gt; ({x: d, y: func(d)}));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(areaDataPositive.length &gt; 0) areaPathPositive.datum(areaDataPositive).attr("d", areaPositive);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(areaDataNegative.length &gt; 0) areaPathNegative.datum(areaDataNegative).attr("d", areaNegative);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const integralPositive = numericalIntegral(func, 0, R, 100);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const integralNegative = numericalIntegral(func, -R, 0, 100);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const integralTotal = integralPositive + integralNegative;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#area-value-positive").text(integralPositive.toFixed(4));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#area-value-negative").text(integralNegative.toFixed(4));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#area-value-total").text(integralTotal.toExponential(2));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#R-value-odd").text(`R = ${R.toFixed(2)}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const slider = d3.select("#R-slider-odd");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>slider.on("input", (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>update(+event.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>update(+slider.property("value"));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// --- Initial setup and resize handling ---</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function setupAllGraphs() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupGraph1();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupGraph1_infinite();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupGraphMultiSingularity();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupGraph2();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupGraph3();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupGraph4();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupGraphInfinityBothWays();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupGraphInfinityDiverge();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setupGraphOddFunction();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Initial call</p>
+<p class="p1"><span class="Apple-converted-space">    </span>setupAllGraphs();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Redraw on resize</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let resizeTimer;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.addEventListener('resize', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>clearTimeout(resizeTimer);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>resizeTimer = setTimeout(setupAllGraphs, 250);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Redraw on dark mode change</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const observer = new MutationObserver((mutationsList) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(const mutation of mutationsList) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (mutation.type === 'attributes' &amp;&amp; mutation.attributeName === 'class') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newIsDarkMode = isDarkMode();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>strokeColor = newIsDarkMode ? '#e5e7eb' : '#1f2937';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gridColor = newIsDarkMode ? '#374151' : '#e5e7eb';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setupAllGraphs();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>break;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>observer.observe(document.documentElement, { attributes: true });</p>
+<p class="p1">});</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

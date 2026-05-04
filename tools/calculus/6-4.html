@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>インタラクティブ定積分ビジュアライザー</title>
+
+    <!-- Chart.js (グラフ描画ライブラリ) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- MathJax (数式表示ライブラリ) -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+          },
+          svg: {
+            fontCache: 'global'
+          }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+
+    <style>
+        /* 基本的なページスタイル */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            background-color: #fdfdfd;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            color: #0056b3;
+        }
+        /* 各セクションのスタイル */
+        .property-section {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: box-shadow 0.3s ease;
+        }
+        .property-section:hover {
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+        /* 数式表示エリアのスタイル */
+        .formula {
+            font-size: 1.2em;
+            background-color: #e9f5ff;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        /* 解説文のスタイル */
+        .explanation {
+            background-color: #fef9e7;
+            padding: 10px 15px;
+            border-left: 4px solid #f1c40f;
+            margin-bottom: 20px;
+        }
+        /* 操作パネルのスタイル */
+        .controls {
+            display: flex;
+            gap: 15px 20px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .controls label {
+            font-weight: bold;
+        }
+        .controls input[type="range"] {
+            flex-grow: 1;
+            min-width: 120px;
+        }
+        /* 計算結果の出力スタイル */
+        .output {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #d35400;
+            padding: 5px 0;
+        }
+        /* グラフコンテナのスタイル */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        /* Flexboxを使ったレイアウト */
+        .flex-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .flex-container > div {
+            flex: 1;
+            min-width: 250px;
+        }
+         hr {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>定積分の性質</h1>
+    <p>定積分の基本的な性質を、グラフを動かしながら直感的に理解するためのページです。スライダーを動かして、数式とグラフがどう連動するか確かめます。</p>
+    <p>今回は例として、関数 \( f(t) = -0.1t^2 + t + 2 \) と \( g(t) = 0.5t + 1 \) を使って可視化します。</p>
+
+    <hr>
+
+    <!-- Property 1: Integral from a to a -->
+    <div class="property-section">
+        <h2>1. 積分区間がない場合</h2>
+        <div class="formula">$$ \int_{\alpha}^{\alpha} f(t) dt = 0 $$</div>
+        <div class="explanation">💡 積分区間の幅がゼロなので、面積もゼロになります。つまり、ただの「線」です。</div>
+        <div class="controls">
+            <label for="p1-alpha">α:</label>
+            <input type="range" id="p1-alpha" min="-5" max="15" value="5" step="0.1">
+            <span class="output" id="p1-output">α = 5.0</span>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart1"></canvas>
+        </div>
+    </div>
+
+    <!-- Property 2: Swapping limits -->
+    <div class="property-section">
+        <h2>2. 積分区間の入れ替え</h2>
+        <div class="formula">$$ \int_{\alpha}^{\beta} f(t) dt = - \int_{\beta}^{\alpha} f(t) dt $$</div>
+        <div class="explanation">💡 積分する向きを逆にすると、面積の符号が反転します。</div>
+        <div class="controls">
+            <label for="p2-alpha">α:</label>
+            <input type="range" id="p2-alpha" min="-5" max="15" value="2" step="0.1">
+             <label for="p2-beta">β:</label>
+            <input type="range" id="p2-beta" min="-5" max="15" value="10" step="0.1">
+        </div>
+        <div class="flex-container">
+            <div>
+                <div class="output" id="p2-output-left"></div>
+                <div class="chart-container">
+                    <canvas id="chart2_1"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="output" id="p2-output-right"></div>
+                <div class="chart-container">
+                    <canvas id="chart2_2"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Property 3: Additivity (Corrected) -->
+    <div class="property-section">
+        <h2>3. 積分区間の加法性（分割）</h2>
+        <div class="formula">$$ \int_{\gamma}^{\beta} f(t) dt = \int_{\gamma}^{\alpha} f(t) dt + \int_{\alpha}^{\beta} f(t) dt $$</div>
+        <div class="explanation">💡 全体の区間の面積は、途中で区切った2つの部分の面積の和と等しくなります。</div>
+        <div class="controls">
+            <label for="p3-gamma">γ:</label> <input type="range" id="p3-gamma" min="-5" max="15" value="0" step="0.1">
+            <label for="p3-alpha">α:</label> <input type="range" id="p3-alpha" min="-5" max="15" value="6" step="0.1">
+            <label for="p3-beta">β:</label> <input type="range" id="p3-beta" min="-5" max="15" value="12" step="0.1">
+        </div>
+        <div id="p3-output" class="output"></div>
+        <div class="chart-container">
+            <canvas id="chart3"></canvas>
+        </div>
+    </div>
+
+    <!-- Property 4: Constant Factor -->
+    <div class="property-section">
+        <h2>4. 定数倍</h2>
+        <div class="formula">$$ \int_{\alpha}^{\beta} \kappa f(t) dt = \kappa \int_{\alpha}^{\beta} f(t) dt $$</div>
+        <div class="explanation">💡 関数を縦に \(\kappa\) 倍に引き伸ばすと、面積も \(\kappa\) 倍になります。左右のグラフのY軸の縮尺は同期しています。</div>
+        <div class="controls">
+            <label for="p4-alpha">α:</label> <input type="range" id="p4-alpha" min="-5" max="15" value="2" step="0.1">
+            <label for="p4-beta">β:</label> <input type="range" id="p4-beta" min="-5" max="15" value="10" step="0.1">
+            <label for="p4-kappa">κ:</label> <input type="range" id="p4-kappa" min="-2" max="3" value="1.5" step="0.1">
+        </div>
+        <div class="flex-container">
+            <div>
+                <p>\(\int f(t) dt\)</p>
+                <div class="output" id="p4-output-left"></div>
+                <div class="chart-container">
+                    <canvas id="chart4_1"></canvas>
+                </div>
+            </div>
+            <div>
+                 <p>\(\int \kappa f(t) dt\)</p>
+                <div class="output" id="p4-output-right"></div>
+                <div class="chart-container">
+                    <canvas id="chart4_2"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Property 5: Sum/Difference -->
+    <div class="property-section">
+        <h2>5. 和と差の積分</h2>
+        <div class="formula">$$ \int_{\alpha}^{\beta} (f(t) + g(t)) dt = \int_{\alpha}^{\beta} f(t) dt + \int_{\alpha}^{\beta} g(t) dt $$</div>
+        <div class="explanation">💡 「2つの関数を足してから積分」した面積は、「それぞれを積分してから足した」面積と等しくなります。</div>
+         <div class="controls">
+            <label for="p5-alpha">α:</label> <input type="range" id="p5-alpha" min="-5" max="15" value="1" step="0.1">
+            <label for="p5-beta">β:</label> <input type="range" id="p5-beta" min="-5" max="15" value="9" step="0.1">
+        </div>
+        <div id="p5-output" class="output" style="text-align: center; margin-bottom: 15px;"></div>
+        <div class="flex-container">
+            <div>
+                <p>\(\int f(t)dt\)</p>
+                <div class="chart-container" style="height:200px">
+                    <canvas id="chart5_1"></canvas>
+                </div>
+            </div>
+            <div>
+                 <p>\(\int g(t)dt\)</p>
+                <div class="chart-container" style="height:200px">
+                    <canvas id="chart5_2"></canvas>
+                </div>
+            </div>
+             <div>
+                 <p>\(\int (f(t)+g(t))dt\)</p>
+                <div class="chart-container" style="height:200px">
+                    <canvas id="chart5_3"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+    <h2>定理と不等式</h2>
+
+    <!-- Property 6: Mean Value Theorem -->
+    <div class="property-section">
+        <h2>6. 積分における平均値の定理</h2>
+        <div class="formula">$$ \text{ある } c \in (\alpha, \beta) \text{ が存在し、} \int_{\alpha}^{\beta} f(t) dt = (\beta - \alpha) f(c) $$</div>
+        <div class="explanation">💡 曲線の下の面積（左辺）と、面積が等しくなるような「長方形」（右辺）が必ず存在することを示します。その長方形の高さ \(f(c)\) が関数の「平均の高さ」になります。</div>
+        <div class="controls">
+            <label for="p6-alpha">α:</label> <input type="range" id="p6-alpha" min="-5" max="15" value="1" step="0.1">
+            <label for="p6-beta">β:</label> <input type="range" id="p6-beta" min="-5" max="15" value="11" step="0.1">
+        </div>
+        <div id="p6-output" class="output"></div>
+        <div class="chart-container">
+            <canvas id="chart6"></canvas>
+        </div>
+    </div>
+
+    <!-- Property 7: Absolute Value Inequality -->
+    <div class="property-section">
+        <h2>7. 絶対値に関する不等式</h2>
+        <div class="formula">$$ \left| \int_{\alpha}^{\beta} f(t) dt \right| \le \int_{\alpha}^{\beta} |f(t)| dt $$</div>
+        <div class="explanation">💡 左辺はプラスの面積とマイナスの面積を相殺してから絶対値をとります。右辺はマイナスの面積をプラスに反転させてから足し合わせます。そのため、必ず右辺が左辺以上になります。</div>
+        <div class="controls">
+            <p style="margin:0;">※この性質を分かりやすくするため、このセクションのみ \(f(t) = 5\sin(0.5t)\) を使います。</p>
+            <label for="p7-alpha">α:</label> <input type="range" id="p7-alpha" min="0" max="20" value="1" step="0.1">
+            <label for="p7-beta">β:</label> <input type="range" id="p7-beta" min="0" max="20" value="15" step="0.1">
+        </div>
+        <div class="flex-container">
+            <div>
+                <div class="output" id="p7-output-left"></div>
+                <div class="chart-container">
+                    <canvas id="chart7_1"></canvas>
+                </div>
+            </div>
+            <div>
+                <div class="output" id="p7-output-right"></div>
+                <div class="chart-container">
+                    <canvas id="chart7_2"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Property 8: Cauchy-Schwarz -->
+    <div class="property-section">
+        <h2>8. コーシー・シュワルツの不等式</h2>
+        <div class="formula">$$ \left( \int_{\alpha}^{\beta} f(t)g(t) dt \right)^2 \le \left( \int_{\alpha}^{\beta} f(t)^2 dt \right) \left( \int_{\alpha}^{\beta} g(t)^2 dt \right) $$</div>
+        <div class="explanation" style="background-color: #e8f6f3; border-left-color: #1abc9c;">
+            <p><strong>💡 なぜこうなるの？ベクトルで考えてみよう！</strong></p>
+            この不等式をグラフで直接イメージするのは難しいですが、高校で習うベクトルの「内積」で考えると、とてもスッキリします。<br>
+            2つのベクトル $\vec{a}$ と $\vec{b}$ があるとき、内積に関する不等式は $(\vec{a} \cdot \vec{b})^2 \le |\vec{a}|^2 |\vec{b}|^2$ でした。（等号は2つのベクトルが平行なときに成り立ちます）
+            <p style="margin-top:10px;">実は、関数も一種の「無限次元のベクトル」と見なすことができます。その世界では、<br>
+            - 関数の<b>内積</b>が $\int_{\alpha}^{\beta} f(t)g(t)dt$<br>
+            - 関数の<b>長さの2乗</b>が $\int_{\alpha}^{\beta} f(t)^2 dt$<br>
+            に対応します。こう考えると、コーシー・シュワルツの不等式は、ベクトルの内積の性質を関数に拡張したもの、と直感的に理解できます。</p>
+        </div>
+        <div class="explanation">
+             💡 ここでは、スライダーを動かして、この関係が常に成り立つことを数値で確認してみましょう。
+        </div>
+         <div class="controls">
+            <label for="p8-alpha">α:</label> <input type="range" id="p8-alpha" min="-5" max="15" value="2" step="0.1">
+            <label for="p8-beta">β:</label> <input type="range" id="p8-beta" min="-5" max="15" value="10" step="0.1">
+        </div>
+        <div id="p8-output" class="output" style="font-size: 1.3em; text-align:center;"></div>
+    </div>
+
+<script>
+// ========== 共通の関数とデータ ==========
+
+// 使用する関数
+const f = t => -0.1 * t * t + t + 2;
+const g = t => 0.5 * t + 1;
+const f7 = t => 5 * Math.sin(0.5*t); // 7番目の性質のデモ用
+
+/**
+ * 数値積分（リーマン和による近似）
+ * @param {function} func - 積分対象の関数
+ * @param {number} a - 積分区間の下端
+ * @param {number} b - 積分区間の上端
+ * @param {number} n - 分割数
+ * @returns {number} 積分結果の近似値
+ */
+function integrate(func, a, b, n = 200) {
+    if (a === b) return 0;
+    const dx = (b - a) / n;
+    let sum = 0;
+    for (let i = 0; i < n; i++) {
+        sum += func(a + i * dx);
+    }
+    return sum * dx;
+}
+
+// グラフ描画用のx軸ラベルと、各関数のy軸データ
+const chartLabels = Array.from({ length: 201 }, (_, i) => parseFloat(((i - 50) * 0.1).toFixed(1)));
+const f_data = chartLabels.map(f);
+const g_data = chartLabels.map(g);
+
+/**
+ * 共通のグラフオプションを生成する関数
+ * @returns {object} Chart.jsのオプションオブジェクト
+ */
+function createChartOptions() {
+    return {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                ticks: {
+                    callback: function(val, index) {
+                        // 10個に1つのラベル (つまり整数) のみ表示
+                        if (index % 10 === 0) {
+                            return this.getLabelForValue(val);
+                        }
+                        return ''; // それ以外は非表示
+                    },
+                    autoSkip: false,
+                    maxRotation: 0,
+                    minRotation: 0
+                }
+            },
+            y: { beginAtZero: true }
+        },
+        plugins: { legend: { display: false } }
+    };
+}
+
+
+// ========== 各プロパティのグラフ描画と更新処理 ==========
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- 1. 積分区間が a から a まで ---
+    const ctx1 = document.getElementById('chart1').getContext('2d');
+    const p1_alpha_slider = document.getElementById('p1-alpha');
+    const p1_output = document.getElementById('p1-output');
+    const chart1 = new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [
+                { label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 },
+                { label: 'α', data: [], type: 'bar', backgroundColor: 'rgba(255, 99, 132, 0.8)' }
+            ]
+        },
+        options: createChartOptions()
+    });
+    function update1() {
+        const alpha = parseFloat(p1_alpha_slider.value);
+        p1_output.textContent = `α = ${alpha.toFixed(1)},  ∫f(t)dt = 0`;
+        const lineData = chartLabels.map(t => (Math.abs(t - alpha) < 0.05) ? Math.max(...f_data, 5) : null);
+        chart1.data.datasets[1].data = lineData;
+        chart1.update();
+    }
+    p1_alpha_slider.addEventListener('input', update1);
+    update1();
+
+    // --- 2. 積分区間の入れ替え ---
+    const chartOptions2 = createChartOptions();
+    const chart2_1 = new Chart(document.getElementById('chart2_1').getContext('2d'), {
+        type: 'line', data: { labels: chartLabels, datasets: [ { label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Area', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)', fill: 'origin' } ] }, options: chartOptions2
+    });
+    const chart2_2 = new Chart(document.getElementById('chart2_2').getContext('2d'), {
+        type: 'line', data: { labels: chartLabels, datasets: [ { label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Area', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)', fill: 'origin' } ] }, options: chartOptions2
+    });
+    function update2() {
+        let alpha = parseFloat(document.getElementById('p2-alpha').value);
+        let beta = parseFloat(document.getElementById('p2-beta').value);
+        const integral = integrate(f, alpha, beta);
+        document.getElementById('p2-output-left').textContent = `∫[${alpha.toFixed(1)}, ${beta.toFixed(1)}] = ${integral.toFixed(2)}`;
+        document.getElementById('p2-output-right').textContent = `-∫[${beta.toFixed(1)}, ${alpha.toFixed(1)}] = ${(-integral).toFixed(2)}`;
+        const areaData = f_data.map((y, i) => chartLabels[i] >= Math.min(alpha, beta) && chartLabels[i] <= Math.max(alpha, beta) ? y : null);
+        chart2_1.data.datasets[1].data = areaData;
+        chart2_2.data.datasets[1].data = areaData;
+        chart2_1.update('none');
+        chart2_2.update('none');
+    }
+    ['p2-alpha', 'p2-beta'].forEach(id => document.getElementById(id).addEventListener('input', update2));
+    update2();
+
+    // --- 3. 積分区間の加法性 ---
+    const chart3 = new Chart(document.getElementById('chart3').getContext('2d'), {
+        type: 'line',
+        data: { labels: chartLabels, datasets: [ { label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Area γ-α', data: [], backgroundColor: 'rgba(54, 162, 235, 0.5)', fill: 'origin' }, { label: 'Area α-β', data: [], backgroundColor: 'rgba(255, 99, 132, 0.5)', fill: 'origin' } ] },
+        options: createChartOptions()
+    });
+    function update3() {
+        let gamma = parseFloat(document.getElementById('p3-gamma').value);
+        let alpha = parseFloat(document.getElementById('p3-alpha').value);
+        let beta = parseFloat(document.getElementById('p3-beta').value);
+        if (alpha < gamma) { alpha = gamma; document.getElementById('p3-alpha').value = gamma; }
+        if (beta < alpha) { beta = alpha; document.getElementById('p3-beta').value = alpha; }
+        const int1 = integrate(f, gamma, alpha);
+        const int2 = integrate(f, alpha, beta);
+        const totalInt = integrate(f, gamma, beta);
+        document.getElementById('p3-output').innerHTML = `∫(${gamma.toFixed(1)}→${alpha.toFixed(1)}) + ∫(${alpha.toFixed(1)}→${beta.toFixed(1)}) = ${int1.toFixed(2)} + ${int2.toFixed(2)} = ${(int1+int2).toFixed(2)} <br> 全体: ∫(${gamma.toFixed(1)}→${beta.toFixed(1)}) = ${totalInt.toFixed(2)}`;
+        chart3.data.datasets[1].data = f_data.map((y, i) => chartLabels[i] >= gamma && chartLabels[i] <= alpha ? y : null);
+        chart3.data.datasets[2].data = f_data.map((y, i) => chartLabels[i] >= alpha && chartLabels[i] <= beta ? y : null);
+        chart3.update('none');
+    }
+    ['p3-gamma', 'p3-alpha', 'p3-beta'].forEach(id => document.getElementById(id).addEventListener('input', update3));
+    update3();
+
+    // --- 4. 定数倍 ---
+    const chart4_1 = new Chart(document.getElementById('chart4_1').getContext('2d'), {
+        type: 'line', data: { labels: chartLabels, datasets: [ { data: f_data, borderColor: 'rgb(153, 102, 255)', tension: 0.1, pointRadius: 0 }, { data: [], backgroundColor: 'rgba(153, 102, 255, 0.5)', fill: 'origin' } ] }, options: createChartOptions()
+    });
+    const chart4_2 = new Chart(document.getElementById('chart4_2').getContext('2d'), {
+        type: 'line', data: { labels: chartLabels, datasets: [ { data: [], borderColor: 'rgb(153, 102, 255)', tension: 0.1, pointRadius: 0 }, { data: [], backgroundColor: 'rgba(153, 102, 255, 0.5)', fill: 'origin' } ] }, options: createChartOptions()
+    });
+    function update4() {
+        const alpha = parseFloat(document.getElementById('p4-alpha').value);
+        const beta = parseFloat(document.getElementById('p4-beta').value);
+        const kappa = parseFloat(document.getElementById('p4-kappa').value);
+        const f_kappa = t => kappa * f(t);
+        const int_f = integrate(f, alpha, beta);
+        const int_f_kappa = integrate(f_kappa, alpha, beta);
+
+        document.getElementById('p4-output-left').innerHTML = `∫f = ${int_f.toFixed(2)}`;
+        document.getElementById('p4-output-right').innerHTML = `∫(${kappa.toFixed(1)}f) = ${int_f_kappa.toFixed(2)} <br> (${kappa.toFixed(1)} × ${int_f.toFixed(2)} = ${(kappa * int_f).toFixed(2)})`;
+
+        const f_kappa_data = chartLabels.map(f_kappa);
+
+        // Y軸のスケールを同期させるための処理
+        const combinedData = f_data.concat(f_kappa_data);
+        const dataMin = Math.min(...combinedData);
+        const dataMax = Math.max(...combinedData);
+        const padding = (dataMax - dataMin) * 0.1;
+        const newMin = Math.min(0, dataMin - padding);
+        const newMax = dataMax + padding;
+
+        chart4_1.options.scales.y.min = newMin;
+        chart4_1.options.scales.y.max = newMax;
+        chart4_2.options.scales.y.min = newMin;
+        chart4_2.options.scales.y.max = newMax;
+
+        // グラフデータを更新
+        chart4_1.data.datasets[1].data = f_data.map((y, i) => chartLabels[i] >= alpha && chartLabels[i] <= beta ? y : null);
+        chart4_2.data.datasets[0].data = f_kappa_data;
+        chart4_2.data.datasets[1].data = f_kappa_data.map((y, i) => chartLabels[i] >= alpha && chartLabels[i] <= beta ? y : null);
+
+        chart4_1.update('none');
+        chart4_2.update('none');
+    }
+    ['p4-alpha', 'p4-beta', 'p4-kappa'].forEach(id => document.getElementById(id).addEventListener('input', update4));
+    update4();
+
+    // --- 5. 和と差の積分 ---
+    const createChart5 = (ctx, data, color) => new Chart(ctx, {
+        type: 'line', data: { labels: chartLabels, datasets: [ { data: data, borderColor: color, tension: 0.1, pointRadius: 0 }, { data: [], backgroundColor: color.replace(')', ', 0.5)').replace('rgb', 'rgba'), fill: 'origin' } ] }, options: createChartOptions()
+    });
+    const chart5_1 = createChart5(document.getElementById('chart5_1').getContext('2d'), f_data, 'rgb(75, 192, 192)');
+    const chart5_2 = createChart5(document.getElementById('chart5_2').getContext('2d'), g_data, 'rgb(255, 159, 64)');
+    const chart5_3 = createChart5(document.getElementById('chart5_3').getContext('2d'), chartLabels.map(t => f(t) + g(t)), 'rgb(153, 102, 255)');
+    function update5() {
+        const alpha = parseFloat(document.getElementById('p5-alpha').value);
+        const beta = parseFloat(document.getElementById('p5-beta').value);
+        const int_f = integrate(f, alpha, beta);
+        const int_g = integrate(g, alpha, beta);
+        const int_sum = integrate(t => f(t) + g(t), alpha, beta);
+        document.getElementById('p5-output').innerHTML = `∫f + ∫g = ${int_f.toFixed(2)} + ${int_g.toFixed(2)} = ${(int_f + int_g).toFixed(2)}<br>∫(f+g) = ${int_sum.toFixed(2)}`;
+        const updateArea = (chart, data) => { chart.data.datasets[1].data = data.map((y, i) => chartLabels[i] >= alpha && chartLabels[i] <= beta ? y : null); chart.update('none'); };
+        updateArea(chart5_1, f_data);
+        updateArea(chart5_2, g_data);
+        updateArea(chart5_3, chartLabels.map(t => f(t) + g(t)));
+    }
+    ['p5-alpha', 'p5-beta'].forEach(id => document.getElementById(id).addEventListener('input', update5));
+    update5();
+
+    // --- 6. 積分における平均値の定理 ---
+    const chart6 = new Chart(document.getElementById('chart6').getContext('2d'), {
+        type: 'line',
+        data: { labels: chartLabels, datasets: [ { label: 'f(t)', data: f_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Area', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)', fill: 'origin' }, { label: 'Rectangle', type: 'bar', data: [], backgroundColor: 'rgba(255, 99, 132, 0.5)', barPercentage: 1.0, categoryPercentage: 1.0 } ] },
+        options: createChartOptions()
+    });
+    function update6() {
+        const alpha = parseFloat(document.getElementById('p6-alpha').value);
+        const beta = parseFloat(document.getElementById('p6-beta').value);
+        const p6_output = document.getElementById('p6-output');
+        if (alpha >= beta) { p6_output.textContent = "α < β になるように設定してください"; chart6.data.datasets[1].data = []; chart6.data.datasets[2].data = []; chart6.update('none'); return; }
+        const integral = integrate(f, alpha, beta);
+        const avg_height = integral / (beta - alpha);
+        let c = NaN;
+        for(let t = alpha; t <= beta; t+=0.01) { if(isNaN(c) || Math.abs(f(t) - avg_height) < Math.abs(f(c) - avg_height)) { c = t; } }
+        p6_output.textContent = `∫f(t)dt = ${integral.toFixed(2)},  平均の高さ f(c) = ${avg_height.toFixed(2)}, c ≈ ${c.toFixed(2)}`;
+        chart6.data.datasets[1].data = f_data.map((y, i) => chartLabels[i] >= alpha && chartLabels[i] <= beta ? y : null);
+        chart6.data.datasets[2].data = chartLabels.map((t) => (t >= alpha && t <= beta) ? avg_height : null);
+        chart6.update('none');
+    }
+    ['p6-alpha', 'p6-beta'].forEach(id => document.getElementById(id).addEventListener('input', update6));
+    update6();
+
+    // --- 7. 絶対値に関する不等式 ---
+    const f7_labels = Array.from({ length: 201 }, (_, i) => parseFloat((i * 0.1).toFixed(1)));
+    const f7_data = f7_labels.map(f7);
+    const abs_f7_data = f7_labels.map(t => Math.abs(f7(t)));
+    const chart7Options1 = createChartOptions();
+    chart7Options1.scales.x.ticks.callback = function(val, index) { return index % 20 === 0 ? this.getLabelForValue(val) : ''; };
+    chart7Options1.scales.y.beginAtZero = false;
+    const chart7Options2 = createChartOptions();
+    chart7Options2.scales.x.ticks.callback = chart7Options1.scales.x.ticks.callback;
+
+    const chart7_1 = new Chart(document.getElementById('chart7_1').getContext('2d'), {
+        type: 'line', data: { labels: f7_labels, datasets: [ { label: 'f(t)', data: f7_data, borderColor: 'rgb(75, 192, 192)', tension: 0.1, pointRadius: 0 }, { label: 'Positive Area', data: [], backgroundColor: 'rgba(54, 162, 235, 0.5)', fill: {target: 'origin', above: 'rgba(54, 162, 235, 0.5)'} }, { label: 'Negative Area', data: [], backgroundColor: 'rgba(255, 99, 132, 0.5)', fill: {target: 'origin', below: 'rgba(255, 99, 132, 0.5)'} } ] }, options: chart7Options1
+    });
+    const chart7_2 = new Chart(document.getElementById('chart7_2').getContext('2d'), {
+        type: 'line', data: { labels: f7_labels, datasets: [ { label: '|f(t)|', data: abs_f7_data, borderColor: 'rgb(153, 102, 255)', tension: 0.1, pointRadius: 0 }, { label: 'Area', data: [], backgroundColor: 'rgba(153, 102, 255, 0.5)', fill: 'origin' } ] }, options: chart7Options2
+    });
+    function update7() {
+        const alpha = parseFloat(document.getElementById('p7-alpha').value);
+        const beta = parseFloat(document.getElementById('p7-beta').value);
+        const int_f = integrate(f7, alpha, beta, 400);
+        const int_abs_f = integrate(t => Math.abs(f7(t)), alpha, beta, 400);
+        document.getElementById('p7-output-left').innerHTML = `|∫f dt| = |${int_f.toFixed(2)}| = <b>${Math.abs(int_f).toFixed(2)}</b>`;
+        document.getElementById('p7-output-right').innerHTML = `∫|f| dt = <b>${int_abs_f.toFixed(2)}</b>`;
+        chart7_1.data.datasets[1].data = f7_data.map((y, i) => f7_labels[i] >= alpha && f7_labels[i] <= beta ? y : null);
+        chart7_1.data.datasets[2].data = f7_data.map((y, i) => f7_labels[i] >= alpha && f7_labels[i] <= beta ? y : null);
+        chart7_2.data.datasets[1].data = abs_f7_data.map((y, i) => f7_labels[i] >= alpha && f7_labels[i] <= beta ? y : null);
+        chart7_1.update('none');
+        chart7_2.update('none');
+    }
+    ['p7-alpha', 'p7-beta'].forEach(id => document.getElementById(id).addEventListener('input', update7));
+    update7();
+
+    // --- 8. コーシー・シュワルツの不等式 ---
+    function update8(){
+        const alpha = parseFloat(document.getElementById('p8-alpha').value);
+        const beta = parseFloat(document.getElementById('p8-beta').value);
+        const int_fg = integrate(t => f(t) * g(t), alpha, beta);
+        const int_f2 = integrate(t => f(t) * f(t), alpha, beta);
+        const int_g2 = integrate(t => g(t) * g(t), alpha, beta);
+        const lhs = int_fg * int_fg;
+        const rhs = int_f2 * int_g2;
+        document.getElementById('p8-output').innerHTML = `(∫fg)² = ${lhs.toFixed(2)} <br> (∫f²) (∫g²) = ${rhs.toFixed(2)} <br> 結果: <b>${lhs.toFixed(2)} ≤ ${rhs.toFixed(2)}</b>`;
+    }
+    ['p8-alpha', 'p8-beta'].forEach(id => document.getElementById(id).addEventListener('input', update8));
+    update8();
+});
+</script>
+
+</body>
+</html>

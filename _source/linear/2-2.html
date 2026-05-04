@@ -1,0 +1,762 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Menlo; color: #6d6d6d; -webkit-text-stroke: #6d6d6d}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Menlo; color: #1443ae; -webkit-text-stroke: #1443ae}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Menlo; color: #12737e; -webkit-text-stroke: #12737e}
+    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Menlo; color: #a20010; -webkit-text-stroke: #a20010}
+    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Menlo; color: #2e3133; -webkit-text-stroke: #2e3133}
+    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Menlo; color: #156227; -webkit-text-stroke: #156227}
+    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Menlo; color: #2e3133; -webkit-text-stroke: #2e3133; min-height: 15.0px}
+    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Menlo; color: #6103ad; -webkit-text-stroke: #6103ad}
+    p.p9 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px Menlo; color: #4d5055; -webkit-text-stroke: #4d5055}
+    span.s1 {font-kerning: none; background-color: #f6f7f9}
+    span.s2 {font-kerning: none; color: #fb0007; background-color: #f6f7f9; -webkit-text-stroke: 0px #fb0007}
+    span.s3 {font-kerning: none; color: #2a2a2a; background-color: #f6f7f9; -webkit-text-stroke: 0px #2a2a2a}
+    span.s4 {font-kerning: none; color: #2e3133; background-color: #f6f7f9; -webkit-text-stroke: 0px #2e3133}
+    span.s5 {font-kerning: none; color: #12737e; background-color: #f6f7f9; -webkit-text-stroke: 0px #12737e}
+    span.s6 {font-kerning: none; color: #a20010; background-color: #f6f7f9; -webkit-text-stroke: 0px #a20010}
+    span.s7 {font-kerning: none; color: #1443ae; background-color: #f6f7f9; -webkit-text-stroke: 0px #1443ae}
+    span.s8 {font-kerning: none; color: #6103ad; background-color: #f6f7f9; -webkit-text-stroke: 0px #6103ad}
+    span.s9 {font-kerning: none; color: #137646; background-color: #f6f7f9; -webkit-text-stroke: 0px #137646}
+    span.s10 {font-kerning: none; color: #093c94; background-color: #f6f7f9; -webkit-text-stroke: 0px #093c94}
+    span.s11 {font-kerning: none; color: #4d5055; background-color: #f6f7f9; -webkit-text-stroke: 0px #4d5055}
+    span.s12 {font-kerning: none}
+  </style>
+</head>
+<body>
+<p class="p1"><span class="s1">&lt;!DOCTYPE</span><span class="s2"> html</span><span class="s1">&gt;</span></p>
+<p class="p2"><span class="s3">&lt;</span><span class="s1">html</span><span class="s4"> </span><span class="s5">lang</span><span class="s3">=</span><span class="s6">"ja"</span><span class="s3">&gt;</span></p>
+<p class="p2"><span class="s3">&lt;</span><span class="s1">head</span><span class="s3">&gt;</span></p>
+<p class="p3"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">meta</span><span class="s4"> </span><span class="s1">charset</span><span class="s3">=</span><span class="s6">"UTF-8"</span><span class="s3">&gt;</span></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">meta</span><span class="s4"> </span><span class="s5">name</span><span class="s3">=</span><span class="s1">"viewport"</span><span class="s4"> </span><span class="s5">content</span><span class="s3">=</span><span class="s1">"width=device-width, initial-scale=1.0"</span><span class="s3">&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">title</span><span class="s3">&gt;</span><span class="s1">行列とベクトルの変形（3D）</span><span class="s3">&lt;/</span><span class="s7">title</span><span class="s3">&gt;</span></p>
+<p class="p6"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- Tailwind CSS --&gt;</span></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">script</span><span class="s4"> </span><span class="s5">src</span><span class="s3">=</span><span class="s1">"https://cdn.tailwindcss.com"</span><span class="s3">&gt;&lt;/</span><span class="s7">script</span><span class="s3">&gt;</span></p>
+<p class="p6"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- React and ReactDOM --&gt;</span></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">script</span><span class="s4"> </span><span class="s5">crossorigin</span><span class="s4"> </span><span class="s5">src</span><span class="s3">=</span><span class="s1">"https://unpkg.com/react@18/umd/react.development.js"</span><span class="s3">&gt;&lt;/</span><span class="s7">script</span><span class="s3">&gt;</span></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">script</span><span class="s4"> </span><span class="s5">crossorigin</span><span class="s4"> </span><span class="s5">src</span><span class="s3">=</span><span class="s1">"https://unpkg.com/react-dom@18/umd/react-dom.development.js"</span><span class="s3">&gt;&lt;/</span><span class="s7">script</span><span class="s3">&gt;</span></p>
+<p class="p6"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- Babel --&gt;</span></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">script</span><span class="s4"> </span><span class="s5">src</span><span class="s3">=</span><span class="s1">"https://unpkg.com/@babel/standalone/babel.min.js"</span><span class="s3">&gt;&lt;/</span><span class="s7">script</span><span class="s3">&gt;</span></p>
+<p class="p6"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- Lucide Icons --&gt;</span></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">script</span><span class="s4"> </span><span class="s5">src</span><span class="s3">=</span><span class="s1">"https://unpkg.com/lucide@latest"</span><span class="s3">&gt;&lt;/</span><span class="s7">script</span><span class="s3">&gt;</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">    </span></span></p>
+<p class="p2"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s1">style</span><span class="s3">&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s8">body</span><span class="s1"> {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">margin:</span><span class="s1"> </span><span class="s9">0</span><span class="s1">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">overflow:</span><span class="s1"> </span><span class="s6">hidden</span><span class="s1">;</span></p>
+<p class="p3"><span class="s4"><span class="Apple-converted-space">            </span></span><span class="s1">background-color:</span><span class="s4"> </span><span class="s10">#0f172a</span><span class="s4">; </span><span class="s11">/* Slate 900 */</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">color:</span><span class="s1"> </span><span class="s10">#e2e8f0</span><span class="s1">;</span></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">            </span></span><span class="s5">font-family:</span><span class="s4"> </span><span class="s1">'Helvetica Neue'</span><span class="s4">, </span><span class="s1">Arial</span><span class="s4">, </span><span class="s1">sans-serif</span><span class="s4">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s8">math</span><span class="s1"> {</span></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">            </span></span><span class="s5">font-family:</span><span class="s4"> </span><span class="s1">'Times New Roman'</span><span class="s4">, </span><span class="s1">serif</span><span class="s4">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">font-size:</span><span class="s1"> </span><span class="s9">1.0em</span><span class="s1">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p8"><span class="s4"><span class="Apple-converted-space">        </span></span><span class="s1">.glass-panel</span><span class="s4"> {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">background:</span><span class="s1"> </span><span class="s6">rgba(</span><span class="s9">30</span><span class="s1">, </span><span class="s9">41</span><span class="s1">, </span><span class="s9">59</span><span class="s1">, </span><span class="s9">0.9</span><span class="s6">)</span><span class="s1">;</span></p>
+<p class="p3"><span class="s4"><span class="Apple-converted-space">            </span></span><span class="s1">backdrop-filter:</span><span class="s4"> </span><span class="s6">blur(</span><span class="s9">12px</span><span class="s6">)</span><span class="s4">;</span></p>
+<p class="p3"><span class="s4"><span class="Apple-converted-space">            </span></span><span class="s1">-webkit-backdrop-filter:</span><span class="s4"> </span><span class="s6">blur(</span><span class="s9">12px</span><span class="s6">)</span><span class="s4">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">border-right:</span><span class="s1"> </span><span class="s9">1px</span><span class="s1"> </span><span class="s6">solid</span><span class="s1"> </span><span class="s6">rgba(</span><span class="s9">255</span><span class="s1">, </span><span class="s9">255</span><span class="s1">, </span><span class="s9">255</span><span class="s1">, </span><span class="s9">0.1</span><span class="s6">)</span><span class="s1">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p9"><span class="s4"><span class="Apple-converted-space">        </span></span><span class="s1">/* Custom scrollbar */</span></p>
+<p class="p8"><span class="s4"><span class="Apple-converted-space">        </span></span><span class="s1">::-webkit-scrollbar</span><span class="s4"> {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">width:</span><span class="s1"> </span><span class="s9">6px</span><span class="s1">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p8"><span class="s4"><span class="Apple-converted-space">        </span></span><span class="s1">::-webkit-scrollbar-track</span><span class="s4"> {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">background:</span><span class="s1"> </span><span class="s6">rgba(</span><span class="s9">0</span><span class="s1">,</span><span class="s9">0</span><span class="s1">,</span><span class="s9">0</span><span class="s1">,</span><span class="s9">0.2</span><span class="s6">)</span><span class="s1">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p8"><span class="s4"><span class="Apple-converted-space">        </span></span><span class="s1">::-webkit-scrollbar-thumb</span><span class="s4"> {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">background:</span><span class="s1"> </span><span class="s6">rgba(</span><span class="s9">255</span><span class="s1">,</span><span class="s9">255</span><span class="s1">,</span><span class="s9">255</span><span class="s1">,</span><span class="s9">0.2</span><span class="s6">)</span><span class="s1">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">border-radius:</span><span class="s1"> </span><span class="s9">3px</span><span class="s1">;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p8"><span class="s4"><span class="Apple-converted-space">        </span></span><span class="s1">input</span><span class="s4">[</span><span class="s6">type</span><span class="s4">=</span><span class="s6">number</span><span class="s4">]</span><span class="s1">::-webkit-inner-spin-button</span><span class="s4">,<span class="Apple-converted-space"> </span></span></p>
+<p class="p8"><span class="s4"><span class="Apple-converted-space">        </span></span><span class="s1">input</span><span class="s4">[</span><span class="s6">type</span><span class="s4">=</span><span class="s6">number</span><span class="s4">]</span><span class="s1">::-webkit-outer-spin-button</span><span class="s4"> {<span class="Apple-converted-space"> </span></span></p>
+<p class="p3"><span class="s4"><span class="Apple-converted-space">            </span></span><span class="s1">-webkit-appearance:</span><span class="s4"> </span><span class="s6">none</span><span class="s4">;<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">margin:</span><span class="s1"> </span><span class="s9">0</span><span class="s1">;<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
+<p class="p2"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;/</span><span class="s1">style</span><span class="s3">&gt;</span></p>
+<p class="p2"><span class="s3">&lt;/</span><span class="s1">head</span><span class="s3">&gt;</span></p>
+<p class="p2"><span class="s3">&lt;</span><span class="s1">body</span><span class="s3">&gt;</span></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">div</span><span class="s4"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"root"</span><span class="s3">&gt;&lt;/</span><span class="s7">div</span><span class="s3">&gt;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p4"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s7">script</span><span class="s4"> </span><span class="s5">type</span><span class="s3">=</span><span class="s1">"text/babel"</span><span class="s3">&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const { useState, useEffect, useRef, useMemo } = React;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>// --- Math &amp; Helper Functions ---</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const rotatePoint = (x, y, z, angleX, angleY) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>let cosY = Math.cos(angleY);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>let sinY = Math.sin(angleY);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>let x1 = x * cosY - z * sinY;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>let z1 = x * sinY + z * cosY;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>let cosX = Math.cos(angleX);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>let sinX = Math.sin(angleX);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>let y2 = y * cosX - z1 * sinX;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>let z2 = y * sinX + z1 * cosX;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>return { x: x1, y: y2, z: z2 };</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const project = (visX, visY, visZ, width, height, scale, angleX, angleY) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const rotated = rotatePoint(visX, visY, visZ, angleX, angleY);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>return {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>x: width / 2 + rotated.x * scale,</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>y: height / 2 - rotated.y * scale,</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>z: rotated.z<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>};</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>// Matrix Multiplication (3x3 * 3x3)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const multiplyMatrices = (m1, m2) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const res = {};</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>for (let i = 1; i &lt;= 3; i++) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>for (let j = 1; j &lt;= 3; j++) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>let sum = 0;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>for (let k = 1; k &lt;= 3; k++) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>sum += m1[`a${i}${k}`] * m2[`a${k}${j}`];</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>res[`a${i}${j}`] = sum;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>return res;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const identityMatrix = {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>a11: 1, a12: 0, a13: 0,</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>a21: 0, a22: 1, a23: 0,</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>a31: 0, a32: 0, a33: 1</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>// --- 3D Model: "The House" ---</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>// Normalized House Model</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const houseModel = {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>vertices: [</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:1, y:1, z:0}, {x:0, y:1, z:0}, // Floor</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{x:0, y:0, z:1}, {x:1, y:0, z:1}, {x:1, y:1, z:1}, {x:0, y:1, z:1}, // Ceiling</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{x:0.5, y:0.5, z:1.5} // Roof Apex</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>],</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>faces: [</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{ indices: [0, 1, 5, 4], color: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.5)' },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{ indices: [1, 2, 6, 5], color: 'rgba(59, 130, 246, 0.25)', border: 'rgba(59, 130, 246, 0.5)' },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{ indices: [2, 3, 7, 6], color: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.5)' },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{ indices: [3, 0, 4, 7], color: 'rgba(59, 130, 246, 0.25)', border: 'rgba(59, 130, 246, 0.5)' },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{ indices: [0, 3, 2, 1], color: 'rgba(100, 116, 139, 0.2)', border: 'rgba(148, 163, 184, 0.5)' },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{ indices: [4, 5, 8], color: 'rgba(234, 179, 8, 0.3)', border: 'rgba(250, 204, 21, 0.8)' },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{ indices: [5, 6, 8], color: 'rgba(234, 179, 8, 0.4)', border: 'rgba(250, 204, 21, 0.8)' },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{ indices: [6, 7, 8], color: 'rgba(234, 179, 8, 0.3)', border: 'rgba(250, 204, 21, 0.8)' },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>{ indices: [7, 4, 8], color: 'rgba(234, 179, 8, 0.4)', border: 'rgba(250, 204, 21, 0.8)' },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>]</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>// --- Components ---</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const MathMatrix3x1 = ({ x, y, z, dim = 3 }) =&gt; (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>&lt;math&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;mrow&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;[&lt;/mo&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;mtable&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;{x.toFixed(2)}&lt;/mn&gt;&lt;/mtd&gt;&lt;/mtr&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;{y.toFixed(2)}&lt;/mn&gt;&lt;/mtd&gt;&lt;/mtr&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{dim === 3 &amp;&amp; &lt;mtr&gt;&lt;mtd&gt;&lt;mn&gt;{z.toFixed(2)}&lt;/mn&gt;&lt;/mtd&gt;&lt;/mtr&gt;}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/mtable&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;]&lt;/mo&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/mrow&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/math&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const MathMatrixGeneral = ({ m, rows, cols }) =&gt; (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>&lt;math&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;mrow&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;[&lt;/mo&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;mtable&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{Array.from({ length: rows }).map((_, i) =&gt; (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;mtr key={i}&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>{Array.from({ length: cols }).map((_, j) =&gt; (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;mtd key={j}&gt;&lt;mn&gt;{m[`a${i+1}${j+1}`].toFixed(1)}&lt;/mn&gt;&lt;/mtd&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>))}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/mtr&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>))}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/mtable&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;]&lt;/mo&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/mrow&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/math&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const MatrixInputGeneral = ({ matrix, onChange, disabled, label, colorClass = "text-cyan-400", rows, cols }) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const handleChange = (r, c, val) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const num = parseFloat(val);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (!isNaN(num)) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>onChange({ ...matrix, [`a${r}${c}`]: num });</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>return (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="flex items-center justify-center space-x-2 my-2 p-3 rounded-xl bg-slate-800/50 border border-slate-700 shadow-md"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;span className={`text-lg font-serif italic ${colorClass}`}&gt;{label}&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;span className="text-lg text-slate-400"&gt;=&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="relative flex items-center px-2 py-1"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="absolute left-0 top-0 bottom-0 w-2 border-l-2 border-t-2 border-b-2 border-slate-400 rounded-l-sm"&gt;&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="grid gap-1 mx-1" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>{Array.from({ length: rows }).map((_, i) =&gt; (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>Array.from({ length: cols }).map((_, j) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>const r = i + 1;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>const c = j + 1;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>const key = `a${r}${c}`;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>return (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>&lt;input</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>key={key}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>type="number"</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>step="0.5"</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>value={matrix[key]}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>onChange={(e) =&gt; handleChange(r, c, e.target.value)}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>disabled={disabled}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>className={`w-10 h-8 text-center bg-slate-900 border ${</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                                </span>r === c ? "border-slate-600 text-slate-300" : "border-slate-700 text-slate-400"</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>} rounded hover:border-cyan-500 focus:border-cyan-400 focus:text-white focus:outline-none transition-all font-mono text-xs`}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>/&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>})</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>))}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="absolute right-0 top-0 bottom-0 w-2 border-r-2 border-t-2 border-b-2 border-slate-400 rounded-r-sm"&gt;&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const MathExplanation = ({ currentMatrix, vector, result, config, matrixA, matrixB }) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const { mode, type, dims } = config;</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">            </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>return (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="text-sm text-slate-300 space-y-3 mt-4 bg-slate-900/80 p-4 rounded-lg border border-slate-600 shadow-inner"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="flex justify-between items-center border-b border-slate-700 pb-2 mb-2"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;p className="font-bold text-yellow-400 flex items-center gap-2"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;i data-lucide="calculator" className="w-4 h-4"&gt;&lt;/i&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>計算結果</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/p&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="flex flex-wrap items-center justify-center gap-2 overflow-x-auto pb-2 min-h-[80px]"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{mode === 'product' ? (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;span className="text-slate-500 text-xs italic"&gt;A&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;div className="scale-90"&gt;&lt;MathMatrixGeneral m={matrixA} rows={dims.out} cols={dims.mid} /&gt;&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;span className="text-slate-500 text-xs italic"&gt;B&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;div className="scale-90"&gt;&lt;MathMatrixGeneral m={matrixB} rows={dims.mid} cols={dims.in} /&gt;&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>) : (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;div className="scale-90"&gt;&lt;MathMatrixGeneral m={matrixA} rows={dims.out} cols={dims.in} /&gt;&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>)}</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                        </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;span className="text-slate-500 text-xs italic ml-2"&gt;v&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;span className="text-slate-400"&gt;=&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{/* Result Vector */}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="bg-slate-700 px-1 py-1 rounded border border-yellow-500/50 shadow-[0_0_10px_rgba(234,179,8,0.2)]"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;MathMatrix3x1 {...result} dim={dims.out} /&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>// --- Configuration Types ---</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const CONFIGS = {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>'3-3': { mode: 'single', type: 'standard', label: '3D → 3D (Standard)', dims: { in: 3, mid: 3, out: 3 } },</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>'2-3': { mode: 'single', type: 'embed', label: '2D → 3D (Embedding)', dims: { in: 2, mid: 2, out: 3 } }, // 3x2 Matrix</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>'3-2': { mode: 'single', type: 'project', label: '3D → 2D (Projection)', dims: { in: 3, mid: 3, out: 2 } }, // 2x3 Matrix</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>'2-3-2': { mode: 'product', type: 'prod_232', label: '2D → 3D → 2D', dims: { in: 2, mid: 3, out: 2 } }, // B(3x2), A(2x3)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>'3-2-3': { mode: 'product', type: 'prod_323', label: '3D → 2D → 3D', dims: { in: 3, mid: 2, out: 3 } }, // B(2x3), A(3x2)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const App = () =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [configKey, setConfigKey] = useState('3-3');</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const config = CONFIGS[configKey];</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const { mode, dims } = config;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>// Matrix A &amp; B (Always maintain 3x3 internal state, mask externally)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [matrixA, setMatrixA] = useState(identityMatrix);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [matrixB, setMatrixB] = useState(identityMatrix);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [userVector, setUserVector] = useState({ x: 1, y: 1, z: 1 });</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">            </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [t, setT] = useState(0);<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [isAnimating, setIsAnimating] = useState(false);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [zoom, setZoom] = useState(1.0);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [showHouse, setShowHouse] = useState(true);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [camera, setCamera] = useState({ x: 0.5, y: 0.8 });</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">            </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const [isDragging, setIsDragging] = useState(false);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const lastMousePos = useRef({ x: 0, y: 0 });</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const canvasRef = useRef(null);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const containerRef = useRef(null);</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">            </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>// Reset state when config changes</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>useEffect(() =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>resetViewAndValues();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>}, [configKey]);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>// Reset Function</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const resetViewAndValues = () =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setT(0);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setIsAnimating(false);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setMatrixA(identityMatrix);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setMatrixB(identityMatrix);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setCamera({ x: 0.5, y: 0.8 });</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setZoom(1.0);</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// For 2D input modes, reset Z vector to 0</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const defaultV = { x: 1, y: 1, z: 1 };</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (CONFIGS[configKey].dims.in === 2) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>defaultV.z = 0;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setUserVector(defaultV);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>// Calculate Effective Current Matrix (Interpolated)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const currentMatrix = useMemo(() =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const interpolate = (startM, endM, factor) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const res = {};</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>for (let key in startM) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>res[key] = startM[key] + (endM[key] - startM[key]) * factor;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>return res;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>let effA = {...matrixA};</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>let effB = {...matrixB};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Apply constraints to A and B based on dimensions</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// If single mode (A):</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (mode === 'single') {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// dims.in (cols), dims.out (rows)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>if (dims.out === 2) { effA.a31=0; effA.a32=0; effA.a33=0; } // Row 3 = 0</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>if (dims.in === 2) { effA.a13=0; effA.a23=0; effA.a33=0; } // Col 3 = 0 (Effectively)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>} else {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Product mode: B is first (in -&gt; mid), A is second (mid -&gt; out)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Matrix B constraints</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>if (dims.mid === 2) { effB.a31=0; effB.a32=0; effB.a33=0; } // B Row 3 = 0</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>if (dims.in === 2) { effB.a13=0; effB.a23=0; effB.a33=0; } // B Col 3 = 0</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Matrix A constraints</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>if (dims.out === 2) { effA.a31=0; effA.a32=0; effA.a33=0; } // A Row 3 = 0</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>if (dims.mid === 2) { effA.a13=0; effA.a23=0; effA.a33=0; } // A Col 3 = 0</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (mode === 'single') {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>return interpolate(identityMatrix, effA, t);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>} else {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Phase 1 (0 &lt;= t &lt; 0.5): I -&gt; B</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>if (t &lt;= 0.5) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>const factor = t * 2;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>return interpolate(identityMatrix, effB, factor);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>} else {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>// Phase 2 (0.5 &lt;= t &lt;= 1): B -&gt; AB</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>const factor = (t - 0.5) * 2;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>const partialA = interpolate(identityMatrix, effA, factor);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>return multiplyMatrices(partialA, effB);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>}, [matrixA, matrixB, t, configKey]);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>// Final Result Vector Calculation (for display)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const resultVector = useMemo(() =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const m = currentMatrix;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Force input vector z=0 if dims.in is 2</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const v = dims.in === 2 ? { ...userVector, z: 0 } : userVector;</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const res = {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>x: m.a11 * v.x + m.a12 * v.y + m.a13 * v.z,</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>y: m.a21 * v.x + m.a22 * v.y + m.a23 * v.z,</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>z: m.a31 * v.x + m.a32 * v.y + m.a33 * v.z</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>};</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Force output vector z=0 if dims.out is 2 (just to be clean)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (dims.out === 2) res.z = 0;</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>return res;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>}, [currentMatrix, userVector, dims]);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>useEffect(() =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>let animationFrameId;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (isAnimating) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const step = 0.005;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const animate = () =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>setT(prev =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>if (prev &gt;= 1) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>setIsAnimating(false);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>return 1;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>return prev + step;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>});</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>animationFrameId = requestAnimationFrame(animate);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>};</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>animationFrameId = requestAnimationFrame(animate);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>return () =&gt; cancelAnimationFrame(animationFrameId);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>}, [isAnimating]);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>useEffect(() =&gt; { lucide.createIcons(); }, []);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>// --- Drawing Logic ---</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>useEffect(() =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const canvas = canvasRef.current;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const ctx = canvas.getContext('2d');</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const container = containerRef.current;</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const w = container.clientWidth;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const h = container.clientHeight;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (w === 0 || h === 0) return;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>canvas.width = w; canvas.height = h;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const scale = (Math.min(w, h) / 6) * zoom;<span class="Apple-converted-space"> </span></span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>ctx.fillStyle = "#0f172a";</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>ctx.fillRect(0, 0, w, h);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Helper to enforce 2D input</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const enforceInputDim = (p) =&gt; dims.in === 2 ? { ...p, z: 0 } : p;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const transform = (p) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Apply dimension constraint to input point</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const pIn = enforceInputDim(p);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const m = currentMatrix;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>return {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>x: m.a11 * pIn.x + m.a12 * pIn.y + m.a13 * pIn.z,</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>y: m.a21 * pIn.x + m.a22 * pIn.y + m.a23 * pIn.z,</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>z: m.a31 * pIn.x + m.a32 * pIn.y + m.a33 * pIn.z</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>};</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const toScreen = (p) =&gt; project(p.x, p.z, p.y, w, h, scale, camera.x, camera.y);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const drawLine = (p1, p2, color, width = 1, dashed = false) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const s1 = toScreen(p1);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const s2 = toScreen(p2);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.moveTo(s1.x, s1.y);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.lineTo(s2.x, s2.y);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.strokeStyle = color;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.lineWidth = width;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>if (dashed) ctx.setLineDash([4, 4]); else ctx.setLineDash([]);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.stroke();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.setLineDash([]);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const drawDot = (p, color, radius = 3) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const s = toScreen(p);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.arc(s.x, s.y, radius, 0, Math.PI * 2);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.fillStyle = color;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.fill();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const origin = { x: 0, y: 0, z: 0 };</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Grid (Floor)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const gridSize = 4;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 1;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>for (let i = -gridSize; i &lt;= gridSize; i++) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>drawLine({x: i, y: -gridSize, z: 0}, {x: i, y: gridSize, z: 0}, "rgba(255, 255, 255, 0.05)", 1);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>drawLine({x: -gridSize, y: i, z: 0}, {x: gridSize, y: i, z: 0}, "rgba(255, 255, 255, 0.05)", 1);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Axes</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>drawLine({x:0, y:0, z:0}, {x:5, y:0, z:0}, "rgba(239, 68, 68, 0.2)", 1);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>drawLine({x:0, y:0, z:0}, {x:0, y:5, z:0}, "rgba(16, 185, 129, 0.2)", 1);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Hide Z axis line if input is 2D and currently at t=0 (to emphasize 2D-ness)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// But generally useful to keep for reference frame.</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>drawLine({x:0, y:0, z:0}, {x:0, y:0, z:5}, "rgba(59, 130, 246, 0.2)", 1);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Object (House or Flat Square if 2D input)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (showHouse) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Use house model, but if dims.in is 2, the Z values of house are flattened.</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Actually house has Z height. If dims.in is 2, we should probably just project it to floor or use a 2D shape.</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Let's flatten the house model if dims.in == 2</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                    </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const effectiveModelVertices = dims.in === 2<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>? houseModel.vertices.map(v =&gt; ({...v, z: 0})) // Flatten to floor</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>: houseModel.vertices;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const tVerts = effectiveModelVertices.map(transform);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const screenVerts = tVerts.map(toScreen);</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                    </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Sorting faces</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const sortedFaces = houseModel.faces.map(face =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>let zSum = 0;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>face.indices.forEach(idx =&gt; { zSum += screenVerts[idx].z; });</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>return { ...face, zDepth: zSum / face.indices.length };</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>}).sort((a, b) =&gt; b.zDepth - a.zDepth);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>sortedFaces.forEach(face =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>ctx.beginPath();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>const first = screenVerts[face.indices[0]];</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>ctx.moveTo(first.x, first.y);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>for(let i=1; i&lt;face.indices.length; i++) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>const v = screenVerts[face.indices[i]];</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>ctx.lineTo(v.x, v.y);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>ctx.closePath();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>ctx.fillStyle = face.color;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>ctx.fill();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>ctx.strokeStyle = face.border;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>ctx.lineWidth = 1.5;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>ctx.stroke();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>});</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>} else {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>// Cube fallback</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const cubeVerts = [{x:0,y:0,z:0}, {x:1,y:0,z:0}, {x:1,y:1,z:0}, {x:0,y:1,z:0}, {x:0,y:0,z:1}, {x:1,y:0,z:1}, {x:1,y:1,z:1}, {x:0,y:1,z:1}];</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const tVerts = cubeVerts.map(v =&gt; transform(dims.in === 2 ? {...v, z:0} : v));</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const edges = [[0,1], [1,2], [2,3], [3,0], [4,5], [5,6], [6,7], [7,4], [0,4], [1,5], [2,6], [3,7]];</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>edges.forEach(edge =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>drawLine(tVerts[edge[0]], tVerts[edge[1]], "rgba(148, 163, 184, 0.2)", 1);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>});</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Basis Vectors</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const i_hat = transform({x:1, y:0, z:0});</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const j_hat = transform({x:0, y:1, z:0});</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const k_hat = transform({x:0, y:0, z:1});</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const drawArrow = (to, color, label) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const sFrom = toScreen(origin);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>const sTo = toScreen(to);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.moveTo(sFrom.x, sFrom.y);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.lineTo(sTo.x, sTo.y);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.strokeStyle = color;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.lineWidth = 3;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.stroke();</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.fillStyle = color;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.font = "bold 14px Arial";</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>ctx.fillText(label, sTo.x + 5, sTo.y - 5);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>drawDot(to, color, 4);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>drawArrow(i_hat, "#ef4444", "i'");<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>drawArrow(j_hat, "#10b981", "j'");<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (dims.in === 3) drawArrow(k_hat, "#3b82f6", "k'"); // Only show k if input is 3D</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// User Vector</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const effectiveUserVector = enforceInputDim(userVector);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const v_transformed = transform(effectiveUserVector);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (t &lt; 1) drawLine(origin, effectiveUserVector, "rgba(250, 204, 21, 0.3)", 1, true);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>drawArrow(v_transformed, "#facc15", "v");</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// Component path (visualize for 3D only to keep 2D clean, or simplify)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>// ... omitted for clarity in mixed dimensions ...</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>}, [currentMatrix, userVector, zoom, camera, configKey, showHouse]);<span class="Apple-converted-space"> </span></span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>// Interaction</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const handleMouseDown = (e) =&gt; { setIsDragging(true); lastMousePos.current = { x: e.clientX, y: e.clientY }; };</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const handleMouseMove = (e) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (!isDragging) return;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const dx = e.clientX - lastMousePos.current.x;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>const dy = e.clientY - lastMousePos.current.y;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setCamera(prev =&gt; ({ x: Math.max(-1.5, Math.min(1.5, prev.x + dy * 0.01)), y: prev.y + dx * 0.01 }));</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>lastMousePos.current = { x: e.clientX, y: e.clientY };</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>};</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const handleMouseUp = () =&gt; setIsDragging(false);</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>// Presets for various dimensions</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const applyPreset = (presetName) =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setT(0);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setTimeout(() =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>let mA = identityMatrix;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>let mB = identityMatrix;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>if (configKey === '2-3') { // 2D -&gt; 3D (Embedding)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>if (presetName === 'random') mA = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:0.5, a32:0.5, a33:0 };</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>if (presetName === 'twist')<span class="Apple-converted-space">  </span>mA = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:1, a32:-1, a33:0 };</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>} else if (configKey === '3-2') { // 3D -&gt; 2D (Projection)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>if (presetName === 'random') mA = { a11:1, a12:0, a13:0.5, a21:0, a22:1, a23:0.5, a31:0, a32:0, a33:0 };</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>if (presetName === 'iso')<span class="Apple-converted-space">    </span>mA = { a11:0.7, a12:-0.7, a13:0, a21:0.4, a22:0.4, a23:-0.8, a31:0, a32:0, a33:0 };</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>} else if (configKey === '2-3-2') { // 2D -&gt; 3D -&gt; 2D</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>if (presetName === 'random') {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>mB = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:1, a32:0, a33:0 }; // Lift x to z</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>mA = { a11:1, a12:0, a13:0, a21:0, a22:0, a23:1, a31:0, a32:0, a33:0 }; // Drop y, map z to y</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>} else if (configKey === '3-2-3') { // 3D -&gt; 2D -&gt; 3D</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>if (presetName === 'random') {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>mB = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:0, a32:0, a33:0 }; // Flatten Z</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>mA = { a11:1, a12:0, a13:0, a21:0, a22:1, a23:0, a31:0.5, a32:0.5, a33:0 }; // Lift back up</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>} else {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>// Standard 3-3 (3D -&gt; 3D)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>// Restoring requested standard presets</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>switch(presetName) {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>case 'rotateZ':<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>const rad = Math.PI / 4;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>mA = { ...identityMatrix, a11: Math.cos(rad), a12: -Math.sin(rad), a21: Math.sin(rad), a22: Math.cos(rad) };<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>break;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>case 'scale': mA = { ...identityMatrix, a11: 1.5, a22: 1.5, a33: 1.5 }; break;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>case 'shear': mA = { ...identityMatrix, a12: 1 }; break; // Shear X by Y</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>case 'reflect': mA = { ...identityMatrix, a11: -1 }; break; // Reflect X</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>case 'random': mA = { a11: Math.random(), a12: Math.random()-0.5, a13: 0, a21: 0, a22: 1, a23: 0, a31: 0, a32: 0, a33: 1 }; break;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>setMatrixA(mA);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>setMatrixB(mB);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>setIsAnimating(true);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}, 50);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>const renderPresets = () =&gt; {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>if (configKey === '3-3') {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                     </span>return (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>&lt;div className="grid grid-cols-3 gap-2 mb-4"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;button onClick={() =&gt; applyPreset('rotateZ')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600"&gt;回転 (Z)&lt;/button&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;button onClick={() =&gt; applyPreset('scale')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600"&gt;拡大縮小&lt;/button&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;button onClick={() =&gt; applyPreset('shear')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600"&gt;せん断&lt;/button&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;button onClick={() =&gt; applyPreset('reflect')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600"&gt;反転 (X)&lt;/button&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;button onClick={() =&gt; applyPreset('random')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600"&gt;ランダム&lt;/button&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                     </span>);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>} else {</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>return (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="grid grid-cols-2 gap-2 mb-4"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;button onClick={() =&gt; applyPreset('random')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>ランダム例</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;button onClick={() =&gt; applyPreset(configKey.includes('2-3') ? 'twist' : 'iso')} className="px-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-xs font-semibold transition-all border border-slate-600"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>特殊な例</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>return (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div className="flex flex-col md:flex-row h-screen w-full overflow-hidden" onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}&gt;</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                    </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>{/* Left Panel */}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="w-full md:w-[450px] glass-panel h-2/5 md:h-full p-6 flex flex-col z-10 overflow-y-auto shrink-0 shadow-2xl relative"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="flex justify-between items-center mb-4"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>行列とベクトルの変形（3D）</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/h1&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;button<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>onClick={resetViewAndValues}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>className="flex items-center gap-1 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded border border-slate-600 transition-colors"</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>title="視点と数値をリセット"</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;i data-lucide="rotate-ccw" className="w-3 h-3"&gt;&lt;/i&gt; リセット</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                        </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{/* Config Dropdown */}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="mb-4"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;label className="text-xs text-slate-400 font-bold block mb-1"&gt;変換モード (次元)&lt;/label&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;select<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>value={configKey}<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>onChange={(e) =&gt; setConfigKey(e.target.value)}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>className="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm text-white focus:outline-none focus:border-cyan-500"</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>{Object.entries(CONFIGS).map(([key, conf]) =&gt; (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;option key={key} value={key}&gt;{conf.label}&lt;/option&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>))}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/select&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{/* Presets */}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{renderPresets()}</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="flex items-center gap-2 mb-4 bg-slate-800/50 p-2 rounded"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;input type="checkbox" id="showHouse" checked={showHouse} onChange={(e) =&gt; setShowHouse(e.target.checked)} className="w-4 h-4 accent-cyan-400 cursor-pointer"/&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;label htmlFor="showHouse" className="text-sm text-slate-300 cursor-pointer select-none"&gt;オブジェクトを表示&lt;/label&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{/* Matrix Inputs */}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="space-y-4 mb-4 relative"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>{mode === 'product' &amp;&amp; (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;div className="relative"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;div className="absolute -left-3 top-4 bottom-4 w-1 bg-gradient-to-b from-slate-700 via-emerald-500/50 to-slate-700 rounded"&gt;&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;div className="pl-2"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>&lt;p className="text-[10px] text-emerald-400 font-bold mb-1"&gt;STEP 1: 最初の変換 (B)&lt;/p&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>&lt;MatrixInputGeneral<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>matrix={matrixB}<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>onChange={(m) =&gt; {setMatrixB(m); setT(0);}}<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>label="B"</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>colorClass="text-emerald-400"</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>rows={dims.mid}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                            </span>cols={dims.in}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>/&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>)}</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;div className="relative"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>{mode === 'product' &amp;&amp; &lt;div className="absolute -left-3 top-4 bottom-4 w-1 bg-gradient-to-b from-slate-700 via-cyan-500/50 to-slate-700 rounded"&gt;&lt;/div&gt;}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;div className={mode === 'product' ? "pl-2" : ""}&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;p className={`text-[10px] font-bold mb-1 ${mode==='product' ? 'text-cyan-400' : 'text-slate-400'}`}&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>{mode === 'product' ? 'STEP 2: 次の変換 (A)' : '変換行列 (A)'}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;/p&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;MatrixInputGeneral<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>matrix={matrixA}<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>onChange={(m) =&gt; {setMatrixA(m); setT(mode==='product'?0.5:1);}}<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>label="A"<span class="Apple-converted-space"> </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>colorClass="text-cyan-400"</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>rows={dims.out}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                        </span>cols={mode === 'product' ? dims.mid : dims.in}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>/&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{/* Vector Input */}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="mb-4 bg-slate-800/40 p-4 rounded-xl border border-slate-700"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;h2 className="text-xs font-bold text-yellow-400 uppercase tracking-wider mb-3 flex items-center justify-between"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                 </span>ベクトル v (入力次元: {dims.in}D)</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;/h2&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>{['x', 'y', 'z'].slice(0, dims.in).map(axis =&gt; (</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;div key={axis} className="flex items-center gap-3 mb-2"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;span className={`text-sm font-mono font-bold w-4 uppercase ${axis==='x'?'text-red-400':axis==='y'?'text-emerald-400':'text-blue-400'}`}&gt;{axis}&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;input type="range" min="-3" max="3" step="0.1" value={userVector[axis]} onChange={(e) =&gt; setUserVector({...userVector, [axis]: parseFloat(e.target.value)})} className="flex-1 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-white"/&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                    </span>&lt;input type="number" value={userVector[axis]} onChange={(e) =&gt; setUserVector({...userVector, [axis]: parseFloat(e.target.value)})} className="w-12 bg-slate-900 border border-slate-700 rounded text-right text-xs p-1 text-slate-200"/&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>))}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>{/* Slider */}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="mb-2"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;div className="flex justify-between text-xs text-slate-400 mb-1 font-mono"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;span&gt;Start&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;span className="text-cyan-400"&gt;t = {t.toFixed(2)}&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>&lt;span&gt;End&lt;/span&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;input type="range" min="0" max="1" step="0.001" value={t} onChange={(e) =&gt; {setT(parseFloat(e.target.value)); setIsAnimating(false);}} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400"/&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;MathExplanation currentMatrix={currentMatrix} vector={userVector} result={resultVector} config={config} matrixA={matrixA} matrixB={matrixB} /&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>{/* Right Panel (Canvas) */}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div className="w-full md:flex-1 h-3/5 md:h-full relative bg-slate-900 overflow-hidden cursor-move" ref={containerRef} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove}&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;canvas ref={canvasRef} className="block w-full h-full" /&gt;</span></p>
+<p class="p7"><span class="s1"><span class="Apple-converted-space">                        </span></span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;div className="absolute top-4 right-4 pointer-events-none space-y-1 text-right bg-slate-900/60 p-3 rounded-lg backdrop-blur border border-slate-700/50"&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;div className="text-xs text-slate-400 font-bold mb-1"&gt;凡例 (Z-up)&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;div className="text-xs text-red-400 font-bold flex items-center justify-end gap-2"&gt;X軸 &lt;span className="w-2 h-2 rounded-full bg-red-400"&gt;&lt;/span&gt;&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;div className="text-xs text-emerald-400 font-bold flex items-center justify-end gap-2"&gt;Y軸 &lt;span className="w-2 h-2 rounded-full bg-emerald-400"&gt;&lt;/span&gt;&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>{dims.in === 3 &amp;&amp; &lt;div className="text-xs text-blue-400 font-bold flex items-center justify-end gap-2"&gt;Z軸 &lt;span className="w-2 h-2 rounded-full bg-blue-400"&gt;&lt;/span&gt;&lt;/div&gt;}</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                             </span>&lt;div className="text-xs text-yellow-400 font-bold flex items-center justify-end gap-2 mt-2"&gt;v &lt;span className="w-2 h-2 rounded-full bg-yellow-400"&gt;&lt;/span&gt;&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>);</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>};</span></p>
+<p class="p7"><span class="s12"></span><br></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>const root = ReactDOM.createRoot(document.getElementById('root'));</span></p>
+<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>root.render(&lt;App /&gt;);</span></p>
+<p class="p2"><span class="s4"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;/</span><span class="s1">script</span><span class="s3">&gt;</span></p>
+<p class="p2"><span class="s3">&lt;/</span><span class="s1">body</span><span class="s3">&gt;</span></p>
+<p class="p2"><span class="s3">&lt;/</span><span class="s1">html</span><span class="s3">&gt;</span></p>
+</body>
+</html>

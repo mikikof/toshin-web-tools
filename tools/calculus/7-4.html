@@ -1,0 +1,522 @@
+7-4<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2変数関数の極限 3Dビジュアライザー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';
+            overscroll-behavior: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .ui-panel {
+            background-color: rgba(31, 41, 55, 0.7); /* bg-gray-800 with opacity */
+            backdrop-filter: blur(4px);
+            transition: background-color 0.3s ease;
+        }
+        math {
+             font-size: 1.1em;
+             color: inherit;
+        }
+        .inline-math {
+            display: inline-flex; /* Use inline-flex for robust alignment */
+            align-items: baseline; /* Align with the text baseline */
+        }
+        .ui-container {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .ui-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* Light Mode Styles */
+        body.light-mode {
+            background-color: #f3f4f6; /* bg-gray-100 */
+            color: #1f2937; /* text-gray-800 */
+        }
+        body.light-mode .ui-panel {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        body.light-mode h1 {
+            color: #111827; /* text-gray-900 */
+        }
+        body.light-mode p, body.light-mode label {
+            color: #374151; /* text-gray-700 */
+        }
+        body.light-mode select {
+            background-color: #e5e7eb; /* bg-gray-200 */
+            color: #1f2937;
+            border-color: #9ca3af; /* border-gray-400 */
+        }
+        #katex-display math {
+             color: #38bdf8;
+        }
+        body.light-mode #katex-display math {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <div id="container" class="fixed top-0 left-0 w-full h-full"></div>
+
+    <!-- Top Right Controls -->
+    <div class="absolute top-6 right-6 z-20 flex gap-2">
+        <!-- UI Toggle Button -->
+        <button id="ui-toggle" class="p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors">
+            <svg id="ui-icon-visible" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <svg id="ui-icon-hidden" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 .527-1.664 1.379-3.2 2.458-4.5l-1.42-1.42A11.954 11.954 0 001 12c1.274 4.057 5.064 7 9.542 7 .847 0 1.673-.105 2.468-.305l-1.135-1.135z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.75 10.75l-1.065-1.065a2.998 2.998 0 00-3.185 3.185l1.065 1.065A3 3 0 0010.75 10.75z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.542 16.5A11.954 11.954 0 0023 12c-1.274-4.057-5.064-7-9.542-7a11.95 11.95 0 00-2.006.22l1.42 1.42a10.05 10.05 0 017.668 9.858z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M1 1l22 22" />
+            </svg>
+        </button>
+        <!-- Theme Toggle Button -->
+        <button id="theme-toggle" class="p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors">
+            <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        </button>
+    </div>
+
+    <div id="top-ui" class="ui-container absolute top-0 left-0 p-6 md:p-8 max-w-full md:max-w-md z-10">
+        <h1 class="text-2xl md:text-3xl font-bold text-white mb-2">2変数関数の極限</h1>
+        <div class="ui-panel p-4 rounded-lg shadow-lg">
+            <p class="text-gray-300">
+                関数 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>f</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></math> の定義域を <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>D</mi></math> とする。
+                <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo><mo>&rarr;</mo><mo>(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo>)</mo></math> のとき、<math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>f</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></math> が <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>&alpha;</mi></math> に収束するとは、
+                <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>D</mi></math> に属する <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></math> について、どのような近づき方をしても <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>f</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></math> が <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>&alpha;</mi></math> に近づくことをいう。
+            </p>
+            <div id="katex-display" class="mt-4 text-center text-lg">
+                <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                  <mrow>
+                    <munder>
+                      <mo movablelimits="true">lim</mo>
+                      <mrow>
+                        <mo stretchy="false">(</mo>
+                        <mi>x</mi>
+                        <mo>,</mo>
+                        <mi>y</mi>
+                        <mo stretchy="false">)</mo>
+                        <mo>&rarr;</mo>
+                        <mo stretchy="false">(</mo>
+                        <mi>a</mi>
+                        <mo>,</mo>
+                        <mi>b</mi>
+                        <mo stretchy="false">)</mo>
+                      </mrow>
+                    </munder>
+                    <mrow>
+                      <mi>f</mi>
+                      <mo stretchy="false">(</mo>
+                      <mi>x</mi>
+                      <mo>,</mo>
+                      <mi>y</mi>
+                      <mo stretchy="false">)</mo>
+                    </mrow>
+                    <mo>=</mo>
+                    <mi>&alpha;</mi>
+                  </mrow>
+                </math>
+            </div>
+        </div>
+    </div>
+
+    <div id="bottom-ui" class="ui-container absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10">
+        <div class="max-w-4xl mx-auto ui-panel p-4 rounded-lg shadow-lg">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <!-- Function Selection -->
+                <div class="flex flex-col space-y-2">
+                    <label class="text-sm font-semibold">1. 関数を選択</label>
+                    <select id="function-select" class="bg-gray-700 text-white border border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                    <div id="function-formula" class="text-center text-sm h-10 mt-1 flex items-center justify-center"></div>
+                </div>
+                <!-- Path Selection -->
+                <div class="flex flex-col space-y-2">
+                    <label class="text-sm font-semibold">2. 近づく経路を選択</label>
+                    <select id="path-select" class="bg-gray-700 text-white border border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        <!-- Options will be populated by JS -->
+                    </select>
+                     <div class="text-center text-gray-400 text-sm h-6 mt-1">目標地点: <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mo>(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>)</mo></math></div>
+                </div>
+                <!-- Controls -->
+                <div class="flex flex-col space-y-2">
+                     <label class="text-sm font-semibold">3. アニメーション</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="animate-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-lg text-sm">
+                            単一経路
+                        </button>
+                        <button id="animate-multi-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-lg text-sm">
+                            複数経路
+                        </button>
+                    </div>
+                    <div id="limit-value-display" class="text-amber-500 text-sm min-h-[4rem] mt-1 flex flex-col justify-center items-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+        import { OrbitControls } from 'https://cdn.skypack.dev/three@0.136.0/examples/jsm/controls/OrbitControls.js';
+
+        let scene, camera, renderer, controls, mesh;
+        let animationFrameId;
+        let activeAnimationObjects = [];
+        let isLightMode = false;
+
+        // --- DOM Elements ---
+        const container = document.getElementById('container');
+        const functionSelect = document.getElementById('function-select');
+        const pathSelect = document.getElementById('path-select');
+        const animateBtn = document.getElementById('animate-btn');
+        const animateMultiBtn = document.getElementById('animate-multi-btn');
+        const functionFormulaEl = document.getElementById('function-formula');
+        const limitValueDisplayEl = document.getElementById('limit-value-display');
+        const themeToggle = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('theme-icon-sun');
+        const moonIcon = document.getElementById('theme-icon-moon');
+        const uiToggle = document.getElementById('ui-toggle');
+        const uiIconVisible = document.getElementById('ui-icon-visible');
+        const uiIconHidden = document.getElementById('ui-icon-hidden');
+        const topUi = document.getElementById('top-ui');
+        const bottomUi = document.getElementById('bottom-ui');
+
+        // --- Color Definitions ---
+        const colors = {
+            dark: { bg: 0x111827, surface: 0x00bcd4, text: '#ffffff', katex: '#38bdf8' },
+            light: { bg: 0xf3f4f6, surface: 0x3b82f6, text: '#1f2937', katex: '#2563eb' }
+        };
+
+        // --- Function Definitions ---
+        const functions = {
+            'sinc': {
+                name: '極限が存在する例: sin(r)/r',
+                limitExists: true,
+                limitValue: 2,
+                func: (x, y) => Math.sin(Math.sqrt(x*x + y*y)) / Math.sqrt(x*x + y*y) * 2,
+                formula: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mn>2</mn><mi>sin</mi><mo stretchy="false">(</mo><msqrt><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></msqrt><mo stretchy="false">)</mo></mrow><mrow><msqrt><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></msqrt></mrow></mfrac></math>`,
+                paths: {
+                    'y = x': (t) => ({ x: 3 - t, y: 3 - t }),
+                    'y = x^2': (t) => ({ x: Math.sqrt(3) - t/Math.sqrt(3), y: (Math.sqrt(3) - t/Math.sqrt(3))**2 }),
+                    'Spiral': (t) => ({ x: (3 - t) * Math.cos(t * 5), y: (3 - t) * Math.sin(t * 5) })
+                },
+                multiPaths: ['y = x', 'y = x^2', 'Spiral'],
+            },
+            'rational_v1': {
+                name: '極限が存在しない例: (x²-y²)/(x²+y²)',
+                limitExists: false,
+                func: (x, y) => (x*x - y*y) / (x*x + y*y) * 1.5,
+                formula: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mn>1.5</mn><mo stretchy="false">(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>&minus;</mo><msup><mi>y</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac></math>`,
+                paths: {
+                    'x軸 (y=0)': (t) => ({ x: 3 - t, y: 0 }),
+                    'y軸 (x=0)': (t) => ({ x: 0, y: 3 - t }),
+                    'y = 2x': (t) => ({ x: (3 - t)/Math.sqrt(5), y: 2*(3-t)/Math.sqrt(5) }),
+                },
+                multiPaths: ['x軸 (y=0)', 'y軸 (x=0)', 'y = 2x'],
+            },
+            'rational_v2': {
+                name: '極限が存在しない例: xy/(x²+y²)',
+                limitExists: false,
+                func: (x, y) => (x * y) / (x**2 + y**2),
+                formula: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi>x</mi><mi>y</mi></mrow><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac></math>`,
+                paths: {
+                    'x軸 (y=0)': (t) => ({ x: 3 - t, y: 0 }),
+                    'y = x': (t) => ({ x: 3 - t, y: 3 - t }),
+                    'y = 2x': (t) => ({ x: (3 - t)/Math.sqrt(5), y: 2*(3-t)/Math.sqrt(5) }),
+                },
+                multiPaths: ['y = x', 'y = 2x', 'x軸 (y=0)'],
+            },
+            'rational_v3': {
+                name: '極限が存在しない例: x²y/(x⁴+y²)',
+                limitExists: false,
+                func: (x, y) => (x**2 * y) / (x**4 + y**2),
+                formula: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><msup><mi>x</mi><mn>2</mn></msup><mi>y</mi></mrow><mrow><msup><mi>x</mi><mn>4</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></mrow></mfrac></math>`,
+                paths: {
+                    'y = x': (t) => ({ x: 3 - t, y: 3-t }),
+                    'y = x^2': (t) => ({ x: Math.sqrt(3) - t/Math.sqrt(3), y: (Math.sqrt(3) - t/Math.sqrt(3))**2 }),
+                    'x軸 (y=0)': (t) => ({ x: 3 - t, y: 0 }),
+                },
+                multiPaths: ['y = x', 'y = x^2', 'x軸 (y=0)'],
+            }
+        };
+
+        const pathColors = [0xdc267f, 0xffb000, 0xfe6100, 0x4caf50];
+
+        // --- Initialization ---
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(5, 5, 5);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5);
+            scene.add(directionalLight);
+
+            createCustomAxes();
+
+            setupUI();
+            updateFunction();
+            toggleTheme(false);
+            animate();
+        }
+
+        // --- UI Setup ---
+        function setupUI() {
+            Object.keys(functions).forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = functions[key].name;
+                functionSelect.appendChild(option);
+            });
+
+            functionSelect.addEventListener('change', updateFunction);
+            animateBtn.addEventListener('click', startSingleAnimation);
+            animateMultiBtn.addEventListener('click', startMultiAnimation);
+            themeToggle.addEventListener('click', () => toggleTheme(true));
+            uiToggle.addEventListener('click', toggleUI);
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        // --- Custom Axes Creation ---
+        function createCustomAxes() {
+            const axisRadius = 0.025;
+            const axisLength = 4.5;
+            const arrowRadius = 0.07;
+            const arrowHeight = 0.3;
+
+            const createAxisGroup = (color) => {
+                const material = new THREE.MeshBasicMaterial({ color });
+                const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 12), material);
+                cylinder.position.y = axisLength / 2;
+                const cone = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 12), material);
+                cone.position.y = axisLength;
+                const group = new THREE.Group();
+                group.add(cylinder);
+                group.add(cone);
+                return group;
+            };
+
+            const zAxis = createAxisGroup(0x0000ff);
+            scene.add(zAxis);
+            const xAxis = createAxisGroup(0xff0000);
+            xAxis.rotation.z = -Math.PI / 2;
+            scene.add(xAxis);
+            const yAxis = createAxisGroup(0x00ff00);
+            yAxis.rotation.x = Math.PI / 2;
+            scene.add(yAxis);
+        }
+
+        // --- UI and Theme Toggling ---
+        function toggleTheme(isToggle) {
+            if (isToggle) isLightMode = !isLightMode;
+            const theme = isLightMode ? 'light' : 'dark';
+            const themeColors = colors[theme];
+
+            document.body.classList.toggle('light-mode', isLightMode);
+            sunIcon.classList.toggle('hidden', !isLightMode);
+            moonIcon.classList.toggle('hidden', isLightMode);
+
+            scene.background = new THREE.Color(themeColors.bg);
+            if (mesh) mesh.material.color.set(themeColors.surface);
+        }
+
+        function toggleUI() {
+            const isHidden = topUi.classList.toggle('hidden');
+            bottomUi.classList.toggle('hidden');
+            uiIconVisible.classList.toggle('hidden', isHidden);
+            uiIconHidden.classList.toggle('hidden', !isHidden);
+        }
+
+        // --- Function and Path Updates ---
+        function updateFunction() {
+            clearAnimations();
+            const selectedFuncKey = functionSelect.value;
+            const selectedFunc = functions[selectedFuncKey];
+
+            functionFormulaEl.innerHTML = selectedFunc.formula;
+
+            pathSelect.innerHTML = '';
+            Object.keys(selectedFunc.paths).forEach(pathName => {
+                const option = document.createElement('option');
+                option.value = pathName;
+                option.textContent = pathName;
+                pathSelect.appendChild(option);
+            });
+
+            limitValueDisplayEl.innerHTML = '';
+            createSurface(selectedFunc.func);
+        }
+
+        // --- 3D Surface Creation ---
+        function createSurface(func) {
+            if (mesh) scene.remove(mesh);
+            const geometry = new THREE.PlaneGeometry(8, 8, 250, 250);
+            const position = geometry.attributes.position;
+            const safeFunc = (x, y) => {
+                if (Math.sqrt(x*x + y*y) < 1e-6) {
+                    return 0; // Avoid division by zero at the origin
+                }
+                return func(x, y);
+            };
+
+            for (let i = 0; i < position.count; i++) {
+                const x = position.getX(i);
+                const y = position.getY(i);
+                const z = safeFunc(x, y);
+                position.setZ(i, !isNaN(z) && isFinite(z) ? z : -4);
+            }
+            position.needsUpdate = true;
+            geometry.computeVertexNormals();
+            const material = new THREE.MeshStandardMaterial({
+                color: isLightMode ? colors.light.surface : colors.dark.surface, 
+                wireframe: false, side: THREE.DoubleSide,
+                transparent: true, opacity: 0.85
+            });
+            mesh = new THREE.Mesh(geometry, material);
+            mesh.rotation.x = -Math.PI / 2;
+            scene.add(mesh);
+        }
+
+        // --- Animation Control ---
+        function clearAnimations() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            activeAnimationObjects.forEach(obj => {
+                scene.remove(obj.sphere);
+                if(obj.pathTube) scene.remove(obj.pathTube);
+            });
+            activeAnimationObjects = [];
+            limitValueDisplayEl.innerHTML = '';
+        }
+
+        function startSingleAnimation() {
+            const selectedFuncKey = functionSelect.value;
+            const funcData = functions[selectedFuncKey];
+            const pathName = pathSelect.value;
+            const pathFunc = funcData.paths[pathName];
+
+            const animationData = [{ pathName, pathFunc, color: pathColors[0] }];
+            runAnimation(funcData, animationData);
+        }
+
+        function startMultiAnimation() {
+            const selectedFuncKey = functionSelect.value;
+            const funcData = functions[selectedFuncKey];
+            const pathNames = funcData.multiPaths;
+
+            const animationData = pathNames.map((name, index) => ({
+                pathName: name,
+                pathFunc: funcData.paths[name],
+                color: pathColors[index]
+            }));
+            runAnimation(funcData, animationData);
+        }
+
+        function runAnimation(funcData, animationData) {
+            clearAnimations();
+
+            animationData.forEach(data => {
+                const sphereGeo = new THREE.SphereGeometry(0.1, 32, 32);
+                const sphereMat = new THREE.MeshPhongMaterial({ color: data.color });
+                const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+                scene.add(sphere);
+
+                activeAnimationObjects.push({
+                    sphere, pathTube: null, points: [], ...data
+                });
+            });
+
+            let t = 0;
+            const duration = 3;
+            const steps = 180;
+            const dt = duration / steps;
+            const endProgress = 0.995; // Stop just before the origin
+
+            function animatePath() {
+                t += dt;
+                const progress = Math.min(t / duration, 1);
+
+                activeAnimationObjects.forEach(obj => {
+                    const currentProgress = Math.min(progress, endProgress);
+                    const { x, y } = obj.pathFunc(currentProgress * 3);
+                    const z = funcData.func(x, y);
+
+                    if (!isNaN(z) && isFinite(z)) {
+                        obj.sphere.position.set(x, z, y);
+                        obj.points.push(new THREE.Vector3(x, z, y));
+
+                        if (obj.pathTube) scene.remove(obj.pathTube);
+                        if (obj.points.length > 1) {
+                            const curve = new THREE.CatmullRomCurve3(obj.points);
+                            const tubeGeo = new THREE.TubeGeometry(curve, Math.max(2, obj.points.length), 0.03, 8, false);
+                            const tubeMat = new THREE.MeshBasicMaterial({ color: obj.color });
+                            obj.pathTube = new THREE.Mesh(tubeGeo, tubeMat);
+                            scene.add(obj.pathTube);
+                        }
+                    }
+                });
+
+                if (progress < 1) {
+                    animationFrameId = requestAnimationFrame(animatePath);
+                } else {
+                    let resultHTML = '';
+                    if (funcData.limitExists) {
+                         resultHTML = `<div class="font-bold text-lg">収束値: ${funcData.limitValue.toFixed(2)}</div>`;
+                    } else {
+                        activeAnimationObjects.forEach(obj => {
+                            const finalZ = obj.sphere.position.y;
+                            const textColor = '#' + new THREE.Color(obj.color).getHexString();
+                            const finalValueColor = isLightMode ? '#c2410c' : '#fb923c';
+                            resultHTML += `<div class="flex items-center justify-center gap-2">
+                                <span style="color:${textColor};" class="font-bold text-sm">${obj.pathName}:</span>
+                                <span style="color:${finalValueColor};" class="font-bold text-lg">${finalZ.toFixed(2)}</span>
+                            </div>`;
+                        });
+                        resultHTML += `<div class="font-bold text-red-500 mt-1 text-xs">近づき方によって値が違うため、極限は存在しません。</div>`;
+                    }
+                    limitValueDisplayEl.innerHTML = resultHTML;
+                }
+            }
+            animatePath();
+        }
+
+        // --- Render Loop & Resize ---
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+        }
+
+        init();
+    </script>
+</body>
+</html>

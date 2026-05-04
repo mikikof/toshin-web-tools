@@ -1,0 +1,1090 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;平均値の定理の応用&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Tailwind (CDN) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Fonts --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=M+PLUS+Rounded+1c:wght@400;700;800&amp;display=swap" rel="stylesheet" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body { font-family: 'Inter', 'M PLUS Rounded 1c', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans JP', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-white text-gray-900"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="root"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- React 18 UMD + Babel Standalone --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://unpkg.com/@babel/standalone/babel.min.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script type="text/babel"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const { useMemo, useState, useEffect } = React;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// =============================================</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 平均値の定理（MVT）</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// - 単一ファイルで動作するよう、すべてSVGで描画</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// - 5つのデモ + 簡易テスト + ErrorBoundary</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// - 直感UI：</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// <span class="Apple-converted-space">  </span>・リプシッツ：起点切替（a / b）、帯・バーの数式ラベル表示</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// <span class="Apple-converted-space">  </span>・テイラー：チューブ方式の切替（自動/一定K）、Kや境界式のラベル表示</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// <span class="Apple-converted-space">  </span>・道予測：M を手動指定、真の関数を隠して「取りうる道」を描画</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// <span class="Apple-converted-space">  </span>・道予測（ベイズ風）：途中観測点（x_obs, y_obs±ε）で帯を“交差”して狭める</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// =============================================</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ---- Error Boundary（描画時例外を可視化）</p>
+<p class="p1"><span class="Apple-converted-space">    </span>class ErrorBoundary extends React.Component {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>constructor(props){super(props); this.state={error:null};}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>static getDerivedStateFromError(error){ return {error}; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>componentDidCatch(error, info){ console.error("Render error:", error, info); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>render(){</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if(this.state.error){</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const msg = String(this.state.error?.message || this.state.error);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="p-4 bg-red-50 text-red-800 rounded-xl border border-red-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="font-bold mb-1"&gt;レンダー時エラー&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;pre className="whitespace-pre-wrap text-xs"&gt;{msg}&lt;/pre&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p className="text-xs mt-2 text-red-700"&gt;スタックはブラウザのコンソールにも出力しています。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return this.props.children;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 関数カタログ</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const FUNCS = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>quad: {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>key: "quad",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "二次関数 f(x)=x^2",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>f: (x) =&gt; x * x,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>df: (x) =&gt; 2 * x,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>d2f: (x) =&gt; 2,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>domain: [-3, 3],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>niceY: [-1, 9],</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cubic: {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>key: "cubic",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "三次 f(x)=x^3-x",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>f: (x) =&gt; x * x * x - x,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>df: (x) =&gt; 3 * x * x - 1,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>d2f: (x) =&gt; 6 * x,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>domain: [-2, 2],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>niceY: [-4, 4],</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>sin: {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>key: "sin",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "正弦 f(x)=sin x",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>f: (x) =&gt; Math.sin(x),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>df: (x) =&gt; Math.cos(x),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>d2f: (x) =&gt; -Math.sin(x),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>domain: [-Math.PI * 1.2, Math.PI * 1.2],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>niceY: [-1.4, 1.4],</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>log1p: {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>key: "log1p",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "対数 f(x)=ln(x+1)",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>f: (x) =&gt; Math.log(x + 1),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>df: (x) =&gt; 1 / (x + 1),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>d2f: (x) =&gt; -1 / ((x + 1) * (x + 1)),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>domain: [-0.9, 3], // x&gt;-1</p>
+<p class="p1"><span class="Apple-converted-space">        </span>niceY: [-3, 2],</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>exp: {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>key: "exp",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "指数 f(x)=e^x/3",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>f: (x) =&gt; Math.exp(x) / 3,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>df: (x) =&gt; Math.exp(x) / 3,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>d2f: (x) =&gt; Math.exp(x) / 3,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>domain: [-2, 2],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>niceY: [-0.2, 3],</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ユーティリティ</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const clamp = (x, a, b) =&gt; Math.max(a, Math.min(b, x));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const fmt = (x, d = 4) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (!isFinite(x)) return "—";</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return Number(x).toFixed(d).replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const near = (a, b, eps = 1e-3) =&gt; Math.abs(a - b) &lt;= eps;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 描画領域ユーティリティ</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function usePlot(domain, yRange) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const width = 760; // コンテンツでの標準幅</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const height = 320;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const pad = { l: 48, r: 20, t: 20, b: 36 };</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [xmin, xmax] = domain;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [ymin, ymax] = yRange;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const w = width - pad.l - pad.r;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const h = height - pad.t - pad.b;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const X = (x) =&gt; pad.l + ((x - xmin) / (xmax - xmin)) * w;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Y = (y) =&gt; pad.t + h - ((y - ymin) / (ymax - ymin)) * h;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return { width, height, pad, X, Y, xmin, xmax, ymin, ymax, w, h };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function samplePath(f, X, Y, xmin, xmax, n = 400) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const step = (xmax - xmin) / (n - 1);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let d = "";</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for (let i = 0; i &lt; n; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = xmin + i * step;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = f(x);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const px = X(x);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const py = Y(y);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>d += i === 0 ? `M ${px} ${py}` : ` L ${px} ${py}`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return d;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 区間[a,b]内で f'(c) = m を満たす c を（存在すれば）探す：符号変化/最小値探索</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function findC(df, m, a, b) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const N = 800;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let prev = df(a) - m;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let prevX = a;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let bestX = a;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let bestVal = Math.abs(prev);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for (let i = 1; i &lt;= N; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = a + ((b - a) * i) / N;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const val = df(x) - m;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const abs = Math.abs(val);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (abs &lt; bestVal) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>bestVal = abs;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>bestX = x;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (val === 0) return x;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (prev * val &lt; 0) { // 線形補間</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const t = prev / (prev - val);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>return prevX + t * (x - prevX);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>prev = val;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>prevX = x;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return bestX; // 近い点</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 軸描画</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function Axes({ plot, ticks = 6 }) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const { X, Y, xmin, xmax, ymin, ymax, pad, width, height } = plot;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const g = [];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// x軸</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (ymin &lt; 0 &amp;&amp; ymax &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y0 = Y(0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>g.push(&lt;line key="xaxis" x1={pad.l} y1={y0} x2={width - pad.r} y2={y0} className="stroke-gray-300" /&gt;);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// y軸</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (xmin &lt; 0 &amp;&amp; xmax &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x0 = X(0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>g.push(&lt;line key="yaxis" x1={x0} y1={pad.t} x2={x0} y2={height - pad.b} className="stroke-gray-300" /&gt;);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 目盛（y）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for (let i = 0; i &lt;= ticks; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const y = ymin + (i * (ymax - ymin)) / ticks;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const py = Y(y);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>g.push(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;g key={`yt${i}`}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;line x1={pad.l - 4} y1={py} x2={pad.l} y2={py} className="stroke-gray-300" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;text x={pad.l - 8} y={py + 4} className="fill-gray-400 text-xs" textAnchor="end"&gt;{fmt(y, 2)}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/g&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 目盛（x）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for (let i = 0; i &lt;= ticks; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const x = xmin + (i * (xmax - xmin)) / ticks;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const px = X(x);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>g.push(</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;g key={`xt${i}`}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;line x1={px} y1={height - pad.b} x2={px} y2={height - pad.b + 4} className="stroke-gray-300" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;text x={px} y={height - pad.b + 16} className="fill-gray-400 text-xs" textAnchor="middle"&gt;{fmt(x, 2)}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/g&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return &lt;g&gt;{g}&lt;/g&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function Slider({ label, min, max, step = 0.01, value, onChange }) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label className="flex items-center gap-3 w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span className="text-sm text-gray-600 whitespace-nowrap w-28"&gt;{label}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;input</p>
+<p class="p1"><span class="Apple-converted-space">            </span>type="range"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>min={min}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max={max}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>step={step}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>value={value}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>onChange={(e) =&gt; onChange(Number(e.target.value))}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>className="w-full accent-gray-700"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;span className="text-sm tabular-nums w-24 text-right"&gt;{fmt(value)}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function Card({ title, subtitle, children, right }) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="rounded-2xl shadow-sm border border-gray-200 bg-white"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="p-4 border-b border-gray-100 flex items-end justify-between"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3 className="text-lg font-semibold text-gray-800"&gt;{title}&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{subtitle &amp;&amp; &lt;p className="text-sm text-gray-500 mt-1"&gt;{subtitle}&lt;/p&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{right}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="p-4"&gt;{children}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 1) 幾何版MVT</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function DemoMVT() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [funcKey, setFuncKey] = useState("sin");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const F = FUNCS[funcKey];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [a, setA] = useState(() =&gt; F.domain[0] * 0.3);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [b, setB] = useState(() =&gt; F.domain[1] * 0.3);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>useEffect(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// 関数切替時に範囲初期化</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setA(F.domain[0] * 0.3);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setB(F.domain[1] * 0.3);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [funcKey]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const plot = usePlot(F.domain, F.niceY);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const { X, Y, xmin, xmax } = plot;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const aClamped = clamp(Math.min(a, b - 1e-6), xmin, xmax);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const bClamped = clamp(Math.max(b, a + 1e-6), xmin, xmax);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const mSec = (F.f(bClamped) - F.f(aClamped)) / (bClamped - aClamped);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const c = findC(F.df, mSec, aClamped, bClamped);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const path = useMemo(() =&gt; samplePath(F.f, X, Y, xmin, xmax, 500), [funcKey, X, Y, xmin, xmax]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const secLine = {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>x1: X(aClamped),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>y1: Y(F.f(aClamped)),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>x2: X(bClamped),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>y2: Y(F.f(bClamped)),</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 接線（c, f(c)）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const fc = F.f(c);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const dfc = F.df(c);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Lx1 = xmin, Lx2 = xmax;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Ly1 = fc + dfc * (Lx1 - c);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Ly2 = fc + dfc * (Lx2 - c);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;Card</p>
+<p class="p1"><span class="Apple-converted-space">          </span>title="平均値の定理を可視化"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>subtitle="割線の傾き = どこかの接線の傾き。スライダーで区間[a,b]を動かそう。"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>right={</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;select</p>
+<p class="p1"><span class="Apple-converted-space">              </span>value={funcKey}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>onChange={(e) =&gt; setFuncKey(e.target.value)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>className="border rounded-md text-sm px-2 py-1"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{Object.values(FUNCS).map((f) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;option key={f.key} value={f.key}&gt;{f.name}&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="flex flex-col gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg width={plot.width} height={plot.height} className="w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Axes plot={plot} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 関数グラフ */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;path d={path} className="stroke-gray-700 fill-none" strokeWidth={2} /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 割線 */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;line {...secLine} className="stroke-amber-500" strokeWidth={2} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={secLine.x1} cy={secLine.y1} r={4} className="fill-amber-500" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={secLine.x2} cy={secLine.y2} r={4} className="fill-amber-500" /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 接線 at c */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;line x1={plot.X(Lx1)} y1={plot.Y(Ly1)} x2={plot.X(Lx2)} y2={plot.Y(Ly2)} className="stroke-sky-600" strokeWidth={2} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={plot.X(c)} cy={plot.Y(fc)} r={5} className="fill-sky-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="a" min={F.domain[0]} max={F.domain[1]} value={aClamped} onChange={setA} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="b" min={F.domain[0]} max={F.domain[1]} value={bClamped} onChange={setB} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="text-sm text-gray-700 grid grid-cols-1 md:grid-cols-3 gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;割線の傾き<span class="Apple-converted-space">  </span>m = {(fmt(mSec, 4))}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;見つかった c ≈ {fmt(c, 4)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;接線の傾き f'(c) = {fmt(dfc, 4)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p className="text-sm text-gray-500"&gt;常に m = f'(c) となる c が区間 (a,b) 内に少なくとも1つ存在します（平均値の定理）。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/Card&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 2) リプシッツ上界 |f(b)-f(a)| &lt;= M|b-a|（速度制限の直感つき）</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function DemoLipschitz() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [funcKey, setFuncKey] = useState("sin");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [origin, setOrigin] = useState("a"); // 帯の起点 a / b</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const F = FUNCS[funcKey];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [a, setA] = useState(() =&gt; F.domain[0] * 0.4);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [b, setB] = useState(() =&gt; F.domain[1] * 0.4);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>useEffect(() =&gt; { setA(F.domain[0] * 0.4); setB(F.domain[1] * 0.4); }, [funcKey]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const plot = usePlot(F.domain, F.niceY);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const { X, Y, xmin, xmax, pad } = plot;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const aC = clamp(Math.min(a, b - 1e-6), xmin, xmax);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const bC = clamp(Math.max(b, a + 1e-6), xmin, xmax);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lo = Math.min(aC, bC), hi = Math.max(aC, bC);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// M = sup_{[a,b]} |f'|</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const M = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let m = 0; const N = 512;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt;= N; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const x = lo + ((hi - lo) * i) / N;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>m = Math.max(m, Math.abs(F.df(x)));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return m;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [funcKey, lo, hi]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lhs = Math.abs(F.f(bC) - F.f(aC));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const rhs = M * Math.abs(bC - aC);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const path = useMemo(() =&gt; samplePath(F.f, X, Y, xmin, xmax, 500), [funcKey, X, Y, xmin, xmax]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 帯の起点を選択</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const oX = origin === "a" ? aC : bC; // origin x</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const oY = F.f(oX);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const otherX = origin === "a" ? bC : aC;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const upper = (x) =&gt; oY + M * (x - oX);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lower = (x) =&gt; oY - M * (x - oX);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 影の帯ポリゴン</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const bandPoly = (() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pts = [</p>
+<p class="p1"><span class="Apple-converted-space">          </span>[X(lo), Y(upper(lo))],</p>
+<p class="p1"><span class="Apple-converted-space">          </span>[X(hi), Y(upper(hi))],</p>
+<p class="p1"><span class="Apple-converted-space">          </span>[X(hi), Y(lower(hi))],</p>
+<p class="p1"><span class="Apple-converted-space">          </span>[X(lo), Y(lower(lo))],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return `M ${pts[0][0]} ${pts[0][1]} L ${pts[1][0]} ${pts[1][1]} L ${pts[2][0]} ${pts[2][1]} L ${pts[3][0]} ${pts[3][1]} Z`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 他端の“許容範囲”縦バー</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const barX = X(otherX);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const barTop = Y(upper(otherX));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const barBot = Y(lower(otherX));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 曲線が帯内にいるかのチェック</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const inside = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const N = 200;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt;= N; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const x = lo + ((hi - lo) * i) / N;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const y = F.f(x);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (y &gt; upper(x) + 1e-9 || y &lt; lower(x) - 1e-9) return false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return true;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [lo, hi, M, funcKey, origin]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// ラベル用文字列</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const delta = Math.abs(otherX - oX);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const labelBand = `帯:<span class="Apple-converted-space">  </span>y = f(${origin}) ± M (x − ${origin})`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const labelBarTop = `上端 ≈ ${fmt(upper(otherX),3)}`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const labelBarBot = `下端 ≈ ${fmt(lower(otherX),3)}`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;Card</p>
+<p class="p1"><span class="Apple-converted-space">          </span>title="増分の上界（リプシッツ）"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>subtitle="M は“1 歩 x に進むごとに y は高々 M だけしか動けない”。影の帯が到達可能域を示す。"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>right={</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;select value={funcKey} onChange={(e)=&gt;setFuncKey(e.target.value)} className="border rounded-md text-sm px-2 py-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{Object.values(FUNCS).map(f=&gt; &lt;option key={f.key} value={f.key}&gt;{f.name}&lt;/option&gt;)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex items-center gap-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span className="text-gray-600"&gt;起点&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="flex items-center gap-1"&gt;&lt;input type="radio" name="origin" value="a" checked={origin==='a'} onChange={()=&gt;setOrigin('a')} /&gt;a&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="flex items-center gap-1"&gt;&lt;input type="radio" name="origin" value="b" checked={origin==='b'} onChange={()=&gt;setOrigin('b')} /&gt;b&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="flex flex-col gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg width={plot.width} height={plot.height} className="w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Axes plot={plot} /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 速度制限の影の帯（到達可能域） */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;path d={bandPoly} className="fill-amber-200 opacity-50" /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* ラベル（左上に帯の式） */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text x={pad.l + 8} y={pad.t + 14} className="fill-amber-700 text-[11px]"&gt;{labelBand}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text x={pad.l + 8} y={pad.t + 28} className="fill-emerald-700 text-[11px]"&gt;M ≈ {fmt(M,3)},<span class="Apple-converted-space">  </span>|Δx| = {fmt(delta,3)}&lt;/text&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 曲線と割線 */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;path d={path} className="stroke-gray-700 fill-none" strokeWidth={2} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;line x1={X(aC)} y1={Y(F.f(aC))} x2={X(bC)} y2={Y(F.f(bC))} className="stroke-amber-500" strokeWidth={2} /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* a, b と許容範囲バー（他端） */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={X(aC)} cy={Y(F.f(aC))} r={4} className="fill-emerald-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={X(bC)} cy={Y(F.f(bC))} r={4} className="fill-emerald-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;line x1={barX} y1={barBot} x2={barX} y2={barTop} className="stroke-amber-600" strokeDasharray="4 4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text x={barX + 6} y={barTop - 4} className="fill-amber-700 text-[10px]"&gt;{labelBarTop}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text x={barX + 6} y={barBot + 12} className="fill-amber-700 text-[10px]"&gt;{labelBarBot}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="a" min={F.domain[0]} max={F.domain[1]} value={aC} onChange={setA} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="b" min={F.domain[0]} max={F.domain[1]} value={bC} onChange={setB} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;M ≈ sup_{[a,b]}|f'| = {fmt(M,4)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;|f(b)-f(a)| = {fmt(lhs,4)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;M|b-a| = {fmt(rhs,4)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;帯の中に曲線は入る: {inside?"✅ はい":"❌ いいえ"}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p className="text-sm text-gray-500"&gt;帯は (起点,f(起点)) を中心に幅 M の“V 字レール”。どちらを起点にしても、終点の縦ずれは M|b-a| を超えません。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/Card&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 2.5) 道予測：Lipschitz に基づく「取りうる道」の可視化（真の関数を隠して考える + ベイズ風アップデート）</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function DemoLipschitzPredict() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [funcKey, setFuncKey] = useState("sin");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [origin, setOrigin] = useState("a");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [hideTruth, setHideTruth] = useState(true);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [useManualM, setUseManualM] = useState(true);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [manualM, setManualM] = useState(1);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [nPaths, setNPaths] = useState(5);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [seed, setSeed] = useState(1);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 観測の有無・位置・ノイズ</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [useObs, setUseObs] = useState(false);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [obsX, setObsX] = useState(0); // 初期値は後で更新</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [eps, setEps] = useState(0);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const F = FUNCS[funcKey];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [a, setA] = useState(() =&gt; F.domain[0] * 0.3);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [b, setB] = useState(() =&gt; F.domain[1] * 0.3);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>useEffect(() =&gt; { setA(F.domain[0] * 0.3); setB(F.domain[1] * 0.3); }, [funcKey]);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>useEffect(() =&gt; { setObsX((F.domain[0] + F.domain[1]) / 2); setEps(0); }, [funcKey]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const plot = usePlot(F.domain, F.niceY);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const { X, Y, xmin, xmax, pad, ymin, ymax } = plot;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const aC = clamp(Math.min(a, b - 1e-6), xmin, xmax);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const bC = clamp(Math.max(b, a + 1e-6), xmin, xmax);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lo = Math.min(aC, bC), hi = Math.max(aC, bC);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 自動M（参考値）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Mauto = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let m = 0; const N = 512;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt;= N; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const x = lo + ((hi - lo) * i) / N;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>m = Math.max(m, Math.abs(F.df(x)));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return m;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [funcKey, lo, hi]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const M = useManualM ? manualM : Mauto;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 起点と帯</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const oX = origin === "a" ? aC : bC;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const oY = F.f(oX);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const otherX = origin === "a" ? bC : aC;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const upperBase = (x) =&gt; oY + M * (x - oX);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lowerBase = (x) =&gt; oY - M * (x - oX);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 観測点と更新帯（交差）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const xObs = clamp(obsX, lo, hi);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const yObs = F.f(xObs);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const upperObs = (x) =&gt; yObs + eps + M * Math.abs(x - xObs);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lowerObs = (x) =&gt; yObs - eps - M * Math.abs(x - xObs);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const upper = (x) =&gt; useObs ? Math.min(upperBase(x), upperObs(x)) : upperBase(x);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const lower = (x) =&gt; useObs ? Math.max(lowerBase(x), lowerObs(x)) : lowerBase(x);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 影の帯（基準）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const bandBase = (() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const L = X(lo), R = X(hi);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return `M ${L} ${Y(upperBase(lo))} L ${R} ${Y(upperBase(hi))} L ${R} ${Y(lowerBase(hi))} L ${L} ${Y(lowerBase(lo))} Z`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 影の帯（更新後）— 一般形なのでサンプリングでパスを作成</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const bandUpdated = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const N = 240;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ts = Array.from({length:N}, (_,i)=&gt; lo + ((hi - lo) * i) / (N-1));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const up = ts.map((t)=&gt; upper(t));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const loArr = ts.map((t)=&gt; lower(t));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const feasible = up.every((u, i)=&gt; u &gt;= loArr[i] - 1e-9);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// パス生成（上を左→右、下を右→左）</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pU = up.map((y,i)=&gt; `L ${X(ts[i])} ${Y(y)}`); if(pU.length) pU[0] = `M ${X(ts[0])} ${Y(up[0])}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pL = loArr.map((y,i)=&gt; `L ${X(ts[N-1-i])} ${Y(loArr[N-1-i])}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const d = `${pU.join(' ')} ${pL.join(' ')} Z`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return { d, feasible };</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [lo, hi, origin, funcKey, M, eps, obsX, useObs]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 乱数（軽量シード風）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>function rng() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// xorshift32 的な簡易（テストで固定化しない）</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let x = (seed * 1664525 + 1013904223) &gt;&gt;&gt; 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const next = () =&gt; { x ^= x &lt;&lt; 13; x ^= x &gt;&gt;&gt; 17; x ^= x &lt;&lt; 5; return (x &gt;&gt;&gt; 0) / 0xffffffff; };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return next;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 「取りうる道」を生成：|Δy| ≤ M|Δx| を積み上げる。帯からはみ出さないよう clamp。</p>
+<p class="p1"><span class="Apple-converted-space">      </span>function makePath(nSteps) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const rand = rng();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const steps = Math.max(10, nSteps);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const dx = (otherX - oX) / steps;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pts = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let x = oX, y = oY;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>pts.push([x, y]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt; steps; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const s = (rand() * 2 - 1) * M; // slope in [-M, M]</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const nx = x + dx;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>let ny = y + s * dx; // Euler ステップ</p>
+<p class="p1"><span class="Apple-converted-space">          </span>// 更新後の帯で clamp</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const loY = lower(nx), hiY = upper(nx);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>ny = Math.max(loY, Math.min(hiY, ny));</p>
+<p class="p1"><span class="Apple-converted-space">          </span>pts.push([nx, ny]);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>x = nx; y = ny;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return pts;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>function toPathD(pts) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return pts.map((p,i)=&gt; (i===0? `M ${X(p[0])} ${Y(p[1])}` : ` L ${X(p[0])} ${Y(p[1])}`)).join("");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const pathTruth = useMemo(() =&gt; samplePath(F.f, X, Y, xmin, xmax, 500), [funcKey, X, Y, xmin, xmax]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const samples = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// サンプル数とステップ数は区間長に応じて適当に</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const steps = 120;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return bandUpdated.feasible</p>
+<p class="p1"><span class="Apple-converted-space">          </span>? Array.from({length:nPaths}, ()=&gt; toPathD(makePath(steps)) )</p>
+<p class="p1"><span class="Apple-converted-space">          </span>: [];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [nPaths, M, oX, oY, otherX, seed, bandUpdated.feasible]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const delta = Math.abs(otherX - oX);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const labelBand = `到達可能域: y = f(起点) ± M (x − 起点)`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const epsMax = Math.max(0.05, 0.3 * (ymax - ymin));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 真の関数が帯から出るか（M 小さすぎ/観測と矛盾）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const truthInside = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const N = 240;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt;= N; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const x = lo + ((hi - lo) * i) / N;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const y = F.f(x);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (y &gt; upper(x) + 1e-9 || y &lt; lower(x) - 1e-9) return false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return true;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [M, lo, hi, funcKey, origin, oX, useObs, eps, obsX]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Mmax = Math.max(0.2, Mauto * 3);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;Card</p>
+<p class="p1"><span class="Apple-converted-space">          </span>title="道予測（Lipschitz による到達可能域）"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>subtitle="起点の値と“スピードリミット M”だけで先を占う。観測点を追加すると帯が“交差”して狭まる。"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>right={</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;select value={funcKey} onChange={(e)=&gt;setFuncKey(e.target.value)} className="border rounded-md text-sm px-2 py-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{Object.values(FUNCS).map(f=&gt; &lt;option key={f.key} value={f.key}&gt;{f.name}&lt;/option&gt;)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex items-center gap-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span className="text-gray-600"&gt;起点&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="flex items-center gap-1"&gt;&lt;input type="radio" name="originP" value="a" checked={origin==='a'} onChange={()=&gt;setOrigin('a')} /&gt;a&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="flex items-center gap-1"&gt;&lt;input type="radio" name="originP" value="b" checked={origin==='b'} onChange={()=&gt;setOrigin('b')} /&gt;b&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="flex flex-col gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg width={plot.width} height={plot.height} className="w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Axes plot={plot} /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 帯（基準・到達可能域） */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;path d={bandBase} className="fill-indigo-200 opacity-40" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 帯（更新後） */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{useObs &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path d={bandUpdated.d} className="fill-fuchsia-200 opacity-60" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* ラベル */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text x={pad.l + 8} y={pad.t + 14} className="fill-indigo-700 text-[11px]"&gt;{labelBand}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{useObs ? (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;text x={pad.l + 8} y={pad.t + 28} className="fill-fuchsia-700 text-[11px]"&gt;交差帯: max(下限)〜min(上限) / x_obs={fmt(xObs,3)}, ε={fmt(eps,3)}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;text x={pad.l + 8} y={pad.t + 28} className="fill-emerald-700 text-[11px]"&gt;M = {fmt(M,3)}（自動推定 {fmt(Mauto,3)}） / |Δx| = {fmt(delta,3)}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 取りうる道（サンプル） */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{samples.map((d,i)=&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path key={i} d={d} className="stroke-indigo-600 opacity-60 fill-none" strokeWidth={1.5} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>))}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 真の関数（任意で隠す） */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{!hideTruth &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path d={pathTruth} className="stroke-gray-900 fill-none" strokeWidth={2} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 起点・終点 */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={X(aC)} cy={Y(F.f(aC))} r={4} className="fill-sky-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={X(bC)} cy={Y(F.f(bC))} r={4} className="fill-sky-600" /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 観測点の可視化 */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{useObs &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;line x1={X(xObs)} y1={Y(yObs - eps)} x2={X(xObs)} y2={Y(yObs + eps)} className="stroke-fuchsia-700" strokeDasharray="4 4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;circle cx={X(xObs)} cy={Y(yObs)} r={4} className="fill-fuchsia-700" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="a" min={F.domain[0]} max={F.domain[1]} value={aC} onChange={setA} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="b" min={F.domain[0]} max={F.domain[1]} value={bC} onChange={setB} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;label className="flex items-center gap-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="checkbox" checked={useManualM} onChange={()=&gt;setUseManualM(!useManualM)} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>手動 M</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;label className="flex items-center gap-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="checkbox" checked={hideTruth} onChange={()=&gt;setHideTruth(!hideTruth)} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>真の関数を隠す（“地図なしで道を予測”）</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="M（手動）" min={0} max={Mmax} step={0.01} value={manualM} onChange={setManualM} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="サンプル道の数" min={1} max={12} step={1} value={nPaths} onChange={setNPaths} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>{/* 観測コントロール */}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;label className="flex items-center gap-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;input type="checkbox" checked={useObs} onChange={()=&gt;setUseObs(!useObs)} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>観測点を追加（ベイズ風アップデート）</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{useObs &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;Slider label="x_obs（観測位置）" min={lo} max={hi} value={obsX} onChange={setObsX} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;Slider label="ε（ノイズ幅）" min={0} max={epsMax} step={0.001} value={eps} onChange={setEps} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="flex flex-col md:flex-row md:items-center gap-3 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;button onClick={()=&gt;setSeed((s)=&gt;s+1)} className="px-3 py-1.5 border rounded-md w-fit"&gt;再生成&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;span className="text-gray-600"&gt;真の関数は帯の中に入るか：{truthInside? "✅ はい" : "⚠️ いいえ（M/観測が矛盾）"}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{useObs &amp;&amp; &lt;span className="text-gray-600"&gt;帯の一貫性：{bandUpdated.feasible ? "✅ 交差は存在" : "❌ 空（矛盾）"}&lt;/span&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p className="text-sm text-gray-500"&gt;観測点 (x_obs, y_obs±ε) を加えると、帯は &lt;em&gt;y ∈ [max(f(起点)±M|x−起点|, y_obs−ε−M|x−x_obs|), min(… , y_obs+ε+M|x−x_obs|)]&lt;/em&gt; に狭まります。矛盾が起きたら M が小さすぎるか観測が不整合です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/Card&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 3) 不等式：sin x ≤ x（x≥0）と ln x ≤ x-1（x&gt;0）</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function DemoInequalities() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [mode, setMode] = useState("sin");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const isSin = mode === "sin";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const F = isSin</p>
+<p class="p1"><span class="Apple-converted-space">        </span>? { f: (x) =&gt; Math.sin(x), df: (x) =&gt; Math.cos(x), domain: [0, 3.5], niceY: [-0.2, 3.7], name: "sin x ≤ x" }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>: { f: (x) =&gt; Math.log(x), df: (x) =&gt; 1 / x, domain: [0.2, 4], niceY: [-2, 3], name: "ln x ≤ x-1" };</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [x, setX] = useState(1);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const plot = usePlot(F.domain, F.niceY);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const { X, Y, xmin, xmax } = plot;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const path = useMemo(() =&gt; samplePath(F.f, X, Y, xmin, xmax, 500), [mode, X, Y, xmin, xmax]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 比較関数</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const g = isSin ? (t) =&gt; t : (t) =&gt; t - 1; // x, x-1</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const gPath = useMemo(() =&gt; samplePath(g, X, Y, xmin, xmax, 400), [mode, X, Y, xmin, xmax]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// MVT視点の傾き：a=0（または1）からxまでの割線</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const a = isSin ? 0 : 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const mSec = (F.f(x) - F.f(a)) / (x - a);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const c = findC(F.df, mSec, Math.min(a, x), Math.max(a, x));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 接線の計算（JSX内関数を使わずに前計算）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const tangent = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!isFinite(c)) return null;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const fc = F.f(c);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const dfc = F.df(c);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Lx1 = xmin, Lx2 = xmax;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Ly1 = fc + dfc * (Lx1 - c);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Ly2 = fc + dfc * (Lx2 - c);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return { fc, Lx1, Lx2, Ly1, Ly2 };</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [c, xmin, xmax, mode]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// sin: cos(c)&lt;=1 → mSec&lt;=1 → sin x &lt;= x</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// ln: 1/c &lt;= 1 → ln x - ln1 &lt;= x-1</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const ok = isSin ? Math.sin(x) &lt;= x + 1e-12 : Math.log(x) &lt;= x - 1 + 1e-12;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;Card</p>
+<p class="p1"><span class="Apple-converted-space">          </span>title="不等式をMVTで見る"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>subtitle="sin x ≤ x,<span class="Apple-converted-space">  </span>ln x ≤ x-1。割線の傾きが“高々 1”になることを接線で説明。"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>right={</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;select value={mode} onChange={(e)=&gt;setMode(e.target.value)} className="border rounded-md text-sm px-2 py-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="sin"&gt;sin x ≤ x（x≥0）&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;option value="ln"&gt;ln x ≤ x-1（x&amp;gt;0）&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="flex flex-col gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg width={plot.width} height={plot.height} className="w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Axes plot={plot} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;path d={path} className="stroke-gray-700 fill-none" strokeWidth={2} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;path d={gPath} className="stroke-emerald-600 fill-none" strokeWidth={2} /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 割線（a→x） */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;line x1={X(a)} y1={Y(F.f(a))} x2={X(x)} y2={Y(F.f(x))} className="stroke-amber-500" strokeWidth={2} /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 接線 at c */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{tangent &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;line x1={X(tangent.Lx1)} y1={Y(tangent.Ly1)} x2={X(tangent.Lx2)} y2={Y(tangent.Ly2)} className="stroke-sky-600" strokeWidth={2} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;circle cx={X(c)} cy={Y(tangent.fc)} r={5} className="fill-sky-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;Slider label={isSin?"x (≥0)":"x (&amp;gt;0)"} min={F.domain[0]} max={F.domain[1]} value={x} onChange={setX} /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;割線の傾き m = {fmt(mSec,4)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;c ≈ {fmt(c,4)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;成立: {ok?"✅ はい":"❌ いいえ"}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p className="text-sm text-gray-500"&gt;sin では m=cos(c)≤1, ln では m=1/c≤1 が鍵。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/Card&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 4) テイラー2次近似の誤差上界（誤差チューブ可視化）</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function DemoTaylor() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [funcKey, setFuncKey] = useState("exp");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [tubeMode, setTubeMode] = useState("local"); // "local"（点ごとに最適）/ "global"（一定K）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const F = FUNCS[funcKey];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const plot = usePlot(F.domain, F.niceY);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const { X, Y, xmin, xmax, pad } = plot;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [a, setA] = useState(0);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const [x, setXval] = useState(1);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>useEffect(() =&gt; { setA(0); setXval((F.domain[0]+F.domain[1])/4); }, [funcKey]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const path = useMemo(() =&gt; samplePath(F.f, X, Y, xmin, xmax, 500), [funcKey, X, Y, xmin, xmax]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const f = F.f, df = F.df, d2f = F.d2f;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const L = (t) =&gt; f(a) + df(a) * (t - a); // 1次近似</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const errActual = f(x) - L(x);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const xiMin = Math.min(a, x), xiMax = Math.max(a, x);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Kglobal = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const N = 600; let m = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt;= N; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const t = xiMin + ((xiMax - xiMin) * i) / N;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>m = Math.max(m, Math.abs(d2f(t)));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return m;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [a, x, funcKey]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// チューブ（上限・下限）を [xmin,xmax] で構成</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const tube = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const N = 220;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ts = Array.from({length:N}, (_,i)=&gt; xmin + ((xmax - xmin) * i) / (N-1));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let supAt = null; // 関数 sup(t)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (tubeMode === "local") {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>// a に最も近いインデックス</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const d2abs = ts.map((t)=&gt; Math.abs(d2f(t)));</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const idxA = Math.max(0, Math.min(N-1, Math.round((a - xmin) / (xmax - xmin) * (N-1))));</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const fwd = d2abs.slice();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>for(let i=idxA+1;i&lt;N;i++) fwd[i] = Math.max(fwd[i-1], d2abs[i]);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const bwd = d2abs.slice();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>for(let i=idxA-1;i&gt;=0;i--) bwd[i] = Math.max(bwd[i+1], d2abs[i]);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>supAt = (t, i) =&gt; (i&gt;=idxA ? fwd[i] : bwd[i]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>supAt = () =&gt; Kglobal; // 一定K</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Lvals = ts.map((t)=&gt; L(t));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const B = ts.map((t, i)=&gt; 0.5 * supAt(t,i) * (t - a) * (t - a));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const upper = ts.map((t, i)=&gt; Lvals[i] + B[i]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lower = ts.map((t, i)=&gt; Lvals[i] - B[i]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// SVG パス（帯 = 上を左→右、下を右→左に辿って閉じる）</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pU = upper.map((y,i)=&gt; `L ${X(ts[i])} ${Y(y)}`); pU[0] = `M ${X(ts[0])} ${Y(upper[0])}`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pL = lower.map((y,i)=&gt; `L ${X(ts[N-1-i])} ${Y(lower[N-1-i])}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const band = `${pU.join(' ')} ${pL.join(' ')} Z`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>return { ts, upper, lower, Lvals, band };</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}, [a, xmin, xmax, funcKey, tubeMode, Kglobal]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 直線（補間）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Lx1 = xmin, Lx2 = xmax;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const Ly1 = L(Lx1), Ly2 = L(Lx2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 現在の x での上界（帯の半幅）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const idxX = useMemo(() =&gt; Math.max(0, Math.min(tube.ts.length-1, Math.round((x - xmin)/(xmax - xmin)*(tube.ts.length-1)))), [x, tube, xmin, xmax]);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const boundAtX = 0.5 * Math.abs(tube.upper[idxX] - tube.lower[idxX]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const labelTop = tubeMode === "local" ? "チューブ：|f(t)−L(t)| ≤ ½·sup|f''|(a..t)·(t−a)^2" : "チューブ：|f(t)−L(t)| ≤ ½·K·(t−a)^2";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;Card</p>
+<p class="p1"><span class="Apple-converted-space">          </span>title="テイラー近似の誤差（ラグランジュ形）"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>subtitle="接線の周囲に“誤差チューブ”を描く。距離が半分になればズレはおよそ1/4に。"</p>
+<p class="p1"><span class="Apple-converted-space">          </span>right={</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;select value={funcKey} onChange={(e)=&gt;setFuncKey(e.target.value)} className="border rounded-md text-sm px-2 py-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{Object.values(FUNCS).map(f=&gt; &lt;option key={f.key} value={f.key}&gt;{f.name}&lt;/option&gt;)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex items-center gap-2 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span className="text-gray-600"&gt;方式&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="flex items-center gap-1"&gt;&lt;input type="radio" name="tube" value="local" checked={tubeMode==='local'} onChange={()=&gt;setTubeMode('local')} /&gt;自動&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="flex items-center gap-1"&gt;&lt;input type="radio" name="tube" value="global" checked={tubeMode==='global'} onChange={()=&gt;setTubeMode('global')} /&gt;一定K&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="flex flex-col gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg width={plot.width} height={plot.height} className="w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Axes plot={plot} /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 誤差チューブ（上限・下限） */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;path d={tube.band} className="fill-amber-200 opacity-50" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text x={pad.l + 8} y={pad.t + 14} className="fill-amber-700 text-[11px]"&gt;{labelTop}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text x={pad.l + 8} y={pad.t + 28} className="fill-emerald-700 text-[11px]"&gt;K ≈ {fmt(Kglobal,4)}（区間 [min(a,x), max(a,x)] の sup|f''|）&lt;/text&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* 関数と接線 */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;path d={path} className="stroke-gray-700 fill-none" strokeWidth={2} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;line x1={X(Lx1)} y1={Y(Ly1)} x2={X(Lx2)} y2={Y(Ly2)} className="stroke-sky-600" strokeWidth={2} /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{/* a, x と縦の誤差 */}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={X(a)} cy={Y(f(a))} r={4} className="fill-sky-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={X(x)} cy={Y(f(x))} r={4} className="fill-emerald-600" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;circle cx={X(x)} cy={Y(L(x))} r={4} className="fill-amber-500" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;line x1={X(x)} y1={Y(f(x))} x2={X(x)} y2={Y(L(x))} className="stroke-amber-500" strokeDasharray="4 4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;text x={X(x) + 6} y={(Y(f(x))+Y(L(x)))/2} className="fill-amber-700 text-[10px]"&gt;|err| ≈ {fmt(Math.abs(errActual),4)} / bound ≈ {fmt(boundAtX,4)}&lt;/text&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="a (展開点)" min={F.domain[0]} max={F.domain[1]} value={a} onChange={setA} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;Slider label="x (評価点)" min={F.domain[0]} max={F.domain[1]} value={x} onChange={setXval} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;実誤差 |f(x)-L(x)| = {fmt(Math.abs(errActual),6)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;上界 ≈ {fmt(boundAtX,6)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;a = {fmt(a,3)} / x = {fmt(x,3)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-3 bg-gray-50 rounded-xl"&gt;評価: {Math.abs(errActual) &lt;= boundAtX + 1e-12 ? "✅ 内に収まる" : "❌ 超えた"}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p className="text-sm text-gray-500"&gt;「曲率が大きいほどズレやすい」「距離が半分ならズレは四分の一」――その“安全幅”がチューブです。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/Card&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// 5) Self-check（簡易テストケース）</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function DevTests() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 既存テスト</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const xs1 = [0, 0.5, 1, 2, 3];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t1 = xs1.every((x) =&gt; Math.sin(x) &lt;= x + 1e-12);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const xs2 = [0.5, 1, 2, 3];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t2 = xs2.every((x) =&gt; Math.log(x) &lt;= x - 1 + 1e-12);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const pairs3 = [</p>
+<p class="p1"><span class="Apple-converted-space">        </span>[-Math.PI / 2, Math.PI / 2],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>[0, Math.PI / 3],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>[-1, 2],</p>
+<p class="p1"><span class="Apple-converted-space">      </span>];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t3 = pairs3.every(([a, b]) =&gt; Math.abs(Math.sin(b) - Math.sin(a)) &lt;= Math.abs(b - a) + 1e-12);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const f4 = (x) =&gt; x * x * x - x;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const df4 = (x) =&gt; 3 * x * x - 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const a4 = -1, b4 = 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const m4 = (f4(b4) - f4(a4)) / (b4 - a4);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const c4 = findC(df4, m4, a4, b4);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t4 = near(df4(c4), m4, 1e-2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const f5 = (x) =&gt; Math.exp(x) / 3;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const df5 = (x) =&gt; Math.exp(x) / 3;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const d2f5 = (x) =&gt; Math.exp(x) / 3;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const a5 = 0, x5 = 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const L5 = (t) =&gt; f5(a5) + df5(a5) * (t - a5);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const err5 = Math.abs(f5(x5) - L5(x5));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const bound5 = 0.5 * (Math.exp(1) / 3) * (x5 - a5) * (x5 - a5);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t5 = err5 &lt;= bound5 + 1e-12;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 追加テスト（UIの直感に対応）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 6) リプシッツ：sin、区間 [-1,1]、起点a=0 で帯内</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t6 = (()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const a=0, lo=-1, hi=1, M=1; const N=200;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0;i&lt;=N;i++){ const x=lo+(hi-lo)*i/N; const y=Math.sin(x); if(Math.abs(y-Math.sin(a))&gt; M*Math.abs(x-a)+1e-9) return false; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return true;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 7) リプシッツ：sin、同区間で起点b側でも帯内</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t7 = (()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const b=0, lo=-1, hi=1, M=1; const N=200;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0;i&lt;=N;i++){ const x=lo+(hi-lo)*i/N; const y=Math.sin(x); if(Math.abs(y-Math.sin(b))&gt; M*Math.abs(x-b)+1e-9) return false; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return true;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 8) テイラー：x^2 は K=2 で上界＝実誤差に一致</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t8 = (()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const f=(x)=&gt;x*x, df=(x)=&gt;2*x, d2f=(x)=&gt;2; const a=0.3, t=0.8;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const L=f(a)+df(a)*(t-a); const err=Math.abs(f(t)-L); const bound=0.5*Math.abs(d2f(0))*(t-a)*(t-a);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return Math.abs(err-bound) &lt; 1e-9; // ほぼ一致</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 9) テイラー：e^x/3 で 局所境界 ≤ 一定K境界（a=0, x=1）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t9 = (()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const f=(x)=&gt;Math.exp(x)/3, df=(x)=&gt;Math.exp(x)/3, d2f=(x)=&gt;Math.exp(x)/3; const a=0, x=1; const K=Math.exp(1)/3; const N=100;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0;i&lt;=N;i++){ const t=i/N; const local=0.5*(Math.exp(t)/3)*(t-a)*(t-a); const global=0.5*K*(t-a)*(t-a); if(local&gt;global+1e-9) return false; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return true;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 10) 道予測：M を小さく取りすぎると真の関数が帯から出る（sin, a=0, M=0.9, x=0.1）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t10 = (()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const a=0, M=0.9, x=0.1; return Math.abs(Math.sin(x)-Math.sin(a)) &gt; M*Math.abs(x-a) - 1e-12; // はみ出すなら true</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 11) 道予測：|Δy| ≤ M|Δx| を積み上げた道は常に帯内</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t11 = (()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const M=1.2, a=0.0, x1=1.0; const steps=50; let x=a, y=0; // y0=0 とする</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const lower=(t)=&gt; 0 - M*Math.abs(t-a), upper=(t)=&gt; 0 + M*Math.abs(t-a);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for(let i=0;i&lt;steps;i++){</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const dx=(x1-a)/steps; const s = (i%2===0? 0.6 : -0.6) * M; // 交互に±0.6M</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const nx = x + dx; let ny = y + s*dx; if(ny&lt;lower(nx)) ny=lower(nx); if(ny&gt;upper(nx)) ny=upper(nx);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if(ny&gt;upper(nx)+1e-9 || ny&lt;lower(nx)-1e-9) return false; x=nx; y=ny;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return true;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 12) 観測で帯が狭まる（sin, a=0, x_obs=0.5, M=1, ε=0 で x=0.25 の幅が縮む）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t12 = (()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const a=0, M=1, x=0.25, xobs=0.5, eps=0; const y0=Math.sin(a), yobs=Math.sin(xobs);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const low1=y0 - M*Math.abs(x-a), high1=y0 + M*Math.abs(x-a);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const low2=yobs - eps - M*Math.abs(x-xobs), high2=yobs + eps + M*Math.abs(x-xobs);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const w0=high1-low1; const w1=Math.max(0, Math.min(high1, high2) - Math.max(low1, low2));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return w1 &lt; w0 - 1e-6;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// 13) 観測と M が矛盾（sin, a=0, x_obs=0.5, M=0.3, ε=0 で x=0.5 交差なし）</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const t13 = (()=&gt;{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const a=0, M=0.3, x=0.5, xobs=0.5, eps=0; const y0=Math.sin(a), yobs=Math.sin(xobs);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const low1=y0 - M*Math.abs(x-a), high1=y0 + M*Math.abs(x-a);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const low2=yobs - eps - M*Math.abs(x-xobs), high2=yobs + eps + M*Math.abs(x-xobs);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return Math.min(high1, high2) &lt; Math.max(low1, low2) - 1e-12; // 交差しない</p>
+<p class="p1"><span class="Apple-converted-space">      </span>})();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const cases = [</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "sin x ≤ x（0,0.5,1,2,3）", ok: t1, detail: xs1.map((x)=&gt;`sin(${fmt(x,2)})≤${fmt(x,2)}`).join(", ") },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "ln x ≤ x-1（0.5,1,2,3）", ok: t2, detail: xs2.map((x)=&gt;`ln(${fmt(x,2)})≤${fmt(x,2)}-1`).join(", ") },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "リプシッツ：|sin b-sin a|≤|b-a|", ok: t3, detail: pairs3.map(([a,b])=&gt;`[${fmt(a,2)},${fmt(b,2)}]`).join("; ") },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "MVT：f(x)=x^3-x（a=-1,b=1）", ok: t4, detail: `m=${fmt(m4,4)}, f'(c)≈${fmt(df4(c4),4)}, c≈${fmt(c4,4)}` },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "Taylor：e^x/3（一次, a=0→x=1）", ok: t5, detail: `|err|=${fmt(err5,6)} ≤ bound=${fmt(bound5,6)}` },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "Lipschitz 帯：sin（起点a、区間[-1,1]）", ok: t6, detail: "M=1 で帯内" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "Lipschitz 帯：sin（起点b、区間[-1,1]）", ok: t7, detail: "M=1 で帯内" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "Taylor：x^2 は上界に一致", ok: t8, detail: "K=2 で誤差＝境界" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "Taylor：局所 ≤ 一定K（e^x/3）", ok: t9, detail: "local bound ≤ global bound" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "Predict：M 小さすぎると帯から出る（sin, M=0.9）", ok: t10, detail: "はみ出し検知" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "Predict：積み上げ道は帯内", ok: t11, detail: "|Δy| ≤ M|Δx|" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "Predict+Obs：観測で帯が狭まる", ok: t12, detail: "x_obs=0.5, x=0.25" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ name: "Predict+Obs：観測とMが矛盾を検出", ok: t13, detail: "M=0.3, ε=0" },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;Card title="Self-check（簡易テスト）" subtitle="主要な性質が数値的に成立するかのスモークテスト"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;ul className="text-sm space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{cases.map((c, i) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;li key={i} className="flex items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span className="w-5"&gt;{c.ok ? "✅" : "❌"}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span className="font-medium"&gt;{c.name}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span className="text-gray-500"&gt;— {c.detail}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/Card&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function Header() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="flex items-center justify-between"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 className="text-2xl md:text-3xl font-bold text-gray-900"&gt;平均値の定理はどう使う？&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p className="text-gray-600 mt-2 max-w-3xl text-sm md:text-base"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>「点の傾き（微分）」から「区間全体の結論（増分・不等式・誤差上界）」を可視化。</p>
+<p class="p1"><span class="Apple-converted-space">              </span>スライダーを動かし、割線・接線・誤差がどう振る舞うかを目で確認しましょう。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="hidden md:block text-xs text-gray-500"&gt;Pure React + SVG&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function MVTPlayground() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="p-4 md:p-6 lg:p-8 bg-white text-gray-900"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;ErrorBoundary&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;Header /&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="grid grid-cols-1 gap-6 mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;DemoMVT /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;DemoLipschitz /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;DemoLipschitzPredict /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;DemoInequalities /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;DemoTaylor /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;DevTests /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;footer className="text-xs text-gray-500 mt-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p&gt;注：数式の評価はサンプリングによる近似を含みます。理論上の保証は教科書どおりですが、図の交点等は数値的近似です。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/footer&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/ErrorBoundary&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const root = ReactDOM.createRoot(document.getElementById('root'));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>root.render(&lt;MVTPlayground /&gt;);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

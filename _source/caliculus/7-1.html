@@ -1,0 +1,819 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;インタラクティブな多変数関数イントロダクション&lt;/title&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- three.js (3Dグラフィックライブラリ) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- GSAP (アニメーションライブラリ) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Tailwind CSS --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--bg-color: #F1F5F9;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--text-color: #1E293B;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--panel-bg: rgba(255, 255, 255, 0.7);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--panel-border: rgba(226, 232, 240, 0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--input-bg: #F8FAFC;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--input-border: #CBD5E1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--slider-track: #CBD5E1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--button-secondary-bg: #475569;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--button-secondary-hover: #334155;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--icon-color: #475569;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>body.dark {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--bg-color: #111827;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--text-color: #F9FAFB;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--panel-bg: rgba(31, 41, 55, 0.7);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--panel-border: rgba(75, 85, 99, 0.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--input-bg: #374151;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--input-border: #4B5563;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--slider-track: #4B5563;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--button-secondary-bg: #4B5563;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--button-secondary-hover: #374151;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>--icon-color: #F9FAFB;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--bg-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: var(--text-color);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow-x: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.3s ease, color 0.3s ease;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.section {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>min-height: 100vh;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100vw;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding-top: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding-bottom: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.content-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>grid-template-columns: 380px 1fr;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 1200px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: grid-template-columns 0.5s ease-in-out, gap 0.5s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@media (max-width: 768px) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.content-container { grid-template-columns: 1fr; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.section { flex-direction: column; padding-top: 5rem; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.text-panel {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: var(--panel-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: var(--panel-border);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>backdrop-filter: blur(10px);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-width: 1px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: all 0.5s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#graph-canvas {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: fixed;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>top: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>left: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>outline: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>z-index: -1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.scroll-down-indicator {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>bottom: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>left: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transform: translateX(-50%);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animation: bounce 2s infinite;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: opacity 0.5s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@keyframes bounce {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>0%, 20%, 50%, 80%, 100% { transform: translate(-50%, 0); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>40% { transform: translate(-50%, -30px); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>60% { transform: translate(-50%, -15px); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.black-box {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: var(--input-bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 2px solid var(--input-border);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 1rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 2rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body.dark .black-box {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>box-shadow: 0 0 20px rgba(0,0,0,0.5);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#standalone-canvas-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 60vh;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overflow: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: rgba(0,0,0,0.1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body.dark #standalone-canvas-container {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>background-color: rgba(0,0,0,0.2);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#standalone-3d-canvas { width: 100%; height: 100%; }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* パネル非表示モード */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.panels-hidden .content-container { grid-template-columns: 0 1fr; gap: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.panels-hidden .text-panel { opacity: 0; transform: translateX(-120%); pointer-events: none; padding: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@media (max-width: 768px) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.panels-hidden .content-container { grid-template-columns: 1fr; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.panels-hidden .text-panel { transform: translateY(-50px); max-height: 0; padding: 0 2rem; border-width: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* UI要素のテーマ対応 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.themed-input { background-color: var(--input-bg); border-color: var(--input-border); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.themed-slider { background-color: var(--slider-track); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.themed-button-secondary { background-color: var(--button-secondary-bg); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.themed-button-secondary:hover { background-color: var(--button-secondary-hover); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.themed-icon { color: var(--icon-color); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* MathML スタイル */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>math {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.1em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.inline-math {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>vertical-align: -0.2em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;canvas id="graph-canvas"&gt;&lt;/canvas&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- UIボタンコンテナ --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="fixed top-4 right-4 z-50 flex gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="toggle-theme-btn" class="p-3 bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-full text-white hover:bg-gray-700 transition-colors" aria-label="テーマを切り替える"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="toggle-panels-btn" class="p-3 bg-gray-800 bg-opacity-50 backdrop-blur-sm rounded-full text-white hover:bg-gray-700 transition-colors" aria-label="テキストパネルの表示を切り替える"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="icon-show" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="icon-hide" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .847 0 1.67.127 2.455.364m0 11.458A9.961 9.961 0 0021.542 12c-1.274-4.057-5.064-7-9.542-7a9.96 9.96 0 00-1.036.08M15 12a3 3 0 11-6 0 3 3 0 016 0z" /&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" /&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;main id="main-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- セクション1: 1変数関数 --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="section1" class="section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="content-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-panel" id="panel1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h1 class="text-3xl font-bold mb-4"&gt;おなじみの世界&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-6"&gt;これは、中学校で学んだおなじみの放物線です。数式は &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/math&gt;。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-4"&gt;私たちは普段、&lt;span class="font-bold text-cyan-500"&gt;x&lt;/span&gt; が変数で、&lt;span class="font-bold text-amber-500"&gt;a&lt;/span&gt; はグラフの形を決めるための&lt;strong class="text-amber-500"&gt;定数 (パラメーター)&lt;/strong&gt;だと考えています。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-4"&gt;下のスライダーを動かして、&lt;span class="font-bold text-amber-500"&gt;a&lt;/span&gt; の値がグラフの形をどう変えるか確認してみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="a-slider" class="block mb-2 text-sm font-medium"&gt;定数 &lt;span class="font-bold text-amber-500"&gt;a&lt;/span&gt; = &lt;span id="a-value"&gt;1.00&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input id="a-slider" type="range" min="-2" max="2" value="1" step="0.01" class="w-full h-2 themed-slider rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="indicator1" class="scroll-down-indicator themed-icon"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"&gt;&lt;/path&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- セクション2: ブラックボックス --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="section2" class="section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="content-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-panel" id="panel2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h1 class="text-3xl font-bold mb-4"&gt;発想の転換&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-4"&gt;ここで、少し考え方を変えてみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;もし、&lt;span class="font-bold text-amber-500"&gt;a&lt;/span&gt; も &lt;span class="font-bold text-cyan-500"&gt;x&lt;/span&gt; と同じように、結果を出すために必要な&lt;strong&gt;「入力」&lt;/strong&gt;だとしたら？&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;この関数は、2つの値を入れて初めて1つの答えが出てくる「ブラックボックス」と考えることができます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center justify-center h-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="w-full max-w-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="flex items-center justify-between"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex flex-col items-center space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;label for="input-x"&gt;入力 &lt;span class="font-bold text-cyan-500"&gt;x&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;input id="input-x" type="number" value="1.5" step="0.1" class="w-24 themed-input border rounded-md p-2 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;label for="input-a"&gt;入力 &lt;span class="font-bold text-amber-500"&gt;a&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;input id="input-a" type="number" value="1.0" step="0.1" class="w-24 themed-input border rounded-md p-2 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="text-5xl text-gray-400 dark:text-gray-500 mx-4"&gt;&amp;rarr;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div id="black-box-anim" class="black-box w-48 h-32 flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mrow&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="text-5xl text-gray-400 dark:text-gray-500 mx-4"&gt;&amp;rarr;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="flex flex-col items-center space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;label&gt;出力 y&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div id="output-f" class="w-24 h-10 themed-input border rounded-md p-2 text-center flex items-center justify-center"&gt;2.25&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>&lt;div id="indicator2" class="scroll-down-indicator themed-icon"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"&gt;&lt;/path&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- セクション3: 2変数関数へ --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="section3" class="section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="content-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-panel" id="panel3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h1 class="text-3xl font-bold mb-4"&gt;次元を拡張&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-4"&gt;今度は、&lt;strong class="text-amber-500"&gt;a&lt;/strong&gt; も変数として捉え、&lt;strong class="text-cyan-500"&gt;x&lt;/strong&gt; と共に変化させてみましょう。数式は &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/math&gt;。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-4"&gt;スライダーを動かすと、&lt;span class="font-bold text-amber-500"&gt;a&lt;/span&gt; の値に応じて異なる放物線が描かれます。この無数の放物線が集まると、何が見えてくるでしょう…？&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-6"&gt;下のボタンを押すか、下にスクロールして、新しい次元へ拡張してみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                         </span>&lt;label for="a-var-slider" class="block mb-2 text-sm font-medium"&gt;変数 &lt;span class="font-bold text-amber-500"&gt;a&lt;/span&gt; = &lt;span id="a-var-value"&gt;1.00&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input id="a-var-slider" type="range" min="-2" max="2" value="1" step="0.01" class="w-full h-2 themed-slider rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="to-3d-btn" class="mt-8 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>3Dで見る</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- セクション4: 3Dグラフ --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="section4" class="section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="content-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-panel" id="panel4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h1 class="text-3xl font-bold mb-4"&gt;多変数関数の世界&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-4"&gt;3次元の世界。数式は &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/math&gt;。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;p class="mb-4"&gt;縦軸が &lt;strong class="text-green-500"&gt;y&lt;/strong&gt;, 横軸が &lt;strong class="text-cyan-500"&gt;x&lt;/strong&gt;, そして奥行きが &lt;strong class="text-amber-500"&gt;a&lt;/strong&gt; の3次元空間です。マウスでグラフを自由に動かせます。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-6 space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="a-slice-slider" class="block mb-2 text-sm font-medium"&gt;断面の位置 &lt;span class="font-bold text-amber-500"&gt;a&lt;/span&gt; = &lt;span id="a-slice-value"&gt;1.00&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input id="a-slice-slider" type="range" min="-2" max="2" value="1" step="0.01" class="w-full h-2 themed-slider rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;p class="text-xs text-gray-500 dark:text-gray-400 mt-1"&gt;断面の放物線をハイライトします。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;button id="reset-view-btn" class="mt-8 w-full themed-button-secondary text-white font-bold py-3 px-4 rounded-lg transition duration-300"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>視点をリセット</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- セクション5: 独立した3Dグラフ --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="section5" class="section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="content-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-panel"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h1 class="text-3xl font-bold mb-4"&gt;グラフを動かしてみる&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="mb-4"&gt;このグラフは、スクロールの影響を受けません。回転、ズーム、そして断面を動かして、多変数関数の形を観察してみましょう。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-6 space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label for="standalone-a-slice-slider" class="block mb-2 text-sm font-medium"&gt;断面の位置 &lt;span class="font-bold text-amber-500"&gt;a&lt;/span&gt; = &lt;span id="standalone-a-slice-value"&gt;1.00&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input id="standalone-a-slice-slider" type="range" min="-2" max="2" value="1" step="0.01" class="w-full h-2 themed-slider rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="standalone-canvas-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="standalone-3d-canvas"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/main&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- グローバル変数 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let scene, camera, renderer, controls;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let scene2, camera2, renderer2, controls2;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let currentSection = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const sections = document.querySelectorAll('.section');</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let parabola, axes2D, ghostParabolas = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let surface, axes3D, gridHelper, crossSectionLine;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let surface2, axes3D_2, gridHelper2, crossSectionLine2;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const params = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>a: 1.0, a_var: 1.0, is3D: false,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cameraPos2D: { x: 0, y: 0, z: 10 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cameraPos3D: { x: 5, y: 5, z: 12 },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const params2 = { a_slice: 1.0 };</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const colors = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>dark: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>parabola: 0x67e8f9,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ghost: 0x818cf8,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>crossSection: 0xfbbf24,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>surface: 0x818cf8,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>grid: 0x4B5563,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>light: {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>parabola: 0x3B82F6,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ghost: 0x93C5FD,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>crossSection: 0xEF4444,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>surface: 0x60A5FA,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>grid: 0xCBD5E1,</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let currentColors = colors.dark;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- UI要素 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ui = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>aSlider: document.getElementById('a-slider'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>aValue: document.getElementById('a-value'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>aVarSlider: document.getElementById('a-var-slider'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>aVarValue: document.getElementById('a-var-value'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>aSliceSlider: document.getElementById('a-slice-slider'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>aSliceValue: document.getElementById('a-slice-value'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>to3DBtn: document.getElementById('to-3d-btn'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>resetViewBtn: document.getElementById('reset-view-btn'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>inputX: document.getElementById('input-x'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>inputA: document.getElementById('input-a'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>outputF: document.getElementById('output-f'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>standaloneSliceSlider: document.getElementById('standalone-a-slice-slider'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>standaloneSliceYValue: document.getElementById('standalone-a-slice-value'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>togglePanelsBtn: document.getElementById('toggle-panels-btn'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>mainContainer: document.getElementById('main-container'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>iconShow: document.getElementById('icon-show'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>iconHide: document.getElementById('icon-hide'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>toggleThemeBtn: document.getElementById('toggle-theme-btn'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>iconSun: document.getElementById('icon-sun'),</p>
+<p class="p1"><span class="Apple-converted-space">            </span>iconMoon: document.getElementById('icon-moon'),</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 初期化 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function init() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene = new THREE.Scene();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('graph-canvas'), antialias: true, alpha: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setSize(window.innerWidth, window.innerHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setPixelRatio(window.devicePixelRatio);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.position.set(params.cameraPos2D.x, params.cameraPos2D.y, params.cameraPos2D.z);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls = new THREE.OrbitControls(camera, renderer.domElement);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.enabled = false;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>create2DGraph();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>create3DGraph();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initStandalone3D();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupEventListeners();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupScrollAnimations();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupTheme();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animate();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>handleSectionChange(0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- ユーティリティ関数 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const parabolaRadius = 0.05;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createParabolaPoints2D(a_val) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (Math.abs(a_val) &lt; 0.01) a_val = 0.01 * (a_val &gt;= 0 ? 1 : -1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xMax = Math.sqrt(Math.abs(5 / a_val));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = -100; i &lt;= 100; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = (i / 100) * xMax;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = a_val * x * x;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (Math.abs(y) &lt;= 5) points.push(new THREE.Vector3(x, y, 0));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return points;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createParabolaPoints3D(a_val) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (Math.abs(a_val) &lt; 0.01) a_val = 0.01 * (a_val &gt;= 0 ? 1 : -1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const scale = 1 / 4;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xMax = Math.sqrt(Math.abs(5 / (a_val * scale)));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = -100; i &lt;= 100; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = (i / 100) * xMax;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y_output = a_val * x * x * scale;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (Math.abs(y_output) &lt;= 5) points.push(new THREE.Vector3(x, y_output, 0));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return points;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createParabolaTube(points, material) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (points.length &lt; 2) return new THREE.Mesh();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const curve = new THREE.CatmullRomCurve3(points);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const geometry = new THREE.TubeGeometry(curve, 64, parabolaRadius, 8, false);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return new THREE.Mesh(geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateParabolaTube(tubeMesh, points) {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>if (points.length &lt; 2) { tubeMesh.visible = false; return; }</p>
+<p class="p1"><span class="Apple-converted-space">             </span>tubeMesh.visible = true;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>const curve = new THREE.CatmullRomCurve3(points);</p>
+<p class="p1"><span class="Apple-converted-space">             </span>tubeMesh.geometry.dispose();</p>
+<p class="p1"><span class="Apple-converted-space">             </span>tubeMesh.geometry = new THREE.TubeGeometry(curve, 64, parabolaRadius, 8, false);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createAxes(size, thickness) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const axes = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const materials = [ new THREE.MeshBasicMaterial({ color: 0x38bdf8 }), new THREE.MeshBasicMaterial({ color: 0x4ade80 }) ];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const geometries = [ new THREE.BoxGeometry(size, thickness, thickness), new THREE.BoxGeometry(thickness, size, thickness) ];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xAxis = new THREE.Mesh(geometries[0], materials[0]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>xAxis.position.x = size / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yAxis = new THREE.Mesh(geometries[1], materials[1]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>yAxis.position.y = size / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes.add(xAxis, yAxis);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return axes;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createAxes3D(size, thickness) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const axes = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const materials = [ new THREE.MeshBasicMaterial({ color: 0x38bdf8 }), new THREE.MeshBasicMaterial({ color: 0x4ade80 }), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }) ]; // x, y, a</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const geometries = [ new THREE.BoxGeometry(size, thickness, thickness), new THREE.BoxGeometry(thickness, size, thickness), new THREE.BoxGeometry(thickness, thickness, size) ];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xAxis = new THREE.Mesh(geometries[0], materials[0]); // x-axis</p>
+<p class="p1"><span class="Apple-converted-space">            </span>xAxis.position.x = size / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yAxis = new THREE.Mesh(geometries[1], materials[1]); // y-axis (output)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>yAxis.position.y = size / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const aAxis = new THREE.Mesh(geometries[2], materials[2]); // a-axis (parameter, depth)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>aAxis.position.z = -size / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes.add(xAxis, yAxis, aAxis);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return axes;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- グラフ作成 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function create2DGraph() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes2D = createAxes(10, 0.02);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(axes2D);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const material = new THREE.MeshBasicMaterial({ color: currentColors.parabola });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = createParabolaPoints2D(params.a);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>parabola = createParabolaTube(points, material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(parabola);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function create3DGraph() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const surfaceFunc = (u, v, target) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = (u - 0.5) * 8; // x-axis</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const a_param = (v - 0.5) * 8; // a-axis (parameter)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y_output = a_param * x * x / 4; // y-axis (output)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>target.set(x, y_output, -a_param); // map (x, y_out, a_in) to (x, y, z)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const geometry = new THREE.ParametricGeometry(surfaceFunc, 50, 50);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const material = new THREE.MeshStandardMaterial({ color: currentColors.surface, side: THREE.DoubleSide, metalness: 0.3, roughness: 0.6, transparent: true, opacity: 0.8 });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>surface = new THREE.Mesh(geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>surface.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(surface);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes3D = createAxes3D(5, 0.03);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes3D.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(axes3D);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper = new THREE.GridHelper(10, 10, currentColors.grid, currentColors.grid);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper.rotation.x = Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(gridHelper);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const crossSectionMaterial = new THREE.MeshBasicMaterial({ color: currentColors.crossSection });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = createParabolaPoints3D(params.a_var);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionLine = createParabolaTube(points, crossSectionMaterial);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionLine.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(crossSectionLine);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(ambientLight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>directionalLight.position.set(5, 10, 7.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(directionalLight);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 独立3Dシーン ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function initStandalone3D() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.getElementById('standalone-3d-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const container = document.getElementById('standalone-canvas-container');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2 = new THREE.Scene();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer2 = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer2.setPixelRatio(window.devicePixelRatio);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera2 = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera2.position.set(params.cameraPos3D.x, params.cameraPos3D.y, params.cameraPos3D.z);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera2.lookAt(0,0,0);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls2 = new THREE.OrbitControls(camera2, renderer2.domElement);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const onResize = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderer2.setSize(container.clientWidth, container.clientHeight);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>camera2.aspect = container.clientWidth / container.clientHeight;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>camera2.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>onResize();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>new ResizeObserver(onResize).observe(container);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const surfaceFunc = (u, v, target) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = (u - 0.5) * 8;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const a_param = (v - 0.5) * 8;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y_output = a_param * x * x / 4;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>target.set(x, y_output, -a_param);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const geometry = new THREE.ParametricGeometry(surfaceFunc, 50, 50);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const material = new THREE.MeshStandardMaterial({ color: currentColors.surface, side: THREE.DoubleSide, metalness: 0.3, roughness: 0.6 });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>surface2 = new THREE.Mesh(geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2.add(surface2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes3D_2 = createAxes3D(5, 0.03);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2.add(axes3D_2);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper2 = new THREE.GridHelper(10, 10, currentColors.grid, currentColors.grid);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper2.rotation.x = Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2.add(gridHelper2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const crossSectionMaterial = new THREE.MeshBasicMaterial({ color: currentColors.crossSection });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = createParabolaPoints3D(params2.a_slice);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionLine2 = createParabolaTube(points, crossSectionMaterial);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionLine2.position.z = -params2.a_slice;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2.add(crossSectionLine2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2.add(ambientLight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>directionalLight.position.set(5, 10, 7.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene2.add(directionalLight);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 更新関数 ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateParabola() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = createParabolaPoints2D(params.a);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateParabolaTube(parabola, points);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function addGhostParabola() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (ghostParabolas.length &gt; 20) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const oldGhost = ghostParabolas.shift();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.remove(oldGhost);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>oldGhost.geometry.dispose();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>oldGhost.material.dispose();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ghostMaterial = new THREE.MeshBasicMaterial({ color: currentColors.ghost, transparent: true, opacity: 0.25 });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = createParabolaPoints2D(params.a_var);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ghost = createParabolaTube(points, ghostMaterial);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ghostParabolas.push(ghost);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(ghost);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function clearGhostParabolas() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ghostParabolas.forEach(ghost =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.remove(ghost);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ghost.geometry.dispose();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ghost.material.dispose();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ghostParabolas.length = 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateCrossSection() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(crossSectionLine) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const points = createParabolaPoints3D(params.a_var);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateParabolaTube(crossSectionLine, points);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>crossSectionLine.position.z = -params.a_var;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateStandaloneCrossSection() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(crossSectionLine2) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const points = createParabolaPoints3D(params2.a_slice);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateParabolaTube(crossSectionLine2, points);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>crossSectionLine2.position.z = -params2.a_slice;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- イベントリスナー ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupEventListeners() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>camera.aspect = window.innerWidth / window.innerHeight;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>camera.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderer.setSize(window.innerWidth, window.innerHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, false);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ui.aSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>params.a = parseFloat(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.aValue.textContent = params.a.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateParabola();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const syncAndUpdateA = (value) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newA = parseFloat(value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>params.a_var = newA;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.aVarSlider.value = newA;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.aSliceSlider.value = newA;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.aVarValue.textContent = newA.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.aSliceValue.textContent = newA.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ui.aVarSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>syncAndUpdateA(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const points = createParabolaPoints2D(params.a_var);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateParabolaTube(parabola, points);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>addGhostParabola();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateCrossSection();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ui.aSliceSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>syncAndUpdateA(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateCrossSection();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(currentSection === 2) {</p>
+<p class="p1"><span class="Apple-converted-space">                   </span>const points = createParabolaPoints2D(params.a_var);</p>
+<p class="p1"><span class="Apple-converted-space">                   </span>updateParabolaTube(parabola, points);</p>
+<p class="p1"><span class="Apple-converted-space">                   </span>addGhostParabola();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ui.standaloneSliceSlider.addEventListener('input', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>params2.a_slice = parseFloat(e.target.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.standaloneSliceYValue.textContent = params2.a_slice.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateStandaloneCrossSection();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ui.to3DBtn.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>window.scrollTo({ top: sections[3].offsetTop, behavior: 'smooth' });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ui.resetViewBtn.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (params.is3D) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>gsap.to(camera.position, {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>duration: 1, x: params.cameraPos3D.x, y: params.cameraPos3D.y, z: params.cameraPos3D.z, ease: 'power2.inOut'</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>[ui.inputX, ui.inputA].forEach(input =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>input.addEventListener('input', updateBlackBox);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ui.togglePanelsBtn.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.mainContainer.classList.toggle('panels-hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const isHidden = ui.mainContainer.classList.contains('panels-hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.iconShow.classList.toggle('hidden', isHidden);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.iconHide.classList.toggle('hidden', !isHidden);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateBlackBox() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const x = parseFloat(ui.inputX.value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const a = parseFloat(ui.inputA.value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!isNaN(x) &amp;&amp; !isNaN(a)) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const result = a * x * x;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.outputF.textContent = result.toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gsap.fromTo("#black-box-anim", {scale: 1}, {scale: 1.05, duration: 0.2, yoyo: true, repeat: 1, ease: "power1.inOut"});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- スクロールアニメーション ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupScrollAnimations() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gsap.registerPlugin(ScrollTrigger);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sections.forEach((section, i) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (i &gt;= sections.length -1) return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const panel = section.querySelector('.text-panel, .flex.items-center.justify-center');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>gsap.fromTo(panel,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{ opacity: 0, y: 50 },</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>opacity: 1, y: 0, duration: 1,</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>scrollTrigger: {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>trigger: section, start: 'top center', end: 'center center', scrub: 1,</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>onEnter: () =&gt; handleSectionChange(i),</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>onEnterBack: () =&gt; handleSectionChange(i),</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function handleSectionChange(index) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentSection = index;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.scroll-down-indicator').forEach((indicator, i) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>gsap.to(indicator, { opacity: i === index &amp;&amp; i &lt; sections.length - 2 ? 1 : 0, duration: 0.5 });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (index &lt; 3) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (params.is3D) transitionTo2D();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newParam = index === 2 ? params.a_var : params.a;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const points = createParabolaPoints2D(newParam);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateParabolaTube(parabola, points);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (index &lt; 2) clearGhostParabolas();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (!params.is3D) transitionTo3D();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function transitionTo3D() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>params.is3D = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.enabled = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.target.set(0, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gsap.to(camera.position, {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>duration: 2, x: params.cameraPos3D.x, y: params.cameraPos3D.y, z: params.cameraPos3D.z, ease: 'power3.inOut',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>onUpdate: () =&gt; { camera.lookAt(0, 0, 0); }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>parabola.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ghostParabolas.forEach(g =&gt; g.visible = false);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes2D.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>surface.visible = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes3D.visible = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper.visible = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionLine.visible = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gsap.fromTo(surface.material, {opacity: 0}, {opacity: 0.8, duration: 1.5, delay: 0.5});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function transitionTo2D() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>params.is3D = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.enabled = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gsap.timeline()</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.to(camera.position, { duration: 2, x: params.cameraPos2D.x, y: params.cameraPos2D.y, z: params.cameraPos2D.z, ease: 'power3.inOut' })</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.to(camera.rotation, { duration: 2, x: 0, y: 0, z: 0, ease: 'power3.inOut' }, "&lt;");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>parabola.visible = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ghostParabolas.forEach(g =&gt; g.visible = currentSection === 2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes2D.visible = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>surface.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>axes3D.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionLine.visible = false;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- テーマ切り替え ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupTheme() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const savedTheme = localStorage.getItem('theme');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (savedTheme === 'dark' || (!savedTheme &amp;&amp; prefersDark)) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setTheme('dark');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setTheme('light');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ui.toggleThemeBtn.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newTheme = document.body.classList.contains('dark') ? 'light' : 'dark';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setTheme(newTheme);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setTheme(theme) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>localStorage.setItem('theme', theme);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentColors = colors[theme];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (theme === 'dark') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.body.classList.add('dark');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.iconSun.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.iconMoon.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.body.classList.remove('dark');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.iconSun.classList.remove('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ui.iconMoon.classList.add('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateAllColors();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateAllColors() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!parabola) return; // 未初期化の場合は何もしない</p>
+<p class="p1"><span class="Apple-converted-space">            </span>parabola.material.color.set(currentColors.parabola);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>surface.material.color.set(currentColors.surface);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionLine.material.color.set(currentColors.crossSection);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper.material.color.set(currentColors.grid);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>surface2.material.color.set(currentColors.surface);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>crossSectionLine2.material.color.set(currentColors.crossSection);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gridHelper2.material.color.set(currentColors.grid);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// ゴーストは動的に生成されるため、色変更は生成時に行う</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearGhostParabolas();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- アニメーションループ ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function animate() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>requestAnimationFrame(animate);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.update();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.render(scene, camera);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (renderer2) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>controls2.update();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderer2.render(scene2, camera2);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>init();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

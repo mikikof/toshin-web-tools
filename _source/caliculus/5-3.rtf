@@ -1,0 +1,604 @@
+{\rtf1\ansi\ansicpg932\cocoartf2869
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="ja">\
+<head>\
+    <meta charset="UTF-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+    <title>\uc0\u12458 \u12540 \u12480 \u12540 \u35352 \u27861  \u20307 \u39443 \u12484 \u12540 \u12523 </title>\
+    <script src="https://cdn.tailwindcss.com"></script>\
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">\
+    <style>\
+        body \{\
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;\
+        \}\
+        canvas \{\
+            width: 100%;\
+            height: 100%;\
+            display: block;\
+        \}\
+        .chart-container \{\
+            height: 250px;\
+        \}\
+    </style>\
+</head>\
+<body class="bg-gray-900 text-gray-200 flex flex-col min-h-screen">\
+    <header class="text-center p-4 md:p-6">\
+        <h1 class="text-2xl md:text-4xl font-bold text-white">\uc0\u12458 \u12540 \u12480 \u12540 \u35352 \u27861  \u24540 \u29992 \u20363 </h1>\
+        <p class="text-gray-400 mt-2 max-w-3xl mx-auto">\
+            \uc0\u12300 \u22311 \u20498 \u30340 \u12394 \u37096 \u20998 \u12301 \u12392 \u12300 \u30456 \u23550 \u30340 \u12395 \u28961 \u35222 \u12391 \u12365 \u12427 \u37096 \u20998 \u12301 \u12434 \u35211 \u25244 \u12367 \u24863 \u35226 \u12434 \u24540 \u29992 \u20363 \u12391 \u32057 \u20171 \u12290 \
+        </p>\
+        <div class="mt-4">\
+            <button id="resetButton" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">\uc0\u20840 \u12487 \u12514 \u12434 \u12522 \u12475 \u12483 \u12488 </button>\
+        </div>\
+    </header>\
+    <main class="flex-grow container mx-auto px-4 py-2">\
+        <div class="space-y-12">\
+            <!-- \uc0\u12487 \u12514 1: \u12450 \u12523 \u12468 \u12522 \u12474 \u12512 \u24615 \u33021  -->\
+            <section id="demo1" class="bg-gray-800 rounded-xl shadow-lg p-5">\
+                <h2 class="text-2xl font-bold text-white text-center mb-4">Demo 1: \uc0\u12450 \u12523 \u12468 \u12522 \u12474 \u12512 \u12398 \u24615 \u33021 \u35413 \u20385 </h2>\
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">\
+                    <div>\
+                        <h3 class="text-xl font-bold text-center text-red-400">\uc0\u12496 \u12502 \u12523 \u12477 \u12540 \u12488 : O(n<sup>2</sup>)</h3>\
+                        <p class="text-center text-sm text-gray-400 mt-1 mb-3">\uc0\u24615 \u33021 \u12399  n<sup>2</sup> \u12392 \u12356 \u12358 \u22311 \u20498 \u30340 \u12394 \u38306 \u25968 \u12391 <strong class="text-red-300">\u25233 \u12360 \u36796 \u12414 \u12428 \u12414 \u12377 </strong>\u12290 </p>\
+                        <div class="bg-gray-900 rounded-lg flex-grow h-64 md:h-80">\
+                            <canvas id="bubbleSortCanvas"></canvas>\
+                        </div>\
+                        <div id="bubbleSortStats" class="text-sm mt-3 grid grid-cols-2 gap-x-4 gap-y-2">\
+                            <span class="font-semibold text-gray-400">\uc0\u29702 \u35542 \u20516 :</span><span id="bubbleTheoretical" class="text-right text-gray-400">0</span>\
+                            <span class="font-semibold">\uc0\u27604 \u36611 \u22238 \u25968  (\u23455 \u38555 ):</span><span id="bubbleActual" class="text-right text-yellow-300">0</span>\
+                            <span class="font-semibold">\uc0\u20132 \u25563 \u22238 \u25968 :</span><span id="bubbleSwaps" class="text-right text-red-300">0</span>\
+                            <span class="font-semibold">\uc0\u32076 \u36942 \u26178 \u38291 :</span><span id="bubbleTime" class="text-right text-blue-300">0.00 ms</span>\
+                        </div>\
+                    </div>\
+                    <div>\
+                        <h3 class="text-xl font-bold text-center text-green-400">\uc0\u12510 \u12540 \u12472 \u12477 \u12540 \u12488 : O(n log n)</h3>\
+                        <p class="text-center text-sm text-gray-400 mt-1 mb-3">\
+                            \uc0\u12424 \u12426 \u32233 \u12420 \u12363 \u12394 \u38306 \u25968 \u12391 <strong class="text-green-300">\u25233 \u12360 \u36796 \u12414 \u12428 </strong>\u12289 \u21177 \u29575 \u30340 \u12391 \u12377 \u12290 <br>\
+                            <span class="text-xs text-gray-500">\uc0\u8251 \u12383 \u12384 \u12375 \u12289 \u12487 \u12540 \u12479 \u12434 \u19968 \u26178 \u20445 \u23384 \u12377 \u12427 \u12383 \u12417  O(n) \u12398 \u36861 \u21152 \u12513 \u12514 \u12522 \u12364 \u24517 \u35201 \u12391 \u12377 \u12290 </span>\
+                        </p>\
+                        <div class="bg-gray-900 rounded-lg flex-grow h-64 md:h-80">\
+                            <canvas id="mergeSortCanvas"></canvas>\
+                        </div>\
+                        <div id="mergeSortStats" class="text-sm mt-3 grid grid-cols-2 gap-x-4 gap-y-2">\
+                            <span class="font-semibold text-gray-400">\uc0\u29702 \u35542 \u20516 :</span><span id="mergeTheoretical" class="text-right text-gray-400">0</span>\
+                            <span class="font-semibold">\uc0\u27604 \u36611 \u22238 \u25968  (\u23455 \u38555 ):</span><span id="mergeActual" class="text-right text-yellow-300">0</span>\
+                            <span class="font-semibold">\uc0\u12487 \u12540 \u12479 \u31227 \u21205 :</span><span id="mergeMoves" class="text-right text-red-300">0</span>\
+                            <span class="font-semibold">\uc0\u32076 \u36942 \u26178 \u38291 :</span><span id="mergeTime" class="text-right text-blue-300">0.00 ms</span>\
+                        </div>\
+                    </div>\
+                </div>\
+                <div class="mt-6 border-t border-gray-700 pt-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">\
+                     <div class="flex flex-col">\
+                        <label for="dataSize" class="text-sm mb-1">\uc0\u12487 \u12540 \u12479 \u37327  (n): <span id="dataSizeLabel" class="font-bold text-white">50</span></label>\
+                        <input type="range" id="dataSize" min="10" max="200" value="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">\
+                    </div>\
+                    <div class="flex flex-col">\
+                        <label for="speed" class="text-sm mb-1">\uc0\u12450 \u12491 \u12513 \u12540 \u12471 \u12519 \u12531 \u36895 \u24230 : <span id="speedLabel" class="font-bold text-white">50</span>%</label>\
+                        <input type="range" id="speed" min="1" max="100" value="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">\
+                    </div>\
+                    <div class="md:col-span-1">\
+                         <button id="startButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">\uc0\u12471 \u12511 \u12517 \u12524 \u12540 \u12471 \u12519 \u12531 \u38283 \u22987 </button>\
+                    </div>\
+                </div>\
+            </section>\
+            <!-- \uc0\u12487 \u12514 2: AI\u23398 \u32722  -->\
+            <section id="demo2" class="bg-gray-800 rounded-xl shadow-lg p-5">\
+                <h2 class="text-2xl font-bold text-white text-center mb-4">Demo 2: AI\uc0\u23398 \u32722 \u12398 \u36914 \u12415 \u20855 \u21512 </h2>\
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">\
+                    <div>\
+                        <h3 class="font-bold text-lg text-teal-300">\uc0\u23398 \u32722 \u26354 \u32218 \u12392 \u12494 \u12452 \u12474 </h3>\
+                        <p class="text-gray-300 text-sm mt-2 leading-relaxed">\
+                            \uc0\u23398 \u32722 \u22238 \u25968  <code class="text-orange-300">t</code> \u12434 \u22679 \u12420 \u12377 \u12392 \u12289 \u26368 \u36969 \u21270 \u12395 \u36215 \u22240 \u12377 \u12427 \u12496 \u12452 \u12450 \u12473 \u12399  <strong class="text-teal-300">O(1/t)</strong> \u12398 \u36895 \u12373 \u12391 \u28187 \u12426 \u12414 \u12377 \u12290 \u19968 \u26041 \u12289 \u12487 \u12540 \u12479 \u12395 \u30001 \u26469 \u12377 \u12427 \u30906 \u29575 \u30340 \u12394 \u12400 \u12425 \u12388 \u12365 \u12399  <code class="bg-gray-700 p-1 rounded-md text-sm">O<sub>p</sub>(1/\u8730 t)</code> \u12391 \u12289 <strong class="text-red-400">\u26368 \u32066 \u30340 \u12395 \u12399 \u12371 \u12385 \u12425 \u12364 \u35492 \u24046 \u12398 \u20027 \u22240 \u12395 \u12394 \u12426 \u12420 \u12377 \u12356 \u12391 \u12377 </strong>\u12290 \
+                        </p>\
+                        <div class="mt-4">\
+                            <label for="noiseLevel" class="text-sm">\uc0\u12494 \u12452 \u12474 \u20998 \u25955  (\u963 \'b2): <span id="noiseLevelLabel" class="font-bold">0.5</span></label>\
+                            <input type="range" id="noiseLevel" min="0" max="1" step="0.1" value="0.5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer mt-1">\
+                        </div>\
+                    </div>\
+                    <div class="bg-gray-900 rounded-lg chart-container">\
+                        <canvas id="aiLearningCanvas"></canvas>\
+                    </div>\
+                </div>\
+            </section>\
+            \
+            <!-- \uc0\u12487 \u12514 3: \u22823 \u25968 \u12398 \u27861 \u21063  -->\
+            <section id="demo3" class="bg-gray-800 rounded-xl shadow-lg p-5">\
+                <h2 class="text-2xl font-bold text-white text-center mb-4">Demo 3: \uc0\u12487 \u12540 \u12479 \u12363 \u12425 \u12398 \u25512 \u28204 </h2>\
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">\
+                    <div>\
+                        <h3 class="font-bold text-lg text-teal-300">\uc0\u22823 \u25968 \u12398 \u27861 \u21063  (\u24179 \u22343 \u12408 \u12398 \u21454 \u26463 )</h3>\
+                        <p class="text-gray-300 text-sm mt-2 leading-relaxed">\uc0\u35430 \u34892 \u22238 \u25968  <code class="text-orange-300">n</code> \u12364 \u22679 \u12360 \u12427 \u12395 \u12388 \u12428 \u12289 \u27161 \u26412 \u24179 \u22343 \u12392 \u30495 \u12398 \u30906 \u29575 \u12392 \u12398 \u24046 \u12399  <code class="bg-gray-700 p-1 rounded-md text-sm">O<sub>p</sub>(1/\u8730 n)</code> \u8213 \u12388 \u12414 \u12426 \u12300 <strong class="text-teal-300">\u8730 n</strong> \u20493 \u12375 \u12390 \u12418 \u26377 \u38480 \u12394 \u31684 \u22258 \u12395 \u21454 \u12414 \u12427 \u12301 \u31243 \u24230 \u12414 \u12391 \u23567 \u12373 \u12367 \u12394 \u12426 \u12414 \u12377 \u12290 \u12371 \u12428 \u12399 \u22823 \u25968 \u12398 \u27861 \u21063 \u65291 \u20013 \u24515 \u26997 \u38480 \u23450 \u29702 \u12364 \u25945 \u12360 \u12390 \u12367 \u12428 \u12427 \'93\u32302 \u12415 \u26041 \'94\u12391 \u12289 <code class="text-orange-300">n</code> \u12392 \u12356 \u12358 \'93\u22311 \u20498 \u30340 \u12394 \u25968 \u12398 \u21147 \'94\u12364 \u35492 \u24046 \u12434 \u12464 \u12483 \u12392 \u25233 \u12360 \u36796 \u12416 \u12452 \u12513 \u12540 \u12472 \u12391 \u12377 \u12290 </p>\
+                         <div class="mt-4">\
+                            <button id="llnButton" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">\uc0\u12471 \u12511 \u12517 \u12524 \u12540 \u12471 \u12519 \u12531 \u38283 \u22987 </button>\
+                        </div>\
+                    </div>\
+                    <div class="bg-gray-900 rounded-lg chart-container">\
+                        <canvas id="llnCanvas"></canvas>\
+                    </div>\
+                </div>\
+            </section>\
+            <!-- \uc0\u12487 \u12514 4: \u12514 \u12487 \u12523 \u12398 \u35079 \u38609 \u12373 \u12392 \u27726 \u21270 \u24615 \u33021  -->\
+            <section id="demo4" class="bg-gray-800 rounded-xl shadow-lg p-5">\
+                <h2 class="text-2xl font-bold text-white text-center mb-4">Demo 4: \uc0\u12514 \u12487 \u12523 \u12398 \u24615 \u33021 \u12392 \u35079 \u38609 \u12373 </h2>\
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">\
+                    <div>\
+                        <h3 class="font-bold text-lg text-teal-300">\uc0\u27726 \u21270 \u24615 \u33021 \u12392 \u36942 \u23398 \u32722 </h3>\
+                        <p class="text-gray-300 text-sm mt-2 leading-relaxed">\
+                            \uc0\u12514 \u12487 \u12523 \u12398 \u24615 \u33021 \u12399 \u12300 \u35347 \u32244 \u12487 \u12540 \u12479 \u12408 \u12398 \u24403 \u12390 \u12399 \u12414 \u12426 \u12301 \u12384 \u12369 \u12391 \u12399 \u28204 \u12428 \u12414 \u12379 \u12435 \u12290 \u27726 \u21270 \u35492 \u24046 \u12398 \u20856 \u22411 \u30340 \u12394 \u12473 \u12465 \u12540 \u12523 \u12399  <code class="bg-gray-700 p-1 rounded-md text-sm">O(\u8730 (d/n))</code> \u12392 \u12373 \u12428 \u12289 \u12487 \u12540 \u12479 \u37327  <code class="text-orange-300">n</code> \u12434 \u22679 \u12420 \u12377 \u12392  <strong class="text-teal-300">\u8730 n \u12395 \u21453 \u27604 \u20363 \u12375 \u12390 \u32302 \u12415 </strong>\u12289 \u12514 \u12487 \u12523 \u12398 \u35079 \u38609 \u12373  <code class="text-orange-300">d</code> \u12434 \u19978 \u12370 \u12427 \u12392  <strong class="text-red-400">\u8730 d \u12395 \u27604 \u20363 \u12375 \u12390 \u22679 \u22823 \u12375 \u12414 \u12377 </strong>\u12290 \u35079 \u38609 \u12373 \u12434 \u19978 \u12370 \u12377 \u12366 \u12427 \u12392 \u35347 \u32244 \u12487 \u12540 \u12479 \u12395 \u36942 \u21104 \u36969 \u21512 \u12375 \u12289 \u26410 \u30693 \u12487 \u12540 \u12479 \u12408 \u12398 \u23550 \u24540 \u21147 \u65288 \u26412 \u24403 \u12398 \u23455 \u21147 \u65289 \u12364 \u19979 \u12364 \u12426 \u12414 \u12377 \u12290 \
+                        </p>\
+                        <div class="mt-4">\
+                            <label for="complexitySlider" class="text-sm">\uc0\u12514 \u12487 \u12523 \u12398 \u35079 \u38609 \u12373  (d): <span id="complexityLabel" class="font-bold">5</span></label>\
+                            <input type="range" id="complexitySlider" min="1" max="100" step="1" value="5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer mt-1">\
+                        </div>\
+                        <div class="mt-4">\
+                            <label for="dataNumSlider" class="text-sm">\uc0\u35347 \u32244 \u12487 \u12540 \u12479 \u25968  (n): <span id="dataNumLabel" class="font-bold">40</span></label>\
+                            <input type="range" id="dataNumSlider" min="10" max="200" step="1" value="40" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer mt-1">\
+                        </div>\
+                        <div id="modelStats" class="text-sm mt-3 space-y-2">\
+                            <div class="grid grid-cols-2 gap-x-4">\
+                                <span class="font-semibold">\uc0\u35347 \u32244 \u12487 \u12540 \u12479 \u27491 \u35299 \u29575 :</span><span id="trainAccuracy" class="text-right text-yellow-300">0%</span>\
+                            </div>\
+                            <div id="testAccuracyRow" class="grid grid-cols-2 gap-x-4" style="display: none;">\
+                                <span class="font-semibold text-green-300">"\uc0\u26412 \u24403 \u12398 "\u27491 \u35299 \u29575 :</span><span id="testAccuracy" class="text-right text-green-300">0%</span>\
+                            </div>\
+                        </div>\
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">\
+                            <button id="evaluateButton" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">\uc0\u26410 \u30693 \u12487 \u12540 \u12479 \u12391 \u35413 \u20385 </button>\
+                            <button id="regenerateDataButton" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">\uc0\u12487 \u12540 \u12479 \u12434 \u20877 \u37197 \u32622 </button>\
+                            <button id="generateHardLayoutButton" class="w-full bg-yellow-600 hover:bg-yellow-700 text-gray-900 font-bold py-2 px-4 rounded-lg transition-colors duration-200">\uc0\u38627 \u12375 \u12356 \u37197 \u32622 \u12434 \u29983 \u25104 </button>\
+                        </div>\
+                    </div>\
+                    <div class="bg-gray-900 rounded-lg chart-container">\
+                        <canvas id="modelCanvas"></canvas>\
+                    </div>\
+                </div>\
+            </section>\
+        </div>\
+    </main>\
+    <script>\
+        // === \uc0\u12477 \u12540 \u12488 \u12450 \u12523 \u12468 \u12522 \u12474 \u12512 \u12398 \u12473 \u12463 \u12522 \u12503 \u12488  ===\
+        const bubbleCanvas = document.getElementById('bubbleSortCanvas');\
+        const mergeCanvas = document.getElementById('mergeSortCanvas');\
+        const bubbleCtx = bubbleCanvas.getContext('2d');\
+        const mergeCtx = mergeCanvas.getContext('2d');\
+        const dataSizeSlider = document.getElementById('dataSize');\
+        const dataSizeLabel = document.getElementById('dataSizeLabel');\
+        const speedSlider = document.getElementById('speed');\
+        const speedLabel = document.getElementById('speedLabel');\
+        const startButton = document.getElementById('startButton');\
+        const resetButton = document.getElementById('resetButton');\
+        let array = [];\
+        let arraySize = 50;\
+        let delay = 50;\
+        let isSorting = false;\
+        const BAR_COLOR = '#4A5568', COMPARE_COLOR = '#FBBF24', SWAP_COLOR = '#F87171', SORTED_COLOR = '#4ADE80';\
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));\
+        \
+        function initializeSort() \{ \
+            if (isSorting) \{ isSorting = false; \} \
+            arraySize = parseInt(dataSizeSlider.value); \
+            dataSizeLabel.textContent = arraySize; \
+            array = []; \
+            for (let i = 0; i < arraySize; i++) \{ array.push(Math.random()); \} \
+            startButton.disabled = false; \
+            startButton.textContent = '\uc0\u12471 \u12511 \u12517 \u12524 \u12540 \u12471 \u12519 \u12531 \u38283 \u22987 '; \
+            resetStats(); \
+            drawArray(bubbleCtx, [...array]); \
+            drawArray(mergeCtx, [...array]); \
+        \}\
+        function resetStats() \{\
+            const n = arraySize;\
+            const nSquared = n * (n - 1) / 2;\
+            const nLogN = n * Math.log2(n);\
+            document.getElementById('bubbleTheoretical').textContent = Math.round(nSquared).toLocaleString();\
+            document.getElementById('bubbleActual').textContent = '0';\
+            document.getElementById('bubbleSwaps').textContent = '0';\
+            document.getElementById('bubbleTime').textContent = '0.00 ms';\
+            document.getElementById('mergeTheoretical').textContent = Math.round(nLogN).toLocaleString();\
+            document.getElementById('mergeActual').textContent = '0';\
+            document.getElementById('mergeMoves').textContent = '0';\
+            document.getElementById('mergeTime').textContent = '0.00 ms';\
+        \}\
+        function drawArray(ctx, arr, highlights = \{\}) \{ const canvas = ctx.canvas; if (!canvas) return; const dpr = window.devicePixelRatio || 1; const rect = canvas.getBoundingClientRect(); canvas.width = rect.width * dpr; canvas.height = rect.height * dpr; ctx.scale(dpr, dpr); const barWidth = rect.width / arr.length; for (let i = 0; i < arr.length; i++) \{ const barHeight = arr[i] * rect.height; ctx.fillStyle = highlights[i] || BAR_COLOR; ctx.fillRect(i * barWidth, rect.height - barHeight, barWidth - 1, barHeight); \} \}\
+        \
+        function updateStats(id, actual, operations, time) \{\
+            if (id === 'bubbleSortStats') \{\
+                document.getElementById('bubbleActual').textContent = actual.toLocaleString();\
+                document.getElementById('bubbleSwaps').textContent = operations.toLocaleString();\
+                document.getElementById('bubbleTime').textContent = `$\{time.toFixed(2)\} ms`;\
+            \} else if (id === 'mergeSortStats') \{\
+                document.getElementById('mergeActual').textContent = actual.toLocaleString();\
+                document.getElementById('mergeMoves').textContent = operations.toLocaleString();\
+                document.getElementById('mergeTime').textContent = `$\{time.toFixed(2)\} ms`;\
+            \}\
+        \}\
+        function drawSorted(ctx, arr) \{ const highlights = \{\}; for (let i = 0; i < arr.length; i++) \{ highlights[i] = SORTED_COLOR; \} drawArray(ctx, arr, highlights); \}\
+        async function bubbleSort() \{ let arr = [...array]; let n = arr.length; let comparisons = 0; let swaps = 0; let startTime = performance.now(); for (let i = 0; i < n - 1; i++) \{ for (let j = 0; j < n - i - 1; j++) \{ if (!isSorting) return; comparisons++; updateStats('bubbleSortStats', comparisons, swaps, performance.now() - startTime); drawArray(bubbleCtx, arr, \{ [j]: COMPARE_COLOR, [j + 1]: COMPARE_COLOR \}); await sleep(delay); if (arr[j] > arr[j + 1]) \{ swaps++;[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]; drawArray(bubbleCtx, arr, \{ [j]: SWAP_COLOR, [j + 1]: SWAP_COLOR \}); await sleep(delay); \} \} \} if (isSorting) \{ drawSorted(bubbleCtx, arr); updateStats('bubbleSortStats', comparisons, swaps, performance.now() - startTime); \} \}\
+        async function mergeSort() \{ let arr = [...array]; let comparisons = 0; let moves = 0; let startTime = performance.now(); async function sort(arr, left, right) \{ if (!isSorting) return; if (left >= right) \{ return; \} const mid = Math.floor((left + right) / 2); await sort(arr, left, mid); await sort(arr, mid + 1, right); await merge(arr, left, mid, right); \} async function merge(arr, left, mid, right) \{ let leftArr = arr.slice(left, mid + 1); let rightArr = arr.slice(mid + 1, right + 1); let i = 0, j = 0, k = left; while (i < leftArr.length && j < rightArr.length) \{ if (!isSorting) return; comparisons++; drawArray(mergeCtx, arr, \{ [k]: COMPARE_COLOR \}); await sleep(delay); if (leftArr[i] <= rightArr[j]) \{ arr[k] = leftArr[i]; i++; \} else \{ arr[k] = rightArr[j]; j++; \} moves++; updateStats('mergeSortStats', comparisons, moves, performance.now() - startTime); drawArray(mergeCtx, arr, \{ [k]: SWAP_COLOR \}); await sleep(delay); k++; \} while (i < leftArr.length) \{ if (!isSorting) return; arr[k] = leftArr[i]; moves++; drawArray(mergeCtx, arr, \{ [k]: SWAP_COLOR \}); await sleep(delay); i++; k++; \} while (j < rightArr.length) \{ if (!isSorting) return; arr[k] = rightArr[j]; moves++; drawArray(mergeCtx, arr, \{ [k]: SWAP_COLOR \}); await sleep(delay); j++; k++; \} \} await sort(arr, 0, arr.length - 1); if (isSorting) \{ drawSorted(mergeCtx, arr); updateStats('mergeSortStats', comparisons, moves, performance.now() - startTime); \} \}\
+        dataSizeSlider.addEventListener('input', (e) => \{ if (!isSorting) \{ initializeSort(); \} \});\
+        // \uc0\u9660 \u9660 \u9660  \u22793 \u26356 \u31623 \u25152  \u9660 \u9660 \u9660 \
+        speedSlider.addEventListener('input', (e) => \{ \
+            delay = 101 - parseInt(e.target.value); \
+            speedLabel.textContent = e.target.value; \
+        \});\
+        // \uc0\u9650 \u9650 \u9650  \u22793 \u26356 \u31623 \u25152  \u9650 \u9650 \u9650 \
+        startButton.addEventListener('click', async () => \{ if (isSorting) return; isSorting = true; startButton.disabled = true; startButton.textContent = '\uc0\u12477 \u12540 \u12488 \u20013 ...'; await Promise.all([bubbleSort(), mergeSort()]); if (isSorting) \{ startButton.textContent = '\u23436 \u20102 '; \} \});\
+        \
+        // === \uc0\u12452 \u12531 \u12479 \u12521 \u12463 \u12486 \u12451 \u12502 \u12394 \u24540 \u29992 \u20363 \u12398 \u12473 \u12463 \u12522 \u12503 \u12488  ===\
+        \
+        // --- AI\uc0\u23398 \u32722 \u12398 \u21487 \u35222 \u21270  ---\
+        const aiCanvas = document.getElementById('aiLearningCanvas');\
+        const aiCtx = aiCanvas.getContext('2d');\
+        const noiseSlider = document.getElementById('noiseLevel');\
+        const noiseLevelLabel = document.getElementById('noiseLevelLabel');\
+        let learningIteration = 0;\
+        let maxIterations = 200;\
+        let noiseLevel = 0.5;\
+        let learningAnimationId;\
+        function drawAiLearning() \{\
+            const canvas = aiCtx.canvas;\
+            if(!canvas) return;\
+            const dpr = window.devicePixelRatio || 1;\
+            const rect = canvas.getBoundingClientRect();\
+            canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;\
+            aiCtx.scale(dpr, dpr);\
+            aiCtx.clearRect(0, 0, rect.width, rect.height);\
+            aiCtx.strokeStyle = '#4A5568';\
+            aiCtx.beginPath();\
+            aiCtx.moveTo(30, 10); aiCtx.lineTo(30, rect.height - 20); aiCtx.lineTo(rect.width - 10, rect.height - 20);\
+            aiCtx.stroke();\
+            aiCtx.fillStyle = '#9CA3AF';\
+            aiCtx.textAlign = "center";\
+            aiCtx.fillText("\uc0\u12456 \u12521 \u12540 ", 15, rect.height / 2);\
+            aiCtx.fillText("\uc0\u23398 \u32722 \u22238 \u25968 ", rect.width / 2, rect.height - 5);\
+            aiCtx.textAlign = "start";\
+            aiCtx.strokeStyle = 'rgba(74, 85, 104, 0.5)';\
+            aiCtx.lineWidth = 2;\
+            aiCtx.beginPath();\
+            for (let i = 1; i <= maxIterations; i++) \{\
+                const x = 30 + (i / maxIterations) * (rect.width - 40);\
+                const y = (rect.height - 30) * (1 - 1 / (1 + i * 0.1)) + 10;\
+                if (i === 1) aiCtx.moveTo(x, y); else aiCtx.lineTo(x, y);\
+            \}\
+            aiCtx.stroke();\
+            aiCtx.strokeStyle = '#6EE7B7';\
+            aiCtx.lineWidth = 2;\
+            aiCtx.beginPath();\
+            for (let i = 1; i <= learningIteration; i++) \{\
+                const x = 30 + (i / maxIterations) * (rect.width - 40);\
+                const idealY = (rect.height - 30) * (1 - 1 / (1 + i * 0.1)) + 10;\
+                const noise = (Math.random() - 0.5) * noiseLevel * 50 / Math.sqrt(i * 0.1 + 1); // Noise decreases with O(1/sqrt(t))\
+                const y = idealY + noise;\
+                if (i === 1) aiCtx.moveTo(x, y); else aiCtx.lineTo(x, y);\
+            \}\
+            aiCtx.stroke();\
+        \}\
+        function animateLearning() \{\
+            if (learningIteration < maxIterations) \{ learningIteration++; \} else \{ learningIteration = 0; \}\
+            drawAiLearning();\
+            learningAnimationId = requestAnimationFrame(animateLearning);\
+        \}\
+        noiseSlider.addEventListener('input', (e) => \{\
+            noiseLevel = parseFloat(e.target.value);\
+            noiseLevelLabel.textContent = noiseLevel.toFixed(1);\
+        \});\
+        // --- \uc0\u22823 \u25968 \u12398 \u27861 \u21063 \u12398 \u21487 \u35222 \u21270  ---\
+        const llnCanvas = document.getElementById('llnCanvas');\
+        const llnCtx = llnCanvas.getContext('2d');\
+        const llnButton = document.getElementById('llnButton');\
+        \
+        let llnAnimationId;\
+        let isLlnRunning = false;\
+        let trials = 0;\
+        let heads = 0;\
+        const maxTrials = 500;\
+        const trueProbability = 0.5;\
+        function drawLawOfLargeNumbers() \{\
+            const canvas = llnCtx.canvas;\
+             if(!canvas) return;\
+            const dpr = window.devicePixelRatio || 1;\
+            const rect = canvas.getBoundingClientRect();\
+            canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;\
+            llnCtx.scale(dpr, dpr);\
+            llnCtx.clearRect(0, 0, rect.width, rect.height);\
+            llnCtx.strokeStyle = '#4A5568';\
+            llnCtx.beginPath();\
+            llnCtx.moveTo(30, 10); llnCtx.lineTo(30, rect.height - 20); llnCtx.lineTo(rect.width - 10, rect.height - 20);\
+            llnCtx.stroke();\
+            llnCtx.fillStyle = '#9CA3AF';\
+            llnCtx.textAlign = "center";\
+            llnCtx.fillText("\uc0\u30906 \u29575 ", 15, rect.height / 2);\
+            llnCtx.fillText("\uc0\u35430 \u34892 \u22238 \u25968 ", rect.width / 2, rect.height - 5);\
+            llnCtx.textAlign = "start";\
+            const trueY = (1 - trueProbability) * (rect.height - 30) + 10;\
+            llnCtx.strokeStyle = '#F87171'; // red-400\
+            llnCtx.lineWidth = 2;\
+            llnCtx.setLineDash([5, 5]);\
+            llnCtx.beginPath();\
+            llnCtx.moveTo(30, trueY);\
+            llnCtx.lineTo(rect.width - 10, trueY);\
+            llnCtx.stroke();\
+            llnCtx.setLineDash([]);\
+            llnCtx.fillStyle = '#F87171';\
+            llnCtx.fillText("\uc0\u30495 \u12398 \u30906 \u29575  (0.5)", 35, trueY - 5);\
+            \
+            llnCtx.strokeStyle = '#93C5FD'; // blue-300\
+            llnCtx.lineWidth = 2;\
+            llnCtx.beginPath();\
+            for (let i = 1; i <= trials; i++) \{\
+                const x = 30 + (i / maxTrials) * (rect.width - 40);\
+                const observedProb = (i === 0) ? 0 : llnData[i-1];\
+                const y = (1 - observedProb) * (rect.height - 30) + 10;\
+                if (i === 1) llnCtx.moveTo(x, y); else llnCtx.lineTo(x, y);\
+            \}\
+            llnCtx.stroke();\
+        \}\
+        let llnData = [];\
+        async function animateLln() \{\
+            isLlnRunning = true;\
+            llnButton.disabled = true;\
+            llnButton.textContent = '\uc0\u35336 \u31639 \u20013 ...';\
+            \
+            trials = 0;\
+            heads = 0;\
+            llnData = [];\
+            for (let i = 1; i <= maxTrials; i++) \{\
+                if(Math.random() < 0.5) heads++;\
+                trials++;\
+                llnData.push(heads / trials);\
+                \
+                if (i % 5 === 0) \{\
+                    drawLawOfLargeNumbers();\
+                    await sleep(10);\
+                \}\
+            \}\
+            drawLawOfLargeNumbers();\
+            \
+            isLlnRunning = false;\
+            llnButton.disabled = false;\
+            llnButton.textContent = '\uc0\u20877 \u12471 \u12511 \u12517 \u12524 \u12540 \u12471 \u12519 \u12531 ';\
+        \}\
+        llnButton.addEventListener('click', () => \{\
+            if (!isLlnRunning) \{\
+                animateLln();\
+            \}\
+        \});\
+        // --- \uc0\u12514 \u12487 \u12523 \u12398 \u35079 \u38609 \u12373 \u12398 \u21487 \u35222 \u21270  ---\
+        const modelCanvas = document.getElementById('modelCanvas');\
+        const modelCtx = modelCanvas.getContext('2d');\
+        const complexitySlider = document.getElementById('complexitySlider');\
+        const complexityLabel = document.getElementById('complexityLabel');\
+        const dataNumSlider = document.getElementById('dataNumSlider');\
+        const dataNumLabel = document.getElementById('dataNumLabel');\
+        const trainAccuracyEl = document.getElementById('trainAccuracy');\
+        const testAccuracyEl = document.getElementById('testAccuracy');\
+        const testAccuracyRow = document.getElementById('testAccuracyRow');\
+        const evaluateButton = document.getElementById('evaluateButton');\
+        const regenerateDataButton = document.getElementById('regenerateDataButton');\
+        const generateHardLayoutButton = document.getElementById('generateHardLayoutButton');\
+        \
+        let trainPoints = [];\
+        let testPoints = [];\
+        let complexity = 5;\
+        let numTrainPoints = 40;\
+\
+        function initializeModel() \{\
+            if (complexitySlider) \{\
+                complexity = parseInt(complexitySlider.value);\
+                complexityLabel.textContent = complexity;\
+            \}\
+            if (dataNumSlider) \{\
+                numTrainPoints = parseInt(dataNumSlider.value);\
+                dataNumLabel.textContent = numTrainPoints;\
+            \}\
+            \
+            generateData();\
+            trainModel();\
+            drawModel(false); // \uc0\u26368 \u21021 \u12399 \u12486 \u12473 \u12488 \u12487 \u12540 \u12479 \u12434 \u34920 \u31034 \u12375 \u12394 \u12356 \
+            evaluateTrainModel();\
+            testAccuracyRow.style.display = 'none'; // \uc0\u12486 \u12473 \u12488 \u32080 \u26524 \u12434 \u38560 \u12377 \
+        \}\
+        function generateData() \{\
+            trainPoints = [];\
+            testPoints = [];\
+            const numTrain = numTrainPoints;\
+            const numTest = 200;\
+            const trueBoundary = (x) => 0.5 + 0.3 * Math.sin(x * Math.PI * 3) + 0.1 * Math.cos(x * Math.PI * 7);\
+            const trainNoise = 0.3;\
+            for(let i = 0; i < numTrain; i++) \{\
+                const x = Math.random();\
+                const y = Math.random();\
+                const noise = (Math.random() - 0.5) * trainNoise;\
+                const label = y > trueBoundary(x) + noise ? 1 : 0;\
+                trainPoints.push(\{x, y, label\});\
+            \}\
+            for(let i = 0; i < numTest; i++) \{\
+                const x = Math.random();\
+                const y = Math.random();\
+                const label = y > trueBoundary(x) ? 1 : 0;\
+                testPoints.push(\{x, y, label\});\
+            \}\
+        \}\
+\
+        function generateHardLayout() \{\
+            // \uc0\u12487 \u12540 \u12479 \u25968 \u12434 10\u12395 \u22266 \u23450 \u12375 \u12289 UI\u12434 \u26356 \u26032 \
+            numTrainPoints = 10;\
+            dataNumSlider.value = 10;\
+            dataNumLabel.textContent = '10';\
+\
+            // \uc0\u36942 \u23398 \u32722 \u12434 \u35480 \u30330 \u12377 \u12427 \u22266 \u23450 \u12487 \u12540 \u12479 \u12434 \u23450 \u32681 \
+            trainPoints = [\
+                \{x: 0.1, y: 0.2, label: 0\},  // \uc0\u27491 \u12375 \u12356 \u37197 \u32622 \
+                \{x: 0.2, y: 0.8, label: 1\},  // \uc0\u27491 \u12375 \u12356 \u37197 \u32622 \
+                \{x: 0.3, y: 0.3, label: 0\},  // \uc0\u27491 \u12375 \u12356 \u37197 \u32622 \
+                \{x: 0.4, y: 0.9, label: 1\},  // \uc0\u27491 \u12375 \u12356 \u37197 \u32622 \
+                \{x: 0.5, y: 0.1, label: 1\},  // \uc0\u9733 \u38291 \u36949 \u12356 \u12521 \u12505 \u12523 \u65288 \u36196 \u12364 \u38738 \u12398 \u38936 \u22495 \u12395 \u65289 \
+                \{x: 0.6, y: 0.4, label: 0\},  // \uc0\u27491 \u12375 \u12356 \u37197 \u32622 \
+                \{x: 0.7, y: 0.95, label: 0\}, // \uc0\u9733 \u38291 \u36949 \u12356 \u12521 \u12505 \u12523 \u65288 \u38738 \u12364 \u36196 \u12398 \u38936 \u22495 \u12395 \u65289 \
+                \{x: 0.8, y: 0.2, label: 0\},  // \uc0\u27491 \u12375 \u12356 \u37197 \u32622 \
+                \{x: 0.9, y: 0.8, label: 1\},  // \uc0\u27491 \u12375 \u12356 \u37197 \u32622 \
+                \{x: 0.95, y: 0.1, label: 1\}  // \uc0\u9733 \u38291 \u36949 \u12356 \u12521 \u12505 \u12523 \u65288 \u36196 \u12364 \u38738 \u12398 \u38936 \u22495 \u12395 \u65289 \
+            ];\
+\
+            // \uc0\u12486 \u12473 \u12488 \u12487 \u12540 \u12479 \u12399 \u36890 \u24120 \u36890 \u12426 \u29983 \u25104 \
+            testPoints = [];\
+            const numTest = 200;\
+            const trueBoundary = (x) => 0.5 + 0.3 * Math.sin(x * Math.PI * 3) + 0.1 * Math.cos(x * Math.PI * 7);\
+            for(let i = 0; i < numTest; i++) \{\
+                const x = Math.random();\
+                const y = Math.random();\
+                const label = y > trueBoundary(x) ? 1 : 0;\
+                testPoints.push(\{x, y, label\});\
+            \}\
+\
+            // \uc0\u12514 \u12487 \u12523 \u12398 \u20877 \u35347 \u32244 \u12392 \u20877 \u25551 \u30011 \
+            trainModel();\
+            drawModel(false);\
+            evaluateTrainModel();\
+            testAccuracyRow.style.display = 'none';\
+        \}\
+\
+        function rbfKernel(x1, x2, gamma) \{\
+            const dist = Math.sqrt(Math.pow(x1.x - x2.x, 2) + Math.pow(x1.y - x2.y, 2));\
+            return Math.exp(-gamma * dist * dist);\
+        \}\
+        \
+        let alpha = [];\
+        function trainModel() \{\
+            if (trainPoints.length === 0) \{\
+                alpha = [];\
+                return;\
+            \}\
+            alpha = trainPoints.map(p => p.label === 1 ? 1 : -1);\
+        \}\
+        function predict(point, gamma) \{\
+            let score = 0;\
+            for(let i = 0; i < trainPoints.length; i++) \{\
+                score += alpha[i] * rbfKernel(point, trainPoints[i], gamma);\
+            \}\
+            return score > 0 ? 1 : 0;\
+        \}\
+        function drawModel(showTest = false) \{\
+            const canvas = modelCtx.canvas;\
+            if(!canvas) return;\
+            const dpr = window.devicePixelRatio || 1;\
+            const rect = canvas.getBoundingClientRect();\
+            canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;\
+            modelCtx.scale(dpr, dpr);\
+            \
+            const gamma = complexity;\
+            // Draw decision boundary\
+            const resolution = 50;\
+            for (let i = 0; i < resolution; i++) \{\
+                for (let j = 0; j < resolution; j++) \{\
+                    const x = i / resolution;\
+                    const y = j / resolution;\
+                    const pred = predict(\{x, y\}, gamma);\
+                    modelCtx.fillStyle = pred === 1 ? 'rgba(248, 113, 113, 0.2)' : 'rgba(147, 197, 253, 0.2)';\
+                    modelCtx.fillRect(x * rect.width, y * rect.height, rect.width / resolution, rect.height / resolution);\
+                \}\
+            \}\
+            // Draw train points\
+            trainPoints.forEach(p => \{\
+                modelCtx.beginPath();\
+                modelCtx.arc(p.x * rect.width, p.y * rect.height, 3, 0, 2 * Math.PI);\
+                modelCtx.fillStyle = p.label === 1 ? '#F87171' : '#93C5FD'; // red / blue\
+                modelCtx.fill();\
+            \});\
+            // Draw test points if requested\
+            if (showTest) \{\
+                testPoints.forEach(p => \{\
+                    modelCtx.beginPath();\
+                    modelCtx.arc(p.x * rect.width, p.y * rect.height, 2, 0, 2 * Math.PI);\
+                    modelCtx.fillStyle = p.label === 1 ? 'rgba(239, 68, 68, 0.5)' : 'rgba(96, 165, 250, 0.5)'; // semi-transparent red/blue\
+                    modelCtx.fill();\
+                \});\
+            \}\
+        \}\
+        \
+        function evaluateTrainModel() \{\
+            if (trainPoints.length === 0) \{\
+                trainAccuracyEl.textContent = 'N/A';\
+                return;\
+            \}\
+            const gamma = complexity;\
+            let trainCorrect = 0;\
+            trainPoints.forEach(p => \{\
+                if (predict(p, gamma) === p.label) \{\
+                    trainCorrect++;\
+                \}\
+            \});\
+            trainAccuracyEl.textContent = `$\{(100 * trainCorrect / trainPoints.length).toFixed(1)\}%`;\
+        \}\
+        function evaluateTestModel() \{\
+            const gamma = complexity;\
+            let testCorrect = 0;\
+            testPoints.forEach(p => \{\
+                if (predict(p, gamma) === p.label) \{\
+                    testCorrect++;\
+                \}\
+            \});\
+            testAccuracyEl.textContent = `$\{(100 * testCorrect / testPoints.length).toFixed(1)\}%`;\
+            testAccuracyRow.style.display = 'grid';\
+        \}\
+\
+        // \uc0\u12452 \u12505 \u12531 \u12488 \u12522 \u12473 \u12490 \u12540 \
+        complexitySlider.addEventListener('input', (e) => \{\
+            complexity = parseInt(e.target.value);\
+            complexityLabel.textContent = complexity;\
+            drawModel(false);\
+            evaluateTrainModel();\
+            testAccuracyRow.style.display = 'none';\
+        \});\
+\
+        dataNumSlider.addEventListener('input', (e) => \{\
+            numTrainPoints = parseInt(e.target.value);\
+            dataNumLabel.textContent = numTrainPoints;\
+            // \uc0\u12487 \u12540 \u12479 \u25968 \u12364 \u22793 \u12431 \u12387 \u12383 \u12425 \u12289 \u12487 \u12540 \u12479 \u12434 \u20877 \u29983 \u25104 \u12375 \u12390 \u12514 \u12487 \u12523 \u12418 \u20877 \u35347 \u32244 \u12377 \u12427 \
+            initializeModel();\
+        \});\
+\
+        evaluateButton.addEventListener('click', () => \{\
+            drawModel(true);\
+            evaluateTestModel();\
+        \});\
+        regenerateDataButton.addEventListener('click', initializeModel);\
+        generateHardLayoutButton.addEventListener('click', generateHardLayout);\
+\
+        // --- \uc0\u20840 \u20307 \u12398 \u21021 \u26399 \u21270  ---\
+        function initializeAll() \{\
+            initializeSort();\
+            \
+            if(learningAnimationId) cancelAnimationFrame(learningAnimationId);\
+            learningIteration = 0;\
+            if (noiseSlider) \{\
+                noiseLevel = parseFloat(noiseSlider.value);\
+                noiseLevelLabel.textContent = noiseLevel.toFixed(1);\
+            \}\
+            animateLearning();\
+            if(llnAnimationId) cancelAnimationFrame(llnAnimationId);\
+            isLlnRunning = false;\
+            if (llnButton) \{\
+                llnButton.disabled = false;\
+                llnButton.textContent = '\uc0\u12471 \u12511 \u12517 \u12524 \u12540 \u12471 \u12519 \u12531 \u38283 \u22987 ';\
+            \}\
+            trials = 0;\
+            heads = 0;\
+            llnData = [];\
+            drawLawOfLargeNumbers();\
+            \
+            initializeModel();\
+        \}\
+        window.addEventListener('load', initializeAll);\
+        window.addEventListener('resize', initializeAll);\
+        resetButton.addEventListener('click', initializeAll);\
+    </script>\
+</body>\
+</html>\
+}

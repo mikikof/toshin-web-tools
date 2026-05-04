@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;ε-δ論法 比較&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.katex-font {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'KaTeX_Main', 'Times New Roman', serif;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.slider-thumb::-webkit-slider-thumb {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>appearance: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Toggle Switch styles */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.toggle-checkbox:checked + .toggle-label .toggle-dot {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transform: translateX(100%);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.toggle-checkbox:checked + .toggle-label {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #3b82f6;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Highlight for formula */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.highlight {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #fef9c3; /* yellow-100 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 4px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 0 4px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.3s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-100 text-gray-800"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 max-w-7xl"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-2xl md:text-3xl font-bold text-gray-900"&gt;ε-δ論法&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-1 text-md text-gray-600"&gt;直線ver.と曲線ver.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Definition Box --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="my-6 bg-blue-50 border-l-4 border-blue-400 text-blue-800 p-4 rounded-r-lg shadow-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h3 class="font-bold text-lg"&gt;極限の定義 (ε-δ論法)&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-2 text-xl katex-font tracking-wider"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="forall_epsilon" class="p-1"&gt;∀ε &gt; 0,&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="exists_delta" class="p-1"&gt;∃δ &gt; 0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="p-1"&gt;s.t.&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="delta_condition" class="p-1"&gt;0 &lt; |x-a| &lt; δ&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span class="p-1"&gt;⇒&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="epsilon_condition" class="p-1"&gt;|f(x)-P| &lt; ε&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="mt-2 text-md"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>このとき &lt;span class="katex-font text-lg"&gt;lim&lt;sub&gt;x→a&lt;/sub&gt; f(x) = P&lt;/span&gt; となる。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="grid md:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Applet 1: Linear Function --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-white rounded-xl shadow-lg p-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-lg font-bold text-center mb-2"&gt;直線: f(x) = 2x + 1&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-center text-sm text-gray-500 mb-3"&gt;x → 1 のとき P → 3&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="canvas-container-1" class="border rounded-lg overflow-hidden bg-gray-50 mb-4 w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="graphCanvas1"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="space-y-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="epsilon1" class="flex items-center justify-between text-sm font-medium"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span&gt;誤差 &lt;span class="katex-font"&gt;ε&lt;/span&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span id="epsilonValue1" class="font-mono text-blue-600 bg-blue-100 rounded-md px-2 py-0.5 text-xs"&gt;0.50&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="range" id="epsilon1" min="0.05" max="2.9" step="0.01" value="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="liveUpdate1" class="flex items-center cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;input type="checkbox" id="liveUpdate1" class="sr-only toggle-checkbox"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="toggle-label block bg-gray-300 w-12 h-7 rounded-full transition-colors"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="toggle-dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full shadow-md transition-transform"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="ml-3 text-gray-700 text-sm font-medium"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>δをεに連動</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="status1" class="p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-500"&gt;「δをεに連動」をオンにしてください。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Applet 2: Quadratic Function --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-white rounded-xl shadow-lg p-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 class="text-lg font-bold text-center mb-2"&gt;曲線: f(x) = x²&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-center text-sm text-gray-500 mb-3"&gt;x → 2 のとき P → 4&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="canvas-container-2" class="border rounded-lg overflow-hidden bg-gray-50 mb-4 w-full"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="graphCanvas2"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="space-y-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="epsilon2" class="flex items-center justify-between text-sm font-medium"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span&gt;誤差 &lt;span class="katex-font"&gt;ε&lt;/span&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;span id="epsilonValue2" class="font-mono text-blue-600 bg-blue-100 rounded-md px-2 py-0.5 text-xs"&gt;1.00&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;input type="range" id="epsilon2" min="0.1" max="3.9" step="0.05" value="1.0" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;label for="liveUpdate2" class="flex items-center cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;input type="checkbox" id="liveUpdate2" class="sr-only toggle-checkbox"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="toggle-label block bg-gray-300 w-12 h-7 rounded-full transition-colors"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;div class="toggle-dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full shadow-md transition-transform"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="ml-3 text-gray-700 text-sm font-medium"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>δをεに連動</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="status2" class="p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-gray-100"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-gray-500"&gt;「δをεに連動」をオンにしてください。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Global Formula Highlighting ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const forallEpsilonEl = document.getElementById('forall_epsilon');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const existsDeltaEl = document.getElementById('exists_delta');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const deltaConditionEl = document.getElementById('delta_condition');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const epsilonConditionEl = document.getElementById('epsilon_condition');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let highlightTimeout;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function highlightFormula(elements) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearTimeout(highlightTimeout);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Clear all first</p>
+<p class="p1"><span class="Apple-converted-space">            </span>[forallEpsilonEl, existsDeltaEl, deltaConditionEl, epsilonConditionEl].forEach(el =&gt; el.classList.remove('highlight'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Highlight specified elements</p>
+<p class="p1"><span class="Apple-converted-space">            </span>elements.forEach(el =&gt; el.classList.add('highlight'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Remove highlight after a delay</p>
+<p class="p1"><span class="Apple-converted-space">            </span>highlightTimeout = setTimeout(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>elements.forEach(el =&gt; el.classList.remove('highlight'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, 1500);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupApplet(config) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.getElementById(config.canvasId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvasContainer = document.getElementById(config.containerId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ctx = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const epsilonSlider = document.getElementById(config.epsilonSliderId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const liveUpdateToggle = document.getElementById(config.liveUpdateId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const epsilonValueSpan = document.getElementById(config.epsilonValueId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const statusDiv = document.getElementById(config.statusId);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let width, height;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let currentDelta = null;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const toCanvasX = x =&gt; (x - config.xMin) / (config.xMax - config.xMin) * width;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const toCanvasY = y =&gt; height - (y - config.yMin) / (config.yMax - config.yMin) * height;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function draw() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const epsilon = parseFloat(epsilonSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>epsilonValueSpan.textContent = epsilon.toFixed(2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.clearRect(0, 0, width, height);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = 'rgba(173, 216, 230, 0.4)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y1_eps = toCanvasY(config.P + epsilon);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y2_eps = toCanvasY(config.P - epsilon);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(0, y1_eps, width, y2_eps - y1_eps);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (currentDelta !== null &amp;&amp; currentDelta &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillStyle = 'rgba(144, 238, 144, 0.5)';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const x1_delta = toCanvasX(config.a - currentDelta);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const x2_delta = toCanvasX(config.a + currentDelta);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillRect(x1_delta, 0, x2_delta - x1_delta, height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = '#9ca3af';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 1.5;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(0, toCanvasY(0));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(width, toCanvasY(0));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(toCanvasX(0), 0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(toCanvasX(0), height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#4b5563';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.font = '12px Inter';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.textAlign = 'center';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.textBaseline = 'top';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText('x', width - 10, toCanvasY(0) + 5);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.textAlign = 'right';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.textBaseline = 'middle';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText('f(x)', toCanvasX(0) - 10, 10);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = Math.ceil(config.xMin); i &lt;= config.xMax; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (i !== 0 &amp;&amp; i % config.xTickStep === 0) ctx.fillText(i, toCanvasX(i), toCanvasY(0) + 5);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = Math.ceil(config.yMin); i &lt;= config.yMax; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>if (i !== 0 &amp;&amp; i % config.yTickStep === 0) ctx.fillText(i, toCanvasX(0) - 8, toCanvasY(i));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText('0', toCanvasX(0) - 8, toCanvasY(0) + 12);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#3b82f6';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(toCanvasX(config.a), toCanvasY(0), 5, 0, 2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#4b5563';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillText('a=' + config.a, toCanvasX(config.a), toCanvasY(0) + 18);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = '#3b82f6';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 4;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let px = 0; px &lt;= width; px++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const x = config.xMin + (px / width) * (config.xMax - config.xMin);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const y = config.f(x);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (px === 0) ctx.moveTo(toCanvasX(x), toCanvasY(y));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>else ctx.lineTo(toCanvasX(x), toCanvasY(y));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (currentDelta !== null &amp;&amp; currentDelta &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.strokeStyle = '#ef4444';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.lineWidth = 5;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const startX = Math.max(config.xMin, config.a - currentDelta);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const endX = Math.min(config.xMax, config.a + currentDelta);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.moveTo(toCanvasX(startX), toCanvasY(config.f(startX)));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let x = startX; x &lt;= endX; x += 0.01) ctx.lineTo(toCanvasX(x), toCanvasY(config.f(x)));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#10b981';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(toCanvasX(config.a), toCanvasY(config.P), 5, 0, 2 * Math.PI);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = 'white';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 1.5;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function handleCalculateDelta() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const epsilon = parseFloat(epsilonSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const result = config.deltaCalc(epsilon, config.a, config.P);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (result.error) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>currentDelta = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>statusDiv.className = 'p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-yellow-100 text-yellow-800';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>statusDiv.innerHTML = `&lt;strong&gt;計算不能&lt;/strong&gt;&lt;br&gt;${result.error}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>currentDelta = result.delta;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>statusDiv.className = 'p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-green-100 text-green-800';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>statusDiv.innerHTML = `&lt;strong&gt;δ が見つかりました！&lt;/strong&gt;&lt;br&gt;δ ≈ ${currentDelta.toFixed(4)}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draw();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function setupCanvas() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const dpr = window.devicePixelRatio || 1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvasContainer.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>width = rect.width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>height = width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.style.width = `${width}px`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.style.height = `${height}px`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.width = width * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.height = height * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.scale(dpr, dpr);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draw();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', setupCanvas);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>epsilonSlider.addEventListener('input', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>highlightFormula([forallEpsilonEl, epsilonConditionEl]);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (liveUpdateToggle.checked) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>handleCalculateDelta();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>currentDelta = null;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>draw();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>liveUpdateToggle.addEventListener('change', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (liveUpdateToggle.checked) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>highlightFormula([existsDeltaEl, deltaConditionEl]);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>handleCalculateDelta();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>currentDelta = null;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>statusDiv.className = 'p-2 rounded-lg text-center text-xs font-bold h-16 flex items-center justify-center bg-gray-100';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>statusDiv.innerHTML = '&lt;p class="text-gray-500"&gt;「δをεに連動」をオンにしてください。&lt;/p&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>draw();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupCanvas();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>window.addEventListener('load', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupApplet({</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvasId: 'graphCanvas1',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>containerId: 'canvas-container-1',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>epsilonSliderId: 'epsilon1',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>liveUpdateId: 'liveUpdate1',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>epsilonValueId: 'epsilonValue1',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusId: 'status1',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>f: x =&gt; 2 * x + 1,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>a: 1, P: 3,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>xMin: -2, xMax: 4,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>yMin: -1, yMax: 5,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>xTickStep: 1, yTickStep: 1,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>deltaCalc: (epsilon) =&gt; ({ delta: epsilon / 2 })</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupApplet({</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvasId: 'graphCanvas2',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>containerId: 'canvas-container-2',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>epsilonSliderId: 'epsilon2',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>liveUpdateId: 'liveUpdate2',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>epsilonValueId: 'epsilonValue2',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>statusId: 'status2',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>f: x =&gt; x * x,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>a: 2, P: 4,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>xMin: -1, xMax: 5,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>yMin: -2, yMax: 8,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>xTickStep: 1, yTickStep: 2,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>deltaCalc: (epsilon, a, P) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const y_minus_eps = P - epsilon;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (y_minus_eps &lt; 0) return { error: 'εが大きすぎます。' };</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const delta1 = a - Math.sqrt(y_minus_eps);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const delta2 = Math.sqrt(P + epsilon) - a;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return { delta: Math.min(delta1, delta2) };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

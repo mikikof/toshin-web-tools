@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2変数関数インタラクティブ学習サイト</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls for mouse interaction -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            overscroll-behavior: none;
+        }
+        #formula-display {
+            font-size: 1.25rem;
+        }
+        math {
+            font-size: 1.1rem; /* 少し小さくしてUIに馴染ませる */
+        }
+        /* トグルスイッチのスタイル */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #4f46e5; /* indigo-600 */
+            transform: translateX(100%);
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4f46e5; /* indigo-600 */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-6 lg:p-8">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-700">2変数関数の俯瞰図</h1>
+            <p class="text-slate-500 mt-2">パラメータを動かして、グラフの変化を体験しよう！</p>
+        </header>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+
+            <!-- 3D Canvas -->
+            <div id="canvas-container" class="w-full lg:w-2/3 h-96 md:h-[500px] lg:h-[600px] bg-white rounded-xl shadow-lg border border-slate-200 cursor-grab active:cursor-grabbing"></div>
+
+            <!-- Controls -->
+            <div class="w-full lg:w-1/3 p-6 bg-white rounded-xl shadow-lg border border-slate-200">
+                <h2 class="text-2xl font-bold mb-4 border-b pb-2">設定パネル</h2>
+
+                <!-- Visibility Toggle -->
+                <div class="flex items-center justify-between mb-6 p-3 bg-slate-100 rounded-lg">
+                    <label for="visibility-toggle" class="font-medium text-slate-600 select-none">軸とグリッドを表示</label>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                        <input type="checkbox" name="visibility-toggle" id="visibility-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out"/>
+                        <label for="visibility-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer"></label>
+                    </div>
+                </div>
+
+                <!-- Custom Function Selector -->
+                <div class="mb-6">
+                    <label class="block text-lg font-medium text-slate-600 mb-2">関数を選ぶ:</label>
+                    <div class="relative" id="custom-select-container">
+                        <button id="custom-select-button" type="button" class="relative w-full cursor-pointer rounded-lg bg-slate-100 py-3 pl-4 pr-10 text-left border border-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 transition">
+                            <span class="block truncate" id="custom-select-display"></span>
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.5 9.5a.75.75 0 011.06 0L10 15.19l3.47-3.47a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 010-1.06z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                        </button>
+                        <div id="custom-select-options" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm hidden">
+                           <!-- Options will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Formula Display -->
+                <div id="formula-container" class="mb-6 p-4 bg-slate-100 rounded-lg text-center overflow-x-auto">
+                    <div id="formula-display"></div>
+                </div>
+
+                <!-- Sliders -->
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="param-a" class="font-medium text-slate-600">パラメータ 'a'</label>
+                            <span id="a-value" class="text-sm font-mono bg-indigo-100 text-indigo-800 px-2 py-1 rounded">1.0</span>
+                        </div>
+                        <input id="param-a" type="range" min="-3" max="3" value="1" step="0.1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="param-b" class="font-medium text-slate-600">パラメータ 'b'</label>
+                            <span id="b-value" class="text-sm font-mono bg-indigo-100 text-indigo-800 px-2 py-1 rounded">1.0</span>
+                        </div>
+                        <input id="param-b" type="range" min="0.1" max="5" value="1" step="0.1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Point Controls -->
+                <div class="mt-8 pt-6 border-t">
+                     <h3 class="text-xl font-bold mb-4">点 (x, y) の座標</h3>
+                     <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="point-x" class="font-medium text-slate-600">x 座標</label>
+                                <span id="x-value" class="text-sm font-mono bg-sky-100 text-sky-800 px-2 py-1 rounded">0.5</span>
+                            </div>
+                            <input id="point-x" type="range" min="-5" max="5" value="0.5" step="0.1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="point-y" class="font-medium text-slate-600">y 座標</label>
+                                <span id="y-value" class="text-sm font-mono bg-sky-100 text-sky-800 px-2 py-1 rounded">0.5</span>
+                            </div>
+                            <input id="point-y" type="range" min="-5" max="5" value="0.5" step="0.1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600">
+                        </div>
+                        <div class="text-center p-3 bg-sky-50 rounded-lg">
+                            <p class="text-slate-700">z = f(x, y) = <span id="z-value" class="font-bold font-mono">...</span></p>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- グローバル変数の設定 ---
+        let scene, camera, renderer, controls, surfaceMesh, pointSphere, xyPlanePoint, zLine, axesGroup, gridHelper;
+        let currentFunctionKey = 'sincos'; // 初期値
+        const canvasContainer = document.getElementById('canvas-container');
+
+        // --- UI要素の取得 ---
+        const paramA_slider = document.getElementById('param-a');
+        const paramB_slider = document.getElementById('param-b');
+        const pointX_slider = document.getElementById('point-x');
+        const pointY_slider = document.getElementById('point-y');
+
+        const aValueSpan = document.getElementById('a-value');
+        const bValueSpan = document.getElementById('b-value');
+        const xValueSpan = document.getElementById('x-value');
+        const yValueSpan = document.getElementById('y-value');
+        const zValueSpan = document.getElementById('z-value');
+        const formulaDisplay = document.getElementById('formula-display');
+
+        // Custom select elements
+        const customSelectButton = document.getElementById('custom-select-button');
+        const customSelectDisplay = document.getElementById('custom-select-display');
+        const customSelectOptions = document.getElementById('custom-select-options');
+
+        // --- 関数の定義 ---
+        const functions = {
+            sincos: { 
+                func: (x, y, a, b) => a * Math.sin(b * x) * Math.cos(b * y), 
+                mathML: (a, b) => `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mn>${a.toFixed(1)}</mn><mi>sin</mi><mo>(</mo><mn>${b.toFixed(1)}</mn><mi>x</mi><mo>)</mo><mi>cos</mi><mo>(</mo><mn>${b.toFixed(1)}</mn><mi>y</mi><mo>)</mo></math>`,
+                displayMathML: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mi>a</mi><mo>&#x2061;</mo><mi>sin</mi><mo>(</mo><mi>b</mi><mi>x</mi><mo>)</mo><mo>&#x2061;</mo><mi>cos</mi><mo>(</mo><mi>b</mi><mi>y</mi><mo>)</mo></math>`
+            },
+            gaussian: { 
+                func: (x, y, a, b) => a * Math.exp(-(x * x + y * y) / b), 
+                mathML: (a, b) => `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mn>${a.toFixed(1)}</mn><msup><mi>e</mi><mrow><mo>-</mo><mfrac><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></mrow><mn>${b.toFixed(1)}</mn></mfrac></mrow></msup></math>`,
+                displayMathML: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mi>a</mi><msup><mi>e</mi><mrow><mo>-</mo><mfrac><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></mrow><mi>b</mi></mfrac></mrow></msup></math>`
+            },
+            paraboloid: { 
+                func: (x, y, a, b) => a * (x * x + y * y) * 0.1, 
+                mathML: (a, b) => `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mn>${a.toFixed(1)}</mn><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup><mo>)</mo></math>`,
+                displayMathML: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mi>a</mi><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup><mo>)</mo></math>`
+            },
+            saddle: { 
+                func: (x, y, a, b) => a * (x * x - y * y) * 0.1, 
+                mathML: (a, b) => `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mn>${a.toFixed(1)}</mn><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>-</mo><msup><mi>y</mi><mn>2</mn></msup><mo>)</mo></math>`,
+                displayMathML: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mi>a</mi><mo>(</mo><msup><mi>x</mi><mn>2</mn></msup><mo>-</mo><msup><mi>y</mi><mn>2</mn></msup><mo>)</mo></math>`
+            },
+            ripple: { 
+                func: (x, y, a, b) => a * Math.sin(b * Math.sqrt(x*x + y*y)), 
+                mathML: (a, b) => `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mn>${a.toFixed(1)}</mn><mi>sin</mi><mo>(</mo><mn>${b.toFixed(1)}</mn><msqrt><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></msqrt><mo>)</mo></math>`,
+                displayMathML: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mi>a</mi><mo>&#x2061;</mo><mi>sin</mi><mo>(</mo><mi>b</mi><msqrt><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mi>y</mi><mn>2</mn></msup></msqrt><mo>)</mo></math>`
+            },
+            hills: { 
+                func: (x, y, a, b) => {
+                    const peak1 = Math.exp(-((x + 2) * (x + 2) + (y + 1) * (y + 1)) / (b * 5));
+                    const peak2 = 0.8 * Math.exp(-((x - 2) * (x - 2) + (y - 1.5) * (y - 1.5)) / (b * 5));
+                    return a * (peak1 + peak2);
+                },
+                mathML: (a, b) => `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mtext>Hills Function</mtext></math>`,
+                displayMathML: `<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>z</mi><mo>=</mo><mtext>Hills Function</mtext></math>`
+            }
+        };
+
+        // --- 軸ラベルを作成する関数 ---
+        function createAxisLabel(text, position, color) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const fontSize = 80;
+            canvas.width = 128; canvas.height = 128;
+            context.font = `Bold ${fontSize}px Arial`;
+            context.fillStyle = color;
+            context.textAlign = 'center'; context.textBaseline = 'middle';
+            context.fillText(text, canvas.width / 2, canvas.height / 2);
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(1, 1, 1);
+            sprite.position.copy(position);
+            return sprite;
+        }
+
+        // --- 初期化関数 ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+
+            camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 1000);
+            camera.position.set(5, 5, 5);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            canvasContainer.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xcccccc, 0.6);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 0.5).normalize();
+            scene.add(directionalLight);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            axesGroup = new THREE.Group();
+            const axisLength = 5;
+            const axisRadius = 0.025;
+            const arrowHeight = 0.2;
+            const arrowRadius = 0.08;
+
+            const xAxisMat = new THREE.MeshBasicMaterial({ color: 0xdc2626 });
+            const xAxisCylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8), xAxisMat);
+            const xAxisArrow = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 8), xAxisMat);
+            xAxisCylinder.position.x = axisLength / 2;
+            xAxisCylinder.rotation.z = -Math.PI / 2;
+            xAxisArrow.position.x = axisLength;
+            xAxisArrow.rotation.z = -Math.PI / 2;
+            axesGroup.add(xAxisCylinder, xAxisArrow);
+
+            const yAxisMat = new THREE.MeshBasicMaterial({ color: 0x2563eb });
+            const yAxisCylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8), yAxisMat);
+            const yAxisArrow = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 8), yAxisMat);
+            yAxisCylinder.position.z = axisLength / 2;
+            yAxisCylinder.rotation.x = Math.PI / 2;
+            yAxisArrow.position.z = axisLength;
+            yAxisArrow.rotation.x = Math.PI / 2;
+            axesGroup.add(yAxisCylinder, yAxisArrow);
+
+            const zAxisMat = new THREE.MeshBasicMaterial({ color: 0x16a34a });
+            const zAxisCylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 8), zAxisMat);
+            const zAxisArrow = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 8), zAxisMat);
+            zAxisCylinder.position.y = axisLength / 2;
+            zAxisArrow.position.y = axisLength;
+            axesGroup.add(zAxisCylinder, zAxisArrow);
+
+            axesGroup.add(createAxisLabel('X', new THREE.Vector3(axisLength + 0.5, 0, 0), '#dc2626'));
+            axesGroup.add(createAxisLabel('Y', new THREE.Vector3(0, 0, axisLength + 0.5), '#2563eb'));
+            axesGroup.add(createAxisLabel('Z', new THREE.Vector3(0, axisLength + 0.5, 0), '#16a34a'));
+            scene.add(axesGroup);
+
+            gridHelper = new THREE.GridHelper(10, 10);
+            gridHelper.position.y = -0.01;
+            scene.add(gridHelper);
+
+            pointSphere = new THREE.Mesh(new THREE.SphereGeometry(0.15, 32, 32), new THREE.MeshStandardMaterial({ color: 0xff00ff }));
+            scene.add(pointSphere);
+            xyPlanePoint = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.02, 32), new THREE.MeshStandardMaterial({ color: 0x808080 }));
+            scene.add(xyPlanePoint);
+            const lineMaterial = new THREE.LineDashedMaterial({ color: 0x808080, dashSize: 0.1, gapSize: 0.1 });
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0)]);
+            zLine = new THREE.Line(lineGeometry, lineMaterial);
+            scene.add(zLine);
+
+            updateSurface();
+            updateUI();
+            animate();
+            setupEventListeners();
+        }
+
+        // --- サーフェス（曲面）の更新 ---
+        function updateSurface() {
+            if (surfaceMesh) {
+                scene.remove(surfaceMesh);
+                surfaceMesh.geometry.dispose();
+                surfaceMesh.material.dispose();
+            }
+            const a = parseFloat(paramA_slider.value);
+            const b = parseFloat(paramB_slider.value);
+            const graphFunction = (u, v, target) => {
+                const x = (u - 0.5) * 10;
+                const y = (v - 0.5) * 10;
+                const z = functions[currentFunctionKey].func(x, y, a, b);
+                target.set(x, z, y);
+            };
+            const geometry = new THREE.ParametricGeometry(graphFunction, 50, 50);
+            const material = new THREE.MeshStandardMaterial({ color: 0x1e90ff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
+            surfaceMesh = new THREE.Mesh(geometry, material);
+            scene.add(surfaceMesh);
+            updatePoint();
+        }
+
+        // --- 点と線の位置を更新 ---
+        function updatePoint() {
+            const a = parseFloat(paramA_slider.value);
+            const b = parseFloat(paramB_slider.value);
+            const x = parseFloat(pointX_slider.value);
+            const y = parseFloat(pointY_slider.value);
+            const z = functions[currentFunctionKey].func(x, y, a, b);
+
+            const surfacePointPos = new THREE.Vector3(x, z, y);
+            const xyPlanePointPos = new THREE.Vector3(x, 0, y);
+
+            pointSphere.position.copy(surfacePointPos);
+            xyPlanePoint.position.copy(xyPlanePointPos);
+
+            const positions = zLine.geometry.attributes.position.array;
+            positions[0] = xyPlanePointPos.x; positions[1] = xyPlanePointPos.y; positions[2] = xyPlanePointPos.z;
+            positions[3] = surfacePointPos.x; positions[4] = surfacePointPos.y; positions[5] = surfacePointPos.z;
+            zLine.geometry.attributes.position.needsUpdate = true;
+            zLine.computeLineDistances();
+            zValueSpan.textContent = z.toFixed(3);
+        }
+
+        // --- UIの表示を更新 ---
+        function updateUI() {
+            const a = parseFloat(paramA_slider.value);
+            const b = parseFloat(paramB_slider.value);
+            const x = parseFloat(pointX_slider.value);
+            const y = parseFloat(pointY_slider.value);
+
+            aValueSpan.textContent = a.toFixed(1);
+            bValueSpan.textContent = b.toFixed(1);
+            xValueSpan.textContent = x.toFixed(1);
+            yValueSpan.textContent = y.toFixed(1);
+
+            const mathMLString = functions[currentFunctionKey].mathML(a, b);
+            formulaDisplay.innerHTML = mathMLString;
+        }
+
+        // --- アニメーションループ ---
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // --- ウィンドウリサイズへの対応 ---
+        function onWindowResize() {
+            camera.aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+        }
+
+        // --- イベントリスナーの設定 ---
+        function setupEventListeners() {
+            window.addEventListener('resize', onWindowResize);
+
+            const visibilityToggle = document.getElementById('visibility-toggle');
+            visibilityToggle.addEventListener('change', (event) => {
+                const isVisible = event.target.checked;
+                axesGroup.visible = isVisible;
+                gridHelper.visible = isVisible;
+            });
+
+            // Populate custom select
+            Object.keys(functions).forEach(key => {
+                const option = document.createElement('div');
+                option.classList.add('custom-option', 'relative', 'cursor-pointer', 'select-none', 'p-3', 'hover:bg-indigo-100');
+                option.dataset.value = key;
+                option.innerHTML = functions[key].displayMathML;
+
+                option.addEventListener('click', () => {
+                    currentFunctionKey = key;
+                    customSelectDisplay.innerHTML = functions[key].displayMathML;
+                    customSelectOptions.classList.add('hidden');
+                    if (key === 'hills') {
+                        paramA_slider.value = 2.0;
+                    } else if (key === 'sincos') {
+                        paramA_slider.value = 1.0;
+                    }
+                    updateSurface();
+                    updateUI();
+                });
+                customSelectOptions.appendChild(option);
+            });
+
+            // Set initial display for custom select
+            customSelectDisplay.innerHTML = functions[currentFunctionKey].displayMathML;
+
+            // Custom select toggle
+            customSelectButton.addEventListener('click', () => {
+                customSelectOptions.classList.toggle('hidden');
+            });
+
+            // Close custom select when clicking outside
+            document.addEventListener('click', (event) => {
+                const container = document.getElementById('custom-select-container');
+                if (!container.contains(event.target)) {
+                    customSelectOptions.classList.add('hidden');
+                }
+            });
+
+
+            paramA_slider.addEventListener('input', () => { updateSurface(); updateUI(); });
+            paramB_slider.addEventListener('input', () => { updateSurface(); updateUI(); });
+            pointX_slider.addEventListener('input', () => { updatePoint(); updateUI(); });
+            pointY_slider.addEventListener('input', () => { updatePoint(); updateUI(); });
+        }
+
+        // --- 実行 ---
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>インタラクティブな極限の世界: f(x, y) = x^y</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Set dark mode based on user preference, default to dark
+    if (localStorage.getItem('theme') === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark');
+    }
+  </script>
+  <style>
+    body { 
+        font-family: 'Inter', 'Noto Sans JP', sans-serif; 
+        color: #1f2937; 
+        background-color: #f9fafb;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .dark body {
+        color: #E0E0E0; 
+        background-color: #121212; 
+    }
+    .glass-panel { 
+        background: rgba(255,255,255,0.5); 
+        backdrop-filter: blur(10px); 
+        border-radius: 1rem;
+        border: 1px solid rgba(0,0,0,0.1); 
+        box-shadow: 0 8px 32px 0 rgba(0,0,0,0.1);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    .dark .glass-panel {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1); 
+        box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37);
+    }
+    #graph-container { cursor: move; touch-action: none; }
+    label { cursor: pointer; }
+    .path-radio:checked + .path-label { 
+        background-color: #4f46e5; 
+        color: #fff; 
+        border-color: #4f46e5; 
+    }
+    .path-label { transition: all 0.2s ease-in-out; }
+    math {
+      font-size: 1.1em;
+    }
+    .inline-math {
+      display: inline-block;
+      vertical-align: -0.2em;
+    }
+  </style>
+</head>
+<body class="overflow-hidden">
+  <div class="flex flex-col lg:flex-row w-screen h-screen relative">
+    <!-- UI Toggle Button -->
+    <button id="ui-toggle" class="absolute top-4 left-4 z-20 p-2 rounded-full bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-800 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-gray-700/80 transition-colors duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
+    </button>
+
+    <!-- Control Panel -->
+    <div id="control-panel" class="relative w-full lg:w-1/3 xl:w-1/4 p-4 lg:p-6 overflow-y-auto glass-panel m-2 lg:m-4 transition-transform duration-300 ease-in-out">
+
+      <!-- Theme Toggle Button -->
+      <button id="theme-toggle" class="absolute top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+        <svg id="theme-icon-sun" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        <svg id="theme-icon-moon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+      </button>
+
+      <div class="flex flex-col h-full">
+        <header class="mb-6">
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-white">極限は存在する？</h1>
+          <p class="text-gray-600 dark:text-gray-300">
+            関数
+            <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math">
+              <mrow>
+                <mi>f</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo><mo>=</mo><msup><mi>x</mi><mi>y</mi></msup><mspace width="0.2em"></mspace><mo>(</mo><mi>x</mi><mo>&gt;</mo><mn>0</mn><mo>)</>
+              </mrow>
+            </math>
+            の
+            <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math">
+              <mrow>
+                <mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo><mo>&rarr;</mo><mo>(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>)</>
+              </mrow>
+            </math>
+            付近の挙動
+          </p>
+        </header>
+
+        <div class="mb-6">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">原点へのアプローチ</h2>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">経路を選んで、<span class="font-bold">z</span> がどこへ向かうか観察します。</p>
+          <div id="path-selector" class="grid grid-cols-2 gap-3">
+            <div>
+              <input type="radio" id="path1" name="path" value="y_eq_0" class="hidden path-radio" checked>
+              <label for="path1" class="path-label block w-full text-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>y</mi><mo>=</mo><mn>0</mn></mrow></math>
+              </label>
+            </div>
+            <div>
+              <input type="radio" id="path2" name="path" value="x_eq_0" class="hidden path-radio">
+              <label for="path2" class="path-label block w-full text-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>x</mi><mo>&rarr;</mo><msup><mn>0</mn><mo>+</mo></msup><mo>,</mo><mspace width="0.2em"></mspace><mo>(</mo><mi>y</mi><mo>&gt;</mo><mn>0</mn><mo>)</mo></mrow></math>
+              </label>
+            </div>
+            <div>
+              <input type="radio" id="path3" name="path" value="y_eq_x" class="hidden path-radio">
+              <label for="path3" class="path-label block w-full text-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>y</mi><mo>=</mo><mi>x</mi></mrow></math>
+              </label>
+            </div>
+            <div>
+              <input type="radio" id="path4" name="path" value="y_eq_x2" class="hidden path-radio">
+              <label for="path4" class="path-label block w-full text-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>y</mi><mo>=</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></math>
+              </label>
+            </div>
+            <div>
+              <input type="radio" id="path5" name="path" value="y_eq_c" class="hidden path-radio">
+              <label for="path5" class="path-label block w-full text-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>y</mi><mo>=</mo><mi>c</mi><mspace width="0.2em"></mspace><mo>(</mo><mi>c</mi><mo>&gt;</mo><mn>0</mn><mo>)</mo></mrow></math>
+              </label>
+            </div>
+            <div>
+              <input type="radio" id="path6" name="path" value="y_eq_c_over_log" class="hidden path-radio">
+              <label for="path6" class="path-label block w-full text-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                <math xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>y</mi><mo>=</mo><mfrac><mi>c</mi><mrow><mi>ln</mi><mo>(</mo><mn>1</mn><mo>/</mo><mi>x</mi><mo>)</mo></mrow></mfrac></mrow></math>
+              </label>
+            </div>
+          </div>
+
+          <!-- c slider -->
+          <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-900 rounded-lg">
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-700 dark:text-gray-300">
+                <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mi>c</mi></math>（下のスライダーで変更）
+              </div>
+              <div class="text-sm text-indigo-500 dark:text-indigo-300 font-mono">
+                c = <span id="c-val">1.0</span>
+              </div>
+            </div>
+            <input id="c-slider" type="range" min="0.2" max="2.0" step="0.1" value="1.0" class="w-full mt-2">
+          </div>
+        </div>
+
+        <div class="mb-6 flex-grow">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">ライブ情報</h2>
+          <div class="p-4 bg-gray-100 dark:bg-gray-900 rounded-lg space-y-3 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-500 dark:text-gray-400">点の座標 (x, y):</span>
+              <span id="coords" class="font-mono text-indigo-500 dark:text-indigo-300">(---, ---)</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-500 dark:text-gray-400">関数の値 <math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"><mrow><mi>z</mi><mo>=</mo><mi>f</mi><mo>(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>)</mo></mrow></math>:</span>
+              <span id="z-value" class="font-mono text-lg text-indigo-500 dark:text-indigo-300">---</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-500 dark:text-gray-400">この経路での極限値:</span>
+              <span id="limit-value" class="font-mono text-xl font-bold text-green-500 dark:text-green-400">---</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-auto">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">解説</h2>
+          <div id="explanation" class="text-sm text-gray-700 dark:text-gray-300 p-4 bg-gray-100 dark:bg-gray-900 rounded-lg min-h-[100px]"></div>
+
+          <div class="mt-4">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">切断面について</h2>
+            <div class="text-sm text-gray-500 dark:text-gray-400 p-4 bg-gray-100 dark:bg-gray-900 rounded-lg">
+              グラフ上に表示される半透明の平面（赤、緑、青）は、選択された経路における<span class="font-bold">極限値</span>を視覚的に示しています。点が原点に近づくにつれて、この平面に収束していく様子が分かります。
+            </div>
+          </div>
+        </div>
+        <div class="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">グラフはマウスで回転・ズームできます</div>
+      </div>
+    </div>
+
+    <!-- 3D Graph -->
+    <div id="graph-container" class="flex-grow h-full w-full lg:w-2/3 xl:w-3/4"></div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';
+
+    // --- DOM Elements ---
+    const container = document.getElementById('graph-container');
+    const coordsDisplay = document.getElementById('coords');
+    const zValueDisplay = document.getElementById('z-value');
+    const limitValueDisplay = document.getElementById('limit-value');
+    const explanationDisplay = document.getElementById('explanation');
+    const cSlider = document.getElementById('c-slider');
+    const cVal = document.getElementById('c-val');
+    const themeToggle = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('theme-icon-sun');
+    const moonIcon = document.getElementById('theme-icon-moon');
+    const uiToggle = document.getElementById('ui-toggle');
+    const controlPanel = document.getElementById('control-panel');
+
+    // --- Parameters ---
+    const EPS = 1e-10;      // xの下限（描画用）。さらに厳密に0に近づけます。
+    const XMAX = 1.5;
+    const YMIN = -2.5;     // Expanded Y range
+    const YMAX = 2.5;      // Expanded Y range
+    const ZCAP = 5.0;      // Upper bound for z in rendering
+    let paramC = parseFloat(cSlider.value);
+
+    // --- Math helpers ---
+    function xPowY(x, y) {
+      if (x === 0) return (y > 0 ? 0 : NaN); // Simple handling for 0^y
+      if (x < 0) return NaN;                  // Don't handle non-real values
+      const z = Math.exp(y * Math.log(x));
+      // We no longer clamp here, the shader will handle the visual fade-out
+      return z;
+    }
+
+    function pathX(t) {
+      // t from 0 to 1 moves from 1 to EPS
+      return EPS + (1.0 - EPS) * (1.0 - t);
+    }
+
+    // --- Path definitions ---
+    const pathData = {
+      'y_eq_0': {
+        func: (t) => {
+          const x = pathX(t), y = 0;
+          const z = xPowY(x, y);
+          return new THREE.Vector3(x, y, z);
+        },
+        limit: () => 1,
+        explanation: '経路 <code>y=0</code> では <span class="font-mono">f(x,0)=1</span>。よって <span class="text-green-500 dark:text-green-400 font-bold">z=1</span> に収束。'
+      },
+      'x_eq_0': {
+        func: (t) => {
+          const x = 0;
+          const y = 1.0 - t; // Approach 0 while keeping y>0
+          const z = (y >= 0 ? 0 : NaN); // Use >= to prevent NaN for TubeGeometry
+          return new THREE.Vector3(x, y, z);
+        },
+        limit: () => 0,
+        explanation: '経路 <code>x=0^{+}</code>, <code>y>0</code> では <span class="font-mono">f(0,y)=0</span>。よって <span class="text-red-500 dark:text-red-400 font-bold">z=0</span> に収束。'
+      },
+      'y_eq_x': {
+        func: (t) => {
+          const x = pathX(t), y = x;
+          const z = xPowY(x, y);
+          return new THREE.Vector3(x, y, z);
+        },
+        limit: () => 1,
+        explanation: '経路 <code>y=x</code> では <span class="font-mono">x^x=exp(x ln x)</span>。<span class="font-mono">x ln x → 0</span> より <span class="text-green-500 dark:text-green-400 font-bold">z=1</span>。'
+      },
+      'y_eq_x2': {
+        func: (t) => {
+          const x = pathX(t), y = x * x;
+          const z = xPowY(x, y);
+          return new THREE.Vector3(x, y, z);
+        },
+        limit: () => 1,
+        explanation: '経路 <code>y=x^2</code> でも <span class="font-mono">x^(x^2)=exp(x^2 ln x)→1</span>。'
+      },
+      'y_eq_c': {
+        func: (t) => {
+          const x = pathX(t), y = paramC; // c>0
+          const z = xPowY(x, y);
+          return new THREE.Vector3(x, y, z);
+        },
+        limit: () => 0, // 0 since c>0
+        explanation: () => `経路 <code>y=c(=${paramC.toFixed(1)})</code> では <span class="font-mono">x^c→0</span>。<span class="text-red-500 dark:text-red-400 font-bold">z=0</span> に収束。`
+      },
+      'y_eq_c_over_log': {
+        func: (t) => {
+          const x = pathX(t);
+          const denom = Math.log(1 / x);
+          const y = (denom > 1e-6) ? (paramC / denom) : Math.min(YMAX, paramC / 1e-6);
+          const z = xPowY(x, y); // = exp(y ln x) ≈ exp(-c)
+          return new THREE.Vector3(x, y, z);
+        },
+        limit: () => Math.exp(-paramC),
+        explanation: () => `経路 <code>y=c/ln(1/x)</code> では <span class="font-mono">y ln x=-c</span>。<span class="text-sky-500 dark:text-sky-400 font-bold">z=e^(-c)≈${Math.exp(-paramC).toFixed(3)}</span> に収束。`
+      }
+    };
+
+    // --- Scene setup ---
+    let scene, camera, renderer, controls, ambientLight, dirLight, hemisphereLight;
+    let surface, particle, pathLine, limitPlaneZ1, limitPlaneZ0, limitPlaneZexp;
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x121212); // Default background
+      scene.fog = new THREE.FogExp2(0x121212, 0.08);
+
+      camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.up.set(0, 0, 1); // Set Z as up
+      camera.position.set(1.0, -1.0, 0.9); // Zoomed in camera position
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer.domElement);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true; controls.dampingFactor = 0.05;
+      controls.minDistance = 0.5; // Allow closer zoom
+      controls.maxDistance = 20;
+      controls.target.set(0.2, 0.0, 0.2); // Zoomed in camera target
+
+      // Lights
+      ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+      dirLight = new THREE.DirectionalLight(0xffffff, 1);
+      dirLight.position.set(2, 5, 3);
+      scene.add(dirLight);
+      hemisphereLight = new THREE.HemisphereLight(0xcce0ff, 0xffffff, 0); // Sky, Ground, Intensity (off by default)
+      scene.add(hemisphereLight);
+
+      const createAxis = (start, end, color) => {
+          const path = new THREE.LineCurve3(start, end);
+          const geometry = new THREE.TubeGeometry(path, 1, 0.01, 8, false);
+          const material = new THREE.MeshStandardMaterial({ color: color });
+          return new THREE.Mesh(geometry, material);
+      };
+
+      const axisLength = 3.0; // Increased axis length
+      scene.add(createAxis(new THREE.Vector3(0, 0, 0), new THREE.Vector3(axisLength, 0, 0), 0x0000ff)); // X: Blue
+      scene.add(createAxis(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, axisLength, 0), 0xff0000)); // Y: Red
+      scene.add(createAxis(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, -axisLength, 0), 0xff0000)); // Negative Y: Red
+      scene.add(createAxis(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, axisLength), 0x00ff00)); // Z: Green
+
+      const surfaceFunc = (u, v, target) => {
+        const x = EPS + (XMAX - EPS) * u;
+        const y = YMIN + (YMAX - YMIN) * v;
+        const z = xPowY(x, y);
+        // Clamp z for positioning, but the shader will handle the visual appearance
+        const zClamped = Math.min(Math.max(z, -ZCAP), ZCAP);
+        target.set(x, y, zClamped);
+      };
+
+      const geometry = new ParametricGeometry(surfaceFunc, 250, 250);
+
+      const material = new THREE.MeshStandardMaterial({
+        side: THREE.DoubleSide,
+        transparent: true // Crucial for the fade effect
+      });
+
+      // Shader modification to fade out the graph at the top
+      material.onBeforeCompile = shader => {
+          shader.uniforms.zCap = { value: ZCAP };
+          shader.uniforms.fadeRange = { value: 1.5 }; // Fade over 1.5 units
+
+          shader.vertexShader = 'varying float vWorldZ;\n' + shader.vertexShader;
+          shader.vertexShader = shader.vertexShader.replace(
+              '#include <worldpos_vertex>',
+              `
+              #include <worldpos_vertex>
+              // This is the robust way to get world position for the varying.
+              vec4 worldPositionTemp = modelMatrix * vec4( transformed, 1.0 );
+              vWorldZ = worldPositionTemp.z;
+              `
+          );
+
+          shader.fragmentShader = 'varying float vWorldZ;\n' + 'uniform float zCap;\n' + 'uniform float fadeRange;\n' + shader.fragmentShader;
+          shader.fragmentShader = shader.fragmentShader.replace(
+              '#include <color_fragment>',
+              `
+              #include <color_fragment>
+              // smoothstep(edge0, edge1, x) -> 0 if x<=edge0, 1 if x>=edge1
+              float alpha = 1.0 - smoothstep(zCap - fadeRange, zCap, vWorldZ);
+              diffuseColor.a *= alpha;
+              `
+          );
+      };
+
+      surface = new THREE.Mesh(geometry, material);
+      scene.add(surface);
+
+      const particleGeo = new THREE.SphereGeometry(0.04, 32, 32);
+      const particleMat = new THREE.MeshStandardMaterial({
+        color: 0x00f2ff, emissive: 0x00f2ff, metalness: 0.5, roughness: 0.2
+      });
+      particle = new THREE.Mesh(particleGeo, particleMat);
+      scene.add(particle);
+
+      // Path Tube
+      const tubeMaterial = new THREE.MeshStandardMaterial({ color: 0xfff700, emissive: 0xcc8400 });
+      const tubeGeometry = new THREE.BufferGeometry(); // Start with empty geo
+      pathLine = new THREE.Mesh(tubeGeometry, tubeMaterial);
+      scene.add(pathLine);
+
+      const planeGeo = new THREE.PlaneGeometry(XMAX, YMAX - YMIN); // Plane covers the new area
+
+      const planeMaterialDefaults = {
+          transparent: true,
+          side: THREE.DoubleSide,
+          depthWrite: false, // This is the key fix for transparency
+          opacity: 0.35
+      };
+
+      limitPlaneZ1 = new THREE.Mesh(
+        planeGeo,
+        new THREE.MeshStandardMaterial({ ...planeMaterialDefaults, color: 0x4dcb7a })
+      );
+      limitPlaneZ1.position.set(XMAX / 2, (YMIN + YMAX) / 2, 1.0); // Center the plane
+      limitPlaneZ1.visible = false;
+      scene.add(limitPlaneZ1);
+
+      limitPlaneZ0 = new THREE.Mesh(
+        planeGeo,
+        new THREE.MeshStandardMaterial({ ...planeMaterialDefaults, color: 0xff6b6b })
+      );
+      limitPlaneZ0.position.set(XMAX / 2, (YMIN + YMAX) / 2, 0.0); // Center the plane
+      limitPlaneZ0.visible = false;
+      scene.add(limitPlaneZ0);
+
+      limitPlaneZexp = new THREE.Mesh(
+        planeGeo,
+        new THREE.MeshStandardMaterial({ ...planeMaterialDefaults, color: 0x4da6ff })
+      );
+      limitPlaneZexp.position.set(XMAX / 2, (YMIN + YMAX) / 2, Math.exp(-paramC)); // Center the plane
+      limitPlaneZexp.visible = false;
+      scene.add(limitPlaneZexp);
+
+      updatePath(currentPath);
+      updateTheme(); // Set initial theme for 3D scene
+      window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function onWindowResize() {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    let currentPath = 'y_eq_0';
+    let animationTime = 0;
+    let animationDirection = 1;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+
+      animationTime += 0.005 * animationDirection;
+      if (animationTime > 1 || animationTime < 0) {
+        animationDirection *= -1;
+        animationTime = Math.max(0, Math.min(1, animationTime));
+      }
+
+      const pos = pathData[currentPath].func(animationTime);
+      particle.position.copy(pos);
+      updateInfoPanel(pos);
+      renderer.render(scene, camera);
+    }
+
+    function updateInfoPanel(pos) {
+      coordsDisplay.textContent = `(${pos.x.toFixed(3)}, ${pos.y.toFixed(3)})`;
+      zValueDisplay.textContent = (Number.isFinite(pos.z) ? pos.z.toFixed(4) : '—');
+    }
+
+    function updatePath(pathId) {
+      currentPath = pathId;
+
+      // Update path tube geometry
+      const pts = [];
+      for (let i = 0; i <= 150; i++) pts.push(pathData[pathId].func(i / 150));
+      const curve = new THREE.CatmullRomCurve3(pts);
+
+      if (pathLine.geometry) {
+          pathLine.geometry.dispose();
+      }
+      pathLine.geometry = new THREE.TubeGeometry(curve, 150, 0.02, 8, false);
+
+
+      const lim = pathData[pathId].limit();
+      const limStr = (lim === 0) ? '0' : (lim === 1) ? '1' : (Number.isFinite(lim) ? lim.toFixed(4) : '∞');
+
+      limitValueDisplay.textContent = limStr;
+      explanationDisplay.innerHTML = (typeof pathData[pathId].explanation === 'function')
+          ? pathData[pathId].explanation()
+          : pathData[pathId].explanation;
+
+      limitPlaneZ1.visible = (lim === 1);
+      limitPlaneZ0.visible = (lim === 0);
+      if (Number.isFinite(lim) && lim !== 0 && lim !== 1) {
+        limitPlaneZexp.visible = true;
+        limitPlaneZexp.position.z = lim;
+      } else {
+        limitPlaneZexp.visible = false;
+      }
+
+      const isLight = !document.documentElement.classList.contains('dark');
+      limitValueDisplay.className = 'font-mono text-xl font-bold ' + 
+        ((lim === 0) ? 'text-red-500 dark:text-red-400'
+        : (lim === 1) ? 'text-green-500 dark:text-green-400'
+        : 'text-sky-500 dark:text-sky-400');
+    }
+
+    // --- Theme Handling ---
+    function updateTheme() {
+        const isLight = !document.documentElement.classList.contains('dark');
+
+        sunIcon.classList.toggle('hidden', isLight);
+        moonIcon.classList.toggle('hidden', !isLight);
+
+        if (scene) { // Ensure scene is initialized
+
+            scene.background.set(isLight ? 0xf9fafb : 0x121212);
+            scene.fog.color.set(isLight ? 0xf9fafb : 0x121212);
+            scene.fog.density = isLight ? 0.06 : 0.08;
+
+            // Configure surface material based on theme
+            surface.material.wireframe = true; 
+            surface.material.color.set(isLight ? 0x00529B : 0x6a0dad); 
+            surface.material.opacity = isLight ? 1.0 : 0.4;
+
+
+            // Configure lighting based on theme
+            ambientLight.intensity = isLight ? 0.3 : 0.5;
+            dirLight.intensity = isLight ? 1.2 : 1.0;
+            hemisphereLight.intensity = isLight ? 0.9 : 0; // Only on for light mode
+
+            // Other elements
+            particle.material.color.set(isLight ? 0x2563eb : 0x00f2ff);
+            particle.material.emissive.set(isLight ? 0x2563eb : 0x00f2ff);
+            pathLine.material.color.set(isLight ? 0xf97316 : 0xfff700);
+            pathLine.material.emissive.set(isLight ? 0xd97706 : 0xcc8400);
+        }
+    }
+
+    themeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        updateTheme();
+    });
+
+    // --- UI Toggle ---
+    uiToggle.addEventListener('click', () => {
+        controlPanel.classList.toggle('hidden');
+        // Allow layout to reflow before resizing the canvas
+        setTimeout(onWindowResize, 50);
+    });
+
+    // --- UI events ---
+    document.querySelectorAll('input[name="path"]').forEach(radio => {
+      radio.addEventListener('change', (e) => updatePath(e.target.value));
+    });
+
+    cSlider.addEventListener('input', (e) => {
+      paramC = parseFloat(e.target.value);
+      cVal.textContent = paramC.toFixed(1);
+      if (currentPath === 'y_eq_c' || currentPath === 'y_eq_c_over_log') {
+        updatePath(currentPath);
+      }
+    });
+
+    // --- Kick off ---
+    init();
+    animate();
+  </script>
+</body>
+</html>

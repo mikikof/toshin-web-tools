@@ -1,0 +1,567 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;データサイエンスの数理 | インタラクティブな探求&lt;/title&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Tailwind CSS for styling --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Google Fonts for better typography --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #111827; /* bg-gray-900 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #F9FAFB; /* text-gray-50 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.concept-card {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #1F2937; /* bg-gray-800 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid #374151; /* border-gray-700 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.75rem; /* rounded-xl */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.concept-card:hover {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transform: translateY(-5px);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 40px rgba(79, 70, 229, 0.2);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>canvas {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 0.5rem;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #374151; /* bg-gray-700 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cursor: crosshair;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>math {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>font-size: 1.1em;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">       </span>.inline-math {</p>
+<p class="p1"><span class="Apple-converted-space">         </span>display: inline-block;</p>
+<p class="p1"><span class="Apple-converted-space">         </span>vertical-align: -0.2em;</p>
+<p class="p1"><span class="Apple-converted-space">       </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="antialiased"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Main page container --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 md:p-8"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Header Section --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;header class="text-center mb-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 mb-2"&gt;データサイエンスの数理&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-lg text-gray-300"&gt;複雑な概念を、インタラクティブな体験を通して直感的に理解する。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Grid container for the interactive cards --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;main class="grid grid-cols-1 lg:grid-cols-2 gap-8"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Card 1: Gradient Descent Visualization --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;article class="concept-card p-6 flex flex-col space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center space-x-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex-shrink-0 bg-indigo-500/20 text-indigo-300 rounded-lg p-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-xl font-bold text-gray-100"&gt;学習の勾配 (Gradient Descent)&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-gray-300 text-sm md:text-base"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>損失関数 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;L&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;θ&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt; を最小化するため、各パラメータで偏微分し、勾配 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mo&gt;∇&lt;/mo&gt;&lt;mi&gt;L&lt;/mi&gt;&lt;/mrow&gt;&lt;/math&gt; の逆方向へ進むことで最適化します。坂道を下るように、最も傾きが急な方向を探して少しずつ進むイメージです。</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex-grow flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="grad-canvas" width="400" height="300"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="grad-reset" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400"&gt;リセット&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-400 mt-2"&gt;キャンバスをクリックして開始地点を選んでください。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/article&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Card 2: Image Edge Detection Visualization --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;article class="concept-card p-6 flex flex-col space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center space-x-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex-shrink-0 bg-rose-500/20 text-rose-300 rounded-lg p-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5" /&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-xl font-bold text-gray-100"&gt;画像処理 (Edge Detection)&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-gray-300 text-sm md:text-base"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>画像の明るさ &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;I&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;/math&gt; の変化が急な場所が「エッジ」です。&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/math&gt;方向（横）の変化 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;msub&gt;&lt;mo&gt;∂&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;/msub&gt;&lt;mi&gt;I&lt;/mi&gt;&lt;/mrow&gt;&lt;/math&gt; と &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;/math&gt;方向（縦）の変化 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;msub&gt;&lt;mo&gt;∂&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;/msub&gt;&lt;mi&gt;I&lt;/mi&gt;&lt;/mrow&gt;&lt;/math&gt; を計算することがエッジ検出の基本となります。</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center text-sm text-gray-400 mb-1"&gt;元画像&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="edge-original-canvas" width="200" height="200"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center text-sm text-gray-400 mb-1"&gt;エッジ検出後&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="edge-detect-canvas" width="200" height="200"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;p class="text-sm text-gray-400 mt-2 text-center"&gt;左の元画像の上でマウスを動かしてください。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/article&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Card 3: Logistic Regression Visualization --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;article class="concept-card p-6 flex flex-col space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center space-x-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex-shrink-0 bg-amber-500/20 text-amber-300 rounded-lg p-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                       </span>&lt;svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-xl font-bold text-gray-100"&gt;ロジスティック回帰&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-gray-300 text-sm md:text-base"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>対数尤度 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mi&gt;L&lt;/mi&gt;&lt;/mrow&gt;&lt;/math&gt; の偏微分 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mo&gt;∂&lt;/mo&gt;&lt;mi&gt;L&lt;/mi&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;mo&gt;∂&lt;/mo&gt;&lt;msub&gt;&lt;mi&gt;w&lt;/mi&gt;&lt;mi&gt;j&lt;/mi&gt;&lt;/msub&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;/mrow&gt;&lt;/math&gt; は「予測誤差 $\times$ 特徴量」で表され、パラメータ更新の指標となります。誤差が大きいほど、特徴量が大きいほど、パラメータは大きく修正されます。</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex-grow flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;canvas id="logistic-canvas" width="400" height="300"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button id="logistic-reset" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-white font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400"&gt;リセット&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-400 mt-2"&gt;キャンバスをクリックしてデータを追加してください。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/article&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;!-- Card 4: Diffusion / Noise Removal Visualization --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;article class="concept-card p-6 flex flex-col space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center space-x-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex-shrink-0 bg-teal-500/20 text-teal-300 rounded-lg p-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"&gt;&lt;path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.293 2.293a1 1 0 010 1.414L13 12l2.293 2.293a1 1 0 010 1.414L13 18m5-16l2.293 2.293a1 1 0 010 1.414L18 12l2.293 2.293a1 1 0 010 1.414L18 18" /&gt;&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-xl font-bold text-gray-100"&gt;拡散 | 正則化 (Noise Removal)&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;p class="text-gray-300 text-sm md:text-base"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>熱が拡散して均一になるように、ノイズも周囲のピクセルと馴染ませることで除去できます。この過程は熱方程式 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mrow&gt;&lt;msub&gt;&lt;mo&gt;∂&lt;/mo&gt;&lt;mi&gt;t&lt;/mi&gt;&lt;/msub&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mi&gt;D&lt;/mi&gt;&lt;msup&gt;&lt;mo&gt;∇&lt;/mo&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;/mrow&gt;&lt;/math&gt; でモデル化され、ノイズ除去に応用されます。</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center text-sm text-gray-400 mb-1"&gt;ノイズ画像&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="noise-original-canvas" width="200" height="200"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p class="text-center text-sm text-gray-400 mb-1"&gt;ノイズ除去後&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;canvas id="noise-denoised-canvas" width="200" height="200"&gt;&lt;/canvas&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="diffusion-slider" class="text-sm text-gray-400"&gt;平滑化の強さ:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="diffusion-slider" type="range" min="0" max="10" value="0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/article&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/main&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="module"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Global Setup ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener("DOMContentLoaded", function() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// Initialize all interactive visualizations</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupGradientDescent();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupEdgeDetection();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupLogisticRegression();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupDiffusion();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Visualization 1: Gradient Descent ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupGradientDescent() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.getElementById('grad-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ctx = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const resetButton = document.getElementById('grad-reset');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = canvas.width;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const h = canvas.height;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let animationId;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let path = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let pos = { x: w * 0.2, y: h * 0.2 };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let running = false;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// The loss function: f(x, y) = a*x^2 + b*y^2</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const lossFn = (x, y) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const normX = (x - w / 2) / (w / 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const normY = (y - h / 2) / (h / 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return 0.5 * normX**2 + 1 * normY**2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// The gradient of the loss function</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const gradient = (x, y) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const normX = (x - w / 2) / (w / 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const normY = (y - h / 2) / (h / 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>dx: (1 / (w / 2)) * normX,</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>dy: (2 / (h / 2)) * normY</p>
+<p class="p1"><span class="Apple-converted-space">                </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawBackground = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const imageData = ctx.createImageData(w, h);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let maxVal = -Infinity;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let minVal = Infinity;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const values = [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; w; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let j = 0; j &lt; h; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const val = lossFn(i, j);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>values.push(val);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (val &gt; maxVal) maxVal = val;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (val &lt; minVal) minVal = val;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; values.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const normalized = (values[i] - minVal) / (maxVal - minVal);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const intensity = 255 * (1 - Math.pow(normalized, 0.5));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const [r,g,b] = [31 + intensity * 0.2, 41 + intensity * 0.3, 55 + intensity*0.5];</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>imageData.data[i * 4] = r;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>imageData.data[i * 4 + 1] = g;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>imageData.data[i * 4 + 2] = b;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>imageData.data[i * 4 + 3] = 255;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.putImageData(imageData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawPath = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (path.length &lt; 2) return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(path[0].x, path[0].y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for(let i=1; i&lt;path.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.lineTo(path[i].x, path[i].y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawPoint = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#a78bfa'; // violet-400</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = '#fff';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const animate = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const grad = gradient(pos.x, pos.y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const learningRate = 50;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>pos.x -= learningRate * grad.dx;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pos.y -= learningRate * grad.dy;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>path.push({x: pos.x, y: pos.y});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>draw();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (Math.abs(grad.dx) + Math.abs(grad.dy) &gt; 0.0001 &amp;&amp; path.length &lt; 200) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>animationId = requestAnimationFrame(animate);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>running = false;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const draw = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.clearRect(0, 0, w, h);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawBackground();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawPoint();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const start = (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (running) return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>running = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pos = { x: event.clientX - rect.left, y: event.clientY - rect.top };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>path = [{x: pos.x, y: pos.y}];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cancelAnimationFrame(animationId);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>animate();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const reset = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>running = false;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cancelAnimationFrame(animationId);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>path = [];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pos = { x: w * 0.2, y: h * 0.2 };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draw();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.addEventListener('click', start);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>resetButton.addEventListener('click', reset);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>reset();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Visualization 2: Edge Detection ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupEdgeDetection() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const originalCanvas = document.getElementById('edge-original-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const octx = originalCanvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const detectCanvas = document.getElementById('edge-detect-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const dctx = detectCanvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = originalCanvas.width;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const h = originalCanvas.height;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawOriginal = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>octx.fillStyle = '#4b5563'; // bg-gray-600</p>
+<p class="p1"><span class="Apple-converted-space">                </span>octx.fillRect(0, 0, w, h);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>octx.fillStyle = '#e5e7eb'; // text-gray-200</p>
+<p class="p1"><span class="Apple-converted-space">                </span>octx.fillRect(40, 40, 80, 80);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>octx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>octx.arc(140, 140, 40, 0, Math.PI * 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>octx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const sobel = (pixels) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const grayscale = new Uint8ClampedArray(w * h);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; pixels.data.length; i += 4) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const lightness = (pixels.data[i] + pixels.data[i+1] + pixels.data[i+2]) / 3;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>grayscale[i/4] = lightness;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const output = new Uint8ClampedArray(pixels.data.length);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const kx = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const ky = [[-1, -2, -1], [0, 0, 0], [1, 2, 1]];</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let y = 1; y &lt; h - 1; y++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let x = 1; x &lt; w - 1; x++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>let Gx = 0, Gy = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>for (let i = -1; i &lt;= 1; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>for (let j = -1; j &lt;= 1; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>const val = grayscale[(y + j) * w + (x + i)];</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>Gx += val * kx[j + 1][i + 1];</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>Gy += val * ky[j + 1][i + 1];</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const magnitude = Math.sqrt(Gx * Gx + Gy * Gy);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const idx = (y * w + x) * 4;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>output[idx] = output[idx+1] = output[idx+2] = magnitude;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>output[idx+3] = 255;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return new ImageData(output, w, h);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>drawOriginal();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const originalImageData = octx.getImageData(0, 0, w, h);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const edgeImageData = sobel(originalImageData);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>originalCanvas.addEventListener('mousemove', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = originalCanvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = e.clientX - rect.left;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = e.clientY - rect.top;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.clearRect(0,0,w,h);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.globalAlpha = 0.5;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.putImageData(edgeImageData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.globalAlpha = 1.0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const radius = 30;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.save();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.arc(x, y, radius, 0, Math.PI*2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.clip();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.putImageData(edgeImageData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.restore();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">             </span>originalCanvas.addEventListener('mouseleave', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.clearRect(0,0,w,h);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Visualization 3: Logistic Regression ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupLogisticRegression() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const canvas = document.getElementById('logistic-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ctx = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const resetButton = document.getElementById('logistic-reset');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = canvas.width;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const h = canvas.height;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let points = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let weights = { w1: 0.1, w2: -0.1, b: 0 }; // w1*x + w2*y + b = 0</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const sigmoid = (z) =&gt; 1 / (1 + Math.exp(-z));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawBackground = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>const imageData = ctx.createImageData(w, h);</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>for (let x = 0; x &lt; w; x++) {</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>for (let y = 0; y &lt; h; y++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const score = weights.w1 * (x - w/2) + weights.w2 * (y - h/2) + weights.b;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const prob = sigmoid(score * 0.05); // scale score</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const idx = (y * w + x) * 4;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>imageData.data[idx] = 251 * (1 - prob) + 129 * prob; // amber-300 to blue-400</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>imageData.data[idx+1] = 191 * (1 - prob) + 140 * prob;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>imageData.data[idx+2] = 36 * (1 - prob) + 247 * prob;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>imageData.data[idx+3] = 255;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>ctx.putImageData(imageData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawPoints = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>points.forEach(p =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillStyle = p.label === 1 ? '#60a5fa' : '#fcd34d'; // blue-400 : amber-300</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.strokeStyle = '#1f2937';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.lineWidth = 1;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawBoundary = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// w1*x + w2*y + b = 0 =&gt; y = (-w1*x - b) / w2</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y1 = (-weights.w1 * (0 - w/2) - weights.b) / weights.w2 + h/2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y2 = (-weights.w1 * (w - w/2) - weights.b) / weights.w2 + h/2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.moveTo(0, y1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineTo(w, y2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const updateWeights = (point) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const learningRate = 0.1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const score = weights.w1 * (point.x - w/2) + weights.w2 * (point.y - h/2) + weights.b;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const prediction = sigmoid(score * 0.05);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const error = point.label - prediction;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>weights.w1 += learningRate * error * (point.x-w/2) * 0.01;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>weights.w2 += learningRate * error * (point.y-h/2) * 0.01;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>weights.b += learningRate * error;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const addPoint = (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvas.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = e.clientX - rect.left;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = e.clientY - rect.top;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const score = weights.w1 * (x - w/2) + weights.w2 * (y - h/2) + weights.b;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const label = score &gt; 0 ? 1 : 0;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const newPoint = { x, y, label };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>points.push(newPoint);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateWeights(newPoint);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draw();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const draw = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.clearRect(0,0,w,h);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawBackground();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawPoints();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// drawBoundary(); // Boundary is implicit in background</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const reset = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>points = [];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>weights = { w1: 0.1, w2: -0.1, b: 0 };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// Add some initial points for clarity</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for(let i=0; i&lt;10; i++){</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>points.push({ x: w*0.25 + Math.random()*50-25, y: h*0.5 + Math.random()*100-50, label: 0 });</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>points.push({ x: w*0.75 + Math.random()*50-25, y: h*0.5 + Math.random()*100-50, label: 1 });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>draw();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>canvas.addEventListener('click', addPoint);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>resetButton.addEventListener('click', reset);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>reset();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Visualization 4: Diffusion / Noise Removal ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupDiffusion() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const originalCanvas = document.getElementById('noise-original-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const octx = originalCanvas.getContext('2d', { willReadFrequently: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const denoisedCanvas = document.getElementById('noise-denoised-canvas');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const dctx = denoisedCanvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const slider = document.getElementById('diffusion-slider');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const w = originalCanvas.width;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const h = originalCanvas.height;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let noisyImageData;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const generateBaseImage = (ctx) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#4b5563'; // bg-gray-600</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(0, 0, w, h);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#e5e7eb'; // text-gray-200</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(40, 40, 80, 80);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.arc(140, 140, 40, 0, Math.PI * 2);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fill();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const addNoise = (imageData) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const d = imageData.data;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 0; i &lt; d.length; i += 4) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (Math.random() &lt; 0.15) { // 15% noise</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const color = Math.random() &gt; 0.5 ? 255 : 0;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>d[i] = d[i+1] = d[i+2] = color;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return imageData;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const applyBlur = (srcData, iterations) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let src = new Uint8ClampedArray(srcData.data);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let dst = new Uint8ClampedArray(srcData.data.length);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for(let iter=0; iter&lt;iterations; iter++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for(let y=1; y&lt;h-1; y++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>for(let x=1; x&lt;w-1; x++) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>for (let c=0; c&lt;3; c++) { // R, G, B channels</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>let sum = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>for(let j=-1; j&lt;=1; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>for(let i=-1; i&lt;=1; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                                        </span>sum += src[((y+j) * w + (x+i))*4 + c];</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>dst[((y*w+x)*4)+c] = sum / 9;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>dst[((y*w+x)*4)+3] = 255; // Alpha</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>src.set(dst);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return new ImageData(dst, w, h);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const init = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>generateBaseImage(octx);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const baseImageData = octx.getImageData(0, 0, w, h);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>noisyImageData = addNoise(baseImageData);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>octx.putImageData(noisyImageData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateDenoised();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const updateDenoised = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const iterations = parseInt(slider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (iterations === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>dctx.clearRect(0,0,w,h);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>dctx.putImageData(noisyImageData, 0,0);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const denoisedData = applyBlur(noisyImageData, iterations);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>dctx.putImageData(denoisedData, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>slider.addEventListener('input', updateDenoised);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>init();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>平均値の定理の応用</title>
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', 'M PLUS Rounded 1c', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans JP', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
+  </style>
+</head>
+<body class="bg-white text-gray-900">
+  <div id="root"></div>
+
+  <!-- React 18 UMD + Babel Standalone -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useMemo, useState, useEffect } = React;
+
+    // =============================================
+    // 平均値の定理（MVT）
+    // - 単一ファイルで動作するよう、すべてSVGで描画
+    // - 5つのデモ + 簡易テスト + ErrorBoundary
+    // - 直感UI：
+    //   ・リプシッツ：起点切替（a / b）、帯・バーの数式ラベル表示
+    //   ・テイラー：チューブ方式の切替（自動/一定K）、Kや境界式のラベル表示
+    //   ・道予測：M を手動指定、真の関数を隠して「取りうる道」を描画
+    //   ・道予測（ベイズ風）：途中観測点（x_obs, y_obs±ε）で帯を“交差”して狭める
+    // =============================================
+
+    // ---- Error Boundary（描画時例外を可視化）
+    class ErrorBoundary extends React.Component {
+      constructor(props){super(props); this.state={error:null};}
+      static getDerivedStateFromError(error){ return {error}; }
+      componentDidCatch(error, info){ console.error("Render error:", error, info); }
+      render(){
+        if(this.state.error){
+          const msg = String(this.state.error?.message || this.state.error);
+          return (
+            <div className="p-4 bg-red-50 text-red-800 rounded-xl border border-red-200">
+              <div className="font-bold mb-1">レンダー時エラー</div>
+              <pre className="whitespace-pre-wrap text-xs">{msg}</pre>
+              <p className="text-xs mt-2 text-red-700">スタックはブラウザのコンソールにも出力しています。</p>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    // 関数カタログ
+    const FUNCS = {
+      quad: {
+        key: "quad",
+        name: "二次関数 f(x)=x^2",
+        f: (x) => x * x,
+        df: (x) => 2 * x,
+        d2f: (x) => 2,
+        domain: [-3, 3],
+        niceY: [-1, 9],
+      },
+      cubic: {
+        key: "cubic",
+        name: "三次 f(x)=x^3-x",
+        f: (x) => x * x * x - x,
+        df: (x) => 3 * x * x - 1,
+        d2f: (x) => 6 * x,
+        domain: [-2, 2],
+        niceY: [-4, 4],
+      },
+      sin: {
+        key: "sin",
+        name: "正弦 f(x)=sin x",
+        f: (x) => Math.sin(x),
+        df: (x) => Math.cos(x),
+        d2f: (x) => -Math.sin(x),
+        domain: [-Math.PI * 1.2, Math.PI * 1.2],
+        niceY: [-1.4, 1.4],
+      },
+      log1p: {
+        key: "log1p",
+        name: "対数 f(x)=ln(x+1)",
+        f: (x) => Math.log(x + 1),
+        df: (x) => 1 / (x + 1),
+        d2f: (x) => -1 / ((x + 1) * (x + 1)),
+        domain: [-0.9, 3], // x>-1
+        niceY: [-3, 2],
+      },
+      exp: {
+        key: "exp",
+        name: "指数 f(x)=e^x/3",
+        f: (x) => Math.exp(x) / 3,
+        df: (x) => Math.exp(x) / 3,
+        d2f: (x) => Math.exp(x) / 3,
+        domain: [-2, 2],
+        niceY: [-0.2, 3],
+      },
+    };
+
+    // ユーティリティ
+    const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+    const fmt = (x, d = 4) => {
+      if (!isFinite(x)) return "—";
+      return Number(x).toFixed(d).replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1");
+    };
+    const near = (a, b, eps = 1e-3) => Math.abs(a - b) <= eps;
+
+    // 描画領域ユーティリティ
+    function usePlot(domain, yRange) {
+      const width = 760; // コンテンツでの標準幅
+      const height = 320;
+      const pad = { l: 48, r: 20, t: 20, b: 36 };
+      const [xmin, xmax] = domain;
+      const [ymin, ymax] = yRange;
+      const w = width - pad.l - pad.r;
+      const h = height - pad.t - pad.b;
+      const X = (x) => pad.l + ((x - xmin) / (xmax - xmin)) * w;
+      const Y = (y) => pad.t + h - ((y - ymin) / (ymax - ymin)) * h;
+      return { width, height, pad, X, Y, xmin, xmax, ymin, ymax, w, h };
+    }
+
+    function samplePath(f, X, Y, xmin, xmax, n = 400) {
+      const step = (xmax - xmin) / (n - 1);
+      let d = "";
+      for (let i = 0; i < n; i++) {
+        const x = xmin + i * step;
+        const y = f(x);
+        const px = X(x);
+        const py = Y(y);
+        d += i === 0 ? `M ${px} ${py}` : ` L ${px} ${py}`;
+      }
+      return d;
+    }
+
+    // 区間[a,b]内で f'(c) = m を満たす c を（存在すれば）探す：符号変化/最小値探索
+    function findC(df, m, a, b) {
+      const N = 800;
+      let prev = df(a) - m;
+      let prevX = a;
+      let bestX = a;
+      let bestVal = Math.abs(prev);
+      for (let i = 1; i <= N; i++) {
+        const x = a + ((b - a) * i) / N;
+        const val = df(x) - m;
+        const abs = Math.abs(val);
+        if (abs < bestVal) {
+          bestVal = abs;
+          bestX = x;
+        }
+        if (val === 0) return x;
+        if (prev * val < 0) { // 線形補間
+          const t = prev / (prev - val);
+          return prevX + t * (x - prevX);
+        }
+        prev = val;
+        prevX = x;
+      }
+      return bestX; // 近い点
+    }
+
+    // 軸描画
+    function Axes({ plot, ticks = 6 }) {
+      const { X, Y, xmin, xmax, ymin, ymax, pad, width, height } = plot;
+      const g = [];
+      // x軸
+      if (ymin < 0 && ymax > 0) {
+        const y0 = Y(0);
+        g.push(<line key="xaxis" x1={pad.l} y1={y0} x2={width - pad.r} y2={y0} className="stroke-gray-300" />);
+      }
+      // y軸
+      if (xmin < 0 && xmax > 0) {
+        const x0 = X(0);
+        g.push(<line key="yaxis" x1={x0} y1={pad.t} x2={x0} y2={height - pad.b} className="stroke-gray-300" />);
+      }
+      // 目盛（y）
+      for (let i = 0; i <= ticks; i++) {
+        const y = ymin + (i * (ymax - ymin)) / ticks;
+        const py = Y(y);
+        g.push(
+          <g key={`yt${i}`}>
+            <line x1={pad.l - 4} y1={py} x2={pad.l} y2={py} className="stroke-gray-300" />
+            <text x={pad.l - 8} y={py + 4} className="fill-gray-400 text-xs" textAnchor="end">{fmt(y, 2)}</text>
+          </g>
+        );
+      }
+      // 目盛（x）
+      for (let i = 0; i <= ticks; i++) {
+        const x = xmin + (i * (xmax - xmin)) / ticks;
+        const px = X(x);
+        g.push(
+          <g key={`xt${i}`}>
+            <line x1={px} y1={height - pad.b} x2={px} y2={height - pad.b + 4} className="stroke-gray-300" />
+            <text x={px} y={height - pad.b + 16} className="fill-gray-400 text-xs" textAnchor="middle">{fmt(x, 2)}</text>
+          </g>
+        );
+      }
+      return <g>{g}</g>;
+    }
+
+    function Slider({ label, min, max, step = 0.01, value, onChange }) {
+      return (
+        <label className="flex items-center gap-3 w-full">
+          <span className="text-sm text-gray-600 whitespace-nowrap w-28">{label}</span>
+          <input
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            onChange={(e) => onChange(Number(e.target.value))}
+            className="w-full accent-gray-700"
+          />
+          <span className="text-sm tabular-nums w-24 text-right">{fmt(value)}</span>
+        </label>
+      );
+    }
+
+    function Card({ title, subtitle, children, right }) {
+      return (
+        <div className="rounded-2xl shadow-sm border border-gray-200 bg-white">
+          <div className="p-4 border-b border-gray-100 flex items-end justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+              {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+            </div>
+            {right}
+          </div>
+          <div className="p-4">{children}</div>
+        </div>
+      );
+    }
+
+    // 1) 幾何版MVT
+    function DemoMVT() {
+      const [funcKey, setFuncKey] = useState("sin");
+      const F = FUNCS[funcKey];
+      const [a, setA] = useState(() => F.domain[0] * 0.3);
+      const [b, setB] = useState(() => F.domain[1] * 0.3);
+
+      useEffect(() => {
+        // 関数切替時に範囲初期化
+        setA(F.domain[0] * 0.3);
+        setB(F.domain[1] * 0.3);
+      }, [funcKey]);
+
+      const plot = usePlot(F.domain, F.niceY);
+      const { X, Y, xmin, xmax } = plot;
+      const aClamped = clamp(Math.min(a, b - 1e-6), xmin, xmax);
+      const bClamped = clamp(Math.max(b, a + 1e-6), xmin, xmax);
+
+      const mSec = (F.f(bClamped) - F.f(aClamped)) / (bClamped - aClamped);
+      const c = findC(F.df, mSec, aClamped, bClamped);
+
+      const path = useMemo(() => samplePath(F.f, X, Y, xmin, xmax, 500), [funcKey, X, Y, xmin, xmax]);
+
+      const secLine = {
+        x1: X(aClamped),
+        y1: Y(F.f(aClamped)),
+        x2: X(bClamped),
+        y2: Y(F.f(bClamped)),
+      };
+
+      // 接線（c, f(c)）
+      const fc = F.f(c);
+      const dfc = F.df(c);
+      const Lx1 = xmin, Lx2 = xmax;
+      const Ly1 = fc + dfc * (Lx1 - c);
+      const Ly2 = fc + dfc * (Lx2 - c);
+
+      return (
+        <Card
+          title="平均値の定理を可視化"
+          subtitle="割線の傾き = どこかの接線の傾き。スライダーで区間[a,b]を動かそう。"
+          right={
+            <select
+              value={funcKey}
+              onChange={(e) => setFuncKey(e.target.value)}
+              className="border rounded-md text-sm px-2 py-1"
+            >
+              {Object.values(FUNCS).map((f) => (
+                <option key={f.key} value={f.key}>{f.name}</option>
+              ))}
+            </select>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <svg width={plot.width} height={plot.height} className="w-full">
+              <rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" />
+              <Axes plot={plot} />
+              {/* 関数グラフ */}
+              <path d={path} className="stroke-gray-700 fill-none" strokeWidth={2} />
+
+              {/* 割線 */}
+              <line {...secLine} className="stroke-amber-500" strokeWidth={2} />
+              <circle cx={secLine.x1} cy={secLine.y1} r={4} className="fill-amber-500" />
+              <circle cx={secLine.x2} cy={secLine.y2} r={4} className="fill-amber-500" />
+
+              {/* 接線 at c */}
+              <line x1={plot.X(Lx1)} y1={plot.Y(Ly1)} x2={plot.X(Lx2)} y2={plot.Y(Ly2)} className="stroke-sky-600" strokeWidth={2} />
+              <circle cx={plot.X(c)} cy={plot.Y(fc)} r={5} className="fill-sky-600" />
+            </svg>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Slider label="a" min={F.domain[0]} max={F.domain[1]} value={aClamped} onChange={setA} />
+              <Slider label="b" min={F.domain[0]} max={F.domain[1]} value={bClamped} onChange={setB} />
+            </div>
+
+            <div className="text-sm text-gray-700 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="p-3 bg-gray-50 rounded-xl">割線の傾き  m = {(fmt(mSec, 4))}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">見つかった c ≈ {fmt(c, 4)}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">接線の傾き f'(c) = {fmt(dfc, 4)}</div>
+            </div>
+            <p className="text-sm text-gray-500">常に m = f'(c) となる c が区間 (a,b) 内に少なくとも1つ存在します（平均値の定理）。</p>
+          </div>
+        </Card>
+      );
+    }
+
+    // 2) リプシッツ上界 |f(b)-f(a)| <= M|b-a|（速度制限の直感つき）
+    function DemoLipschitz() {
+      const [funcKey, setFuncKey] = useState("sin");
+      const [origin, setOrigin] = useState("a"); // 帯の起点 a / b
+      const F = FUNCS[funcKey];
+      const [a, setA] = useState(() => F.domain[0] * 0.4);
+      const [b, setB] = useState(() => F.domain[1] * 0.4);
+
+      useEffect(() => { setA(F.domain[0] * 0.4); setB(F.domain[1] * 0.4); }, [funcKey]);
+
+      const plot = usePlot(F.domain, F.niceY);
+      const { X, Y, xmin, xmax, pad } = plot;
+      const aC = clamp(Math.min(a, b - 1e-6), xmin, xmax);
+      const bC = clamp(Math.max(b, a + 1e-6), xmin, xmax);
+      const lo = Math.min(aC, bC), hi = Math.max(aC, bC);
+
+      // M = sup_{[a,b]} |f'|
+      const M = useMemo(() => {
+        let m = 0; const N = 512;
+        for (let i = 0; i <= N; i++) {
+          const x = lo + ((hi - lo) * i) / N;
+          m = Math.max(m, Math.abs(F.df(x)));
+        }
+        return m;
+      }, [funcKey, lo, hi]);
+
+      const lhs = Math.abs(F.f(bC) - F.f(aC));
+      const rhs = M * Math.abs(bC - aC);
+
+      const path = useMemo(() => samplePath(F.f, X, Y, xmin, xmax, 500), [funcKey, X, Y, xmin, xmax]);
+
+      // 帯の起点を選択
+      const oX = origin === "a" ? aC : bC; // origin x
+      const oY = F.f(oX);
+      const otherX = origin === "a" ? bC : aC;
+      const upper = (x) => oY + M * (x - oX);
+      const lower = (x) => oY - M * (x - oX);
+
+      // 影の帯ポリゴン
+      const bandPoly = (() => {
+        const pts = [
+          [X(lo), Y(upper(lo))],
+          [X(hi), Y(upper(hi))],
+          [X(hi), Y(lower(hi))],
+          [X(lo), Y(lower(lo))],
+        ];
+        return `M ${pts[0][0]} ${pts[0][1]} L ${pts[1][0]} ${pts[1][1]} L ${pts[2][0]} ${pts[2][1]} L ${pts[3][0]} ${pts[3][1]} Z`;
+      })();
+
+      // 他端の“許容範囲”縦バー
+      const barX = X(otherX);
+      const barTop = Y(upper(otherX));
+      const barBot = Y(lower(otherX));
+
+      // 曲線が帯内にいるかのチェック
+      const inside = useMemo(() => {
+        const N = 200;
+        for (let i = 0; i <= N; i++) {
+          const x = lo + ((hi - lo) * i) / N;
+          const y = F.f(x);
+          if (y > upper(x) + 1e-9 || y < lower(x) - 1e-9) return false;
+        }
+        return true;
+      }, [lo, hi, M, funcKey, origin]);
+
+      // ラベル用文字列
+      const delta = Math.abs(otherX - oX);
+      const labelBand = `帯:  y = f(${origin}) ± M (x − ${origin})`;
+      const labelBarTop = `上端 ≈ ${fmt(upper(otherX),3)}`;
+      const labelBarBot = `下端 ≈ ${fmt(lower(otherX),3)}`;
+
+      return (
+        <Card
+          title="増分の上界（リプシッツ）"
+          subtitle="M は“1 歩 x に進むごとに y は高々 M だけしか動けない”。影の帯が到達可能域を示す。"
+          right={
+            <div className="flex items-center gap-3">
+              <select value={funcKey} onChange={(e)=>setFuncKey(e.target.value)} className="border rounded-md text-sm px-2 py-1">
+                {Object.values(FUNCS).map(f=> <option key={f.key} value={f.key}>{f.name}</option>)}
+              </select>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-gray-600">起点</span>
+                <label className="flex items-center gap-1"><input type="radio" name="origin" value="a" checked={origin==='a'} onChange={()=>setOrigin('a')} />a</label>
+                <label className="flex items-center gap-1"><input type="radio" name="origin" value="b" checked={origin==='b'} onChange={()=>setOrigin('b')} />b</label>
+              </div>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <svg width={plot.width} height={plot.height} className="w-full">
+              <rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" />
+              <Axes plot={plot} />
+
+              {/* 速度制限の影の帯（到達可能域） */}
+              <path d={bandPoly} className="fill-amber-200 opacity-50" />
+
+              {/* ラベル（左上に帯の式） */}
+              <text x={pad.l + 8} y={pad.t + 14} className="fill-amber-700 text-[11px]">{labelBand}</text>
+              <text x={pad.l + 8} y={pad.t + 28} className="fill-emerald-700 text-[11px]">M ≈ {fmt(M,3)},  |Δx| = {fmt(delta,3)}</text>
+
+              {/* 曲線と割線 */}
+              <path d={path} className="stroke-gray-700 fill-none" strokeWidth={2} />
+              <line x1={X(aC)} y1={Y(F.f(aC))} x2={X(bC)} y2={Y(F.f(bC))} className="stroke-amber-500" strokeWidth={2} />
+
+              {/* a, b と許容範囲バー（他端） */}
+              <circle cx={X(aC)} cy={Y(F.f(aC))} r={4} className="fill-emerald-600" />
+              <circle cx={X(bC)} cy={Y(F.f(bC))} r={4} className="fill-emerald-600" />
+              <line x1={barX} y1={barBot} x2={barX} y2={barTop} className="stroke-amber-600" strokeDasharray="4 4" />
+              <text x={barX + 6} y={barTop - 4} className="fill-amber-700 text-[10px]">{labelBarTop}</text>
+              <text x={barX + 6} y={barBot + 12} className="fill-amber-700 text-[10px]">{labelBarBot}</text>
+            </svg>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Slider label="a" min={F.domain[0]} max={F.domain[1]} value={aC} onChange={setA} />
+              <Slider label="b" min={F.domain[0]} max={F.domain[1]} value={bC} onChange={setB} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+              <div className="p-3 bg-gray-50 rounded-xl">M ≈ sup_{[a,b]}|f'| = {fmt(M,4)}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">|f(b)-f(a)| = {fmt(lhs,4)}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">M|b-a| = {fmt(rhs,4)}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">帯の中に曲線は入る: {inside?"✅ はい":"❌ いいえ"}</div>
+            </div>
+            <p className="text-sm text-gray-500">帯は (起点,f(起点)) を中心に幅 M の“V 字レール”。どちらを起点にしても、終点の縦ずれは M|b-a| を超えません。</p>
+          </div>
+        </Card>
+      );
+    }
+
+    // 2.5) 道予測：Lipschitz に基づく「取りうる道」の可視化（真の関数を隠して考える + ベイズ風アップデート）
+    function DemoLipschitzPredict() {
+      const [funcKey, setFuncKey] = useState("sin");
+      const [origin, setOrigin] = useState("a");
+      const [hideTruth, setHideTruth] = useState(true);
+      const [useManualM, setUseManualM] = useState(true);
+      const [manualM, setManualM] = useState(1);
+      const [nPaths, setNPaths] = useState(5);
+      const [seed, setSeed] = useState(1);
+
+      // 観測の有無・位置・ノイズ
+      const [useObs, setUseObs] = useState(false);
+      const [obsX, setObsX] = useState(0); // 初期値は後で更新
+      const [eps, setEps] = useState(0);
+
+      const F = FUNCS[funcKey];
+      const [a, setA] = useState(() => F.domain[0] * 0.3);
+      const [b, setB] = useState(() => F.domain[1] * 0.3);
+
+      useEffect(() => { setA(F.domain[0] * 0.3); setB(F.domain[1] * 0.3); }, [funcKey]);
+      useEffect(() => { setObsX((F.domain[0] + F.domain[1]) / 2); setEps(0); }, [funcKey]);
+
+      const plot = usePlot(F.domain, F.niceY);
+      const { X, Y, xmin, xmax, pad, ymin, ymax } = plot;
+      const aC = clamp(Math.min(a, b - 1e-6), xmin, xmax);
+      const bC = clamp(Math.max(b, a + 1e-6), xmin, xmax);
+      const lo = Math.min(aC, bC), hi = Math.max(aC, bC);
+
+      // 自動M（参考値）
+      const Mauto = useMemo(() => {
+        let m = 0; const N = 512;
+        for (let i = 0; i <= N; i++) {
+          const x = lo + ((hi - lo) * i) / N;
+          m = Math.max(m, Math.abs(F.df(x)));
+        }
+        return m;
+      }, [funcKey, lo, hi]);
+
+      const M = useManualM ? manualM : Mauto;
+
+      // 起点と帯
+      const oX = origin === "a" ? aC : bC;
+      const oY = F.f(oX);
+      const otherX = origin === "a" ? bC : aC;
+      const upperBase = (x) => oY + M * (x - oX);
+      const lowerBase = (x) => oY - M * (x - oX);
+
+      // 観測点と更新帯（交差）
+      const xObs = clamp(obsX, lo, hi);
+      const yObs = F.f(xObs);
+      const upperObs = (x) => yObs + eps + M * Math.abs(x - xObs);
+      const lowerObs = (x) => yObs - eps - M * Math.abs(x - xObs);
+
+      const upper = (x) => useObs ? Math.min(upperBase(x), upperObs(x)) : upperBase(x);
+      const lower = (x) => useObs ? Math.max(lowerBase(x), lowerObs(x)) : lowerBase(x);
+
+      // 影の帯（基準）
+      const bandBase = (() => {
+        const L = X(lo), R = X(hi);
+        return `M ${L} ${Y(upperBase(lo))} L ${R} ${Y(upperBase(hi))} L ${R} ${Y(lowerBase(hi))} L ${L} ${Y(lowerBase(lo))} Z`;
+      })();
+
+      // 影の帯（更新後）— 一般形なのでサンプリングでパスを作成
+      const bandUpdated = useMemo(() => {
+        const N = 240;
+        const ts = Array.from({length:N}, (_,i)=> lo + ((hi - lo) * i) / (N-1));
+        const up = ts.map((t)=> upper(t));
+        const loArr = ts.map((t)=> lower(t));
+        const feasible = up.every((u, i)=> u >= loArr[i] - 1e-9);
+        // パス生成（上を左→右、下を右→左）
+        const pU = up.map((y,i)=> `L ${X(ts[i])} ${Y(y)}`); if(pU.length) pU[0] = `M ${X(ts[0])} ${Y(up[0])}`;
+        const pL = loArr.map((y,i)=> `L ${X(ts[N-1-i])} ${Y(loArr[N-1-i])}`);
+        const d = `${pU.join(' ')} ${pL.join(' ')} Z`;
+        return { d, feasible };
+      }, [lo, hi, origin, funcKey, M, eps, obsX, useObs]);
+
+      // 乱数（軽量シード風）
+      function rng() {
+        // xorshift32 的な簡易（テストで固定化しない）
+        let x = (seed * 1664525 + 1013904223) >>> 0;
+        const next = () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return (x >>> 0) / 0xffffffff; };
+        return next;
+      }
+
+      // 「取りうる道」を生成：|Δy| ≤ M|Δx| を積み上げる。帯からはみ出さないよう clamp。
+      function makePath(nSteps) {
+        const rand = rng();
+        const steps = Math.max(10, nSteps);
+        const dx = (otherX - oX) / steps;
+        const pts = [];
+        let x = oX, y = oY;
+        pts.push([x, y]);
+        for (let i = 0; i < steps; i++) {
+          const s = (rand() * 2 - 1) * M; // slope in [-M, M]
+          const nx = x + dx;
+          let ny = y + s * dx; // Euler ステップ
+          // 更新後の帯で clamp
+          const loY = lower(nx), hiY = upper(nx);
+          ny = Math.max(loY, Math.min(hiY, ny));
+          pts.push([nx, ny]);
+          x = nx; y = ny;
+        }
+        return pts;
+      }
+
+      function toPathD(pts) {
+        return pts.map((p,i)=> (i===0? `M ${X(p[0])} ${Y(p[1])}` : ` L ${X(p[0])} ${Y(p[1])}`)).join("");
+      }
+
+      const pathTruth = useMemo(() => samplePath(F.f, X, Y, xmin, xmax, 500), [funcKey, X, Y, xmin, xmax]);
+
+      const samples = useMemo(() => {
+        // サンプル数とステップ数は区間長に応じて適当に
+        const steps = 120;
+        return bandUpdated.feasible
+          ? Array.from({length:nPaths}, ()=> toPathD(makePath(steps)) )
+          : [];
+      }, [nPaths, M, oX, oY, otherX, seed, bandUpdated.feasible]);
+
+      const delta = Math.abs(otherX - oX);
+      const labelBand = `到達可能域: y = f(起点) ± M (x − 起点)`;
+      const epsMax = Math.max(0.05, 0.3 * (ymax - ymin));
+
+      // 真の関数が帯から出るか（M 小さすぎ/観測と矛盾）
+      const truthInside = useMemo(() => {
+        const N = 240;
+        for (let i = 0; i <= N; i++) {
+          const x = lo + ((hi - lo) * i) / N;
+          const y = F.f(x);
+          if (y > upper(x) + 1e-9 || y < lower(x) - 1e-9) return false;
+        }
+        return true;
+      }, [M, lo, hi, funcKey, origin, oX, useObs, eps, obsX]);
+
+      const Mmax = Math.max(0.2, Mauto * 3);
+
+      return (
+        <Card
+          title="道予測（Lipschitz による到達可能域）"
+          subtitle="起点の値と“スピードリミット M”だけで先を占う。観測点を追加すると帯が“交差”して狭まる。"
+          right={
+            <div className="flex items-center gap-3">
+              <select value={funcKey} onChange={(e)=>setFuncKey(e.target.value)} className="border rounded-md text-sm px-2 py-1">
+                {Object.values(FUNCS).map(f=> <option key={f.key} value={f.key}>{f.name}</option>)}
+              </select>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-gray-600">起点</span>
+                <label className="flex items-center gap-1"><input type="radio" name="originP" value="a" checked={origin==='a'} onChange={()=>setOrigin('a')} />a</label>
+                <label className="flex items-center gap-1"><input type="radio" name="originP" value="b" checked={origin==='b'} onChange={()=>setOrigin('b')} />b</label>
+              </div>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <svg width={plot.width} height={plot.height} className="w-full">
+              <rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" />
+              <Axes plot={plot} />
+
+              {/* 帯（基準・到達可能域） */}
+              <path d={bandBase} className="fill-indigo-200 opacity-40" />
+              {/* 帯（更新後） */}
+              {useObs && (
+                <path d={bandUpdated.d} className="fill-fuchsia-200 opacity-60" />
+              )}
+
+              {/* ラベル */}
+              <text x={pad.l + 8} y={pad.t + 14} className="fill-indigo-700 text-[11px]">{labelBand}</text>
+              {useObs ? (
+                <text x={pad.l + 8} y={pad.t + 28} className="fill-fuchsia-700 text-[11px]">交差帯: max(下限)〜min(上限) / x_obs={fmt(xObs,3)}, ε={fmt(eps,3)}</text>
+              ) : (
+                <text x={pad.l + 8} y={pad.t + 28} className="fill-emerald-700 text-[11px]">M = {fmt(M,3)}（自動推定 {fmt(Mauto,3)}） / |Δx| = {fmt(delta,3)}</text>
+              )}
+
+              {/* 取りうる道（サンプル） */}
+              {samples.map((d,i)=> (
+                <path key={i} d={d} className="stroke-indigo-600 opacity-60 fill-none" strokeWidth={1.5} />
+              ))}
+
+              {/* 真の関数（任意で隠す） */}
+              {!hideTruth && (
+                <path d={pathTruth} className="stroke-gray-900 fill-none" strokeWidth={2} />
+              )}
+
+              {/* 起点・終点 */}
+              <circle cx={X(aC)} cy={Y(F.f(aC))} r={4} className="fill-sky-600" />
+              <circle cx={X(bC)} cy={Y(F.f(bC))} r={4} className="fill-sky-600" />
+
+              {/* 観測点の可視化 */}
+              {useObs && (
+                <>
+                  <line x1={X(xObs)} y1={Y(yObs - eps)} x2={X(xObs)} y2={Y(yObs + eps)} className="stroke-fuchsia-700" strokeDasharray="4 4" />
+                  <circle cx={X(xObs)} cy={Y(yObs)} r={4} className="fill-fuchsia-700" />
+                </>
+              )}
+            </svg>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Slider label="a" min={F.domain[0]} max={F.domain[1]} value={aC} onChange={setA} />
+              <Slider label="b" min={F.domain[0]} max={F.domain[1]} value={bC} onChange={setB} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={useManualM} onChange={()=>setUseManualM(!useManualM)} />
+                手動 M
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={hideTruth} onChange={()=>setHideTruth(!hideTruth)} />
+                真の関数を隠す（“地図なしで道を予測”）
+              </label>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Slider label="M（手動）" min={0} max={Mmax} step={0.01} value={manualM} onChange={setManualM} />
+              <Slider label="サンプル道の数" min={1} max={12} step={1} value={nPaths} onChange={setNPaths} />
+            </div>
+
+            {/* 観測コントロール */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={useObs} onChange={()=>setUseObs(!useObs)} />
+                観測点を追加（ベイズ風アップデート）
+              </label>
+              {useObs && (
+                <>
+                  <Slider label="x_obs（観測位置）" min={lo} max={hi} value={obsX} onChange={setObsX} />
+                  <Slider label="ε（ノイズ幅）" min={0} max={epsMax} step={0.001} value={eps} onChange={setEps} />
+                </>
+              )}
+            </div>
+
+            <div className="flex flex-col md:flex-row md:items-center gap-3 text-sm">
+              <button onClick={()=>setSeed((s)=>s+1)} className="px-3 py-1.5 border rounded-md w-fit">再生成</button>
+              <span className="text-gray-600">真の関数は帯の中に入るか：{truthInside? "✅ はい" : "⚠️ いいえ（M/観測が矛盾）"}</span>
+              {useObs && <span className="text-gray-600">帯の一貫性：{bandUpdated.feasible ? "✅ 交差は存在" : "❌ 空（矛盾）"}</span>}
+            </div>
+
+            <p className="text-sm text-gray-500">観測点 (x_obs, y_obs±ε) を加えると、帯は <em>y ∈ [max(f(起点)±M|x−起点|, y_obs−ε−M|x−x_obs|), min(… , y_obs+ε+M|x−x_obs|)]</em> に狭まります。矛盾が起きたら M が小さすぎるか観測が不整合です。</p>
+          </div>
+        </Card>
+      );
+    }
+
+    // 3) 不等式：sin x ≤ x（x≥0）と ln x ≤ x-1（x>0）
+    function DemoInequalities() {
+      const [mode, setMode] = useState("sin");
+      const isSin = mode === "sin";
+
+      const F = isSin
+        ? { f: (x) => Math.sin(x), df: (x) => Math.cos(x), domain: [0, 3.5], niceY: [-0.2, 3.7], name: "sin x ≤ x" }
+        : { f: (x) => Math.log(x), df: (x) => 1 / x, domain: [0.2, 4], niceY: [-2, 3], name: "ln x ≤ x-1" };
+
+      const [x, setX] = useState(1);
+      const plot = usePlot(F.domain, F.niceY);
+      const { X, Y, xmin, xmax } = plot;
+      const path = useMemo(() => samplePath(F.f, X, Y, xmin, xmax, 500), [mode, X, Y, xmin, xmax]);
+
+      // 比較関数
+      const g = isSin ? (t) => t : (t) => t - 1; // x, x-1
+      const gPath = useMemo(() => samplePath(g, X, Y, xmin, xmax, 400), [mode, X, Y, xmin, xmax]);
+
+      // MVT視点の傾き：a=0（または1）からxまでの割線
+      const a = isSin ? 0 : 1;
+      const mSec = (F.f(x) - F.f(a)) / (x - a);
+      const c = findC(F.df, mSec, Math.min(a, x), Math.max(a, x));
+
+      // 接線の計算（JSX内関数を使わずに前計算）
+      const tangent = useMemo(() => {
+        if (!isFinite(c)) return null;
+        const fc = F.f(c);
+        const dfc = F.df(c);
+        const Lx1 = xmin, Lx2 = xmax;
+        const Ly1 = fc + dfc * (Lx1 - c);
+        const Ly2 = fc + dfc * (Lx2 - c);
+        return { fc, Lx1, Lx2, Ly1, Ly2 };
+      }, [c, xmin, xmax, mode]);
+
+      // sin: cos(c)<=1 → mSec<=1 → sin x <= x
+      // ln: 1/c <= 1 → ln x - ln1 <= x-1
+      const ok = isSin ? Math.sin(x) <= x + 1e-12 : Math.log(x) <= x - 1 + 1e-12;
+
+      return (
+        <Card
+          title="不等式をMVTで見る"
+          subtitle="sin x ≤ x,  ln x ≤ x-1。割線の傾きが“高々 1”になることを接線で説明。"
+          right={
+            <select value={mode} onChange={(e)=>setMode(e.target.value)} className="border rounded-md text-sm px-2 py-1">
+              <option value="sin">sin x ≤ x（x≥0）</option>
+              <option value="ln">ln x ≤ x-1（x&gt;0）</option>
+            </select>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <svg width={plot.width} height={plot.height} className="w-full">
+              <rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" />
+              <Axes plot={plot} />
+              <path d={path} className="stroke-gray-700 fill-none" strokeWidth={2} />
+              <path d={gPath} className="stroke-emerald-600 fill-none" strokeWidth={2} />
+
+              {/* 割線（a→x） */}
+              <line x1={X(a)} y1={Y(F.f(a))} x2={X(x)} y2={Y(F.f(x))} className="stroke-amber-500" strokeWidth={2} />
+
+              {/* 接線 at c */}
+              {tangent && (
+                <>
+                  <line x1={X(tangent.Lx1)} y1={Y(tangent.Ly1)} x2={X(tangent.Lx2)} y2={Y(tangent.Ly2)} className="stroke-sky-600" strokeWidth={2} />
+                  <circle cx={X(c)} cy={Y(tangent.fc)} r={5} className="fill-sky-600" />
+                </>
+              )}
+            </svg>
+
+            <Slider label={isSin?"x (≥0)":"x (&gt;0)"} min={F.domain[0]} max={F.domain[1]} value={x} onChange={setX} />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+              <div className="p-3 bg-gray-50 rounded-xl">割線の傾き m = {fmt(mSec,4)}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">c ≈ {fmt(c,4)}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">成立: {ok?"✅ はい":"❌ いいえ"}</div>
+            </div>
+            <p className="text-sm text-gray-500">sin では m=cos(c)≤1, ln では m=1/c≤1 が鍵。</p>
+          </div>
+        </Card>
+      );
+    }
+
+    // 4) テイラー2次近似の誤差上界（誤差チューブ可視化）
+    function DemoTaylor() {
+      const [funcKey, setFuncKey] = useState("exp");
+      const [tubeMode, setTubeMode] = useState("local"); // "local"（点ごとに最適）/ "global"（一定K）
+      const F = FUNCS[funcKey];
+      const plot = usePlot(F.domain, F.niceY);
+      const { X, Y, xmin, xmax, pad } = plot;
+
+      const [a, setA] = useState(0);
+      const [x, setXval] = useState(1);
+
+      useEffect(() => { setA(0); setXval((F.domain[0]+F.domain[1])/4); }, [funcKey]);
+
+      const path = useMemo(() => samplePath(F.f, X, Y, xmin, xmax, 500), [funcKey, X, Y, xmin, xmax]);
+
+      const f = F.f, df = F.df, d2f = F.d2f;
+      const L = (t) => f(a) + df(a) * (t - a); // 1次近似
+
+      const errActual = f(x) - L(x);
+
+      const xiMin = Math.min(a, x), xiMax = Math.max(a, x);
+      const Kglobal = useMemo(() => {
+        const N = 600; let m = 0;
+        for (let i = 0; i <= N; i++) {
+          const t = xiMin + ((xiMax - xiMin) * i) / N;
+          m = Math.max(m, Math.abs(d2f(t)));
+        }
+        return m;
+      }, [a, x, funcKey]);
+
+      // チューブ（上限・下限）を [xmin,xmax] で構成
+      const tube = useMemo(() => {
+        const N = 220;
+        const ts = Array.from({length:N}, (_,i)=> xmin + ((xmax - xmin) * i) / (N-1));
+
+        let supAt = null; // 関数 sup(t)
+        if (tubeMode === "local") {
+          // a に最も近いインデックス
+          const d2abs = ts.map((t)=> Math.abs(d2f(t)));
+          const idxA = Math.max(0, Math.min(N-1, Math.round((a - xmin) / (xmax - xmin) * (N-1))));
+          const fwd = d2abs.slice();
+          for(let i=idxA+1;i<N;i++) fwd[i] = Math.max(fwd[i-1], d2abs[i]);
+          const bwd = d2abs.slice();
+          for(let i=idxA-1;i>=0;i--) bwd[i] = Math.max(bwd[i+1], d2abs[i]);
+          supAt = (t, i) => (i>=idxA ? fwd[i] : bwd[i]);
+        } else {
+          supAt = () => Kglobal; // 一定K
+        }
+
+        const Lvals = ts.map((t)=> L(t));
+        const B = ts.map((t, i)=> 0.5 * supAt(t,i) * (t - a) * (t - a));
+        const upper = ts.map((t, i)=> Lvals[i] + B[i]);
+        const lower = ts.map((t, i)=> Lvals[i] - B[i]);
+
+        // SVG パス（帯 = 上を左→右、下を右→左に辿って閉じる）
+        const pU = upper.map((y,i)=> `L ${X(ts[i])} ${Y(y)}`); pU[0] = `M ${X(ts[0])} ${Y(upper[0])}`;
+        const pL = lower.map((y,i)=> `L ${X(ts[N-1-i])} ${Y(lower[N-1-i])}`);
+        const band = `${pU.join(' ')} ${pL.join(' ')} Z`;
+
+        return { ts, upper, lower, Lvals, band };
+      }, [a, xmin, xmax, funcKey, tubeMode, Kglobal]);
+
+      // 直線（補間）
+      const Lx1 = xmin, Lx2 = xmax;
+      const Ly1 = L(Lx1), Ly2 = L(Lx2);
+
+      // 現在の x での上界（帯の半幅）
+      const idxX = useMemo(() => Math.max(0, Math.min(tube.ts.length-1, Math.round((x - xmin)/(xmax - xmin)*(tube.ts.length-1)))), [x, tube, xmin, xmax]);
+      const boundAtX = 0.5 * Math.abs(tube.upper[idxX] - tube.lower[idxX]);
+
+      const labelTop = tubeMode === "local" ? "チューブ：|f(t)−L(t)| ≤ ½·sup|f''|(a..t)·(t−a)^2" : "チューブ：|f(t)−L(t)| ≤ ½·K·(t−a)^2";
+
+      return (
+        <Card
+          title="テイラー近似の誤差（ラグランジュ形）"
+          subtitle="接線の周囲に“誤差チューブ”を描く。距離が半分になればズレはおよそ1/4に。"
+          right={
+            <div className="flex items-center gap-3">
+              <select value={funcKey} onChange={(e)=>setFuncKey(e.target.value)} className="border rounded-md text-sm px-2 py-1">
+                {Object.values(FUNCS).map(f=> <option key={f.key} value={f.key}>{f.name}</option>)}
+              </select>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-gray-600">方式</span>
+                <label className="flex items-center gap-1"><input type="radio" name="tube" value="local" checked={tubeMode==='local'} onChange={()=>setTubeMode('local')} />自動</label>
+                <label className="flex items-center gap-1"><input type="radio" name="tube" value="global" checked={tubeMode==='global'} onChange={()=>setTubeMode('global')} />一定K</label>
+              </div>
+            </div>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <svg width={plot.width} height={plot.height} className="w-full">
+              <rect x={0} y={0} width={plot.width} height={plot.height} rx={14} className="fill-gray-50" />
+              <Axes plot={plot} />
+
+              {/* 誤差チューブ（上限・下限） */}
+              <path d={tube.band} className="fill-amber-200 opacity-50" />
+              <text x={pad.l + 8} y={pad.t + 14} className="fill-amber-700 text-[11px]">{labelTop}</text>
+              <text x={pad.l + 8} y={pad.t + 28} className="fill-emerald-700 text-[11px]">K ≈ {fmt(Kglobal,4)}（区間 [min(a,x), max(a,x)] の sup|f''|）</text>
+
+              {/* 関数と接線 */}
+              <path d={path} className="stroke-gray-700 fill-none" strokeWidth={2} />
+              <line x1={X(Lx1)} y1={Y(Ly1)} x2={X(Lx2)} y2={Y(Ly2)} className="stroke-sky-600" strokeWidth={2} />
+
+              {/* a, x と縦の誤差 */}
+              <circle cx={X(a)} cy={Y(f(a))} r={4} className="fill-sky-600" />
+              <circle cx={X(x)} cy={Y(f(x))} r={4} className="fill-emerald-600" />
+              <circle cx={X(x)} cy={Y(L(x))} r={4} className="fill-amber-500" />
+              <line x1={X(x)} y1={Y(f(x))} x2={X(x)} y2={Y(L(x))} className="stroke-amber-500" strokeDasharray="4 4" />
+              <text x={X(x) + 6} y={(Y(f(x))+Y(L(x)))/2} className="fill-amber-700 text-[10px]">|err| ≈ {fmt(Math.abs(errActual),4)} / bound ≈ {fmt(boundAtX,4)}</text>
+            </svg>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Slider label="a (展開点)" min={F.domain[0]} max={F.domain[1]} value={a} onChange={setA} />
+              <Slider label="x (評価点)" min={F.domain[0]} max={F.domain[1]} value={x} onChange={setXval} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+              <div className="p-3 bg-gray-50 rounded-xl">実誤差 |f(x)-L(x)| = {fmt(Math.abs(errActual),6)}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">上界 ≈ {fmt(boundAtX,6)}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">a = {fmt(a,3)} / x = {fmt(x,3)}</div>
+              <div className="p-3 bg-gray-50 rounded-xl">評価: {Math.abs(errActual) <= boundAtX + 1e-12 ? "✅ 内に収まる" : "❌ 超えた"}</div>
+            </div>
+            <p className="text-sm text-gray-500">「曲率が大きいほどズレやすい」「距離が半分ならズレは四分の一」――その“安全幅”がチューブです。</p>
+          </div>
+        </Card>
+      );
+    }
+
+    // 5) Self-check（簡易テストケース）
+    function DevTests() {
+      // 既存テスト
+      const xs1 = [0, 0.5, 1, 2, 3];
+      const t1 = xs1.every((x) => Math.sin(x) <= x + 1e-12);
+
+      const xs2 = [0.5, 1, 2, 3];
+      const t2 = xs2.every((x) => Math.log(x) <= x - 1 + 1e-12);
+
+      const pairs3 = [
+        [-Math.PI / 2, Math.PI / 2],
+        [0, Math.PI / 3],
+        [-1, 2],
+      ];
+      const t3 = pairs3.every(([a, b]) => Math.abs(Math.sin(b) - Math.sin(a)) <= Math.abs(b - a) + 1e-12);
+
+      const f4 = (x) => x * x * x - x;
+      const df4 = (x) => 3 * x * x - 1;
+      const a4 = -1, b4 = 1;
+      const m4 = (f4(b4) - f4(a4)) / (b4 - a4);
+      const c4 = findC(df4, m4, a4, b4);
+      const t4 = near(df4(c4), m4, 1e-2);
+
+      const f5 = (x) => Math.exp(x) / 3;
+      const df5 = (x) => Math.exp(x) / 3;
+      const d2f5 = (x) => Math.exp(x) / 3;
+      const a5 = 0, x5 = 1;
+      const L5 = (t) => f5(a5) + df5(a5) * (t - a5);
+      const err5 = Math.abs(f5(x5) - L5(x5));
+      const bound5 = 0.5 * (Math.exp(1) / 3) * (x5 - a5) * (x5 - a5);
+      const t5 = err5 <= bound5 + 1e-12;
+
+      // 追加テスト（UIの直感に対応）
+      // 6) リプシッツ：sin、区間 [-1,1]、起点a=0 で帯内
+      const t6 = (()=>{
+        const a=0, lo=-1, hi=1, M=1; const N=200;
+        for(let i=0;i<=N;i++){ const x=lo+(hi-lo)*i/N; const y=Math.sin(x); if(Math.abs(y-Math.sin(a))> M*Math.abs(x-a)+1e-9) return false; }
+        return true;
+      })();
+
+      // 7) リプシッツ：sin、同区間で起点b側でも帯内
+      const t7 = (()=>{
+        const b=0, lo=-1, hi=1, M=1; const N=200;
+        for(let i=0;i<=N;i++){ const x=lo+(hi-lo)*i/N; const y=Math.sin(x); if(Math.abs(y-Math.sin(b))> M*Math.abs(x-b)+1e-9) return false; }
+        return true;
+      })();
+
+      // 8) テイラー：x^2 は K=2 で上界＝実誤差に一致
+      const t8 = (()=>{
+        const f=(x)=>x*x, df=(x)=>2*x, d2f=(x)=>2; const a=0.3, t=0.8;
+        const L=f(a)+df(a)*(t-a); const err=Math.abs(f(t)-L); const bound=0.5*Math.abs(d2f(0))*(t-a)*(t-a);
+        return Math.abs(err-bound) < 1e-9; // ほぼ一致
+      })();
+
+      // 9) テイラー：e^x/3 で 局所境界 ≤ 一定K境界（a=0, x=1）
+      const t9 = (()=>{
+        const f=(x)=>Math.exp(x)/3, df=(x)=>Math.exp(x)/3, d2f=(x)=>Math.exp(x)/3; const a=0, x=1; const K=Math.exp(1)/3; const N=100;
+        for(let i=0;i<=N;i++){ const t=i/N; const local=0.5*(Math.exp(t)/3)*(t-a)*(t-a); const global=0.5*K*(t-a)*(t-a); if(local>global+1e-9) return false; }
+        return true;
+      })();
+
+      // 10) 道予測：M を小さく取りすぎると真の関数が帯から出る（sin, a=0, M=0.9, x=0.1）
+      const t10 = (()=>{
+        const a=0, M=0.9, x=0.1; return Math.abs(Math.sin(x)-Math.sin(a)) > M*Math.abs(x-a) - 1e-12; // はみ出すなら true
+      })();
+
+      // 11) 道予測：|Δy| ≤ M|Δx| を積み上げた道は常に帯内
+      const t11 = (()=>{
+        const M=1.2, a=0.0, x1=1.0; const steps=50; let x=a, y=0; // y0=0 とする
+        const lower=(t)=> 0 - M*Math.abs(t-a), upper=(t)=> 0 + M*Math.abs(t-a);
+        for(let i=0;i<steps;i++){
+          const dx=(x1-a)/steps; const s = (i%2===0? 0.6 : -0.6) * M; // 交互に±0.6M
+          const nx = x + dx; let ny = y + s*dx; if(ny<lower(nx)) ny=lower(nx); if(ny>upper(nx)) ny=upper(nx);
+          if(ny>upper(nx)+1e-9 || ny<lower(nx)-1e-9) return false; x=nx; y=ny;
+        }
+        return true;
+      })();
+
+      // 12) 観測で帯が狭まる（sin, a=0, x_obs=0.5, M=1, ε=0 で x=0.25 の幅が縮む）
+      const t12 = (()=>{
+        const a=0, M=1, x=0.25, xobs=0.5, eps=0; const y0=Math.sin(a), yobs=Math.sin(xobs);
+        const low1=y0 - M*Math.abs(x-a), high1=y0 + M*Math.abs(x-a);
+        const low2=yobs - eps - M*Math.abs(x-xobs), high2=yobs + eps + M*Math.abs(x-xobs);
+        const w0=high1-low1; const w1=Math.max(0, Math.min(high1, high2) - Math.max(low1, low2));
+        return w1 < w0 - 1e-6;
+      })();
+
+      // 13) 観測と M が矛盾（sin, a=0, x_obs=0.5, M=0.3, ε=0 で x=0.5 交差なし）
+      const t13 = (()=>{
+        const a=0, M=0.3, x=0.5, xobs=0.5, eps=0; const y0=Math.sin(a), yobs=Math.sin(xobs);
+        const low1=y0 - M*Math.abs(x-a), high1=y0 + M*Math.abs(x-a);
+        const low2=yobs - eps - M*Math.abs(x-xobs), high2=yobs + eps + M*Math.abs(x-xobs);
+        return Math.min(high1, high2) < Math.max(low1, low2) - 1e-12; // 交差しない
+      })();
+
+      const cases = [
+        { name: "sin x ≤ x（0,0.5,1,2,3）", ok: t1, detail: xs1.map((x)=>`sin(${fmt(x,2)})≤${fmt(x,2)}`).join(", ") },
+        { name: "ln x ≤ x-1（0.5,1,2,3）", ok: t2, detail: xs2.map((x)=>`ln(${fmt(x,2)})≤${fmt(x,2)}-1`).join(", ") },
+        { name: "リプシッツ：|sin b-sin a|≤|b-a|", ok: t3, detail: pairs3.map(([a,b])=>`[${fmt(a,2)},${fmt(b,2)}]`).join("; ") },
+        { name: "MVT：f(x)=x^3-x（a=-1,b=1）", ok: t4, detail: `m=${fmt(m4,4)}, f'(c)≈${fmt(df4(c4),4)}, c≈${fmt(c4,4)}` },
+        { name: "Taylor：e^x/3（一次, a=0→x=1）", ok: t5, detail: `|err|=${fmt(err5,6)} ≤ bound=${fmt(bound5,6)}` },
+        { name: "Lipschitz 帯：sin（起点a、区間[-1,1]）", ok: t6, detail: "M=1 で帯内" },
+        { name: "Lipschitz 帯：sin（起点b、区間[-1,1]）", ok: t7, detail: "M=1 で帯内" },
+        { name: "Taylor：x^2 は上界に一致", ok: t8, detail: "K=2 で誤差＝境界" },
+        { name: "Taylor：局所 ≤ 一定K（e^x/3）", ok: t9, detail: "local bound ≤ global bound" },
+        { name: "Predict：M 小さすぎると帯から出る（sin, M=0.9）", ok: t10, detail: "はみ出し検知" },
+        { name: "Predict：積み上げ道は帯内", ok: t11, detail: "|Δy| ≤ M|Δx|" },
+        { name: "Predict+Obs：観測で帯が狭まる", ok: t12, detail: "x_obs=0.5, x=0.25" },
+        { name: "Predict+Obs：観測とMが矛盾を検出", ok: t13, detail: "M=0.3, ε=0" },
+      ];
+
+      return (
+        <Card title="Self-check（簡易テスト）" subtitle="主要な性質が数値的に成立するかのスモークテスト">
+          <ul className="text-sm space-y-2">
+            {cases.map((c, i) => (
+              <li key={i} className="flex items-center gap-2">
+                <span className="w-5">{c.ok ? "✅" : "❌"}</span>
+                <span className="font-medium">{c.name}</span>
+                <span className="text-gray-500">— {c.detail}</span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      );
+    }
+
+    function Header() {
+      return (
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">平均値の定理はどう使う？</h1>
+            <p className="text-gray-600 mt-2 max-w-3xl text-sm md:text-base">
+              「点の傾き（微分）」から「区間全体の結論（増分・不等式・誤差上界）」を可視化。
+              スライダーを動かし、割線・接線・誤差がどう振る舞うかを目で確認しましょう。
+            </p>
+          </div>
+          <div className="hidden md:block text-xs text-gray-500">Pure React + SVG</div>
+        </div>
+      );
+    }
+
+    function MVTPlayground() {
+      return (
+        <div className="p-4 md:p-6 lg:p-8 bg-white text-gray-900">
+          <ErrorBoundary>
+            <Header />
+
+            <div className="grid grid-cols-1 gap-6 mt-6">
+              <DemoMVT />
+              <DemoLipschitz />
+              <DemoLipschitzPredict />
+              <DemoInequalities />
+              <DemoTaylor />
+              <DevTests />
+            </div>
+
+            <footer className="text-xs text-gray-500 mt-8">
+              <p>注：数式の評価はサンプリングによる近似を含みます。理論上の保証は教科書どおりですが、図の交点等は数値的近似です。</p>
+            </footer>
+          </ErrorBoundary>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<MVTPlayground />);
+  </script>
+</body>
+</html>

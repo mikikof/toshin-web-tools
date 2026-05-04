@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>インタラクティブで学ぶ広義積分</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- D3.js for data visualization -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .content-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+        .dark .content-card {
+            background-color: #1f2937; /* gray-800 */
+        }
+        .interactive-graph-container {
+            border: 1px solid #e5e7eb; /* gray-200 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+        .dark .interactive-graph-container {
+            border-color: #4b5563; /* gray-600 */
+        }
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #d1d5db; /* gray-300 */
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        .dark .slider {
+            background: #4b5563; /* gray-600 */
+        }
+        .slider:hover {
+            opacity: 1;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6; /* blue-500 */
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3b82f6; /* blue-500 */
+            cursor: pointer;
+        }
+        .toggle-btn {
+            cursor: pointer;
+            background-color: #f3f4f6; /* gray-100 */
+            border: 1px solid #d1d5db; /* gray-300 */
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .dark .toggle-btn {
+            background-color: #374151; /* gray-700 */
+            border-color: #4b5563; /* gray-600 */
+        }
+        .toggle-btn:hover {
+            background-color: #e5e7eb; /* gray-200 */
+            border-color: #9ca3af; /* gray-400 */
+        }
+        .dark .toggle-btn:hover {
+            background-color: #4b5563; /* gray-600 */
+            border-color: #6b7280; /* gray-500 */
+        }
+        .toggle-content {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            border-left: 3px solid #3b82f6; /* blue-500 */
+            background-color: #f9fafb; /* gray-50 */
+        }
+        .dark .toggle-content {
+            background-color: #1f2937; /* gray-800 */
+        }
+        h2 {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #3b82f6;
+        }
+        h3 {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        h4 {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        /* Styles for formula images */
+        .formula {
+            vertical-align: -0.1em;
+            margin: 0 0.1em;
+            height: 1.1em;
+        }
+        .formula-frac {
+            height: 2.2em;
+            vertical-align: -0.7em;
+        }
+        .formula-block img {
+            display: block;
+            margin: 1em auto;
+            padding: 0.5em;
+        }
+        .dark .formula,
+        .dark .formula-block img {
+            filter: invert(1) hue-rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-600 dark:text-blue-400">インタラクティブに広義積分を考える</h1>
+            <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">“はみ出した” 積分の取り扱いを、動くグラフで直感的に理解する</p>
+        </header>
+
+        <main>
+            <!-- Section 1: 広義積分の2つのパターン -->
+            <section id="finite-interval">
+                <h2 id="chap:improper">広義積分の2つのパターン</h2>
+
+                <div class="content-card">
+                    <h4>動機とイメージ</h4>
+                    <p>広義積分が扱う「普通の積分では計算できない面積」には、大きく分けて2つのパターンがあります。</p>
+
+                    <p class="mt-4 font-semibold text-lg">パターン1：積分区間は有限だが、関数が無限大になる</p>
+                    <p>区間の中で、グラフがどこかで無限大に吹き上がってしまう場合です。たとえば、下のグラフ <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y=\frac{1}{\sqrt{x}}" alt="y = 1/√x"> を区間 (0, 1] で考えます。x=0 に近づくにつれて y は天井知らずに大きくなります。この「はみ出した」部分を扱うのが広義積分です。</p>
+                    <p class="mt-2">特異点 x=0 を直接は計算できないため、まず微小な区間 <img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"> だけ避けて積分し、最後に <img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 0" alt="ε → 0"> の極限を取ります。この例では、面積はある有限の値 2 に<strong>収束</strong>します。</p>
+
+                    <div class="interactive-graph-container">
+                        <p class="text-center font-semibold">グラフ: <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{x}}" alt="y = 1/√x"> (特異点あり)</p>
+                        <div id="graph1"></div>
+                        <div class="mt-4">
+                            <label for="epsilon-slider" class="block mb-2">特異点からの距離 <img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"> (下限) を動かす:</label>
+                            <input type="range" id="epsilon-slider" min="0.001" max="0.99" step="0.001" value="0.5" class="slider">
+                            <div class="flex justify-between mt-2 text-sm">
+                                <span><img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 0" alt="ε → 0"></span>
+                                <span id="epsilon-value"><img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon = 0.500" alt="ε = 0.500"></span>
+                                <span><img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 1" alt="ε → 1"></span>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center flex justify-center items-center gap-2">
+                                <span>計算された面積:</span> 
+                                <img class="h-10 dark:filter dark:invert dark:hue-rotate-180" src="https://latex.codecogs.com/svg.latex?\int_{\varepsilon}^{1} \frac{1}{\sqrt{x}}\,dx" alt="∫ε to 1 of 1/√x dx"> 
+                                <span class="text-2xl font-light">≈</span> 
+                                <span id="area-value1" class="font-bold text-xl">1.414</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-8 border-gray-300 dark:border-gray-700">
+
+                    <p class="mt-4 font-semibold text-lg">パターン2：関数は有限だが、積分区間が無限に続く</p>
+                    <p>もう一つのパターンは、グラフが無限の彼方まで続いている場合です。例えば、関数 <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y=\frac{1}{x^2}" alt="y = 1/x²"> で、x=2 から無限遠点までの面積を考えてみましょう。</p>
+                    <p class="mt-2">この場合、まず有限な区間 [2, N] で面積を計算し、そのあとで上限 N を無限大に飛ばす極限を考えます。この例では、グラフの減衰が速いため、N を大きくしても面積は有限の値 0.5 に<strong>収束</strong>します。</p>
+
+                    <div class="interactive-graph-container">
+                        <p class="text-center font-semibold">グラフ: <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{x^2}" alt="y = 1/x²"> (無限区間)</p>
+                        <div id="graph1_infinite"></div>
+                        <div class="mt-4">
+                            <label for="N-slider" class="block mb-2">積分の上限 N を動かす:</label>
+                            <input type="range" id="N-slider" min="2" max="200" step="1" value="2" class="slider">
+                            <div class="flex justify-between mt-2 text-sm">
+                                <span>N → 2</span>
+                                <span id="N-value">N = 2</span>
+                                <span>N → ∞</span>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center flex justify-center items-center gap-2">
+                                <span>計算された面積:</span> 
+                                <img class="h-10 dark:filter dark:invert dark:hue-rotate-180" src="https://latex.codecogs.com/svg.latex?\int_{2}^{N} \frac{1}{x^2}\,dx" alt="∫2 to N of 1/x² dx"> 
+                                <span class="text-2xl font-light">≈</span> 
+                                <span id="area-value1-infinite" class="font-bold text-xl">0.000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="mt-6">このように「一見アウト」に見える2つのパターンを、<strong>極限操作</strong>で救済（あるいは発散することを確認）するのが<strong>広義積分</strong>の考え方です。</p>
+                </div>
+
+                <div class="content-card">
+                    <h4>定義</h4>
+                    <p>区間 [a,b] 内に特異点 c がただ一つだけ存在し、それ以外では可積分な関数 f に対して、広義積分を次のように定義します。</p>
+                    <div class="formula-block">
+                        <img src="https://latex.codecogs.com/svg.latex?\int_{a}^{b} f(x)\,dx \;\overset{\text{def}}{=}\; \lim_{\varepsilon\to0%2B} \left( \int_{a}^{c-\varepsilon} f(x)\,dx %2B \int_{c%2B\varepsilon}^{b} f(x)\,dx \right)" alt="∫a to b of f(x)dx = lim ε→0+ (∫a to c-ε of f(x)dx + ∫c+ε to b of f(x)dx)">
+                    </div>
+                    <p>この極限が存在するとき、「広義積分は<strong>収束する</strong>」と言います。</p>
+                </div>
+
+                <div class="content-card">
+                    <h4>解説</h4>
+                     <ul class="list-disc list-inside space-y-4">
+                        <li>
+                            <p><strong>“特異点”とは？</strong><br>
+                            関数値が <img class="formula" src="https://latex.codecogs.com/svg.latex?\pm\infty" alt="±∞"> になったり、定義されない（分母が0になるなど）点を指します。</p>
+                        </li>
+                        <li>
+                            <p><strong>なぜ <img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"> で切り取るのか？</strong><br>
+                            問題となる特異点を直接扱うことはできません。そこで、まず特異点の周りに幅 <img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"> の「立ち入り禁止区域」を設けて安全な範囲で積分します。その後、この禁止区域を限りなく狭く (<img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 0" alt="ε → 0">) していったときに、積分値がどうなるかを調べるのです。これが極限の考え方です。</p>
+                        </li>
+                        <li>
+                            <p><strong>複数の特異点がある場合</strong><br>
+                            特異点が複数ある場合は、区間を特異点ごとに分割し、それぞれの区間で同様に極限を取ります。全ての部分積分が収束する場合に限り、全体の積分も収束します。</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="content-card">
+                    <h4>可視化：複数の特異点を扱う</h4>
+                    <p>区間 [0, 1] 上の関数 <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{|(x-0.25)(x-0.75)|}}" alt="y = 1/√( |(x-0.25)(x-0.75)| )"> を考えてみましょう。この関数は x=0.25 と x=0.75 の2箇所に特異点（グラフが無限大に発散する点）を持ちます。</p>
+                    <p class="mt-2">この場合、2つの特異点の周りにそれぞれ「立ち入り禁止区域」（赤色の部分）を設けます。そして、それ以外の安全な領域（青色の部分）で積分を計算し、最後に <img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon \to 0" alt="ε → 0"> の極限を取ります。</p>
+                    <div class="interactive-graph-container">
+                        <p class="text-center font-semibold">グラフ: <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{|(x-0.25)(x-0.75)|}}" alt="y = 1/√( |(x-0.25)(x-0.75)| )"></p>
+                        <div id="graph-multi-singularity"></div>
+                        <div class="mt-4">
+                            <label for="epsilon-slider2" class="block mb-2">立ち入り禁止区域の幅 <img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"> を動かす:</label>
+                            <input type="range" id="epsilon-slider2" min="0.01" max="0.1" step="0.001" value="0.05" class="slider">
+                            <div class="flex justify-between mt-2 text-sm">
+                                <span>狭く</span>
+                                <span id="epsilon-value2"><img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon = 0.050" alt="ε = 0.050"></span>
+                                <span>広く</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs md:text-sm text-center overflow-x-auto">
+                           <p><img class="formula" src="https://latex.codecogs.com/svg.latex?\int_0^1 f(x)dx = \lim_{\varepsilon \to 0^%2B} \left( \int_0^{c_1-\varepsilon}\! f(x)dx %2B \int_{c_1%2B\varepsilon}^{c_2-\varepsilon}\! f(x)dx %2B \int_{c_2%2B\varepsilon}^1\! f(x)dx \right)" alt="Full integral formula for multiple singularities"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h4>典型例：べき型特異点</h4>
+                    <p>区間 (0, 1] における関数 <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f_s(x) = \frac{1}{x^s}" alt="f_s(x) = 1/x^s"> (s>0) を考えます。この積分が収束するかどうかは、指数 s の値に依存します。</p>
+                    <div class="formula-block">
+                        <img src="https://latex.codecogs.com/svg.latex?\int_0^{1} \frac{1}{x^s}\,dx = \lim_{\varepsilon\to0%2B} \int_{\varepsilon}^{1} x^{-s}\,dx = \begin{cases} \frac{1}{1-s}, & 0 < s < 1 \\ \text{発散}, & s \ge 1 \end{cases}" alt="Integral of 1/x^s from 0 to 1 results">
+                    </div>
+                    <p>下のグラフで指数 s を動かして、収束と発散の境界が s=1 であることを確かめてみましょう。面積が<span class="text-blue-500 font-bold">青色</span>なら収束、<span class="text-red-500 font-bold">赤色</span>なら発散を示します。</p>
+
+                    <div class="interactive-graph-container">
+                        <p class="text-center font-semibold">グラフ: <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{x^s}" alt="y = 1/x^s"></p>
+                        <div id="graph2"></div>
+                        <div class="mt-4">
+                            <label for="s-param-slider" class="block mb-2">指数 s を動かす:</label>
+                            <input type="range" id="s-param-slider" min="0.1" max="2.0" step="0.01" value="0.5" class="slider">
+                             <div class="flex justify-between mt-2 text-sm">
+                                <span>s = 0.1</span>
+                                <span id="s-param-value">s = 0.50</span>
+                                <span>s = 2.0</span>
+                            </div>
+                            <div id="convergence-status1" class="mt-4 p-3 rounded-lg text-center font-bold text-lg"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h4>演習問題</h4>
+                    <div class="exercise">
+                        <p><strong>問1:</strong> 次の積分が収束するか判定し、収束する場合は値を求めよ。</p>
+                        <div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{0}^{1}\sqrt{\frac{\ln\frac{1}{x}}{x}}\,dx" alt="∫0 to 1 of √(ln(1/x)/x) dx"></div>
+                        <button class="toggle-btn" onclick="toggleAnswer(this)">解答を見る</button>
+                        <div class="toggle-content">
+                            <p><strong>解答:</strong> <img class="formula" src="https://latex.codecogs.com/svg.latex?t = \sqrt{\ln(1/x)}" alt="t = √(ln(1/x))"> と置換する。
+                            <img class="formula" src="https://latex.codecogs.com/svg.latex?x=e^{-t^2}" alt="x=e^(-t²)">, <img class="formula" src="https://latex.codecogs.com/svg.latex?dx = -2te^{-t^2}dt" alt="dx = -2te^(-t²)dt">。
+                            <img class="formula" src="https://latex.codecogs.com/svg.latex?x \to 0%2B" alt="x → 0+"> のとき <img class="formula" src="https://latex.codecogs.com/svg.latex?t \to \infty" alt="t → ∞">、x=1 のとき t=0。
+                            よって積分は、
+                            </p><div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{\infty}^{0} \frac{t}{e^{-t^2/2}} (-2te^{-t^2}) dt = \int_0^\infty 2t^2 e^{-t^2/2} dt" alt="Integral transformation"></div>
+                            <p>
+                            これは収束する（ガウス積分の変形）。値は <img class="formula" src="https://latex.codecogs.com/svg.latex?\sqrt{2\pi}" alt="√(2π)"> となる。（詳細な計算は省略）
+                            </p>
+                        </div>
+                    </div>
+                     <div class="exercise mt-6">
+                        <p><strong>問2:</strong> <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f(x)=\frac{\sin x}{x}" alt="f(x) = sin(x)/x"> を (0,1] 上で積分し、x=0 の周辺挙動を分析せよ。</p>
+                        <button class="toggle-btn" onclick="toggleAnswer(this)">解答を見る</button>
+                        <div class="toggle-content">
+                            <p><strong>解答:</strong> x=0 は見かけ上の特異点である。
+                            <img class="formula" src="https://latex.codecogs.com/svg.latex?x \to 0" alt="x → 0"> のとき、<img class="formula" src="https://latex.codecogs.com/svg.latex?\sin x \approx x" alt="sin(x) ≈ x"> なので、<img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{\sin x}{x} \to 1" alt="sin(x)/x → 1"> となる。
+                            関数は x=0 で有限値に収束するため、特異点ではなく、積分は通常の意味で存在する（収束する）。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="my-12 border-gray-300 dark:border-gray-700">
+
+            <!-- Section 2: 無限区間の場合 -->
+            <section id="infinite-interval">
+                <h2>区間が無限に延びる場合</h2>
+
+                <div class="content-card">
+                    <h4>定義</h4>
+                    <p>関数 f が [a, ∞) の任意の有界閉区間で可積分であるとき、無限区間での広義積分を次のように定義します。</p>
+                    <div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{a}^{\infty} f(x)\,dx \;\overset{\text{def}}{=}\; \lim_{N\to\infty}\int_{a}^{N} f(x)\,dx" alt="∫a to ∞ of f(x)dx = lim N→∞ ∫a to N of f(x)dx"></div>
+                    <p>この極限が存在すれば「収束する」と呼びます。(-∞, b] の場合も同様です。</p>
+                </div>
+
+                <div class="content-card">
+                    <h4>解説</h4>
+                    <ul class="list-disc list-inside space-y-4">
+                        <li>
+                            <p><strong>端点が“見えない”ときの面積測定</strong><br>
+                            これは、果てしなく長い廊下の床をワックスがけする場面に似ています。まず玄関から N メートル先までを塗り、その面積（必要なワックス量）を計算します。次に N をどんどん大きくしていったとき、必要なワックスの総量が有限の値に収まるかどうかを調べる、というイメージです。</p>
+                        </li>
+                        <li>
+                            <p><strong>左右とも無限大に延びる場合 (-∞ から ∞)</strong><br>
+                            この場合は、途中の適当な点（例えば x=0）で区間を二つに分け、
+                            </p><div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} f(x)\,dx = \int_{-\infty}^{0} f(x)\,dx %2B \int_{0}^{\infty} f(x)\,dx" alt="∫-∞ to ∞ = ∫-∞ to 0 + ∫0 to ∞"></div>
+                            <p>として、二つの積分が<strong>両方とも収束する</strong>ことを確認する必要があります。「左右対称だから大丈夫」と安易に判断するのは危険です（例：<img class="formula" src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} x\,dx" alt="∫-∞ to ∞ of x dx"> は発散）。</p>
+                        </li>
+                    </ul>
+                     <h4 class="mt-6">可視化：-∞ から ∞ への積分</h4>
+                    <p>正規分布の確率密度関数でもおなじみのガウス関数 <img class="formula" src="https://latex.codecogs.com/svg.latex?y = e^{-x^2}" alt="y=e^(-x²)"> を例に、-∞ から ∞ までの積分を見てみましょう。この積分は、まず原点で2つに分割し、対称な区間 [-R, R] で積分したあと、<img class="formula" src="https://latex.codecogs.com/svg.latex?R \to \infty" alt="R→∞"> の極限を取ることで計算します。</p>
+                    <div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} e^{-x^2} dx = \lim_{R\to\infty} \int_{-R}^{R} e^{-x^2} dx = \sqrt{\pi}" alt="∫-∞ to ∞ of e^(-x²)dx = √π"></div>
+                    <div class="interactive-graph-container">
+                        <p class="text-center font-semibold">グラフ: <img class="formula" src="https://latex.codecogs.com/svg.latex?y = e^{-x^2}" alt="y=e^(-x²)"> (収束)</p>
+                        <div id="graph-infinity-both-ways"></div>
+                        <div class="mt-4">
+                            <label for="R-slider" class="block mb-2">積分の区間 [-R, R] を動かす:</label>
+                            <input type="range" id="R-slider" min="0.1" max="5" step="0.05" value="2" class="slider">
+                            <div class="flex justify-between mt-2 text-sm">
+                                <span>R → 0</span>
+                                <span id="R-value">R = 2.00</span>
+                                <span>R → ∞</span>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-100 dark:bg-blue-900/50 rounded-lg text-center flex justify-center items-center gap-2">
+                                <span>計算された面積:</span> 
+                                <img class="h-10 dark:filter dark:invert dark:hue-rotate-180" src="https://latex.codecogs.com/svg.latex?\int_{-R}^{R} e^{-x^2}\,dx" alt="∫-R to R of e^(-x²)dx"> 
+                                <span class="text-2xl font-light">≈</span> 
+                                <span id="area-value-both-ways" class="font-bold text-xl">1.764</span>
+                            </div>
+                            <p class="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">R を大きくすると、面積が <img class="formula" src="https://latex.codecogs.com/svg.latex?\sqrt{\pi} \approx 1.772" alt="√π ≈ 1.772"> に収束していく様子が分かります。</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-8 border-gray-300 dark:border-gray-700">
+
+                    <h4 class="mt-6">比較：発산する例</h4>
+                    <p>一方、見た目は似ていても、無限遠での減衰が遅いと積分は発散します。例えば、<img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{1%2Bx^2}}" alt="y = 1/√(1+x²)"> という関数を見てみましょう。x が大きいとき、この関数は <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{1}{x}" alt="1/x"> に近い振る舞いをします。このわずかな違いが、収束と発散を分けるのです。</p>
+                    <div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} \frac{1}{\sqrt{1%2Bx^2}} dx = \lim_{R\to\infty} \int_{-R}^{R} \frac{1}{\sqrt{1%2Bx^2}} dx \to \infty \quad (\text{発散})" alt="∫-∞ to ∞ of 1/√(1+x²)dx → ∞ (diverges)"></div>
+                    <div class="interactive-graph-container">
+                        <p class="text-center font-semibold">グラフ: <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{\sqrt{1%2Bx^2}}" alt="y = 1/√(1+x²)"> (発散)</p>
+                        <div id="graph-infinity-diverge"></div>
+                        <div class="mt-4">
+                            <label for="R-slider-diverge" class="block mb-2">積分の区間 [-R, R] を動かす:</label>
+                            <input type="range" id="R-slider-diverge" min="0.1" max="50" step="0.1" value="10" class="slider">
+                            <div class="flex justify-between mt-2 text-sm">
+                                <span>R → 0</span>
+                                <span id="R-value-diverge">R = 10.0</span>
+                                <span>R → ∞</span>
+                            </div>
+                            <div class="mt-4 p-3 bg-red-100 dark:bg-red-900/50 rounded-lg text-center flex justify-center items-center gap-2">
+                                <span>計算された面積:</span> 
+                                <img class="h-10 dark:filter dark:invert dark:hue-rotate-180" src="https://latex.codecogs.com/svg.latex?\int_{-R}^{R} \frac{1}{\sqrt{1%2Bx^2}}\,dx" alt="∫-R to R of 1/√(1+x²)dx"> 
+                                <span class="text-2xl font-light">≈</span> 
+                                <span id="area-value-diverge" class="font-bold text-xl">5.991</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="content-card">
+                    <h4>典型例：べき関数</h4>
+                    <p>区間 [1, ∞) における関数 <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f_p(x) = \frac{1}{x^p}" alt="f_p(x)=1/x^p"> を考えます。この場合も、収束性は指数 p の値に依存します。</p>
+                    <div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{1}^{\infty} \frac{dx}{x^p} = \begin{cases} \frac{1}{p-1}, & p > 1 \\ \text{発散}, & p \le 1 \end{cases}" alt="Integral of 1/x^p from 1 to ∞ results"></div>
+                    <p>ここでも p=1 が臨界点となります。有限区間の場合とは収束条件が逆になっている点に注目してください。面積が<span class="text-blue-500 font-bold">青色</span>なら収束、<span class="text-red-500 font-bold">赤色</span>なら発散を示します。</p>
+
+                    <div class="interactive-graph-container">
+                        <p class="text-center font-semibold">グラフ: <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{1}{x^p}" alt="y=1/x^p"></p>
+                        <div id="graph3"></div>
+                        <div class="mt-4">
+                            <label for="p-param-slider" class="block mb-2">指数 p を動かす:</label>
+                            <input type="range" id="p-param-slider" min="0.1" max="2.0" step="0.01" value="1.5" class="slider">
+                             <div class="flex justify-between mt-2 text-sm">
+                                <span>p = 0.1</span>
+                                <span id="p-param-value">p = 1.50</span>
+                                <span>p = 2.0</span>
+                            </div>
+                            <div id="convergence-status2" class="mt-4 p-3 rounded-lg text-center font-bold text-lg"></div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="content-card">
+                    <h4>演習問題</h4>
+                    <div class="exercise">
+                        <p><strong>問3:</strong> 次の積分を評価せよ。</p>
+                        <div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{0}^{\infty} e^{-\alpha x}\,dx \quad (\alpha > 0)" alt="∫0 to ∞ of e^(-αx)dx, α>0"></div>
+                        <button class="toggle-btn" onclick="toggleAnswer(this)">解答を見る</button>
+                        <div class="toggle-content">
+                            <p><strong>解答:</strong>
+                            </p><div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\lim_{N\to\infty} \int_0^N e^{-\alpha x} dx = \lim_{N\to\infty} \left[ -\frac{1}{\alpha}e^{-\alpha x} \right]_0^N = \lim_{N\to\infty} \left( -\frac{e^{-\alpha N}}{\alpha} %2B \frac{1}{\alpha} \right)" alt="Limit calculation of the integral"></div>
+                            <p><img class="formula" src="https://latex.codecogs.com/svg.latex?\alpha > 0" alt="α>0"> なので <img class="formula" src="https://latex.codecogs.com/svg.latex?N\to\infty" alt="N→∞"> のとき <img class="formula" src="https://latex.codecogs.com/svg.latex?e^{-\alpha N} \to 0" alt="e^(-αN)→0">。よって、積分は <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{1}{\alpha}" alt="1/α"> に収束する。
+                            </p>
+                        </div>
+                    </div>
+                     <div class="exercise mt-6">
+                        <p><strong>問4:</strong> 次の積分が零になる理由を、奇関数／偶関数の観点から説明せよ。</p>
+                        <div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty}\frac{x}{1%2Bx^{4}}\,dx" alt="∫-∞ to ∞ of x/(1+x^4)dx"></div>
+
+                        <div class="interactive-graph-container">
+                            <p class="text-center font-semibold">可視化: 奇関数 <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{x}{1%2Bx^4}" alt="y=x/(1+x^4)"> の積分</p>
+                            <p class="text-sm text-center mt-1 text-gray-600 dark:text-gray-400">下のスライダーを動かして、対称な区間 [-R, R] での積分を観察してみましょう。</p>
+                            <div id="graph-odd-function"></div>
+                            <div class="mt-4">
+                                <label for="R-slider-odd" class="block mb-2">積分の区間 [-R, R] を動かす:</label>
+                                <input type="range" id="R-slider-odd" min="0.1" max="5" step="0.05" value="2.5" class="slider">
+                                <div class="flex justify-between mt-2 text-sm">
+                                    <span>R → 0</span>
+                                    <span id="R-value-odd">R = 2.50</span>
+                                    <span>R → ∞</span>
+                                </div>
+                                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-2 text-center">
+                                    <div class="p-2 bg-red-100 dark:bg-red-900/50 rounded">
+                                        負の面積: <span id="area-value-negative" class="font-bold">-0.393</span>
+                                    </div>
+                                    <div class="p-2 bg-blue-100 dark:bg-blue-900/50 rounded">
+                                        正の面積: <span id="area-value-positive" class="font-bold">+0.393</span>
+                                    </div>
+                                     <div class="p-2 bg-gray-200 dark:bg-gray-700 rounded">
+                                        合計面積: <span id="area-value-total" class="font-bold">0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="toggle-btn mt-4" onclick="toggleAnswer(this)">解答を見る</button>
+                        <div class="toggle-content">
+                            <p><strong>解答:</strong> 被積分関数 <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f(x) = \frac{x}{1%2Bx^4}" alt="f(x)=x/(1+x^4)"> は奇関数である（<img class="formula" src="https://latex.codecogs.com/svg.latex?f(-x) = -f(x)" alt="f(-x)=-f(x)">）。
+                            まず、この積分が収束することを確認する必要がある。<img class="formula" src="https://latex.codecogs.com/svg.latex?x \to \infty" alt="x→∞"> で <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?f(x) \approx \frac{1}{x^3}" alt="f(x)≈1/x³"> であり、p=3>1 なので <img class="formula" src="https://latex.codecogs.com/svg.latex?\int_1^\infty f(x)dx" alt="∫1 to ∞ of f(x)dx"> は収束する。同様に <img class="formula" src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{-1} f(x)dx" alt="∫-∞ to -1 of f(x)dx"> も収束する。
+                            積分が収束することから、主値積分と値が一致し、
+                            </p><div class="formula-block"><img src="https://latex.codecogs.com/svg.latex?\int_{-\infty}^{\infty} f(x)\,dx = \lim_{R\to\infty} \int_{-R}^{R} f(x)\,dx" alt="∫-∞ to ∞ f(x)dx = lim R→∞ ∫-R to R f(x)dx"></div>
+                            <p>
+                            奇関数の対称区間での積分は常に 0 なので、この値は 0 となる。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="my-12 border-gray-300 dark:border-gray-700">
+
+            <!-- Section 3: 絶対収束と条件収束 -->
+            <section id="absolute-convergence">
+                <h2>絶対収束と条件収束</h2>
+
+                <div class="content-card">
+                    <h4>定義</h4>
+                    <p>広義積分 <img class="formula" src="https://latex.codecogs.com/svg.latex?\int f(x)\,dx" alt="∫f(x)dx"> が収束し、さらに絶対値をとった積分 <img class="formula" src="https://latex.codecogs.com/svg.latex?\int |f(x)|\,dx" alt="∫|f(x)|dx"> も収束するとき、f の積分は<strong>絶対収束</strong>すると言います。</p>
+                    <p class="mt-2">一方で、<img class="formula" src="https://latex.codecogs.com/svg.latex?\int f(x)\,dx" alt="∫f(x)dx"> は収束するが <img class="formula" src="https://latex.codecogs.com/svg.latex?\int |f(x)|\,dx" alt="∫|f(x)|dx"> は発散するとき、この積分は<strong>条件収束</strong>すると言います。</p>
+                    <p class="mt-2">絶対収束は、数列の世界と同様に非常に強い収束性を示します。直感的には「プラスとマイナスの打ち消し合いに頼らずとも収束する」安定した状態です。</p>
+                </div>
+
+                <div class="content-card">
+                    <h4>例： <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{\sin x}{x}" alt="sin(x)/x"> の場合</h4>
+                    <p>無限区間での積分 <img class="formula" src="https://latex.codecogs.com/svg.latex?\int_1^\infty \frac{\sin x}{x} dx" alt="∫1 to ∞ of sin(x)/x dx"> は、条件収束する代表的な例です。</p>
+                    <p>下のグラフは <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{\sin x}{x}" alt="y=sin(x)/x"> と、その絶対値 <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = |\frac{\sin x}{x}|" alt="y=|sin(x)/x|"> を示しています。
+                    元の関数は、正の面積と負の面積が交互に現れ、互いに打ち消し合いながら振動が減衰していくため、積分値は有限の値に収束します。
+                    しかし、絶対値を取ると全ての面積が正となり、その和は発散してしまいます。</p>
+                    <div class="interactive-graph-container">
+                        <p class="text-center font-semibold">グラフ: <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = \frac{\sin x}{x}" alt="y=sin(x)/x"> と <img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?y = |\frac{\sin x}{x}|" alt="y=|sin(x)/x|"></p>
+                        <div id="graph4"></div>
+                        <div class="mt-4 text-center">
+                            <p><img class="formula" src="https://latex.codecogs.com/svg.latex?\int_1^\infty \frac{\sin x}{x} dx" alt="∫1 to ∞ of sin(x)/x dx"> は <span class="font-bold text-green-500">条件収束</span> する。</p>
+                            <p><img class="formula" src="https://latex.codecogs.com/svg.latex?\int_1^\infty |\frac{\sin x}{x}| dx" alt="∫1 to ∞ of |sin(x)/x| dx"> は <span class="font-bold text-red-500">発散</span> する。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="my-12 border-gray-300 dark:border-gray-700">
+
+            <!-- Section 4: まとめ -->
+            <section id="summary">
+                <h2>まとめ</h2>
+                <div class="content-card">
+                    <ul class="list-disc list-inside space-y-4">
+                        <li>広義積分は、特異点を「<img class="formula" src="https://latex.codecogs.com/svg.latex?\varepsilon" alt="ε"> で避ける」か、無限区間を「N で打ち切る」かして、最後に極限を取るのが基本手順。</li>
+                        <li>収束するかどうかのカギは、<strong>特異点の強さ</strong>（<img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{1}{x^s}" alt="1/x^s"> の s）と、<strong>無限遠での減衰スピード</strong>（<img class="formula formula-frac" src="https://latex.codecogs.com/svg.latex?\frac{1}{x^p}" alt="1/x^p"> の p）が握っている。</li>
+                        <li>絶対収束するかどうかは、積分の値の安定性を測るリトマス試験紙のようなもの。プラスとマイナスの打ち消し合いに頼っている収束（条件収束）と区別できる。</li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-12 py-6 border-t border-gray-200 dark:border-gray-800">
+            <p class="text-gray-500 dark:text-gray-400">インタラクティブ広義積分解説</p>
+        </footer>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Toggle Answer Visibility ---
+    window.toggleAnswer = function(button) {
+        const content = button.nextElementSibling;
+        if (content.style.display === 'block') {
+            content.style.display = 'none';
+            button.textContent = '解答を見る';
+        } else {
+            content.style.display = 'block';
+            button.textContent = '解答を隠す';
+        }
+    };
+
+    // --- D3 Graphing ---
+    const isDarkMode = () => document.documentElement.classList.contains('dark');
+    let strokeColor = isDarkMode() ? '#e5e7eb' : '#1f2937';
+    let gridColor = isDarkMode() ? '#374151' : '#e5e7eb';
+    let convergenceColor = 'rgba(59, 130, 246, 0.5)';
+    let divergenceColor = 'rgba(239, 68, 68, 0.5)';
+    let exclusionColor = 'rgba(239, 68, 68, 0.4)';
+
+    // --- Graph 1: 1/sqrt(x) with singularity ---
+    const setupGraph1 = () => {
+        const container = d3.select("#graph1");
+        container.html(""); // Clear previous graph
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleLinear().domain([0, 1]).range([0, width]);
+        const y = d3.scaleLinear().domain([0, 10]).range([height, 0]);
+
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y));
+
+        const func = (x_val) => x_val > 0 ? 1 / Math.sqrt(x_val) : y.domain()[1];
+
+        const line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+        const data = d3.range(0.01, 1.01, 0.01).map(d => ({x: d, y: func(d)}));
+
+        svg.append("path").datum(data).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);
+
+        const area = d3.area().x(d => x(d.x)).y0(height).y1(d => y(d.y));
+        const areaPath = svg.append("path").attr("fill", convergenceColor);
+
+        function update(epsilon) {
+            const areaData = d3.range(epsilon, 1.01, 0.01).map(d => ({x: d, y: func(d)}));
+            areaPath.datum(areaData).attr("d", area);
+
+            const integralValue = 2 * (Math.sqrt(1) - Math.sqrt(epsilon));
+            d3.select("#area-value1").text(integralValue.toFixed(3));
+            d3.select("#epsilon-value").html(`<img class="formula" src="https://latex.codecogs.com/svg.latex?%5Cvarepsilon%20=${epsilon.toFixed(3)}" alt="ε = ${epsilon.toFixed(3)}">`);
+        }
+
+        const slider = d3.select("#epsilon-slider");
+        slider.on("input", (event) => {
+            update(+event.target.value);
+        });
+        update(+slider.property("value"));
+    };
+
+    // --- Graph 1b: 1/x^2 on infinite interval ---
+    const setupGraph1_infinite = () => {
+        const container = d3.select("#graph1_infinite");
+        if (!container.node()) return;
+        container.html("");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const a = 2; // Starting point of integration
+        const xMax = 30; // Visual limit for the x-axis
+        const x = d3.scaleLinear().domain([0, xMax]).range([0, width]);
+        const y = d3.scaleLinear().domain([0, 0.3]).range([height, 0]);
+
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y).ticks(5));
+
+        const func = (x_val) => 1 / (x_val * x_val);
+
+        const lineData = d3.range(1, xMax + 0.5, 0.5).map(d => ({x: d, y: func(d)}));
+        const line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+        svg.append("path").datum(lineData).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);
+
+        svg.append("line")
+            .attr("x1", x(a))
+            .attr("x2", x(a))
+            .attr("y1", 0)
+            .attr("y2", height)
+            .attr("stroke", "#16a34a") // green-600
+            .attr("stroke-width", 2.5)
+            .attr("stroke-dasharray", "6,4");
+
+        const area = d3.area().x(d => x(d.x)).y0(height).y1(d => y(d.y));
+        const areaPath = svg.append("path").attr("fill", convergenceColor);
+
+        function update(N) {
+            const displayN = Math.min(N, xMax);
+            const areaData = d3.range(a, displayN + 0.1, 0.1).map(d => ({x: d, y: func(d)}));
+            if (areaData.length > 1) {
+              areaPath.datum(areaData).attr("d", area);
+            } else {
+              areaPath.attr("d", null);
+            }
+
+            const integralValue = (1 / a) - (1 / N);
+            d3.select("#area-value1-infinite").text(integralValue.toFixed(3));
+            d3.select("#N-value").text(`N = ${Math.round(N)}`);
+        }
+
+        const slider = d3.select("#N-slider");
+        slider.on("input", (event) => {
+            update(+event.target.value);
+        });
+        update(+slider.property("value"));
+    };
+
+    // --- Graph: Multiple Singularities ---
+    const setupGraphMultiSingularity = () => {
+        const container = d3.select("#graph-multi-singularity");
+        container.html("");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleLinear().domain([0, 1]).range([0, width]);
+        const y = d3.scaleLinear().domain([0, 15]).range([height, 0]);
+
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y));
+
+        const c1 = 0.25, c2 = 0.75;
+        const func = (x_val) => {
+            const denominator = Math.abs((x_val - c1) * (x_val - c2));
+            return denominator > 1e-6 ? 1 / Math.sqrt(denominator) : y.domain()[1];
+        };
+
+        // Draw singularity lines
+        [c1, c2].forEach(c => {
+            svg.append("line")
+                .attr("x1", x(c)).attr("x2", x(c))
+                .attr("y1", 0).attr("y2", height)
+                .attr("stroke", "red")
+                .attr("stroke-width", 1.5)
+                .attr("stroke-dasharray", "4,4");
+        });
+
+        const line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+        const data = d3.range(0, 1.001, 0.002).map(d => ({x: d, y: func(d)}));
+        svg.append("path").datum(data).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);
+
+        const area = d3.area().x(d => x(d.x)).y0(height).y1(d => y(d.y));
+        const exclusionZone1 = svg.append("rect").attr("fill", exclusionColor).attr("y", 0).attr("height", height);
+        const exclusionZone2 = svg.append("rect").attr("fill", exclusionColor).attr("y", 0).attr("height", height);
+
+        function update(epsilon) {
+            exclusionZone1.attr("x", x(c1 - epsilon)).attr("width", x(c1 + epsilon) - x(c1 - epsilon));
+            exclusionZone2.attr("x", x(c2 - epsilon)).attr("width", x(c2 + epsilon) - x(c2 - epsilon));
+
+            const areaData1 = d3.range(0, c1 - epsilon, 0.005).map(d => ({x: d, y: func(d)}));
+            const areaData2 = d3.range(c1 + epsilon, c2 - epsilon, 0.005).map(d => ({x: d, y: func(d)}));
+            const areaData3 = d3.range(c2 + epsilon, 1, 0.005).map(d => ({x: d, y: func(d)}));
+
+            svg.selectAll(".integrated-area").remove();
+            [areaData1, areaData2, areaData3].forEach(d => {
+                 if(d.length > 1) {
+                    svg.append("path")
+                        .datum(d)
+                        .attr("class", "integrated-area")
+                        .attr("fill", convergenceColor)
+                        .attr("d", area);
+                 }
+            });
+
+            d3.select("#epsilon-value2").html(`<img class="formula" src="https://latex.codecogs.com/svg.latex?%5Cvarepsilon%20=${epsilon.toFixed(3)}" alt="ε = ${epsilon.toFixed(3)}">`);
+        }
+
+        const slider = d3.select("#epsilon-slider2");
+        slider.on("input", (event) => {
+            update(+event.target.value);
+        });
+        update(+slider.property("value"));
+    };
+
+    // --- Graph 2: 1/x^s ---
+    const setupGraph2 = () => {
+        const container = d3.select("#graph2");
+        container.html("");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleLinear().domain([0, 1]).range([0, width]);
+        const y = d3.scaleLinear().domain([0, 10]).range([height, 0]);
+
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y));
+
+        const line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+        const path = svg.append("path").attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2);
+
+        const area = d3.area().x(d => x(d.x)).y0(height).y1(d => y(d.y));
+        const areaPath = svg.append("path");
+
+        function update(s) {
+            const func = (x_val) => x_val > 0 ? 1 / Math.pow(x_val, s) : y.domain()[1];
+            const data = d3.range(0.01, 1.01, 0.01).map(d => ({x: d, y: func(d)}));
+
+            path.datum(data).attr("d", line);
+            areaPath.datum(data).attr("d", area);
+
+            const statusDiv = d3.select("#convergence-status1");
+            if (s < 1) {
+                statusDiv.text("収束 (s < 1)").style("color", "#22c55e").style("background-color", "rgba(34, 197, 94, 0.1)");
+                areaPath.attr("fill", convergenceColor);
+            } else {
+                statusDiv.text("発散 (s ≥ 1)").style("color", "#ef4444").style("background-color", "rgba(239, 68, 68, 0.1)");
+                areaPath.attr("fill", divergenceColor);
+            }
+            d3.select("#s-param-value").text(`s = ${s.toFixed(2)}`);
+        }
+
+        const slider = d3.select("#s-param-slider");
+        slider.on("input", (event) => {
+            update(+event.target.value);
+        });
+        update(+slider.property("value"));
+    };
+
+    // --- Graph 3: 1/x^p ---
+    const setupGraph3 = () => {
+        const container = d3.select("#graph3");
+        container.html("");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleLinear().domain([1, 20]).range([0, width]);
+        const y = d3.scaleLinear().domain([0, 1.2]).range([height, 0]);
+
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y));
+
+        const line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+        const path = svg.append("path").attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2);
+
+        const area = d3.area().x(d => x(d.x)).y0(height).y1(d => y(d.y));
+        const areaPath = svg.append("path");
+
+        function update(p) {
+            const func = (x_val) => 1 / Math.pow(x_val, p);
+            const data = d3.range(1, 20.1, 0.1).map(d => ({x: d, y: func(d)}));
+
+            path.datum(data).attr("d", line);
+            areaPath.datum(data).attr("d", area);
+
+            const statusDiv = d3.select("#convergence-status2");
+            if (p > 1) {
+                statusDiv.text("収束 (p > 1)").style("color", "#22c55e").style("background-color", "rgba(34, 197, 94, 0.1)");
+                areaPath.attr("fill", convergenceColor);
+            } else {
+                statusDiv.text("発散 (p ≤ 1)").style("color", "#ef4444").style("background-color", "rgba(239, 68, 68, 0.1)");
+                areaPath.attr("fill", divergenceColor);
+            }
+            d3.select("#p-param-value").text(`p = ${p.toFixed(2)}`);
+        }
+
+        const slider = d3.select("#p-param-slider");
+        slider.on("input", (event) => {
+            update(+event.target.value);
+        });
+        update(+slider.property("value"));
+    };
+
+    // --- Graph 4: sin(x)/x ---
+    const setupGraph4 = () => {
+        const container = d3.select("#graph4");
+        container.html("");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 350 - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleLinear().domain([1, 30]).range([0, width]);
+        const y = d3.scaleLinear().domain([-0.5, 1]).range([height, 0]);
+
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y));
+        svg.append("line").attr("x1", 0).attr("x2", width).attr("y1", y(0)).attr("y2", y(0)).attr("stroke", gridColor).attr("stroke-dasharray", "4");
+
+        const func = (x_val) => Math.sin(x_val) / x_val;
+        const data = d3.range(1, 30.1, 0.1).map(d => ({x: d, y: func(d)}));
+
+        const line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+
+        // Original function
+        svg.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "#3b82f6") // blue-500
+            .attr("stroke-width", 2)
+            .attr("d", line);
+
+        // Absolute value function
+        const absData = data.map(d => ({x: d.x, y: Math.abs(d.y)}));
+        svg.append("path")
+            .datum(absData)
+            .attr("fill", "none")
+            .attr("stroke", "#f43f5e") // rose-500
+            .attr("stroke-width", 1.5)
+            .attr("stroke-dasharray", "5,5")
+            .attr("d", line);
+
+        // Legend
+        svg.append("circle").attr("cx",width-120).attr("cy",10).attr("r", 6).style("fill", "#3b82f6")
+        svg.append("text").attr("x", width-110).attr("y", 10).text("sin(x)/x").style("font-size", "12px").attr("alignment-baseline","middle").attr("fill", strokeColor)
+        svg.append("circle").attr("cx",width-120).attr("cy",30).attr("r", 6).style("fill", "#f43f5e")
+        svg.append("text").attr("x", width-110).attr("y", 30).text("|sin(x)/x|").style("font-size", "12px").attr("alignment-baseline","middle").attr("fill", strokeColor)
+    };
+
+    // --- Graph: -inf to +inf ---
+    const setupGraphInfinityBothWays = () => {
+        const container = d3.select("#graph-infinity-both-ways");
+        if (!container.node()) return;
+        container.html("");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const xMax = 5;
+        const x = d3.scaleLinear().domain([-xMax, xMax]).range([0, width]);
+        const y = d3.scaleLinear().domain([0, 1.2]).range([height, 0]);
+
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y).ticks(5));
+
+        const func = (x_val) => Math.exp(-x_val * x_val);
+
+        const lineData = d3.range(-xMax, xMax + 0.1, 0.1).map(d => ({x: d, y: func(d)}));
+        const line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+        svg.append("path").datum(lineData).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);
+
+        const area = d3.area().x(d => x(d.x)).y0(height).y1(d => y(d.y));
+        const areaPath = svg.append("path").attr("fill", convergenceColor);
+
+        const numericalIntegral = (f, a, b, n) => {
+            const h = (b - a) / n;
+            let sum = 0.5 * (f(a) + f(b));
+            for (let i = 1; i < n; i++) {
+                sum += f(a + i * h);
+            }
+            return sum * h;
+        };
+
+        function update(R) {
+            const displayR = Math.min(R, xMax);
+            const areaData = d3.range(-displayR, displayR + 0.1, 0.1).map(d => ({x: d, y: func(d)}));
+            if (areaData.length > 0) {
+              areaPath.datum(areaData).attr("d", area);
+            } else {
+              areaPath.attr("d", null);
+            }
+
+            const integralValue = numericalIntegral(func, -R, R, 200);
+            d3.select("#area-value-both-ways").text(integralValue.toFixed(3));
+            d3.select("#R-value").text(`R = ${R.toFixed(2)}`);
+        }
+
+        const slider = d3.select("#R-slider");
+        slider.on("input", (event) => {
+            update(+event.target.value);
+        });
+        update(+slider.property("value"));
+    };
+
+    // --- Graph: -inf to +inf (Diverging example) ---
+    const setupGraphInfinityDiverge = () => {
+        const container = d3.select("#graph-infinity-diverge");
+        if (!container.node()) return;
+        container.html("");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const xMax = 50;
+        const x = d3.scaleLinear().domain([-xMax, xMax]).range([0, width]);
+        const y = d3.scaleLinear().domain([0, 1.2]).range([height, 0]);
+
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y).ticks(5));
+
+        const func = (x_val) => 1 / Math.sqrt(1 + x_val * x_val);
+
+        const lineData = d3.range(-xMax, xMax + 0.5, 0.5).map(d => ({x: d, y: func(d)}));
+        const line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+        svg.append("path").datum(lineData).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);
+
+        const area = d3.area().x(d => x(d.x)).y0(height).y1(d => y(d.y));
+        const areaPath = svg.append("path").attr("fill", divergenceColor);
+
+        // Analytical integral is 2 * asinh(R)
+        const analyticalIntegral = (R) => 2 * Math.asinh(R);
+
+        function update(R) {
+            const displayR = Math.min(R, xMax);
+            const areaData = d3.range(-displayR, displayR + 0.1, 0.1).map(d => ({x: d, y: func(d)}));
+            if (areaData.length > 0) {
+              areaPath.datum(areaData).attr("d", area);
+            } else {
+              areaPath.attr("d", null);
+            }
+
+            const integralValue = analyticalIntegral(R);
+            d3.select("#area-value-diverge").text(integralValue.toFixed(3));
+            d3.select("#R-value-diverge").text(`R = ${R.toFixed(1)}`);
+        }
+
+        const slider = d3.select("#R-slider-diverge");
+        slider.on("input", (event) => {
+            update(+event.target.value);
+        });
+        update(+slider.property("value"));
+    };
+
+    // --- Graph: Odd function x/(1+x^4) ---
+    const setupGraphOddFunction = () => {
+        const container = d3.select("#graph-odd-function");
+        if (!container.node()) return;
+        container.html("");
+        const margin = {top: 20, right: 20, bottom: 30, left: 40};
+        const width = container.node().getBoundingClientRect().width - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const xMax = 5;
+        const yMax = 0.5;
+        const x = d3.scaleLinear().domain([-xMax, xMax]).range([0, width]);
+        const y = d3.scaleLinear().domain([-yMax, yMax]).range([height, 0]);
+
+        svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y).ticks(5));
+        svg.append("line")
+           .attr("x1", 0)
+           .attr("x2", width)
+           .attr("y1", y(0))
+           .attr("y2", y(0))
+           .attr("stroke", gridColor);
+
+        const func = (x_val) => x_val / (1 + Math.pow(x_val, 4));
+
+        const lineData = d3.range(-xMax, xMax + 0.1, 0.1).map(d => ({x: d, y: func(d)}));
+        const line = d3.line().x(d => x(d.x)).y(d => y(d.y));
+        svg.append("path").datum(lineData).attr("fill", "none").attr("stroke", strokeColor).attr("stroke-width", 2).attr("d", line);
+
+        const areaPositive = d3.area().x(d => x(d.x)).y0(y(0)).y1(d => y(d.y));
+        const areaNegative = d3.area().x(d => x(d.x)).y0(y(0)).y1(d => y(d.y));
+
+        const areaPathPositive = svg.append("path").attr("fill", convergenceColor); // Blue
+        const areaPathNegative = svg.append("path").attr("fill", divergenceColor); // Red
+
+        const numericalIntegral = (f, a, b, n) => {
+            const h = (b - a) / n;
+            let sum = 0.5 * (f(a) + f(b));
+            for (let i = 1; i < n; i++) {
+                sum += f(a + i * h);
+            }
+            return sum * h;
+        };
+
+        function update(R) {
+            const displayR = Math.min(R, xMax);
+
+            const areaDataPositive = d3.range(0, displayR + 0.05, 0.05).map(d => ({x: d, y: func(d)}));
+            const areaDataNegative = d3.range(-displayR, 0 + 0.05, 0.05).map(d => ({x: d, y: func(d)}));
+
+            if(areaDataPositive.length > 0) areaPathPositive.datum(areaDataPositive).attr("d", areaPositive);
+            if(areaDataNegative.length > 0) areaPathNegative.datum(areaDataNegative).attr("d", areaNegative);
+
+            const integralPositive = numericalIntegral(func, 0, R, 100);
+            const integralNegative = numericalIntegral(func, -R, 0, 100);
+            const integralTotal = integralPositive + integralNegative;
+
+            d3.select("#area-value-positive").text(integralPositive.toFixed(4));
+            d3.select("#area-value-negative").text(integralNegative.toFixed(4));
+            d3.select("#area-value-total").text(integralTotal.toExponential(2));
+            d3.select("#R-value-odd").text(`R = ${R.toFixed(2)}`);
+        }
+
+        const slider = d3.select("#R-slider-odd");
+        slider.on("input", (event) => {
+            update(+event.target.value);
+        });
+        update(+slider.property("value"));
+    };
+
+
+    // --- Initial setup and resize handling ---
+    function setupAllGraphs() {
+        setupGraph1();
+        setupGraph1_infinite();
+        setupGraphMultiSingularity();
+        setupGraph2();
+        setupGraph3();
+        setupGraph4();
+        setupGraphInfinityBothWays();
+        setupGraphInfinityDiverge();
+        setupGraphOddFunction();
+    }
+
+    // Initial call
+    setupAllGraphs();
+
+    // Redraw on resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(setupAllGraphs, 250);
+    });
+
+    // Redraw on dark mode change
+    const observer = new MutationObserver((mutationsList) => {
+        for(const mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const newIsDarkMode = isDarkMode();
+                strokeColor = newIsDarkMode ? '#e5e7eb' : '#1f2937';
+                gridColor = newIsDarkMode ? '#374151' : '#e5e7eb';
+                setupAllGraphs();
+                break;
+            }
+        }
+    });
+    observer.observe(document.documentElement, { attributes: true });
+});
+</script>
+
+</body>
+</html>

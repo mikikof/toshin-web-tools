@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テイラー展開 統合学習ツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            overscroll-behavior: none;
+        }
+        /* スライダーのつまみのスタイル */
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 2px solid currentColor; cursor: pointer; margin-top: -8px; }
+        input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 2px solid currentColor; cursor: pointer; }
+
+        /* タブボタンのスタイル */
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b; /* slate-500 */
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+        .tab-button.active-tab {
+            color: #4f46e5; /* indigo-600 */
+            border-bottom-color: #4f46e5; /* indigo-600 */
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+    <div class="container mx-auto p-4 max-w-7xl">
+
+        <!-- Tab Navigation -->
+        <div class="mb-4 flex flex-wrap justify-center md:justify-start -mx-4 px-4 border-b border-slate-300">
+            <button data-tab-target="#ex-section" class="tab-button active-tab">
+                e<sup>x</sup>
+            </button>
+            <button data-tab-target="#ln-section" class="tab-button">
+                ln(1+x)
+            </button>
+            <button data-tab-target="#sin-section" class="tab-button">
+                sin(x)
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Section for e^x -->
+            <section id="ex-section" class="tab-panel bg-white p-6 rounded-2xl shadow-lg">
+                <header class="text-center mb-6">
+                    <h1 class="text-3xl md:text-4xl font-bold text-slate-900"><span id="ex-expansion-type">テイラー</span>展開による e<sup>x</sup> の近似</h1>
+                </header>
+                <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <!-- Column 1: Controls -->
+                    <div class="lg:col-span-1 bg-slate-50 p-6 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-center space-x-4">
+                            <label for="ex-a-slider" class="font-medium text-slate-700 w-32 text-right">展開の中心 a:</label>
+                            <input id="ex-a-slider" type="range" min="-2" max="2" value="0" step="0.1" class="w-full accent-emerald-500 h-1">
+                            <span id="ex-a-value" class="font-mono font-bold text-emerald-600 text-lg w-12 text-center">0.0</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4">
+                            <label for="ex-degree-slider" class="font-medium text-slate-700 w-32 text-right">近似の次数 n:</label>
+                            <input id="ex-degree-slider" type="range" min="0" max="20" value="1" class="w-full accent-indigo-600 h-1">
+                            <span id="ex-degree-value" class="font-bold text-indigo-600 text-lg w-12 text-center">1</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4">
+                            <label for="ex-focus-slider" class="font-medium text-slate-700 w-32 text-right">拡大点の x座標:</label>
+                            <input id="ex-focus-slider" type="range" min="-2" max="3" value="2" step="0.1" class="w-full accent-slate-500 h-1">
+                            <span id="ex-focus-value" class="font-mono font-bold text-slate-600 text-lg w-12 text-center">2.0</span>
+                        </div>
+                        <div id="ex-formula-display" class="mt-4 text-center text-sm md:text-base text-slate-800 p-4 bg-white rounded-xl min-h-[50px] font-mono break-words"></div>
+                    </div>
+
+                    <!-- Column 2: Global Graph -->
+                    <div class="lg:col-span-1">
+                        <h2 class="text-xl font-bold mb-4 text-center text-slate-900">全体像</h2>
+                        <div class="aspect-square border border-slate-200 rounded-xl overflow-hidden"><canvas id="ex-global-canvas"></canvas></div>
+                        <div class="flex justify-center flex-wrap gap-x-6 gap-y-2 mt-4 text-sm">
+                            <span class="flex items-center"><span class="w-4 h-1 bg-blue-500 inline-block mr-2 rounded"></span>y = e<sup>x</sup></span>
+                            <span class="flex items-center"><span class="w-4 h-1 bg-red-500 inline-block mr-2 rounded"></span>近似関数</span>
+                            <span class="flex items-center"><span class="w-3 h-3 bg-red-500 rounded-full inline-block mr-2"></span>展開の中心 (a)</span>
+                            <span class="flex items-center"><span class="w-3 h-3 bg-blue-500 rounded-full inline-block mr-2"></span>拡大点 (x)</span>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Zoomed Graph with Overlay -->
+                    <div class="lg:col-span-1">
+                        <h2 id="ex-zoom-title" class="text-xl font-bold mb-4 text-center text-slate-900"></h2>
+                        <div class="relative aspect-square border border-slate-200 rounded-xl overflow-hidden">
+                            <div class="absolute top-0 left-0 right-0 bg-white/80 backdrop-blur-sm p-3 rounded-t-xl text-center space-y-1 z-10 text-sm">
+                                <p><span id="ex-true-value-label"></span>: <span id="ex-true-value" class="font-mono font-bold text-blue-600"></span></p>
+                                <p>近似値 (n=<span id="ex-approx-degree"></span>): <span id="ex-approx-value" class="font-mono font-bold text-red-600"></span></p>
+                                <p>誤差: <span id="ex-error-value" class="font-mono font-bold text-slate-700"></span></p>
+                            </div>
+                            <canvas id="ex-zoomed-canvas"></canvas>
+                        </div>
+                    </div>
+                </main>
+            </section>
+
+            <!-- Section for ln(1+x) -->
+            <section id="ln-section" class="tab-panel hidden bg-white p-6 rounded-2xl shadow-lg">
+                <header class="text-center mb-6">
+                    <h1 class="text-3xl md:text-4xl font-bold text-slate-900"><span id="ln-expansion-type">テイラー</span>展開による ln(1+x) の近似</h1>
+                </header>
+                <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <!-- Column 1: Controls -->
+                    <div class="lg:col-span-1 bg-slate-50 p-6 rounded-2xl space-y-4">
+                         <div class="flex items-center justify-center space-x-4">
+                            <label for="ln-a-slider" class="font-medium text-slate-700 w-32 text-right">展開の中心 a:</label>
+                            <input id="ln-a-slider" type="range" min="-0.9" max="2" value="0" step="0.1" class="w-full accent-emerald-500 h-1">
+                            <span id="ln-a-value" class="font-mono font-bold text-emerald-600 text-lg w-12 text-center">0.0</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4">
+                            <label for="ln-degree-slider" class="font-medium text-slate-700 w-32 text-right">近似の次数 n:</label>
+                            <input id="ln-degree-slider" type="range" min="1" max="30" value="1" class="w-full accent-teal-600 h-1">
+                            <span id="ln-degree-value" class="font-bold text-teal-600 text-lg w-12 text-center">1</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4">
+                            <label for="ln-focus-slider" class="font-medium text-slate-700 w-32 text-right">拡大点の x座標:</label>
+                            <input id="ln-focus-slider" type="range" min="-0.9" max="2" value="0.8" step="0.1" class="w-full accent-slate-500 h-1">
+                            <span id="ln-focus-value" class="font-mono font-bold text-slate-600 text-lg w-12 text-center">0.8</span>
+                        </div>
+                        <div id="ln-formula-display" class="mt-4 text-center text-sm md:text-base text-slate-800 p-4 bg-white rounded-xl min-h-[50px] font-mono break-words"></div>
+                    </div>
+
+                    <!-- Column 2: Global Graph -->
+                    <div class="lg:col-span-1">
+                        <h2 class="text-xl font-bold mb-4 text-center text-slate-900">全体像</h2>
+                        <div class="aspect-square border border-slate-200 rounded-xl overflow-hidden"><canvas id="ln-global-canvas"></canvas></div>
+                        <div class="flex justify-center flex-wrap gap-x-6 gap-y-2 mt-4 text-sm">
+                            <span class="flex items-center"><span class="w-4 h-1 bg-cyan-500 inline-block mr-2 rounded"></span>y = ln(1+x)</span>
+                            <span class="flex items-center"><span class="w-4 h-1 bg-orange-500 inline-block mr-2 rounded"></span>近似関数</span>
+                            <span class="flex items-center"><span class="w-3 h-3 bg-orange-500 rounded-full inline-block mr-2"></span>展開の中心 (a)</span>
+                            <span class="flex items-center"><span class="w-3 h-3 bg-cyan-500 rounded-full inline-block mr-2"></span>拡大点 (x)</span>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Zoomed Graph with Overlay -->
+                    <div class="lg:col-span-1">
+                        <h2 id="ln-zoom-title" class="text-xl font-bold mb-4 text-center text-slate-900"></h2>
+                        <div class="relative aspect-square border border-slate-200 rounded-xl overflow-hidden">
+                            <div class="absolute top-0 left-0 right-0 bg-white/80 backdrop-blur-sm p-3 rounded-t-xl text-center space-y-1 z-10 text-sm">
+                                <p><span id="ln-true-value-label"></span>: <span id="ln-true-value" class="font-mono font-bold text-cyan-600"></span></p>
+                                <p>近似値 (n=<span id="ln-approx-degree"></span>): <span id="ln-approx-value" class="font-mono font-bold text-orange-600"></span></p>
+                                <p>誤差: <span id="ln-error-value" class="font-mono font-bold text-slate-700"></span></p>
+                            </div>
+                            <canvas id="ln-zoomed-canvas"></canvas>
+                        </div>
+                    </div>
+                </main>
+            </section>
+
+            <!-- Section for sin(x) -->
+            <section id="sin-section" class="tab-panel hidden bg-white p-6 rounded-2xl shadow-lg">
+                <header class="text-center mb-6">
+                    <h1 class="text-3xl md:text-4xl font-bold text-slate-900"><span id="sin-expansion-type">テイラー</span>展開による sin(x) の近似</h1>
+                </header>
+                <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <!-- Column 1: Controls -->
+                    <div class="lg:col-span-1 bg-slate-50 p-6 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-center space-x-4">
+                            <label for="sin-a-slider" class="font-medium text-slate-700 w-32 text-right">展開の中心 a:</label>
+                            <input id="sin-a-slider" type="range" min="-6.2" max="6.2" value="0" step="0.1" class="w-full accent-emerald-500 h-1">
+                            <span id="sin-a-value" class="font-mono font-bold text-emerald-600 text-lg w-12 text-center">0.0</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4">
+                            <label for="sin-degree-slider" class="font-medium text-slate-700 w-32 text-right">近似の次数 n:</label>
+                            <input id="sin-degree-slider" type="range" min="1" max="30" value="1" class="w-full accent-rose-600 h-1">
+                            <span id="sin-degree-value" class="font-bold text-rose-600 text-lg w-12 text-center">1</span>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4">
+                            <label for="sin-focus-slider" class="font-medium text-slate-700 w-32 text-right">拡大点の x座標:</label>
+                            <input id="sin-focus-slider" type="range" min="-6.2" max="6.2" value="3.0" step="0.1" class="w-full accent-slate-500 h-1">
+                            <span id="sin-focus-value" class="font-mono font-bold text-slate-600 text-lg w-12 text-center">3.0</span>
+                        </div>
+                        <div id="sin-formula-display" class="mt-4 text-center text-sm md:text-base text-slate-800 p-4 bg-white rounded-xl min-h-[50px] font-mono break-words"></div>
+                    </div>
+
+                    <!-- Column 2: Global Graph -->
+                    <div class="lg:col-span-1">
+                        <h2 class="text-xl font-bold mb-4 text-center text-slate-900">全体像</h2>
+                        <div class="aspect-square border border-slate-200 rounded-xl overflow-hidden"><canvas id="sin-global-canvas"></canvas></div>
+                        <div class="flex justify-center flex-wrap gap-x-6 gap-y-2 mt-4 text-sm">
+                            <span class="flex items-center"><span class="w-4 h-1 bg-green-500 inline-block mr-2 rounded"></span>y = sin(x)</span>
+                            <span class="flex items-center"><span class="w-4 h-1 bg-purple-500 inline-block mr-2 rounded"></span>近似関数</span>
+                            <span class="flex items-center"><span class="w-3 h-3 bg-purple-500 rounded-full inline-block mr-2"></span>展開の中心 (a)</span>
+                            <span class="flex items-center"><span class="w-3 h-3 bg-green-500 rounded-full inline-block mr-2"></span>拡大点 (x)</span>
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Zoomed Graph with Overlay -->
+                    <div class="lg:col-span-1">
+                        <h2 id="sin-zoom-title" class="text-xl font-bold mb-4 text-center text-slate-900"></h2>
+                        <div class="relative aspect-square border border-slate-200 rounded-xl overflow-hidden">
+                             <div class="absolute top-0 left-0 right-0 bg-white/80 backdrop-blur-sm p-3 rounded-t-xl text-center space-y-1 z-10 text-sm">
+                                <p><span id="sin-true-value-label"></span>: <span id="sin-true-value" class="font-mono font-bold text-green-600"></span></p>
+                                <p>近似値 (n=<span id="sin-approx-degree"></span>): <span id="sin-approx-value" class="font-mono font-bold text-purple-600"></span></p>
+                                <p>誤差: <span id="sin-error-value" class="font-mono font-bold text-slate-700"></span></p>
+                            </div>
+                            <canvas id="sin-zoomed-canvas"></canvas>
+                        </div>
+                    </div>
+                </main>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Shared Utility Functions ---
+            const factorial = (n) => {
+                if (n < 0) return Infinity;
+                if (n === 0) return 1;
+                let result = 1;
+                for (let i = 2; i <= n; i++) result *= i;
+                return result;
+            };
+
+            const setupCanvas = (canvas, ctx) => {
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.parentElement.getBoundingClientRect();
+                if (rect.width === 0 || rect.height === 0) return; // Don't setup hidden canvases
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                canvas.style.width = `${rect.width}px`;
+                canvas.style.height = `${rect.height}px`;
+                ctx.scale(dpr, dpr);
+            };
+
+            const drawGridAndAxes = (ctx, width, height, xRange, yRange, showDetails = true, axisColor, gridColor, textColor) => {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, width, height);
+
+                const [xMin, xMax] = xRange;
+                const [yMin, yMax] = yRange;
+                const toCanvasX = (x) => (x - xMin) / (xMax - xMin) * width;
+                const toCanvasY = (y) => height - (y - yMin) / (yMax - yMin) * height;
+
+                if (showDetails) {
+                    ctx.strokeStyle = gridColor;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    const xStep = (xMax - xMin) / 10;
+                    for (let x = xMin; x <= xMax; x += xStep) { const cx = toCanvasX(x); ctx.moveTo(cx, 0); ctx.lineTo(cx, height); }
+                    const yStep = (yMax - yMin) / 10;
+                    for (let y = yMin; y <= yMax; y += yStep) { const cy = toCanvasY(y); ctx.moveTo(0, cy); ctx.lineTo(width, cy); }
+                    ctx.stroke();
+                }
+
+                ctx.strokeStyle = axisColor;
+                ctx.lineWidth = showDetails ? 2 : 1.5;
+                ctx.beginPath();
+                const yZero = toCanvasY(0);
+                if (yZero >= 0 && yZero <= height) { ctx.moveTo(0, yZero); ctx.lineTo(width, yZero); }
+                const xZero = toCanvasX(0);
+                if (xZero >= 0 && xZero <= width) { ctx.moveTo(xZero, 0); ctx.lineTo(xZero, height); }
+                ctx.stroke();
+
+                if (showDetails) {
+                    ctx.fillStyle = textColor;
+                    ctx.font = '12px sans-serif';
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+                    const xStep = (xMax - xMin) / 5;
+                    for (let i = 1; i < 5; i++) { const x = xMin + i * xStep; if(Math.abs(x) > 1e-9) ctx.fillText(x.toFixed(2), toCanvasX(x), yZero + 5); }
+                    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+                    const yStep = (yMax - yMin) / 5;
+                    for (let i = 1; i < 5; i++) { const y = yMin + i * yStep; if(Math.abs(y) > 1e-9) ctx.fillText(y.toFixed(2), xZero - 5, toCanvasY(y)); }
+                }
+            };
+
+            const drawFunction = (ctx, width, height, xRange, yRange, func, color, lineWidth = 2) => {
+                const [xMin, xMax] = xRange;
+                const [yMin, yMax] = yRange;
+                const toCanvasX = (x) => (x - xMin) / (xMax - xMin) * width;
+                const toCanvasY = (y) => height - (y - yMin) / (yMax - yMin) * height;
+
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
+                ctx.beginPath();
+                let firstPoint = true;
+                for (let px = 0; px <= width; px++) {
+                    const x = xMin + (px / width) * (xMax - xMin);
+                    const y = func(x);
+                    const cx = toCanvasX(x);
+                    const cy = toCanvasY(y);
+                    if (isFinite(cy) && cy > -1e4 && cy < 1e4) {
+                        if (firstPoint) { ctx.moveTo(cx, cy); firstPoint = false; } 
+                        else { ctx.lineTo(cx, cy); }
+                    } else {
+                        firstPoint = true;
+                    }
+                }
+                ctx.stroke();
+            };
+
+            const drawPoint = (ctx, x, y, xRange, yRange, width, height, color, radius = 5) => {
+                const [xMin, xMax] = xRange;
+                const [yMin, yMax] = yRange;
+                const canvasX = (x - xMin) / (xMax - xMin) * width;
+                const canvasY = height - (y - yMin) / (yMax - yMin) * height;
+
+                if (isFinite(canvasX) && isFinite(canvasY)) {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(canvasX, canvasY, radius, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            };
+
+            const drawErrorLine = (ctx, x, y1, y2, xRange, yRange, width, height, color) => {
+                const [xMin, xMax] = xRange;
+                const [yMin, yMax] = yRange;
+                const toCanvasX = (val) => (val - xMin) / (xMax - xMin) * width;
+                const toCanvasY = (val) => height - (val - yMin) / (yMax - yMin) * height;
+
+                const canvasX = toCanvasX(x);
+                const canvasY1 = toCanvasY(y1);
+                const canvasY2 = toCanvasY(y2);
+
+                if (isFinite(canvasX) && isFinite(canvasY1) && isFinite(canvasY2)) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(canvasX, canvasY1);
+                    ctx.lineTo(canvasX, canvasY2);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            };
+
+            const renderFormula = (displayEl, formula) => {
+                displayEl.innerHTML = formula;
+            };
+
+            // --- e^x Setup ---
+            const ex = {
+                aSlider: document.getElementById('ex-a-slider'), aValue: document.getElementById('ex-a-value'),
+                slider: document.getElementById('ex-degree-slider'), degreeValue: document.getElementById('ex-degree-value'),
+                focusSlider: document.getElementById('ex-focus-slider'), focusValue: document.getElementById('ex-focus-value'),
+                formulaDisplay: document.getElementById('ex-formula-display'), trueValueDisplay: document.getElementById('ex-true-value'),
+                approxValueDisplay: document.getElementById('ex-approx-value'), approxDegreeDisplay: document.getElementById('ex-approx-degree'),
+                errorValueDisplay: document.getElementById('ex-error-value'), globalCanvas: document.getElementById('ex-global-canvas'),
+                zoomedCanvas: document.getElementById('ex-zoomed-canvas'), zoomTitle: document.getElementById('ex-zoom-title'),
+                trueValueLabel: document.getElementById('ex-true-value-label'),
+                expansionTypeSpan: document.getElementById('ex-expansion-type'),
+                FOCUS_X: 2.0, CENTER_A: 0.0, approxValueAtFocus: 0, 
+                COLORS: { axis: '#94a3b8', grid: '#e2e8f0', original: '#3b82f6', approx: '#ef4444', text: '#1e293b' },
+                originalFunc: (x) => Math.exp(x),
+                taylorApprox: (x, n, a) => { let sum = 0; for (let i = 0; i <= n; i++) sum += (Math.exp(a) / factorial(i)) * Math.pow(x - a, i); return sum; }
+            };
+            ex.gCtx = ex.globalCanvas.getContext('2d'); ex.zCtx = ex.zoomedCanvas.getContext('2d');
+
+            function updateEx() {
+                const degree = parseInt(ex.slider.value);
+                ex.CENTER_A = parseFloat(ex.aSlider.value);
+                ex.FOCUS_X = parseFloat(ex.focusSlider.value);
+                const focusX_Y = ex.originalFunc(ex.FOCUS_X);
+
+                ex.expansionTypeSpan.textContent = ex.CENTER_A === 0 ? 'マクローリン' : 'テイラー';
+                ex.aValue.textContent = ex.CENTER_A.toFixed(1);
+                ex.degreeValue.textContent = degree; ex.approxDegreeDisplay.textContent = degree;
+                ex.focusValue.textContent = ex.FOCUS_X.toFixed(1);
+                ex.zoomTitle.textContent = `x = ${ex.FOCUS_X.toFixed(1)} での拡大図`;
+                ex.trueValueLabel.innerHTML = `実際の値 (e<sup>${ex.FOCUS_X.toFixed(1)}</sup>)`;
+
+                let aStr = ex.CENTER_A.toFixed(1);
+                let xaStr = `(x - ${aStr})`;
+                if (ex.CENTER_A === 0) { aStr = "0"; xaStr = "x"; }
+                else if (ex.CENTER_A < 0) { xaStr = `(x + ${-ex.CENTER_A.toFixed(1)})`; }
+
+                let formula = `P(x) = e<sup>${aStr}</sup> * (1`;
+                if (degree >= 1) formula += ` + ${xaStr}`;
+                if (degree >= 2) formula += ` + ${xaStr}<sup>2</sup>/2!`;
+                if (degree >= 3) formula += ` + ${xaStr}<sup>3</sup>/3!`;
+                if (degree >= 4) formula += ` + ${xaStr}<sup>4</sup>/4!`;
+                if (degree > 4) formula += ` + ...)`;
+                else formula += `)`;
+
+                renderFormula(ex.formulaDisplay, formula);
+
+                const approxValue = ex.taylorApprox(ex.FOCUS_X, degree, ex.CENTER_A);
+                ex.approxValueAtFocus = approxValue;
+                ex.trueValueDisplay.textContent = focusX_Y.toFixed(8);
+                ex.approxValueDisplay.textContent = approxValue.toFixed(8);
+                ex.errorValueDisplay.textContent = Math.abs(focusX_Y - approxValue).toExponential(4);
+                drawEx();
+            }
+
+            function drawEx() {
+                if (document.getElementById('ex-section').classList.contains('hidden')) return;
+                const degree = parseInt(ex.slider.value);
+                const centerA_Y = ex.originalFunc(ex.CENTER_A);
+                const focusX_Y = ex.originalFunc(ex.FOCUS_X);
+
+                const gw = ex.globalCanvas.clientWidth, gh = ex.globalCanvas.clientHeight; const gxRange = [-4, 4], gyRange = [-10, 50];
+                drawGridAndAxes(ex.gCtx, gw, gh, gxRange, gyRange, false, ex.COLORS.axis, ex.COLORS.grid, ex.COLORS.text);
+                drawFunction(ex.gCtx, gw, gh, gxRange, gyRange, ex.originalFunc, ex.COLORS.original, 3);
+                drawFunction(ex.gCtx, gw, gh, gxRange, gyRange, (x) => ex.taylorApprox(x, degree, ex.CENTER_A), ex.COLORS.approx, 3);
+                drawPoint(ex.gCtx, ex.CENTER_A, centerA_Y, gxRange, gyRange, gw, gh, ex.COLORS.approx);
+                drawPoint(ex.gCtx, ex.FOCUS_X, focusX_Y, gxRange, gyRange, gw, gh, ex.COLORS.original);
+
+                const zw = ex.zoomedCanvas.clientWidth, zh = ex.zoomedCanvas.clientHeight; const zoomFactor = Math.max(0.1, 2 - degree * 0.1); const zxRange = [ex.FOCUS_X - zoomFactor, ex.FOCUS_X + zoomFactor]; const zyRange = [focusX_Y - zoomFactor, focusX_Y + zoomFactor];
+                drawGridAndAxes(ex.zCtx, zw, zh, zxRange, zyRange, true, ex.COLORS.axis, ex.COLORS.grid, ex.COLORS.text);
+                drawFunction(ex.zCtx, zw, zh, zxRange, zyRange, ex.originalFunc, ex.COLORS.original, 3);
+                drawFunction(ex.zCtx, zw, zh, zxRange, zyRange, (x) => ex.taylorApprox(x, degree, ex.CENTER_A), ex.COLORS.approx, 3);
+
+                drawErrorLine(ex.zCtx, ex.FOCUS_X, focusX_Y, ex.approxValueAtFocus, zxRange, zyRange, zw, zh, ex.COLORS.text);
+                drawPoint(ex.zCtx, ex.CENTER_A, centerA_Y, zxRange, zyRange, zw, zh, ex.COLORS.approx);
+                drawPoint(ex.zCtx, ex.FOCUS_X, focusX_Y, zxRange, zyRange, zw, zh, ex.COLORS.original);
+                drawPoint(ex.zCtx, ex.FOCUS_X, ex.approxValueAtFocus, zxRange, zyRange, zw, zh, ex.COLORS.approx);
+            }
+
+            // --- ln(1+x) Setup ---
+            const ln = {
+                aSlider: document.getElementById('ln-a-slider'), aValue: document.getElementById('ln-a-value'),
+                slider: document.getElementById('ln-degree-slider'), degreeValue: document.getElementById('ln-degree-value'),
+                focusSlider: document.getElementById('ln-focus-slider'), focusValue: document.getElementById('ln-focus-value'),
+                formulaDisplay: document.getElementById('ln-formula-display'), trueValueDisplay: document.getElementById('ln-true-value'),
+                approxValueDisplay: document.getElementById('ln-approx-value'), approxDegreeDisplay: document.getElementById('ln-approx-degree'),
+                errorValueDisplay: document.getElementById('ln-error-value'), globalCanvas: document.getElementById('ln-global-canvas'),
+                zoomedCanvas: document.getElementById('ln-zoomed-canvas'), zoomTitle: document.getElementById('ln-zoom-title'),
+                trueValueLabel: document.getElementById('ln-true-value-label'),
+                expansionTypeSpan: document.getElementById('ln-expansion-type'),
+                FOCUS_X: 0.8, CENTER_A: 0.0, approxValueAtFocus: 0,
+                COLORS: { axis: '#94a3b8', grid: '#e2e8f0', original: '#06b6d4', approx: '#f97316', text: '#1e293b' },
+                originalFunc: (x) => (x > -1) ? Math.log(1 + x) : NaN,
+                taylorApprox: (x, n, a) => { if (1 + a <= 0) return NaN; let sum = Math.log(1 + a); for (let i = 1; i <= n; i++) { sum += (Math.pow(-1, i - 1) / (i * Math.pow(1 + a, i))) * Math.pow(x - a, i); } return sum; }
+            };
+            ln.gCtx = ln.globalCanvas.getContext('2d'); ln.zCtx = ln.zoomedCanvas.getContext('2d');
+
+            function updateLn() {
+                const degree = parseInt(ln.slider.value);
+                ln.CENTER_A = parseFloat(ln.aSlider.value);
+                ln.FOCUS_X = parseFloat(ln.focusSlider.value);
+                const focusX_Y = ln.originalFunc(ln.FOCUS_X);
+
+                ln.expansionTypeSpan.textContent = ln.CENTER_A === 0 ? 'マクローリン' : 'テイラー';
+                ln.aValue.textContent = ln.CENTER_A.toFixed(1);
+                ln.degreeValue.textContent = degree; ln.approxDegreeDisplay.textContent = degree;
+                ln.focusValue.textContent = ln.FOCUS_X.toFixed(1);
+                ln.zoomTitle.textContent = `x = ${ln.FOCUS_X.toFixed(1)} での拡大図`;
+                ln.trueValueLabel.textContent = `実際の値 (ln(${(1 + ln.FOCUS_X).toFixed(1)}))`;
+
+                let aStr = ln.CENTER_A.toFixed(1);
+                let xaStr = `(x - ${aStr})`;
+                if (ln.CENTER_A === 0) { aStr = "0"; xaStr = "x"; }
+                else if (ln.CENTER_A < 0) { xaStr = `(x + ${-ln.CENTER_A.toFixed(1)})`; }
+
+                let formula = `P(x) = ln(${(1+ln.CENTER_A).toFixed(1)})`;
+                if (degree >= 1) formula += ` + ${xaStr}/(${(1+ln.CENTER_A).toFixed(1)})`;
+                if (degree >= 2) formula += ` - ${xaStr}<sup>2</sup>/(2*(${(1+ln.CENTER_A).toFixed(1)})<sup>2</sup>)`;
+                if (degree >= 3) formula += ` + ${xaStr}<sup>3</sup>/(3*(${(1+ln.CENTER_A).toFixed(1)})<sup>3</sup>)`;
+                if (degree >= 4) formula += ` - ${xaStr}<sup>4</sup>/(4*(${(1+ln.CENTER_A).toFixed(1)})<sup>4</sup>)`;
+                if (degree > 4) formula += ` + ...`;
+
+                renderFormula(ln.formulaDisplay, formula);
+
+                const approxValue = ln.taylorApprox(ln.FOCUS_X, degree, ln.CENTER_A);
+                ln.approxValueAtFocus = approxValue;
+                ln.trueValueDisplay.textContent = isNaN(focusX_Y) ? "定義域外" : focusX_Y.toFixed(8);
+                ln.approxValueDisplay.textContent = isNaN(approxValue) ? "計算不能" : approxValue.toFixed(8);
+                ln.errorValueDisplay.textContent = isNaN(focusX_Y) || isNaN(approxValue) ? "---" : Math.abs(focusX_Y - approxValue).toExponential(4);
+                drawLn();
+            }
+
+            function drawLn() {
+                if (document.getElementById('ln-section').classList.contains('hidden')) return;
+                const degree = parseInt(ln.slider.value);
+                const centerA_Y = ln.originalFunc(ln.CENTER_A);
+                const focusX_Y = ln.originalFunc(ln.FOCUS_X);
+
+                const gw = ln.globalCanvas.clientWidth, gh = ln.globalCanvas.clientHeight; const gxRange = [-1.5, 3], gyRange = [-4, 3];
+                drawGridAndAxes(ln.gCtx, gw, gh, gxRange, gyRange, false, ln.COLORS.axis, ln.COLORS.grid, ln.COLORS.text);
+                ln.gCtx.strokeStyle = 'rgba(150, 150, 150, 0.5)'; ln.gCtx.lineWidth = 2; ln.gCtx.setLineDash([5, 5]); ln.gCtx.beginPath();
+                const asymptoteX = (-1 - gxRange[0]) / (gxRange[1] - gxRange[0]) * gw;
+                ln.gCtx.moveTo(asymptoteX, 0); ln.gCtx.lineTo(asymptoteX, gh); ln.gCtx.stroke(); ln.gCtx.setLineDash([]);
+                drawFunction(ln.gCtx, gw, gh, gxRange, gyRange, ln.originalFunc, ln.COLORS.original, 3);
+                drawFunction(ln.gCtx, gw, gh, gxRange, gyRange, (x) => ln.taylorApprox(x, degree, ln.CENTER_A), ln.COLORS.approx, 3);
+                drawPoint(ln.gCtx, ln.CENTER_A, centerA_Y, gxRange, gyRange, gw, gh, ln.COLORS.approx);
+                drawPoint(ln.gCtx, ln.FOCUS_X, focusX_Y, gxRange, gyRange, gw, gh, ln.COLORS.original);
+
+                const zw = ln.zoomedCanvas.clientWidth, zh = ln.zoomedCanvas.clientHeight; const zoomFactor = Math.max(0.1, 0.5 - degree * 0.02); const zxRange = [ln.FOCUS_X - zoomFactor, ln.FOCUS_X + zoomFactor]; const zyRange = [focusX_Y - zoomFactor, focusX_Y + zoomFactor];
+                drawGridAndAxes(ln.zCtx, zw, zh, zxRange, zyRange, true, ln.COLORS.axis, ln.COLORS.grid, ln.COLORS.text);
+                drawFunction(ln.zCtx, zw, zh, zxRange, zyRange, ln.originalFunc, ln.COLORS.original, 3);
+                drawFunction(ln.zCtx, zw, zh, zxRange, zyRange, (x) => ln.taylorApprox(x, degree, ln.CENTER_A), ln.COLORS.approx, 3);
+
+                drawErrorLine(ln.zCtx, ln.FOCUS_X, focusX_Y, ln.approxValueAtFocus, zxRange, zyRange, zw, zh, ln.COLORS.text);
+                drawPoint(ln.zCtx, ln.CENTER_A, centerA_Y, zxRange, zyRange, zw, zh, ln.COLORS.approx);
+                drawPoint(ln.zCtx, ln.FOCUS_X, focusX_Y, zxRange, zyRange, zw, zh, ln.COLORS.original);
+                drawPoint(ln.zCtx, ln.FOCUS_X, ln.approxValueAtFocus, zxRange, zyRange, zw, zh, ln.COLORS.approx);
+            }
+
+            // --- sin(x) Setup ---
+            const sin = {
+                aSlider: document.getElementById('sin-a-slider'), aValue: document.getElementById('sin-a-value'),
+                slider: document.getElementById('sin-degree-slider'), degreeValue: document.getElementById('sin-degree-value'),
+                focusSlider: document.getElementById('sin-focus-slider'), focusValue: document.getElementById('sin-focus-value'),
+                formulaDisplay: document.getElementById('sin-formula-display'), trueValueDisplay: document.getElementById('sin-true-value'),
+                approxValueDisplay: document.getElementById('sin-approx-value'), approxDegreeDisplay: document.getElementById('sin-approx-degree'),
+                errorValueDisplay: document.getElementById('sin-error-value'), globalCanvas: document.getElementById('sin-global-canvas'),
+                zoomedCanvas: document.getElementById('sin-zoomed-canvas'), zoomTitle: document.getElementById('sin-zoom-title'),
+                trueValueLabel: document.getElementById('sin-true-value-label'),
+                expansionTypeSpan: document.getElementById('sin-expansion-type'),
+                FOCUS_X: 3.0, CENTER_A: 0.0, approxValueAtFocus: 0,
+                COLORS: { axis: '#94a3b8', grid: '#e2e8f0', original: '#22c55e', approx: '#a855f7', text: '#1e293b' },
+                originalFunc: (x) => Math.sin(x),
+                taylorApprox: (x, n, a) => { let sum = 0; for (let i = 0; i <= n; i++) { sum += (Math.sin(a + i * Math.PI / 2) / factorial(i)) * Math.pow(x - a, i); } return sum; }
+            };
+            sin.gCtx = sin.globalCanvas.getContext('2d'); sin.zCtx = sin.zoomedCanvas.getContext('2d');
+
+            function updateSin() {
+                const degree = parseInt(sin.slider.value);
+                sin.CENTER_A = parseFloat(sin.aSlider.value);
+                sin.FOCUS_X = parseFloat(sin.focusSlider.value);
+                const focusX_Y = sin.originalFunc(sin.FOCUS_X);
+
+                sin.expansionTypeSpan.textContent = sin.CENTER_A === 0 ? 'マクローリン' : 'テイラー';
+                sin.aValue.textContent = sin.CENTER_A.toFixed(1);
+                sin.degreeValue.textContent = degree; sin.approxDegreeDisplay.textContent = degree;
+                sin.focusValue.textContent = sin.FOCUS_X.toFixed(1);
+                sin.zoomTitle.textContent = `x = ${sin.FOCUS_X.toFixed(1)} での拡大図`;
+                sin.trueValueLabel.textContent = `実際の値 (sin(${(sin.FOCUS_X).toFixed(1)}))`;
+
+                let aStr = sin.CENTER_A.toFixed(1);
+                let xaStr = `(x - ${aStr})`;
+                if (sin.CENTER_A === 0) { aStr = "0"; xaStr = "x"; }
+                else if (sin.CENTER_A < 0) { xaStr = `(x + ${-sin.CENTER_A.toFixed(1)})`; }
+
+                let formula = `P(x) = sin(${aStr})`;
+                if (degree >= 1) formula += ` + cos(${aStr})*${xaStr}`;
+                if (degree >= 2) formula += ` - sin(${aStr})/2!*${xaStr}<sup>2</sup>`;
+                if (degree >= 3) formula += ` - cos(${aStr})/3!*${xaStr}<sup>3</sup>`;
+                if (degree >= 4) formula += ` + sin(${aStr})/4!*${xaStr}<sup>4</sup>`;
+                if (degree > 4) formula += ` + ...`;
+
+                renderFormula(sin.formulaDisplay, formula);
+
+                const approxValue = sin.taylorApprox(sin.FOCUS_X, degree, sin.CENTER_A);
+                sin.approxValueAtFocus = approxValue;
+                sin.trueValueDisplay.textContent = focusX_Y.toFixed(8);
+                sin.approxValueDisplay.textContent = approxValue.toFixed(8);
+                sin.errorValueDisplay.textContent = Math.abs(focusX_Y - approxValue).toExponential(4);
+                drawSin();
+            }
+
+            function drawSin() {
+                if (document.getElementById('sin-section').classList.contains('hidden')) return;
+                const degree = parseInt(sin.slider.value);
+                const centerA_Y = sin.originalFunc(sin.CENTER_A);
+                const focusX_Y = sin.originalFunc(sin.FOCUS_X);
+
+                const gw = sin.globalCanvas.clientWidth, gh = sin.globalCanvas.clientHeight; const gxRange = [-2 * Math.PI, 2 * Math.PI], gyRange = [-3, 3];
+                drawGridAndAxes(sin.gCtx, gw, gh, gxRange, gyRange, false, sin.COLORS.axis, sin.COLORS.grid, sin.COLORS.text);
+                drawFunction(sin.gCtx, gw, gh, gxRange, gyRange, sin.originalFunc, sin.COLORS.original, 3);
+                drawFunction(sin.gCtx, gw, gh, gxRange, gyRange, (x) => sin.taylorApprox(x, degree, sin.CENTER_A), sin.COLORS.approx, 3);
+                drawPoint(sin.gCtx, sin.CENTER_A, centerA_Y, gxRange, gyRange, gw, gh, sin.COLORS.approx);
+                drawPoint(sin.gCtx, sin.FOCUS_X, focusX_Y, gxRange, gyRange, gw, gh, sin.COLORS.original);
+
+                const zw = sin.zoomedCanvas.clientWidth, zh = sin.zoomedCanvas.clientHeight; const zoomFactor = Math.max(0.2, 1.5 - degree * 0.05); const zxRange = [sin.FOCUS_X - zoomFactor, sin.FOCUS_X + zoomFactor]; const zyRange = [focusX_Y - zoomFactor, focusX_Y + zoomFactor];
+                drawGridAndAxes(sin.zCtx, zw, zh, zxRange, zyRange, true, sin.COLORS.axis, sin.COLORS.grid, sin.COLORS.text);
+                drawFunction(sin.zCtx, zw, zh, zxRange, zyRange, sin.originalFunc, sin.COLORS.original, 3);
+                drawFunction(sin.zCtx, zw, zh, zxRange, zyRange, (x) => sin.taylorApprox(x, degree, sin.CENTER_A), sin.COLORS.approx, 3);
+
+                drawErrorLine(sin.zCtx, sin.FOCUS_X, focusX_Y, sin.approxValueAtFocus, zxRange, zyRange, zw, zh, sin.COLORS.text);
+                drawPoint(sin.zCtx, sin.CENTER_A, centerA_Y, zxRange, zyRange, zw, zh, sin.COLORS.approx);
+                drawPoint(sin.zCtx, sin.FOCUS_X, focusX_Y, zxRange, zyRange, zw, zh, sin.COLORS.original);
+                drawPoint(sin.zCtx, sin.FOCUS_X, sin.approxValueAtFocus, zxRange, zyRange, zw, zh, sin.COLORS.approx);
+            }
+
+            // --- Tab and Initializer Logic ---
+            function setupTabs() {
+                const tabButtons = document.querySelectorAll('.tab-button');
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetPanel = document.querySelector(button.dataset.tabTarget);
+
+                        // Deactivate all buttons and hide all panels
+                        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active-tab'));
+                        document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+
+                        // Activate the clicked button and show its panel
+                        button.classList.add('active-tab');
+                        targetPanel.classList.remove('hidden');
+
+                        // Redraw canvases in the now-visible panel
+                        handleResize();
+                    });
+                });
+            }
+
+            function initialize() {
+                setupTabs();
+
+                setupCanvas(ex.globalCanvas, ex.gCtx); setupCanvas(ex.zoomedCanvas, ex.zCtx);
+                setupCanvas(ln.globalCanvas, ln.gCtx); setupCanvas(ln.zoomedCanvas, ln.zCtx);
+                setupCanvas(sin.globalCanvas, sin.gCtx); setupCanvas(sin.zoomedCanvas, sin.zCtx);
+
+                updateEx(); updateLn(); updateSin();
+
+                ex.aSlider.addEventListener('input', updateEx);
+                ex.slider.addEventListener('input', updateEx);
+                ex.focusSlider.addEventListener('input', updateEx);
+
+                ln.aSlider.addEventListener('input', updateLn);
+                ln.slider.addEventListener('input', updateLn);
+                ln.focusSlider.addEventListener('input', updateLn);
+
+                sin.aSlider.addEventListener('input', updateSin);
+                sin.slider.addEventListener('input', updateSin);
+                sin.focusSlider.addEventListener('input', updateSin);
+            }
+
+            function handleResize() {
+                setupCanvas(ex.globalCanvas, ex.gCtx); setupCanvas(ex.zoomedCanvas, ex.zCtx);
+                setupCanvas(ln.globalCanvas, ln.gCtx); setupCanvas(ln.zoomedCanvas, ln.zCtx);
+                setupCanvas(sin.globalCanvas, sin.gCtx); setupCanvas(sin.zoomedCanvas, sin.zCtx);
+                drawEx();
+                drawLn();
+                drawSin();
+            }
+
+            window.addEventListener('resize', handleResize);
+
+            initialize();
+        });
+    </script>
+</body>
+</html>

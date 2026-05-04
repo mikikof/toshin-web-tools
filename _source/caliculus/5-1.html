@@ -1,0 +1,446 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;マクローリン展開 統合学習ツール&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" xintegrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" xintegrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" xintegrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overscroll-behavior: none;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.katex { font-size: 1.1em; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-slate-100 text-slate-800"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container mx-auto p-4 max-w-7xl space-y-8"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Section for e^x --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="ex-section" class="bg-white p-6 rounded-2xl shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;header class="text-center mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1 class="text-3xl md:text-4xl font-bold text-slate-900"&gt;マクローリン展開による e&lt;sup&gt;x&lt;/sup&gt; の近似&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/header&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-slate-50 p-6 rounded-2xl mb-6 space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center justify-center space-x-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="ex-degree-slider" class="font-medium text-slate-700 w-28 text-right"&gt;近似の次数 n:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="ex-degree-slider" type="range" min="0" max="20" value="1" class="w-64 accent-indigo-600"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="ex-degree-value" class="font-bold text-indigo-600 text-lg w-8 text-center"&gt;1&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center justify-center space-x-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="ex-focus-slider" class="font-medium text-slate-700 w-28 text-right"&gt;拡大点の x座標:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="ex-focus-slider" type="range" min="-2" max="3" value="2" step="0.1" class="w-64 accent-slate-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="ex-focus-value" class="font-mono font-bold text-slate-600 text-lg w-8 text-center"&gt;2.0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="ex-formula-display" class="mt-4 text-center text-lg text-slate-800 p-4 bg-white rounded-xl min-h-[50px]"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;main class="grid grid-cols-1 md:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-xl font-bold mb-4 text-center text-slate-900"&gt;全体像&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="aspect-square border border-slate-200 rounded-xl overflow-hidden"&gt;&lt;canvas id="ex-global-canvas"&gt;&lt;/canvas&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex justify-center space-x-6 mt-4 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="flex items-center"&gt;&lt;span class="w-4 h-1 bg-blue-500 inline-block mr-2 rounded"&gt;&lt;/span&gt;y = e&lt;sup&gt;x&lt;/sup&gt;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="flex items-center"&gt;&lt;span class="w-4 h-1 bg-red-500 inline-block mr-2 rounded"&gt;&lt;/span&gt;近似関数&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 id="ex-zoom-title" class="text-xl font-bold mb-4 text-center text-slate-900"&gt;&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="aspect-square border border-slate-200 rounded-xl overflow-hidden"&gt;&lt;canvas id="ex-zoomed-canvas"&gt;&lt;/canvas&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-4 text-center bg-slate-50 p-4 rounded-xl space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;&lt;span id="ex-true-value-label"&gt;&lt;/span&gt;: &lt;span id="ex-true-value" class="font-mono font-bold text-blue-600"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;近似値 (n=&lt;span id="ex-approx-degree"&gt;&lt;/span&gt;): &lt;span id="ex-approx-value" class="font-mono font-bold text-red-600"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;誤差: &lt;span id="ex-error-value" class="font-mono font-bold text-slate-700"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/main&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Section for ln(1+x) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="ln-section" class="bg-white p-6 rounded-2xl shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;header class="text-center mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1 class="text-3xl md:text-4xl font-bold text-slate-900"&gt;マクローリン展開による ln(1+x) の近似&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/header&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-slate-50 p-6 rounded-2xl mb-6 space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center justify-center space-x-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="ln-degree-slider" class="font-medium text-slate-700 w-28 text-right"&gt;近似の次数 n:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="ln-degree-slider" type="range" min="1" max="30" value="1" class="w-64 accent-teal-600"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="ln-degree-value" class="font-bold text-teal-600 text-lg w-8 text-center"&gt;1&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center justify-center space-x-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="ln-focus-slider" class="font-medium text-slate-700 w-28 text-right"&gt;拡大点の x座標:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="ln-focus-slider" type="range" min="-0.9" max="2" value="0.8" step="0.1" class="w-64 accent-slate-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="ln-focus-value" class="font-mono font-bold text-slate-600 text-lg w-8 text-center"&gt;0.8&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="ln-formula-display" class="mt-4 text-center text-lg text-slate-800 p-4 bg-white rounded-xl min-h-[50px]"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;main class="grid grid-cols-1 md:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-xl font-bold mb-4 text-center text-slate-900"&gt;全体像&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="aspect-square border border-slate-200 rounded-xl overflow-hidden"&gt;&lt;canvas id="ln-global-canvas"&gt;&lt;/canvas&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex justify-center space-x-6 mt-4 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="flex items-center"&gt;&lt;span class="w-4 h-1 bg-cyan-500 inline-block mr-2 rounded"&gt;&lt;/span&gt;y = ln(1+x)&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="flex items-center"&gt;&lt;span class="w-4 h-1 bg-orange-500 inline-block mr-2 rounded"&gt;&lt;/span&gt;近似関数&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 id="ln-zoom-title" class="text-xl font-bold mb-4 text-center text-slate-900"&gt;&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="aspect-square border border-slate-200 rounded-xl overflow-hidden"&gt;&lt;canvas id="ln-zoomed-canvas"&gt;&lt;/canvas&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-4 text-center bg-slate-50 p-4 rounded-xl space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;&lt;span id="ln-true-value-label"&gt;&lt;/span&gt;: &lt;span id="ln-true-value" class="font-mono font-bold text-cyan-600"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;近似値 (n=&lt;span id="ln-approx-degree"&gt;&lt;/span&gt;): &lt;span id="ln-approx-value" class="font-mono font-bold text-orange-600"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;誤差: &lt;span id="ln-error-value" class="font-mono font-bold text-slate-700"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/main&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Section for sin(x) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;section id="sin-section" class="bg-white p-6 rounded-2xl shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;header class="text-center mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h1 class="text-3xl md:text-4xl font-bold text-slate-900"&gt;マクローリン展開による sin(x) の近似&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/header&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-slate-50 p-6 rounded-2xl mb-6 space-y-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center justify-center space-x-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="sin-degree-slider" class="font-medium text-slate-700 w-28 text-right"&gt;近似の次数 n:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="sin-degree-slider" type="range" min="1" max="30" value="1" class="w-64 accent-rose-600"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="sin-degree-value" class="font-bold text-rose-600 text-lg w-8 text-center"&gt;1&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex items-center justify-center space-x-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="sin-focus-slider" class="font-medium text-slate-700 w-28 text-right"&gt;拡大点の x座標:&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="sin-focus-slider" type="range" min="-6.2" max="6.2" value="3.0" step="0.1" class="w-64 accent-slate-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;span id="sin-focus-value" class="font-mono font-bold text-slate-600 text-lg w-8 text-center"&gt;3.0&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="sin-formula-display" class="mt-4 text-center text-lg text-slate-800 p-4 bg-white rounded-xl min-h-[50px]"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;main class="grid grid-cols-1 md:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 class="text-xl font-bold mb-4 text-center text-slate-900"&gt;全体像&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="aspect-square border border-slate-200 rounded-xl overflow-hidden"&gt;&lt;canvas id="sin-global-canvas"&gt;&lt;/canvas&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="flex justify-center space-x-6 mt-4 text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="flex items-center"&gt;&lt;span class="w-4 h-1 bg-green-500 inline-block mr-2 rounded"&gt;&lt;/span&gt;y = sin(x)&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span class="flex items-center"&gt;&lt;span class="w-4 h-1 bg-purple-500 inline-block mr-2 rounded"&gt;&lt;/span&gt;近似関数&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 id="sin-zoom-title" class="text-xl font-bold mb-4 text-center text-slate-900"&gt;&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="aspect-square border border-slate-200 rounded-xl overflow-hidden"&gt;&lt;canvas id="sin-zoomed-canvas"&gt;&lt;/canvas&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="mt-4 text-center bg-slate-50 p-4 rounded-xl space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;&lt;span id="sin-true-value-label"&gt;&lt;/span&gt;: &lt;span id="sin-true-value" class="font-mono font-bold text-green-600"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;近似値 (n=&lt;span id="sin-approx-degree"&gt;&lt;/span&gt;): &lt;span id="sin-approx-value" class="font-mono font-bold text-purple-600"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;p&gt;誤差: &lt;span id="sin-error-value" class="font-mono font-bold text-slate-700"&gt;&lt;/span&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/main&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// --- Shared Functions ---</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const factorial = (n) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (n &lt; 0) return Infinity;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (n === 0) return 1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let result = 1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 2; i &lt;= n; i++) result *= i;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return result;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const setupCanvas = (canvas, ctx) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const dpr = window.devicePixelRatio || 1;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const rect = canvas.parentElement.getBoundingClientRect();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.width = rect.width * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.height = rect.height * dpr;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.style.width = `${rect.width}px`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>canvas.style.height = `${rect.height}px`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.scale(dpr, dpr);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawGridAndAxes = (ctx, width, height, xRange, yRange, showDetails = true, axisColor, gridColor, textColor) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.clearRect(0, 0, width, height);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillStyle = '#FFFFFF';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.fillRect(0, 0, width, height);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const [xMin, xMax] = xRange;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const [yMin, yMax] = yRange;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const toCanvasX = (x) =&gt; (x - xMin) / (xMax - xMin) * width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const toCanvasY = (y) =&gt; height - (y - yMin) / (yMax - yMin) * height;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (showDetails) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.strokeStyle = gridColor;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.lineWidth = 1;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let i = Math.ceil(xMin); i &lt;= Math.floor(xMax); i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const cx = toCanvasX(i); ctx.moveTo(cx, 0); ctx.lineTo(cx, height);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let i = Math.ceil(yMin * 2) / 2; i &lt;= Math.floor(yMax * 2) / 2; i+=0.5) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const cy = toCanvasY(i); ctx.moveTo(0, cy); ctx.lineTo(width, cy);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = axisColor;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = showDetails ? 2 : 1.5;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const yZero = toCanvasY(0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (yZero &gt;= 0 &amp;&amp; yZero &lt;= height) { ctx.moveTo(0, yZero); ctx.lineTo(width, yZero); }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const xZero = toCanvasX(0);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (xZero &gt;= 0 &amp;&amp; xZero &lt;= width) { ctx.moveTo(xZero, 0); ctx.lineTo(xZero, height); }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (showDetails) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.fillStyle = textColor;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.font = '12px sans-serif';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.textAlign = 'center'; ctx.textBaseline = 'top';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let i = Math.ceil(xMin); i &lt;= Math.floor(xMax); i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (i !== 0) ctx.fillText(i, toCanvasX(i), yZero + 5);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>ctx.textAlign = 'right'; ctx.textBaseline = 'middle';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let i = Math.ceil(yMin * 2) / 2; i &lt;= Math.floor(yMax * 2) / 2; i+=0.5) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (i !== 0) ctx.fillText(i, xZero - 5, toCanvasY(i));</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const drawFunction = (ctx, width, height, xRange, yRange, func, color, lineWidth = 2) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const [xMin, xMax] = xRange;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const [yMin, yMax] = yRange;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const toCanvasX = (x) =&gt; (x - xMin) / (xMax - xMin) * width;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const toCanvasY = (y) =&gt; height - (y - yMin) / (yMax - yMin) * height;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.strokeStyle = color;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.lineWidth = lineWidth;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let firstPoint = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let px = 0; px &lt;= width; px++) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const x = xMin + (px / width) * (xMax - xMin);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const y = func(x);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const cx = toCanvasX(x);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const cy = toCanvasY(y);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (isFinite(cy) &amp;&amp; cy &gt; -1e4 &amp;&amp; cy &lt; 1e4) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (firstPoint) { ctx.moveTo(cx, cy); firstPoint = false; }<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>else { ctx.lineTo(cx, cy); }</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>firstPoint = true;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ctx.stroke();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const renderFormula = (displayEl, formula) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>displayEl.innerHTML = `\\( ${formula} \\)`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (window.renderMathInElement) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>try { renderMathInElement(displayEl); } catch(e) { console.error("KaTeX failed", e); }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// --- e^x Setup ---</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ex = {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>slider: document.getElementById('ex-degree-slider'), degreeValue: document.getElementById('ex-degree-value'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>focusSlider: document.getElementById('ex-focus-slider'), focusValue: document.getElementById('ex-focus-value'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>formulaDisplay: document.getElementById('ex-formula-display'), trueValueDisplay: document.getElementById('ex-true-value'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>approxValueDisplay: document.getElementById('ex-approx-value'), approxDegreeDisplay: document.getElementById('ex-approx-degree'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>errorValueDisplay: document.getElementById('ex-error-value'), globalCanvas: document.getElementById('ex-global-canvas'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>zoomedCanvas: document.getElementById('ex-zoomed-canvas'), zoomTitle: document.getElementById('ex-zoom-title'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>trueValueLabel: document.getElementById('ex-true-value-label'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>FOCUS_X: 2.0, COLORS: { axis: '#94a3b8', grid: '#e2e8f0', original: '#3b82f6', approx: '#ef4444', text: '#1e293b' },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>originalFunc: (x) =&gt; Math.exp(x),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>maclaurinApprox: (x, n) =&gt; { let sum = 0; for (let i = 0; i &lt;= n; i++) sum += Math.pow(x, i) / factorial(i); return sum; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ex.gCtx = ex.globalCanvas.getContext('2d'); ex.zCtx = ex.zoomedCanvas.getContext('2d');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function updateEx() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const degree = parseInt(ex.slider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ex.FOCUS_X = parseFloat(ex.focusSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const TRUE_VALUE = ex.originalFunc(ex.FOCUS_X);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ex.degreeValue.textContent = degree; ex.approxDegreeDisplay.textContent = degree;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ex.focusValue.textContent = ex.FOCUS_X.toFixed(1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ex.zoomTitle.textContent = `x = ${ex.FOCUS_X.toFixed(1)} での拡大図`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ex.trueValueLabel.innerHTML = `実際の値 (e&lt;sup&gt;${ex.FOCUS_X.toFixed(1)}&lt;/sup&gt;)`;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>let formula = 'P_n(x) = 1';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (degree &gt; 0) formula += ' + x';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let i = 2; i &lt;= Math.min(degree, 5); i++) formula += ` + \\frac{x^${i}}{${i}!}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (degree &gt; 5) formula += ` + \\dots + \\frac{x^${degree}}{${degree}!}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderFormula(ex.formulaDisplay, formula);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const approxValue = ex.maclaurinApprox(ex.FOCUS_X, degree);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ex.trueValueDisplay.textContent = TRUE_VALUE.toFixed(8);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ex.approxValueDisplay.textContent = approxValue.toFixed(8);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ex.errorValueDisplay.textContent = Math.abs(TRUE_VALUE - approxValue).toExponential(4);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawEx();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawEx() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const degree = parseInt(ex.slider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const TRUE_VALUE = ex.originalFunc(ex.FOCUS_X);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const gw = ex.globalCanvas.clientWidth, gh = ex.globalCanvas.clientHeight; const gxRange = [-6, 6], gyRange = [-50, 450];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawGridAndAxes(ex.gCtx, gw, gh, gxRange, gyRange, false, ex.COLORS.axis, ex.COLORS.grid, ex.COLORS.text);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(ex.gCtx, gw, gh, gxRange, gyRange, ex.originalFunc, ex.COLORS.original, 3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(ex.gCtx, gw, gh, gxRange, gyRange, (x) =&gt; ex.maclaurinApprox(x, degree), ex.COLORS.approx, 3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const focusCanvasX = (ex.FOCUS_X - gxRange[0]) / (gxRange[1] - gxRange[0]) * gw; const focusCanvasY = gh - (TRUE_VALUE - gyRange[0]) / (gyRange[1] - gyRange[0]) * gh;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ex.gCtx.fillStyle = ex.COLORS.approx; ex.gCtx.beginPath(); ex.gCtx.arc(focusCanvasX, focusCanvasY, 5, 0, 2 * Math.PI); ex.gCtx.fill();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const zw = ex.zoomedCanvas.clientWidth, zh = ex.zoomedCanvas.clientHeight; const zoomFactor = Math.max(0.1, 2 - degree * 0.1); const zxRange = [ex.FOCUS_X - zoomFactor, ex.FOCUS_X + zoomFactor]; const zyRange = [TRUE_VALUE - zoomFactor, TRUE_VALUE + zoomFactor];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawGridAndAxes(ex.zCtx, zw, zh, zxRange, zyRange, true, ex.COLORS.axis, ex.COLORS.grid, ex.COLORS.text);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(ex.zCtx, zw, zh, zxRange, zyRange, ex.originalFunc, ex.COLORS.original, 3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(ex.zCtx, zw, zh, zxRange, zyRange, (x) =&gt; ex.maclaurinApprox(x, degree), ex.COLORS.approx, 3);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// --- ln(1+x) Setup ---</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ln = {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>slider: document.getElementById('ln-degree-slider'), degreeValue: document.getElementById('ln-degree-value'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>focusSlider: document.getElementById('ln-focus-slider'), focusValue: document.getElementById('ln-focus-value'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>formulaDisplay: document.getElementById('ln-formula-display'), trueValueDisplay: document.getElementById('ln-true-value'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>approxValueDisplay: document.getElementById('ln-approx-value'), approxDegreeDisplay: document.getElementById('ln-approx-degree'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>errorValueDisplay: document.getElementById('ln-error-value'), globalCanvas: document.getElementById('ln-global-canvas'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>zoomedCanvas: document.getElementById('ln-zoomed-canvas'), zoomTitle: document.getElementById('ln-zoom-title'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>trueValueLabel: document.getElementById('ln-true-value-label'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>FOCUS_X: 0.8, COLORS: { axis: '#94a3b8', grid: '#e2e8f0', original: '#06b6d4', approx: '#f97316', text: '#1e293b' },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>originalFunc: (x) =&gt; (x &gt; -1) ? Math.log(1 + x) : NaN,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>maclaurinApprox: (x, n) =&gt; { let sum = 0; for (let i = 1; i &lt;= n; i++) sum += Math.pow(-1, i - 1) * Math.pow(x, i) / i; return sum; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ln.gCtx = ln.globalCanvas.getContext('2d'); ln.zCtx = ln.zoomedCanvas.getContext('2d');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function updateLn() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const degree = parseInt(ln.slider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.FOCUS_X = parseFloat(ln.focusSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const TRUE_VALUE = ln.originalFunc(ln.FOCUS_X);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.degreeValue.textContent = degree; ln.approxDegreeDisplay.textContent = degree;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.focusValue.textContent = ln.FOCUS_X.toFixed(1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.zoomTitle.textContent = `x = ${ln.FOCUS_X.toFixed(1)} での拡大図`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.trueValueLabel.textContent = `実際の値 (ln(${(1 + ln.FOCUS_X).toFixed(1)}))`;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>let formula = 'P_n(x) = x';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (degree &gt;= 2) formula += ` - \\frac{x^2}{2}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (degree &gt;= 3) formula += ` + \\frac{x^3}{3}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (degree &gt; 3) { const sign = (degree % 2 === 1) ? '+' : '-'; formula += ` - \\dots ${sign} \\frac{x^${degree}}{${degree}}`; }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderFormula(ln.formulaDisplay, formula);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const approxValue = ln.maclaurinApprox(ln.FOCUS_X, degree);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.trueValueDisplay.textContent = isNaN(TRUE_VALUE) ? "定義域外" : TRUE_VALUE.toFixed(8);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.approxValueDisplay.textContent = approxValue.toFixed(8);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.errorValueDisplay.textContent = isNaN(TRUE_VALUE) ? "---" : Math.abs(TRUE_VALUE - approxValue).toExponential(4);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawLn();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawLn() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const degree = parseInt(ln.slider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const TRUE_VALUE = ln.originalFunc(ln.FOCUS_X);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const gw = ln.globalCanvas.clientWidth, gh = ln.globalCanvas.clientHeight; const gxRange = [-1.5, 3], gyRange = [-4, 3];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawGridAndAxes(ln.gCtx, gw, gh, gxRange, gyRange, false, ln.COLORS.axis, ln.COLORS.grid, ln.COLORS.text);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.gCtx.strokeStyle = 'rgba(150, 150, 150, 0.5)'; ln.gCtx.lineWidth = 2; ln.gCtx.setLineDash([5, 5]); ln.gCtx.beginPath();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const asymptoteX = (-1 - gxRange[0]) / (gxRange[1] - gxRange[0]) * gw;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.gCtx.moveTo(asymptoteX, 0); ln.gCtx.lineTo(asymptoteX, gh); ln.gCtx.stroke(); ln.gCtx.setLineDash([]);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(ln.gCtx, gw, gh, gxRange, gyRange, ln.originalFunc, ln.COLORS.original, 3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(ln.gCtx, gw, gh, gxRange, gyRange, (x) =&gt; ln.maclaurinApprox(x, degree), ln.COLORS.approx, 3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const focusCanvasX = (ln.FOCUS_X - gxRange[0]) / (gxRange[1] - gxRange[0]) * gw; const focusCanvasY = gh - (TRUE_VALUE - gyRange[0]) / (gyRange[1] - gyRange[0]) * gh;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>ln.gCtx.fillStyle = ln.COLORS.approx; ln.gCtx.beginPath(); ln.gCtx.arc(focusCanvasX, focusCanvasY, 5, 0, 2 * Math.PI); ln.gCtx.fill();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const zw = ln.zoomedCanvas.clientWidth, zh = ln.zoomedCanvas.clientHeight; const zoomFactor = Math.max(0.1, 0.5 - degree * 0.02); const zxRange = [ln.FOCUS_X - zoomFactor, ln.FOCUS_X + zoomFactor]; const zyRange = [TRUE_VALUE - zoomFactor, TRUE_VALUE + zoomFactor];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawGridAndAxes(ln.zCtx, zw, zh, zxRange, zyRange, true, ln.COLORS.axis, ln.COLORS.grid, ln.COLORS.text);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(ln.zCtx, zw, zh, zxRange, zyRange, ln.originalFunc, ln.COLORS.original, 3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(ln.zCtx, zw, zh, zxRange, zyRange, (x) =&gt; ln.maclaurinApprox(x, degree), ln.COLORS.approx, 3);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// --- sin(x) Setup ---</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const sin = {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>slider: document.getElementById('sin-degree-slider'), degreeValue: document.getElementById('sin-degree-value'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>focusSlider: document.getElementById('sin-focus-slider'), focusValue: document.getElementById('sin-focus-value'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>formulaDisplay: document.getElementById('sin-formula-display'), trueValueDisplay: document.getElementById('sin-true-value'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>approxValueDisplay: document.getElementById('sin-approx-value'), approxDegreeDisplay: document.getElementById('sin-approx-degree'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>errorValueDisplay: document.getElementById('sin-error-value'), globalCanvas: document.getElementById('sin-global-canvas'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>zoomedCanvas: document.getElementById('sin-zoomed-canvas'), zoomTitle: document.getElementById('sin-zoom-title'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>trueValueLabel: document.getElementById('sin-true-value-label'),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>FOCUS_X: 3.0, COLORS: { axis: '#94a3b8', grid: '#e2e8f0', original: '#22c55e', approx: '#a855f7', text: '#1e293b' },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>originalFunc: (x) =&gt; Math.sin(x),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>maclaurinApprox: (x, n) =&gt; { let sum = 0; for (let k = 0; (2 * k + 1) &lt;= n; k++) { sum += Math.pow(-1, k) * Math.pow(x, 2 * k + 1) / factorial(2 * k + 1); } return sum; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sin.gCtx = sin.globalCanvas.getContext('2d'); sin.zCtx = sin.zoomedCanvas.getContext('2d');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function updateSin() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const degree = parseInt(sin.slider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sin.FOCUS_X = parseFloat(sin.focusSlider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const TRUE_VALUE = sin.originalFunc(sin.FOCUS_X);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>sin.degreeValue.textContent = degree; sin.approxDegreeDisplay.textContent = degree;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sin.focusValue.textContent = sin.FOCUS_X.toFixed(1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sin.zoomTitle.textContent = `x = ${sin.FOCUS_X.toFixed(1)} での拡大図`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sin.trueValueLabel.textContent = `実際の値 (sin(${(sin.FOCUS_X).toFixed(1)}))`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>let formula = 'P_n(x) = x';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (degree &gt;= 3) formula += ` - \\frac{x^3}{3!}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (degree &gt;= 5) formula += ` + \\frac{x^5}{5!}`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (degree &gt; 5) { const k = Math.floor(degree/2); const sign = (k % 2 === 0) ? '+' : '-'; const power = 2 * k + 1; formula += ` - \\dots ${sign} \\frac{x^${power}}{${power}!}`; }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>renderFormula(sin.formulaDisplay, formula);</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const approxValue = sin.maclaurinApprox(sin.FOCUS_X, degree);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sin.trueValueDisplay.textContent = TRUE_VALUE.toFixed(8);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sin.approxValueDisplay.textContent = approxValue.toFixed(8);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sin.errorValueDisplay.textContent = Math.abs(TRUE_VALUE - approxValue).toExponential(4);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawSin();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function drawSin() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const degree = parseInt(sin.slider.value);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const TRUE_VALUE = sin.originalFunc(sin.FOCUS_X);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const gw = sin.globalCanvas.clientWidth, gh = sin.globalCanvas.clientHeight; const gxRange = [-3 * Math.PI, 3 * Math.PI], gyRange = [-3, 3];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawGridAndAxes(sin.gCtx, gw, gh, gxRange, gyRange, false, sin.COLORS.axis, sin.COLORS.grid, sin.COLORS.text);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(sin.gCtx, gw, gh, gxRange, gyRange, sin.originalFunc, sin.COLORS.original, 3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(sin.gCtx, gw, gh, gxRange, gyRange, (x) =&gt; sin.maclaurinApprox(x, degree), sin.COLORS.approx, 3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const focusCanvasX = (sin.FOCUS_X - gxRange[0]) / (gxRange[1] - gxRange[0]) * gw; const focusCanvasY = gh - (TRUE_VALUE - gyRange[0]) / (gyRange[1] - gyRange[0]) * gh;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>sin.gCtx.fillStyle = sin.COLORS.approx; sin.gCtx.beginPath(); sin.gCtx.arc(focusCanvasX, focusCanvasY, 5, 0, 2 * Math.PI); sin.gCtx.fill();</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>const zw = sin.zoomedCanvas.clientWidth, zh = sin.zoomedCanvas.clientHeight; const zoomFactor = Math.max(0.2, 1.5 - degree * 0.05); const zxRange = [sin.FOCUS_X - zoomFactor, sin.FOCUS_X + zoomFactor]; const zyRange = [TRUE_VALUE - zoomFactor, TRUE_VALUE + zoomFactor];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawGridAndAxes(sin.zCtx, zw, zh, zxRange, zyRange, true, sin.COLORS.axis, sin.COLORS.grid, sin.COLORS.text);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(sin.zCtx, zw, zh, zxRange, zyRange, sin.originalFunc, sin.COLORS.original, 3);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>drawFunction(sin.zCtx, zw, zh, zxRange, zyRange, (x) =&gt; sin.maclaurinApprox(x, degree), sin.COLORS.approx, 3);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>// --- Initializer ---</p>
+<p class="p1"><span class="Apple-converted-space">            </span>function initialize() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setupCanvas(ex.globalCanvas, ex.gCtx); setupCanvas(ex.zoomedCanvas, ex.zCtx);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setupCanvas(ln.globalCanvas, ln.gCtx); setupCanvas(ln.zoomedCanvas, ln.zCtx);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setupCanvas(sin.globalCanvas, sin.gCtx); setupCanvas(sin.zoomedCanvas, sin.zCtx);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>updateEx(); updateLn(); updateSin();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>ex.slider.addEventListener('input', updateEx);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ex.focusSlider.addEventListener('input', updateEx);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ln.slider.addEventListener('input', updateLn);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>ln.focusSlider.addEventListener('input', updateLn);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sin.slider.addEventListener('input', updateSin);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sin.focusSlider.addEventListener('input', updateSin);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', initialize);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>setTimeout(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (window.renderMathInElement) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>try { renderMathInElement(document.body); } catch (e) { console.error("KaTeX rendering failed:", e); }</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>initialize();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}, 150);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

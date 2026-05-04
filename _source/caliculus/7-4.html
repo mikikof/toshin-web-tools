@@ -1,0 +1,539 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">7-4&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;2変数関数の極限 3Dビジュアライザー&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>overscroll-behavior: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.3s ease, color 0.3s ease;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.ui-panel {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: rgba(31, 41, 55, 0.7); /* bg-gray-800 with opacity */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>backdrop-filter: blur(4px);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: background-color 0.3s ease;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>math {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>font-size: 1.1em;</p>
+<p class="p1"><span class="Apple-converted-space">             </span>color: inherit;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.inline-math {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: inline-flex; /* Use inline-flex for robust alignment */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>align-items: baseline; /* Align with the text baseline */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.ui-container {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: opacity 0.3s ease-in-out;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.ui-container.hidden {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>opacity: 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>pointer-events: none;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Light Mode Styles */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body.light-mode {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #f3f4f6; /* bg-gray-100 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #1f2937; /* text-gray-800 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body.light-mode .ui-panel {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: rgba(255, 255, 255, 0.7);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body.light-mode h1 {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #111827; /* text-gray-900 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body.light-mode p, body.light-mode label {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #374151; /* text-gray-700 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body.light-mode select {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background-color: #e5e7eb; /* bg-gray-200 */</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #1f2937;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-color: #9ca3af; /* border-gray-400 */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#katex-display math {</p>
+<p class="p1"><span class="Apple-converted-space">             </span>color: #38bdf8;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body.light-mode #katex-display math {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #2563eb;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-gray-900 text-white antialiased"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="container" class="fixed top-0 left-0 w-full h-full"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Top Right Controls --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="absolute top-6 right-6 z-20 flex gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- UI Toggle Button --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="ui-toggle" class="p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="ui-icon-visible" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="ui-icon-hidden" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 .527-1.664 1.379-3.2 2.458-4.5l-1.42-1.42A11.954 11.954 0 001 12c1.274 4.057 5.064 7 9.542 7 .847 0 1.673-.105 2.468-.305l-1.135-1.135z" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M10.75 10.75l-1.065-1.065a2.998 2.998 0 00-3.185 3.185l1.065 1.065A3 3 0 0010.75 10.75z" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M17.542 16.5A11.954 11.954 0 0023 12c-1.274-4.057-5.064-7-9.542-7a11.95 11.95 0 00-2.006.22l1.42 1.42a10.05 10.05 0 017.668 9.858z" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M1 1l22 22" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Theme Toggle Button --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="theme-toggle" class="p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="top-ui" class="ui-container absolute top-0 left-0 p-6 md:p-8 max-w-full md:max-w-md z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="text-2xl md:text-3xl font-bold text-white mb-2"&gt;2変数関数の極限&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="ui-panel p-4 rounded-lg shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;p class="text-gray-300"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>関数 &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt; の定義域を &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;D&lt;/mi&gt;&lt;/math&gt; とする。</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;mo&gt;&amp;rarr;&lt;/mo&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;b&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt; のとき、&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt; が &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;&amp;alpha;&lt;/mi&gt;&lt;/math&gt; に収束するとは、</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;D&lt;/mi&gt;&lt;/math&gt; に属する &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt; について、どのような近づき方をしても &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt; が &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mi&gt;&amp;alpha;&lt;/mi&gt;&lt;/math&gt; に近づくことをいう。</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div id="katex-display" class="mt-4 text-center text-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;math xmlns="http://www.w3.org/1998/Math/MathML" display="block"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;munder&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mo movablelimits="true"&gt;lim&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo&gt;&amp;rarr;&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;a&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mi&gt;b&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/munder&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mi&gt;f&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mo stretchy="false"&gt;(&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mi&gt;x&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mo&gt;,&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mi&gt;y&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;mo stretchy="false"&gt;)&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mo&gt;=&lt;/mo&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;mi&gt;&amp;alpha;&lt;/mi&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/mrow&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/math&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="bottom-ui" class="ui-container absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="max-w-4xl mx-auto ui-panel p-4 rounded-lg shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Function Selection --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex flex-col space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="text-sm font-semibold"&gt;1. 関数を選択&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;select id="function-select" class="bg-gray-700 text-white border border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;!-- Options will be populated by JS --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="function-formula" class="text-center text-sm h-10 mt-1 flex items-center justify-center"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Path Selection --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex flex-col space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label class="text-sm font-semibold"&gt;2. 近づく経路を選択&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;select id="path-select" class="bg-gray-700 text-white border border-gray-600 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;!-- Options will be populated by JS --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;div class="text-center text-gray-400 text-sm h-6 mt-1"&gt;目標地点: &lt;math xmlns="http://www.w3.org/1998/Math/MathML" class="inline-math"&gt;&lt;mo&gt;(&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mn&gt;0&lt;/mn&gt;&lt;mo&gt;)&lt;/mo&gt;&lt;/math&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;!-- Controls --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="flex flex-col space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;label class="text-sm font-semibold"&gt;3. アニメーション&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div class="grid grid-cols-2 gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="animate-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-lg text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>単一経路</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button id="animate-multi-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-lg text-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>複数経路</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div id="limit-value-display" class="text-amber-500 text-sm min-h-[4rem] mt-1 flex flex-col justify-center items-center"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="module"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>import { OrbitControls } from 'https://cdn.skypack.dev/three@0.136.0/examples/jsm/controls/OrbitControls.js';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>let scene, camera, renderer, controls, mesh;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let animationFrameId;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let activeAnimationObjects = [];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let isLightMode = false;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- DOM Elements ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const container = document.getElementById('container');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const functionSelect = document.getElementById('function-select');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pathSelect = document.getElementById('path-select');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const animateBtn = document.getElementById('animate-btn');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const animateMultiBtn = document.getElementById('animate-multi-btn');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const functionFormulaEl = document.getElementById('function-formula');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const limitValueDisplayEl = document.getElementById('limit-value-display');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const themeToggle = document.getElementById('theme-toggle');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const sunIcon = document.getElementById('theme-icon-sun');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const moonIcon = document.getElementById('theme-icon-moon');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const uiToggle = document.getElementById('ui-toggle');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const uiIconVisible = document.getElementById('ui-icon-visible');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const uiIconHidden = document.getElementById('ui-icon-hidden');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const topUi = document.getElementById('top-ui');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const bottomUi = document.getElementById('bottom-ui');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Color Definitions ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const colors = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>dark: { bg: 0x111827, surface: 0x00bcd4, text: '#ffffff', katex: '#38bdf8' },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>light: { bg: 0xf3f4f6, surface: 0x3b82f6, text: '#1f2937', katex: '#2563eb' }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Function Definitions ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const functions = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>'sinc': {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>name: '極限が存在する例: sin(r)/r',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>limitExists: true,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>limitValue: 2,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>func: (x, y) =&gt; Math.sin(Math.sqrt(x*x + y*y)) / Math.sqrt(x*x + y*y) * 2,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>formula: `&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo stretchy="false"&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo stretchy="false"&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;mi&gt;sin&lt;/mi&gt;&lt;mo stretchy="false"&gt;(&lt;/mo&gt;&lt;msqrt&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/msqrt&gt;&lt;mo stretchy="false"&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;msqrt&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/msqrt&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;/math&gt;`,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>paths: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'y = x': (t) =&gt; ({ x: 3 - t, y: 3 - t }),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'y = x^2': (t) =&gt; ({ x: Math.sqrt(3) - t/Math.sqrt(3), y: (Math.sqrt(3) - t/Math.sqrt(3))**2 }),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'Spiral': (t) =&gt; ({ x: (3 - t) * Math.cos(t * 5), y: (3 - t) * Math.sin(t * 5) })</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>multiPaths: ['y = x', 'y = x^2', 'Spiral'],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>'rational_v1': {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>name: '極限が存在しない例: (x²-y²)/(x²+y²)',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>limitExists: false,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>func: (x, y) =&gt; (x*x - y*y) / (x*x + y*y) * 1.5,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>formula: `&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo stretchy="false"&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo stretchy="false"&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mn&gt;1.5&lt;/mn&gt;&lt;mo stretchy="false"&gt;(&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;&amp;minus;&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo stretchy="false"&gt;)&lt;/mo&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;/math&gt;`,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>paths: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'x軸 (y=0)': (t) =&gt; ({ x: 3 - t, y: 0 }),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'y軸 (x=0)': (t) =&gt; ({ x: 0, y: 3 - t }),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'y = 2x': (t) =&gt; ({ x: (3 - t)/Math.sqrt(5), y: 2*(3-t)/Math.sqrt(5) }),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>multiPaths: ['x軸 (y=0)', 'y軸 (x=0)', 'y = 2x'],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>'rational_v2': {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>name: '極限が存在しない例: xy/(x²+y²)',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>limitExists: false,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>func: (x, y) =&gt; (x * y) / (x**2 + y**2),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>formula: `&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo stretchy="false"&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo stretchy="false"&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;/math&gt;`,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>paths: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'x軸 (y=0)': (t) =&gt; ({ x: 3 - t, y: 0 }),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'y = x': (t) =&gt; ({ x: 3 - t, y: 3 - t }),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'y = 2x': (t) =&gt; ({ x: (3 - t)/Math.sqrt(5), y: 2*(3-t)/Math.sqrt(5) }),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>multiPaths: ['y = x', 'y = 2x', 'x軸 (y=0)'],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>},</p>
+<p class="p1"><span class="Apple-converted-space">            </span>'rational_v3': {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>name: '極限が存在しない例: x²y/(x⁴+y²)',</p>
+<p class="p1"><span class="Apple-converted-space">                </span>limitExists: false,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>func: (x, y) =&gt; (x**2 * y) / (x**4 + y**2),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>formula: `&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mo stretchy="false"&gt;(&lt;/mo&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mo stretchy="false"&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;msup&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mn&gt;4&lt;/mn&gt;&lt;/msup&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;msup&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msup&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;/math&gt;`,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>paths: {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'y = x': (t) =&gt; ({ x: 3 - t, y: 3-t }),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'y = x^2': (t) =&gt; ({ x: Math.sqrt(3) - t/Math.sqrt(3), y: (Math.sqrt(3) - t/Math.sqrt(3))**2 }),</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>'x軸 (y=0)': (t) =&gt; ({ x: 3 - t, y: 0 }),</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>multiPaths: ['y = x', 'y = x^2', 'x軸 (y=0)'],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const pathColors = [0xdc267f, 0xffb000, 0xfe6100, 0x4caf50];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Initialization ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function init() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene = new THREE.Scene();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.position.set(5, 5, 5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.lookAt(0, 0, 0);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer = new THREE.WebGLRenderer({ antialias: true });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setPixelRatio(window.devicePixelRatio);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setSize(window.innerWidth, window.innerHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>container.appendChild(renderer.domElement);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls = new OrbitControls(camera, renderer.domElement);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.enableDamping = true;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(ambientLight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>directionalLight.position.set(5, 10, 7.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(directionalLight);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>createCustomAxes();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>setupUI();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>updateFunction();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>toggleTheme(false);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animate();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- UI Setup ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupUI() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Object.keys(functions).forEach(key =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const option = document.createElement('option');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>option.value = key;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>option.textContent = functions[key].name;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>functionSelect.appendChild(option);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>functionSelect.addEventListener('change', updateFunction);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animateBtn.addEventListener('click', startSingleAnimation);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animateMultiBtn.addEventListener('click', startMultiAnimation);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>themeToggle.addEventListener('click', () =&gt; toggleTheme(true));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>uiToggle.addEventListener('click', toggleUI);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.addEventListener('resize', onWindowResize, false);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Custom Axes Creation ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createCustomAxes() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const axisRadius = 0.025;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const axisLength = 4.5;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const arrowRadius = 0.07;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const arrowHeight = 0.3;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const createAxisGroup = (color) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const material = new THREE.MeshBasicMaterial({ color });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 12), material);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cylinder.position.y = axisLength / 2;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const cone = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 12), material);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>cone.position.y = axisLength;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const group = new THREE.Group();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>group.add(cylinder);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>group.add(cone);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return group;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const zAxis = createAxisGroup(0x0000ff);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(zAxis);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const xAxis = createAxisGroup(0xff0000);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>xAxis.rotation.z = -Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(xAxis);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const yAxis = createAxisGroup(0x00ff00);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>yAxis.rotation.x = Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(yAxis);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- UI and Theme Toggling ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function toggleTheme(isToggle) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (isToggle) isLightMode = !isLightMode;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const theme = isLightMode ? 'light' : 'dark';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const themeColors = colors[theme];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.body.classList.toggle('light-mode', isLightMode);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>sunIcon.classList.toggle('hidden', !isLightMode);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>moonIcon.classList.toggle('hidden', isLightMode);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.background = new THREE.Color(themeColors.bg);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (mesh) mesh.material.color.set(themeColors.surface);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function toggleUI() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const isHidden = topUi.classList.toggle('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>bottomUi.classList.toggle('hidden');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>uiIconVisible.classList.toggle('hidden', isHidden);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>uiIconHidden.classList.toggle('hidden', !isHidden);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Function and Path Updates ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function updateFunction() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearAnimations();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const selectedFuncKey = functionSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const selectedFunc = functions[selectedFuncKey];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>functionFormulaEl.innerHTML = selectedFunc.formula;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>pathSelect.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Object.keys(selectedFunc.paths).forEach(pathName =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const option = document.createElement('option');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>option.value = pathName;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>option.textContent = pathName;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pathSelect.appendChild(option);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>limitValueDisplayEl.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>createSurface(selectedFunc.func);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- 3D Surface Creation ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createSurface(func) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (mesh) scene.remove(mesh);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const geometry = new THREE.PlaneGeometry(8, 8, 250, 250);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const position = geometry.attributes.position;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const safeFunc = (x, y) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (Math.sqrt(x*x + y*y) &lt; 1e-6) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return 0; // Avoid division by zero at the origin</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return func(x, y);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 0; i &lt; position.count; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const x = position.getX(i);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const y = position.getY(i);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const z = safeFunc(x, y);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>position.setZ(i, !isNaN(z) &amp;&amp; isFinite(z) ? z : -4);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position.needsUpdate = true;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>geometry.computeVertexNormals();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const material = new THREE.MeshStandardMaterial({</p>
+<p class="p1"><span class="Apple-converted-space">                </span>color: isLightMode ? colors.light.surface : colors.dark.surface,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>wireframe: false, side: THREE.DoubleSide,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>transparent: true, opacity: 0.85</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>mesh = new THREE.Mesh(geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>mesh.rotation.x = -Math.PI / 2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(mesh);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Animation Control ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function clearAnimations() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (animationFrameId) cancelAnimationFrame(animationFrameId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>activeAnimationObjects.forEach(obj =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.remove(obj.sphere);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(obj.pathTube) scene.remove(obj.pathTube);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>activeAnimationObjects = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>limitValueDisplayEl.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function startSingleAnimation() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const selectedFuncKey = functionSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const funcData = functions[selectedFuncKey];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const pathName = pathSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const pathFunc = funcData.paths[pathName];</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const animationData = [{ pathName, pathFunc, color: pathColors[0] }];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>runAnimation(funcData, animationData);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function startMultiAnimation() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const selectedFuncKey = functionSelect.value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const funcData = functions[selectedFuncKey];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const pathNames = funcData.multiPaths;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const animationData = pathNames.map((name, index) =&gt; ({</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pathName: name,</p>
+<p class="p1"><span class="Apple-converted-space">                </span>pathFunc: funcData.paths[name],</p>
+<p class="p1"><span class="Apple-converted-space">                </span>color: pathColors[index]</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>runAnimation(funcData, animationData);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function runAnimation(funcData, animationData) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearAnimations();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>animationData.forEach(data =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const sphereGeo = new THREE.SphereGeometry(0.1, 32, 32);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const sphereMat = new THREE.MeshPhongMaterial({ color: data.color });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const sphere = new THREE.Mesh(sphereGeo, sphereMat);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>scene.add(sphere);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>activeAnimationObjects.push({</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>sphere, pathTube: null, points: [], ...data</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let t = 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const duration = 3;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const steps = 180;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const dt = duration / steps;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const endProgress = 0.995; // Stop just before the origin</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>function animatePath() {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>t += dt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const progress = Math.min(t / duration, 1);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>activeAnimationObjects.forEach(obj =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const currentProgress = Math.min(progress, endProgress);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const { x, y } = obj.pathFunc(currentProgress * 3);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const z = funcData.func(x, y);</p>
+<p class="p2"><span class="Apple-converted-space">                    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (!isNaN(z) &amp;&amp; isFinite(z)) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>obj.sphere.position.set(x, z, y);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>obj.points.push(new THREE.Vector3(x, z, y));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (obj.pathTube) scene.remove(obj.pathTube);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (obj.points.length &gt; 1) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const curve = new THREE.CatmullRomCurve3(obj.points);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const tubeGeo = new THREE.TubeGeometry(curve, Math.max(2, obj.points.length), 0.03, 8, false);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const tubeMat = new THREE.MeshBasicMaterial({ color: obj.color });</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>obj.pathTube = new THREE.Mesh(tubeGeo, tubeMat);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>scene.add(obj.pathTube);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (progress &lt; 1) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>animationFrameId = requestAnimationFrame(animatePath);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let resultHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (funcData.limitExists) {</p>
+<p class="p1"><span class="Apple-converted-space">                         </span>resultHTML = `&lt;div class="font-bold text-lg"&gt;収束値: ${funcData.limitValue.toFixed(2)}&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>activeAnimationObjects.forEach(obj =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const finalZ = obj.sphere.position.y;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const textColor = '#' + new THREE.Color(obj.color).getHexString();</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const finalValueColor = isLightMode ? '#c2410c' : '#fb923c';</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>resultHTML += `&lt;div class="flex items-center justify-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span style="color:${textColor};" class="font-bold text-sm"&gt;${obj.pathName}:&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>&lt;span style="color:${finalValueColor};" class="font-bold text-lg"&gt;${finalZ.toFixed(2)}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>resultHTML += `&lt;div class="font-bold text-red-500 mt-1 text-xs"&gt;近づき方によって値が違うため、極限は存在しません。&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>limitValueDisplayEl.innerHTML = resultHTML;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>animatePath();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// --- Render Loop &amp; Resize ---</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function animate() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>requestAnimationFrame(animate);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>controls.update();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.render(scene, camera);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function onWindowResize() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.aspect = window.innerWidth / window.innerHeight;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>camera.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setSize(window.innerWidth, window.innerHeight);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>renderer.setPixelRatio(window.devicePixelRatio);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>init();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+<p class="p2"><br></p>
+</body>
+</html>

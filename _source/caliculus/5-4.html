@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1">&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1">&lt;title&gt;コーシー列：どんどん狭まる区間&lt;/title&gt;</p>
+<p class="p1">&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p1">&lt;script src="https://d3js.org/d3.v7.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1">&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;display=swap" rel="stylesheet"&gt;</p>
+<p class="p1">&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>font-family: 'Inter', 'Noto Sans JP', sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>background-color: #f8fafc;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.number-line-container, .chart-container {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>width: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>height: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.number-line-wrapper { height: 180px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.chart-wrapper { height: 350px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>svg {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>overflow: visible;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.point {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>transition: fill 0.3s ease, cx 0.3s ease;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>fill: #9ca3af;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>stroke: white;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>stroke-width: 1px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.fixed-point-in-interval { fill: #0ea5e9; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.fixed-interval-band { fill: #0ea5e9; opacity: 0.2; stroke: #0284c7; stroke-width: 1px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.zoom-point-in-interval { fill: #f59e0b; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.zoom-interval-band { fill: #f59e0b; opacity: 0.2; stroke: #d97706; stroke-width: 1px; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.chart-point-in-interval { fill: #16a34a; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.chart-interval-band { fill: #16a34a; opacity: 0.15; stroke: #15803d; stroke-width: 1px; stroke-dasharray: 4,2; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.alpha-line-group { transition: opacity 0.4s ease-in-out; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.alpha-line { stroke: #ef4444; stroke-width: 1.5; stroke-dasharray: 5,3;}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.density-rect { transition: opacity 0.5s ease; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.axis .tick text { font-size: 12px; fill: #4b5563; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>.axis path, .axis line { stroke: #9ca3af; stroke-width: 1.5px; }</p>
+<p class="p1">&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="text-gray-800"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;div class="container mx-auto p-4 md:p-8 max-w-7xl"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;header class="text-center mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 class="text-3xl md:text-4xl font-bold text-gray-900"&gt;コーシー列：どんどん狭まる区間&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="mt-2 text-lg text-gray-600"&gt;ゴールを知らなくても、数列の振る舞いだけで収束を判断する。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/header&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="bg-sky-50 border-l-4 border-sky-400 p-4 my-8 rounded-r-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2 class="font-bold text-lg text-sky-800"&gt;このデモで体験すること&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p class="mt-2"&gt;右側のスライダーで「&lt;span class="font-bold"&gt;どこから先を見るか (N)&lt;/span&gt;」を操作し、左側のグラフで点たちが&lt;span class="font-bold text-amber-600"&gt;どれだけ狭い範囲に集まってくるか&lt;/span&gt;を観察しましょう。Nを大きくするにつれて、グラフ背景に&lt;span class="font-bold text-indigo-500"&gt;密集領域&lt;/span&gt;が浮かび上がります。&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="grid grid-cols-1 md:grid-cols-5 md:gap-8"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Visualizations Column (Left) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="md:col-span-3 space-y-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg number-line-wrapper"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 class="text-lg font-bold text-center text-gray-700 mb-2"&gt;全体ビュー (数直線)&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="fixed-number-line" class="number-line-container"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg number-line-wrapper"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 class="text-lg font-bold text-center text-gray-700 mb-2"&gt;N番目以降を拡大 (数直線)&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="zoom-number-line" class="number-line-container"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg chart-wrapper"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3 class="text-lg font-bold text-center text-gray-700 mb-2"&gt;2Dグラフビュー (経過と値)&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div id="chart" class="chart-container"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;!-- Controls Column (Right) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="md:col-span-2 mt-8 md:mt-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="md:sticky md:top-8 space-y-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-white p-6 rounded-2xl shadow-lg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="n-slider" class="block text-xl font-medium text-gray-700 text-center"&gt;どこから先を見るか (N): &lt;span id="n-value" class="font-bold text-sky-600 w-8 inline-block"&gt;1&lt;/span&gt;&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;input id="n-slider" type="range" min="1" max="50" value="1" step="1" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                 </span>&lt;div class="bg-white p-6 rounded-2xl shadow-lg flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;label for="toggle-alpha" class="flex items-center cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="checkbox" id="toggle-alpha" class="sr-only"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="block bg-gray-200 w-14 h-8 rounded-full"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform transform"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div class="ml-3 text-gray-700 font-medium"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>収束値を表示</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="bg-white p-6 rounded-2xl shadow-lg text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 class="text-lg text-gray-600"&gt;N番目以降の区間の幅&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p id="interval-width" class="text-4xl md:text-5xl font-bold text-sky-600 mt-2 font-mono"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p class="text-sm text-gray-500 mt-2"&gt;&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;footer class="text-center mt-12 text-gray-500"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p&gt;インタラクティブ・デモンストレーション改良版 v3&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/footer&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">document.addEventListener('DOMContentLoaded', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// === Data Setup ===</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const ALPHA = 2;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const MAX_N = 50;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const data = d3.range(1, MAX_N + 1).map(n =&gt; ({</p>
+<p class="p1"><span class="Apple-converted-space">        </span>n: n,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>value: ALPHA + (Math.pow(-1, n) / n)</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// === UI Element Selections ===</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const nSlider = d3.select("#n-slider");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const alphaToggle = d3.select("#toggle-alpha");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const toggleCheckbox = document.getElementById('toggle-alpha');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const dot = toggleCheckbox.nextElementSibling.nextElementSibling;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Initial state for toggle: Off</p>
+<p class="p1"><span class="Apple-converted-space">    </span>dot.style.transform = 'translateX(0)';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// === Main Drawing Function ===</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function drawCharts() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Clear previous SVGs to enable resizing</p>
+<p class="p1"><span class="Apple-converted-space">        </span>d3.select("#fixed-number-line").selectAll("*").remove();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>d3.select("#zoom-number-line").selectAll("*").remove();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>d3.select("#chart").selectAll("*").remove();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// === Sizing ===</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const nlMargin = { top: 10, right: 30, bottom: 50, left: 30 };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartMargin = { top: 10, right: 30, bottom: 30, left: 50 };</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const nlContainer = d3.select("#fixed-number-line");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartContainer = d3.select("#chart");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (nlContainer.node() === null || chartContainer.node() === null) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const nlWidth = nlContainer.node().getBoundingClientRect().width - nlMargin.left - nlMargin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const nlHeight = nlContainer.node().getBoundingClientRect().height - nlMargin.top - nlMargin.bottom;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartWidth = chartContainer.node().getBoundingClientRect().width - chartMargin.left - chartMargin.right;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartHeight = chartContainer.node().getBoundingClientRect().height - chartMargin.top - chartMargin.bottom;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// === View Setup Functions ===</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function setupNumberLine(container, domain) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const svg = container.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.attr("width", nlWidth + nlMargin.left + nlMargin.right)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.attr("height", nlHeight + nlMargin.top + nlMargin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">                </span>.attr("transform", `translate(${nlMargin.left},${nlMargin.top})`);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const scaleX = d3.scaleLinear().domain(domain).range([0, nlWidth]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const axis = svg.append("g").attr("transform", `translate(0,${nlHeight / 2})`).attr("class", "axis");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const band = svg.append("rect").attr("y", nlHeight / 2 - 20).attr("height", 40);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const points = svg.selectAll(".point").data(data).enter().append("circle").attr("class", "point").attr("cy", nlHeight / 2).attr("r", 6);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>return { svg, scaleX, axis, band, points };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const fixedView = setupNumberLine(nlContainer, [0.8, 3.2]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>fixedView.band.attr("class", "fixed-interval-band");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const zoomView = setupNumberLine(d3.select("#zoom-number-line"), [ALPHA - 0.1, ALPHA + 0.1]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>zoomView.band.attr("class", "zoom-interval-band");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// === 2D Chart Setup ===</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartSvg = chartContainer.append("svg")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("width", chartWidth + chartMargin.left + chartMargin.right)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("height", chartHeight + chartMargin.top + chartMargin.bottom)</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.append("g")</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.attr("transform", `translate(${chartMargin.left},${chartMargin.top})`);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartX = d3.scaleLinear().domain([0, MAX_N + 1]).range([0, chartWidth]);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartY = d3.scaleLinear().domain([0.8, 3.2]).range([chartHeight, 0]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const defs = chartSvg.append("defs");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const linearGradient = defs.append("linearGradient").attr("id", "density-gradient").attr("x1", "0%").attr("y1", "0%").attr("x2", "0%").attr("y2", "100%");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const stdDev = 0.1, mean = chartY(ALPHA);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const gradientData = [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ offset: "0%", color: "#f8fafc", opacity: 0 }, { offset: `${Math.max(0, (mean / chartHeight - stdDev * 2) * 100)}%`, color: "#f8fafc", opacity: 0 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ offset: `${Math.max(0, (mean / chartHeight - stdDev) * 100)}%`, color: "#e0e7ff", opacity: 0.8 }, { offset: `${(mean / chartHeight) * 100}%`, color: "#c7d2fe", opacity: 1 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ offset: `${Math.min(100, (mean / chartHeight + stdDev) * 100)}%`, color: "#e0e7ff", opacity: 0.8 }, { offset: `${Math.min(100, (mean / chartHeight + stdDev * 2) * 100)}%`, color: "#f8fafc", opacity: 0 },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ offset: "100%", color: "#f8fafc", opacity: 0 }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>linearGradient.selectAll("stop").data(gradientData).enter().append("stop").attr("offset", d =&gt; d.offset).attr("stop-color", d =&gt; d.color).attr("stop-opacity", d =&gt; d.opacity);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const densityRect = chartSvg.append("rect").attr("class", "density-rect").attr("width", chartWidth).attr("height", chartHeight).style("fill", "url(#density-gradient)").style("opacity", 0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chartSvg.append("g").attr("transform", `translate(0,${chartHeight})`).attr("class", "axis").call(d3.axisBottom(chartX).ticks(10));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>chartSvg.append("g").attr("class", "axis").call(d3.axisLeft(chartY));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const alphaLineGroup = chartSvg.append("g").attr("class", "alpha-line-group");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>alphaLineGroup.append("line").attr("class", "alpha-line").attr("x1", 0).attr("x2", chartWidth).attr("y1", chartY(ALPHA)).attr("y2", chartY(ALPHA));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>alphaLineGroup.append("text").text("α = 2").attr("x", chartWidth).attr("y", chartY(ALPHA) - 8).attr("text-anchor", "end").style("fill", "#ef4444").style("font-weight", "500");</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartIntervalBand = chartSvg.append("rect").attr("class", "chart-interval-band");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const chartPoints = chartSvg.selectAll(".point").data(data).enter().append("circle").attr("r", 5);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// === Update Function ===</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function update() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const N = +nSlider.property("value");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#n-value").text(N);</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const heatMapOpacity = Math.pow((N - 1) / (MAX_N - 1), 1.5);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>densityRect.style("opacity", heatMapOpacity);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const subsequentPointsData = data.filter(d =&gt; d.n &gt;= N);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const minVal = d3.min(subsequentPointsData, d =&gt; d.value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const maxVal = d3.max(subsequentPointsData, d =&gt; d.value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const intervalWidth = (maxVal &amp;&amp; minVal) ? maxVal - minVal : 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>d3.select("#interval-width").text(intervalWidth.toExponential(4));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>fixedView.axis.call(d3.axisBottom(fixedView.scaleX));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>fixedView.points.attr("class", d =&gt; d.n &gt;= N ? "point fixed-point-in-interval" : "point").attr("cx", d =&gt; fixedView.scaleX(d.value));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>fixedView.band.attr("x", fixedView.scaleX(minVal || 0)).attr("width", fixedView.scaleX(maxVal || 0) - fixedView.scaleX(minVal || 0));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const padding = intervalWidth === 0 ? 0.01 : intervalWidth * 0.2;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>zoomView.scaleX.domain([(minVal || ALPHA) - padding, (maxVal || ALPHA) + padding]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>zoomView.axis.transition().duration(300).call(d3.axisBottom(zoomView.scaleX).ticks(5));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>zoomView.points.attr("class", d =&gt; d.n &gt;= N ? "point zoom-point-in-interval" : "point").style("display", d =&gt; d.n &gt;= N ? "inline" : "none").transition().duration(300).attr("cx", d =&gt; zoomView.scaleX(d.value));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>zoomView.band.transition().duration(300).attr("x", zoomView.scaleX(minVal || 0)).attr("width", zoomView.scaleX(maxVal || 0) - zoomView.scaleX(minVal || 0));</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>chartPoints.attr("class", d =&gt; d.n &gt;= N ? "point chart-point-in-interval" : "point").attr("cx", d =&gt; chartX(d.n)).attr("cy", d =&gt; chartY(d.value));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>chartIntervalBand.attr("x", chartX(N - 0.5)).attr("width", chartX(MAX_N + 0.5) - chartX(N - 0.5)).attr("y", chartY(maxVal || 0)).attr("height", chartY(minVal || 0) - chartY(maxVal || 0));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>alphaLineGroup.style("opacity", alphaToggle.property("checked") ? 1 : 0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Attach event listeners to the update function</p>
+<p class="p1"><span class="Apple-converted-space">        </span>nSlider.on("input", update);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>alphaToggle.on("change", update);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>toggleCheckbox.addEventListener('change', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>dot.style.transform = toggleCheckbox.checked ? 'translateX(1.5rem)' : 'translateX(0)';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Initial call to set the state</p>
+<p class="p1"><span class="Apple-converted-space">        </span>update();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Debounce function to limit resize event frequency</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function debounce(func, wait) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let timeout;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return function executedFunction(...args) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const later = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>clearTimeout(timeout);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>func(...args);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>clearTimeout(timeout);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>timeout = setTimeout(later, wait);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Initial draw and redraw on resize</p>
+<p class="p1"><span class="Apple-converted-space">    </span>drawCharts();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.addEventListener('resize', debounce(drawCharts, 250));</p>
+<p class="p1">});</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>

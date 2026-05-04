@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>インタラクティブな偏微分ビジュアライザー | Interactive Partial Derivative Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Set initial theme to dark
+        document.documentElement.classList.add('dark');
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            overscroll-behavior: none;
+        }
+        math {
+            font-size: 1.2em;
+        }
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 20px; height: 20px;
+            background: #4F46E5; cursor: pointer; border-radius: 50%;
+        }
+        .slider-thumb::-moz-range-thumb {
+            width: 20px; height: 20px;
+            background: #4F46E5; cursor: pointer; border-radius: 50%;
+        }
+        .toggle-checkbox:checked { right: 0; border-color: #4f46e5; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #4f46e5; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-gray-900 text-slate-800 dark:text-white overflow-hidden w-screen h-screen flex flex-col md:flex-row transition-colors duration-300">
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container" class="w-full h-2/3 md:h-full md:w-2/3 relative"></div>
+
+    <!-- コントロールパネル -->
+    <div class="w-full h-1/3 md:h-full md:w-1/3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-6 overflow-y-auto border-t-2 md:border-t-0 md:border-l-2 border-indigo-500/30 dark:border-indigo-500/50">
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between items-center mb-2">
+                <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">偏微分の3D可視化</h1>
+                <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-900 focus:ring-indigo-500" aria-label="Toggle theme">
+                    <svg id="theme-icon-light" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg id="theme-icon-dark" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 mb-4 text-sm">
+                曲面上の点を動かして、x方向とy方向の傾き（偏微分係数）がどのように変化するかを直感的に体験しましょう。
+            </p>
+
+            <div class="bg-slate-200/50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
+                <h2 class="text-lg font-semibold text-slate-700 dark:text-gray-200 mb-2">
+                    <math xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mrow>
+                            <mi>z</mi>
+                            <mo>=</mo>
+                            <mi>f</mi>
+                            <mo>(</mo>
+                            <mi>x</mi>
+                            <mo>,</mo>
+                            <mi>y</mi>
+                            <mo>)</mo>
+                        </mrow>
+                    </math>
+                </h2>
+                <div id="function-display" class="text-center text-xl text-cyan-600 dark:text-cyan-300 p-2">
+                     <math xmlns="http://www.w3.org/1998/Math/MathML">
+                        <mrow>
+                            <mi>f</mi>
+                            <mo>(</mo>
+                            <mi>x</mi>
+                            <mo>,</mo>
+                            <mi>y</mi>
+                            <mo>)</mo>
+                            <mo>=</mo>
+                            <mn>1.5</mn>
+                            <mo>-</mo>
+                            <mfrac>
+                                <mrow>
+                                    <msup><mi>x</mi><mn>2</mn></msup>
+                                    <mo>+</mo>
+                                    <msup><mi>y</mi><mn>2</mn></msup>
+                                </mrow>
+                                <mn>4</mn>
+                            </mfrac>
+                        </mrow>
+                    </math>
+                </div>
+            </div>
+
+            <div class="bg-slate-200/50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
+                <h2 class="text-lg font-semibold text-slate-700 dark:text-gray-200 mb-2">コントロール</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="x-slider" class="flex justify-between items-center text-base">
+                            <span>x 座標</span>
+                            <span id="x-value" class="font-mono text-indigo-600 dark:text-indigo-300 bg-slate-300 dark:bg-gray-700 px-2 py-1 rounded">0.50</span>
+                        </label>
+                        <input id="x-slider" type="range" min="-3" max="3" value="0.5" step="0.01" class="w-full h-2 bg-slate-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    </div>
+                    <div>
+                        <label for="y-slider" class="flex justify-between items-center text-base">
+                            <span>y 座標</span>
+                            <span id="y-value" class="font-mono text-indigo-600 dark:text-indigo-300 bg-slate-300 dark:bg-gray-700 px-2 py-1 rounded">0.80</span>
+                        </label>
+                        <input id="y-slider" type="range" min="-3" max="3" value="0.8" step="0.01" class="w-full h-2 bg-slate-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-200/50 dark:bg-gray-800/50 p-4 rounded-lg mb-4">
+                <h2 class="text-lg font-semibold text-slate-700 dark:text-gray-200 mb-2">表示オプション</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-600 dark:text-blue-400">y = const. の切断面</span>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle" id="show-x-slice-plane" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                            <label for="show-x-slice-plane" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"></label>
+                        </div>
+                    </div>
+                     <div class="flex justify-between items-center">
+                        <span class="text-red-600 dark:text-red-400">x = const. の切断面</span>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle" id="show-y-slice-plane" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                            <label for="show-y-slice-plane" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-200/50 dark:bg-gray-800/50 p-4 rounded-lg">
+                <h2 class="text-lg font-semibold text-slate-700 dark:text-gray-200 mb-2">偏微分係数</h2>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-blue-600 dark:text-blue-400">
+                             <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mrow>
+                                    <mfrac>
+                                        <mrow><mo>∂</mo><mi>z</mi></mrow>
+                                        <mrow><mo>∂</mo><mi>x</mi></mrow>
+                                    </mfrac>
+                                    <mo>=</mo>
+                                    <mo>-</mo>
+                                    <mfrac>
+                                        <mi>x</mi>
+                                        <mn>2</mn>
+                                    </mfrac>
+                                </mrow>
+                            </math>
+                        </span>
+                        <span id="dfdx-value" class="font-mono text-blue-600 dark:text-blue-400 bg-slate-300 dark:bg-gray-700 px-2 py-1 rounded w-24 text-center">-0.25</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-red-600 dark:text-red-400">
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mrow>
+                                    <mfrac>
+                                        <mrow><mo>∂</mo><mi>z</mi></mrow>
+                                        <mrow><mo>∂</mo><mi>y</mi></mrow>
+                                    </mfrac>
+                                    <mo>=</mo>
+                                    <mo>-</mo>
+                                    <mfrac>
+                                        <mi>y</mi>
+                                        <mn>2</mn>
+                                    </mfrac>
+                                </mrow>
+                            </math>
+                        </span>
+                        <span id="dfdy-value" class="font-mono text-red-600 dark:text-red-400 bg-slate-300 dark:bg-gray-700 px-2 py-1 rounded w-24 text-center">-0.40</span>
+                    </div>
+                </div>
+            </div>
+             <div class="text-center text-gray-500 dark:text-gray-500 mt-6 text-xs">
+                <p>3Dビューはドラッグで回転、スクロールでズーム、右クリックドラッグでパンできます。</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+        import { OrbitControls } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js';
+
+        let scene, camera, renderer, controls, gridHelper;
+        let surfaceMesh, pointMarker;
+        let tangentMeshX, tangentMeshY;
+        let sliceTubeX, sliceTubeY;
+        let slicePlaneX, slicePlaneY;
+
+        const xSlider = document.getElementById('x-slider');
+        const ySlider = document.getElementById('y-slider');
+        const xValueSpan = document.getElementById('x-value');
+        const yValueSpan = document.getElementById('y-value');
+        const dfdxValueSpan = document.getElementById('dfdx-value');
+        const dfdyValueSpan = document.getElementById('dfdy-value');
+        const showXSlicePlaneCheckbox = document.getElementById('show-x-slice-plane');
+        const showYSlicePlaneCheckbox = document.getElementById('show-y-slice-plane');
+
+        const f = (x, y) => 1.5 - (x * x + y * y) / 4;
+        const dfdx = (x, y) => -x / 2;
+        const dfdy = (x, y) => -y / 2;
+
+        function init() {
+            const isDarkMode = () => document.documentElement.classList.contains('dark');
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(isDarkMode() ? 0x111827 : 0xf1f5f9, 10, 30);
+
+            const container = document.getElementById('canvas-container');
+            camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(4, 3, 4);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(isDarkMode() ? 0x111827 : 0xf1f5f9, 1);
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xcccccc, 0.5);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 7.5);
+            scene.add(directionalLight);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            createSurface();
+            createThickAxes();
+            createSlicePlanes();
+
+            pointMarker = new THREE.Mesh(
+                new THREE.SphereGeometry(0.08, 32, 32),
+                new THREE.MeshStandardMaterial({ color: 0xffff00, metalness: 0.5, roughness: 0.2 })
+            );
+            scene.add(pointMarker);
+
+            const tangentMaterialX = new THREE.MeshStandardMaterial({ color: 0x60a5fa, metalness: 0.3, roughness: 0.5 }); // Blue for X
+            const tangentMaterialY = new THREE.MeshStandardMaterial({ color: 0xf87171, metalness: 0.3, roughness: 0.5 }); // Red for Y
+            const tubeRadius = 0.02;
+
+            tangentMeshX = new THREE.Mesh(new THREE.CylinderGeometry(tubeRadius, tubeRadius, 1, 8), tangentMaterialX);
+            tangentMeshY = new THREE.Mesh(new THREE.CylinderGeometry(tubeRadius, tubeRadius, 1, 8), tangentMaterialY);
+            scene.add(tangentMeshX, tangentMeshY);
+
+            sliceTubeX = new THREE.Mesh(new THREE.BufferGeometry(), tangentMaterialX);
+            sliceTubeY = new THREE.Mesh(new THREE.BufferGeometry(), tangentMaterialY);
+            scene.add(sliceTubeX, sliceTubeY);
+
+            setupEventListeners();
+            updateVisualization();
+            animate();
+        }
+
+        function createAxisLabel(text, position, color, background) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const size = 256;
+            canvas.width = size;
+            canvas.height = size;
+
+            context.font = `Bold 96px Arial`;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+
+            context.fillStyle = background;
+            context.arc(size / 2, size / 2, size / 2.2, 0, 2 * Math.PI);
+            context.fill();
+
+            context.fillStyle = color;
+            context.fillText(text, size / 2, size / 2);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, depthTest: false });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(0.5, 0.5, 0.5);
+            sprite.position.copy(position);
+            scene.add(sprite);
+        }
+
+        function createGrid() {
+            if(gridHelper){
+                scene.remove(gridHelper);
+                gridHelper.geometry.dispose();
+                gridHelper.material.dispose();
+            }
+            const range = 3.5;
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const color1 = isDarkMode ? 0x4b5563 : 0x94a3b8;
+            const color2 = isDarkMode ? 0x374151 : 0xe2e8f0;
+            gridHelper = new THREE.GridHelper(range * 2, 10, color1, color2);
+            scene.add(gridHelper);
+        }
+
+        function createSurface() {
+            const range = 3.5;
+            const segments = 50;
+            const geometry = new THREE.PlaneGeometry(range * 2, range * 2, segments, segments);
+            geometry.rotateX(-Math.PI / 2);
+
+            const vertices = geometry.attributes.position.array;
+            for (let i = 0; i < vertices.length; i += 3) {
+                vertices[i+1] = f(vertices[i], vertices[i+2]);
+            }
+            geometry.computeVertexNormals();
+
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x818cf8, side: THREE.DoubleSide, transparent: true,
+                opacity: 0.7, metalness: 0.2, roughness: 0.6
+            });
+            surfaceMesh = new THREE.Mesh(geometry, material);
+            scene.add(surfaceMesh);
+
+            createGrid();
+        }
+
+        function createThickAxes() {
+            const axisRadius = 0.015, axisLength = 4, arrowRadius = 0.05, arrowHeight = 0.2;
+            const createAxis = (color, direction) => {
+                const material = new THREE.MeshStandardMaterial({ color, metalness: 0.3, roughness: 0.5, depthTest: false });
+                const group = new THREE.Group();
+                const cylinder = new THREE.Mesh(new THREE.CylinderGeometry(axisRadius, axisRadius, axisLength, 12), material);
+                const cone = new THREE.Mesh(new THREE.ConeGeometry(arrowRadius, arrowHeight, 12), material);
+                group.add(cylinder, cone);
+                cone.position.y = axisLength / 2;
+                if (!direction.y) group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+                scene.add(group);
+            };
+            createAxis(0x60a5fa, new THREE.Vector3(1, 0, 0)); // x-axis: Blue
+            createAxis(0x4ade80, new THREE.Vector3(0, 1, 0)); // z-axis (height): Green
+            createAxis(0xf87171, new THREE.Vector3(0, 0, 1)); // y-axis: Red
+
+            const labelPos = axisLength / 2 + 0.6; // Increased distance
+            createAxisLabel('x', new THREE.Vector3(labelPos, 0, 0), '#fff', '#60a5fa'); // Blue
+            createAxisLabel('y', new THREE.Vector3(0, 0, labelPos), '#fff', '#f87171'); // Red
+            createAxisLabel('z', new THREE.Vector3(0, labelPos, 0), '#fff', '#4ade80'); // Green
+        }
+
+        function createSlicePlanes() {
+            const planeSize = 7;
+            const planeGeom = new THREE.PlaneGeometry(planeSize, planeSize);
+            slicePlaneX = new THREE.Mesh(planeGeom.clone(), new THREE.MeshBasicMaterial({ color: 0x60a5fa, side: THREE.DoubleSide, transparent: true, opacity: 0.2 })); // Blue for x-slice
+            slicePlaneY = new THREE.Mesh(planeGeom.clone(), new THREE.MeshBasicMaterial({ color: 0xf87171, side: THREE.DoubleSide, transparent: true, opacity: 0.2 })); // Red for y-slice
+            slicePlaneY.rotation.y = Math.PI / 2;
+            scene.add(slicePlaneX, slicePlaneY);
+        }
+
+        function updateVisualization() {
+            const x = parseFloat(xSlider.value), y = parseFloat(ySlider.value);
+            const z_val = f(x, y);
+
+            xValueSpan.textContent = x.toFixed(2);
+            yValueSpan.textContent = y.toFixed(2);
+            dfdxValueSpan.textContent = dfdx(x, y).toFixed(2);
+            dfdyValueSpan.textContent = dfdy(x, y).toFixed(2);
+
+            pointMarker.position.set(x, z_val, y);
+            updateTangentLines(x, y, z_val);
+            updateSliceCurves(x, y);
+
+            slicePlaneX.visible = showXSlicePlaneCheckbox.checked;
+            slicePlaneX.position.set(0, 0, y);
+            slicePlaneY.visible = showYSlicePlaneCheckbox.checked;
+            slicePlaneY.position.set(x, 0, 0);
+        }
+
+        function updateTangentLines(x, y, z) {
+            const len = 2.0;
+            const updateCylinder = (mesh, start, end) => {
+                const dir = new THREE.Vector3().subVectors(end, start);
+                mesh.position.copy(start).add(dir.clone().multiplyScalar(0.5));
+                mesh.scale.y = dir.length();
+                mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+            };
+            const slopeX = dfdx(x,y), dirX = new THREE.Vector3(1,slopeX,0).normalize();
+            updateCylinder(tangentMeshX, new THREE.Vector3(x,z,y).sub(dirX.clone().multiplyScalar(len/2)), new THREE.Vector3(x,z,y).add(dirX.clone().multiplyScalar(len/2)));
+            const slopeY = dfdy(x,y), dirY = new THREE.Vector3(0,slopeY,1).normalize();
+            updateCylinder(tangentMeshY, new THREE.Vector3(x,z,y).sub(dirY.clone().multiplyScalar(len/2)), new THREE.Vector3(x,z,y).add(dirY.clone().multiplyScalar(len/2)));
+        }
+
+        function updateSliceCurves(x_val, y_val) {
+            const range = 3.5, segments = 100, tubeRadius = 0.02;
+            const createTube = (points) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), segments, tubeRadius, 8, false);
+
+            let pointsX = [];
+            for (let i = 0; i <= segments; i++) { const x = -range + (2 * range * i) / segments; pointsX.push(new THREE.Vector3(x, f(x, y_val), y_val)); }
+            sliceTubeX.geometry.dispose();
+            sliceTubeX.geometry = createTube(pointsX);
+
+            let pointsY = [];
+            for (let i = 0; i <= segments; i++) { const y = -range + (2 * range * i) / segments; pointsY.push(new THREE.Vector3(x_val, f(x_val, y), y)); }
+            sliceTubeY.geometry.dispose();
+            sliceTubeY.geometry = createTube(pointsY);
+        }
+
+        function setupEventListeners() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const lightIcon = document.getElementById('theme-icon-light');
+            const darkIcon = document.getElementById('theme-icon-dark');
+
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                lightIcon.classList.toggle('hidden', isDark);
+                darkIcon.classList.toggle('hidden', !isDark);
+
+                const clearColor = isDark ? 0x111827 : 0xf1f5f9;
+                renderer.setClearColor(clearColor);
+                scene.fog.color.set(clearColor);
+                createGrid();
+            });
+
+            xSlider.addEventListener('input', updateVisualization);
+            ySlider.addEventListener('input', updateVisualization);
+            showXSlicePlaneCheckbox.addEventListener('change', updateVisualization);
+            showYSlicePlaneCheckbox.addEventListener('change', updateVisualization);
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas-container');
+            if (!container) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            init();
+        });
+    </script>
+</body>
+</html>
