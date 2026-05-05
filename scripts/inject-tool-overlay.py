@@ -21,6 +21,7 @@ Usage:
 """
 
 import argparse
+import html
 import json
 import re
 import sys
@@ -28,11 +29,22 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
 
-OVERLAY_LINK_TAG = '<link rel="stylesheet" href="../../assets/tool-overlay.css" data-toshin-overlay>'
+# rev4 audit B.2 対応: CSS URL に version パラメータを追加してブラウザキャッシュを必ず更新
+OVERLAY_CSS_VERSION = "20260506-rev4"
+OVERLAY_LINK_TAG = f'<link rel="stylesheet" href="../../assets/tool-overlay.css?v={OVERLAY_CSS_VERSION}" data-toshin-overlay>'
 OVERLAY_NAV_BEGIN = "<!-- TOSHIN_OVERLAY_NAV -->"
 OVERLAY_NAV_END = "<!-- /TOSHIN_OVERLAY_NAV -->"
 OVERLAY_FOOTER_BEGIN = "<!-- TOSHIN_OVERLAY_FOOTER -->"
 OVERLAY_FOOTER_END = "<!-- /TOSHIN_OVERLAY_FOOTER -->"
+
+# rev4 audit C.2 対応: 旧版残骸も検出するための marker
+OLD_OVERLAY_MARKERS = [
+    "data-toshin-overlay",          # 新版 body 属性
+    "data-toshin-html",              # 旧版 html 属性
+    "journal-mode",                  # 旧版 html class
+    OVERLAY_NAV_BEGIN,
+    OVERLAY_FOOTER_BEGIN,
+]
 
 # 章カラー hex 一覧(inline style で渡す)
 COLOR_HEX = {
@@ -50,31 +62,41 @@ COLOR_HEX = {
 
 
 def render_nav(home, back, back_label, chap_num, chap_name, chap_name_en, color_hex):
+    """rev4 audit C.5 対応: chap_name / back_label / href を全て html.escape()."""
+    home_e = html.escape(home, quote=True)
+    back_e = html.escape(back, quote=True)
+    back_label_e = html.escape(back_label)
+    chap_name_e = html.escape(chap_name)
+    color_hex_e = html.escape(color_hex, quote=True)
     if chap_num and chap_name:
-        ctx_inner = f'<strong>第 {chap_num} 回 — {chap_name}</strong>'
+        ctx_inner = f'<strong>第 {chap_num} 回 — {chap_name_e}</strong>'
     else:
         ctx_inner = ''
     return f"""{OVERLAY_NAV_BEGIN}
-<nav class="toshin-overlay-nav" style="--toshin-accent: {color_hex};" aria-label="toshin-web-tools navigation">
+<nav class="toshin-overlay-nav" style="--toshin-accent: {color_hex_e};" aria-label="toshin-web-tools navigation">
   <div class="toshin-overlay-nav-inner">
-    <a href="{home}" class="toshin-overlay-brand">toshin<span class="dot">.</span>web-tools</a>
+    <a href="{home_e}" class="toshin-overlay-brand">toshin<span class="dot">.</span>web-tools</a>
     <div class="toshin-overlay-context">{ctx_inner}</div>
-    <a href="{back}" class="toshin-overlay-back">← {back_label}</a>
+    <a href="{back_e}" class="toshin-overlay-back">← {back_label_e}</a>
   </div>
 </nav>
 {OVERLAY_NAV_END}"""
 
 
 def render_footer(home, back, back_label, chap_num):
-    chap_link = f'<a href="{back}">第 {chap_num} 回</a>' if chap_num else f'<a href="{back}">{back_label}</a>'
+    """rev4 audit C.5 対応: 全 href / label を html.escape()."""
+    home_e = html.escape(home, quote=True)
+    back_e = html.escape(back, quote=True)
+    back_label_e = html.escape(back_label)
+    chap_link = f'<a href="{back_e}">第 {chap_num} 回</a>' if chap_num else f'<a href="{back_e}">{back_label_e}</a>'
     return f"""{OVERLAY_FOOTER_BEGIN}
 <footer class="toshin-overlay-footer">
   <div class="toshin-overlay-footer-mark">toshin<span class="dot">.</span>web-tools</div>
   <div class="toshin-overlay-footer-tag">受験数学のWebツール集 — Mathematics, made visible.</div>
   <div class="toshin-overlay-footer-link">
-    <a href="{home}">home</a>
+    <a href="{home_e}">home</a>
     {chap_link}
-    <a href="{home}calculus/">all calculus</a>
+    <a href="{home_e}calculus/">all calculus</a>
     <a href="https://github.com/mikikof/toshin-web-tools">github</a>
   </div>
   <div class="toshin-overlay-footer-meta">© 2026 mikikof · MIT License</div>
@@ -180,25 +202,53 @@ def inject_overlay(content, home, back, back_label, chap_num, chap_name, chap_na
     return new_content, "ok"
 
 
+def has_any_overlay_residue(content: str) -> bool:
+    """rev4 audit C.2 対応: 旧版残骸 (journal-mode / chap-* / data-toshin-html) も検出."""
+    return any(marker in content for marker in OLD_OVERLAY_MARKERS)
+
+
+def has_residue_excluding_complete(content: str) -> bool:
+    """完全注入された新版以外の残骸(旧版マーカー)があるか."""
+    OLD_ONLY = ["data-toshin-html", "journal-mode"]
+    return any(m in content for m in OLD_ONLY)
+
+
+def is_complete_overlay(content: str) -> bool:
+    """rev4 audit C.4 対応: link + nav + footer + body 属性すべて揃って初めて完了とする."""
+    required = [
+        "data-toshin-overlay",  # body 属性 + link 属性の両方を兼ねる
+        OVERLAY_NAV_BEGIN, OVERLAY_NAV_END,
+        OVERLAY_FOOTER_BEGIN, OVERLAY_FOOTER_END,
+    ]
+    return all(marker in content for marker in required)
+
+
 def process_file(path, home, back, back_label, chap_num, chap_name, chap_name_en, color, mode):
     try:
         content = path.read_text(encoding="utf-8")
     except Exception as e:
         return f"error:{e}"
 
-    has_overlay = "data-toshin-overlay" in content
+    has_residue = has_any_overlay_residue(content)
+    is_complete = is_complete_overlay(content)
 
     if mode == "remove":
-        if not has_overlay:
+        if not has_residue:
             return "skipped"
         content = remove_overlay(content)
         path.write_text(content, encoding="utf-8")
         return "removed"
 
-    if mode == "inject" and has_overlay:
-        return "skipped"
+    # 通常 inject: 完全注入済みのみ skip。旧版残骸 or 中断状態は --force 相当で処理
+    if mode == "inject":
+        if is_complete and not has_residue_excluding_complete(content):
+            return "skipped"
+        # 残骸 or 中断状態 → 削除して再注入
+        if has_residue:
+            content = remove_overlay(content)
 
-    if mode == "force" and has_overlay:
+    # mode == "force": 既存を必ず削除して再注入
+    if mode == "force" and has_residue:
         content = remove_overlay(content)
 
     new_content, status = inject_overlay(

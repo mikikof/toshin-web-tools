@@ -21,7 +21,7 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100000;
+  z-index: 5000;  /* rev4 audit B.A.4: MathJax menu / Chart.js tooltip 等を覆わない */
   height: 56px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: saturate(1.4) blur(12px);

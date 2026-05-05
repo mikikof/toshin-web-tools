@@ -95,12 +95,18 @@
             color: #d35400;
             padding: 5px 0;
         }
-        /* グラフコンテナのスタイル */
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
+        /* グラフコンテナのスタイル(rev4 audit B.3: Chart.js ResizeObserver ループ保険) */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            overflow: hidden;
+        }
+        .chart-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
         /* Flexboxを使ったレイアウト */
         .flex-container {
             display: flex;
@@ -118,7 +124,7 @@
             margin: 40px 0;
         }
     </style>
-  <link rel="stylesheet" href="../../assets/tool-overlay.css" data-toshin-overlay>
+  <link rel="stylesheet" href="../../assets/tool-overlay.css?v=20260506-rev4" data-toshin-overlay>
 </head>
 <body data-toshin-overlay="amber">
 <!-- TOSHIN_OVERLAY_NAV -->
