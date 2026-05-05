@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>インタラクティブな極限の世界: f(x, y) = x^y</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../assets/vendor/tailwindcss.js"></script>
   <script>
     // Set dark mode based on user preference, default to dark
     if (localStorage.getItem('theme') === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
@@ -190,7 +190,7 @@
   <script type="importmap">
     {
       "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three": "../../assets/vendor/three.module-0.164.1.js",
         "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
       }
     }
