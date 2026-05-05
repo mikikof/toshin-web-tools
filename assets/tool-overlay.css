@@ -1,0 +1,144 @@
+/* ====================================================================
+ * toshin-web-tools / tool-overlay.css
+ *
+ * 既存 32 ツールにハブとの統一感を出すための **上塗り CSS**。
+ * 各ツール本体は独自の <style> を持っており、それを尊重しつつ、
+ * 共通の上部 nav (ロゴ + 戻るリンク) と 下部 footer を最小侵襲で重ねる。
+ *
+ * クラスはすべて `toshin-overlay-` prefix で名前空間化、既存スタイルと衝突しない。
+ * フォント: ハブと同じ Zen Old Mincho / Fraunces / DM Sans を使用(Google Fonts)。
+ * ==================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,800&family=DM+Sans:wght@500;700&display=swap');
+
+/* ===== 上部固定 nav ===== */
+.toshin-overlay-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 24px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid rgba(214, 224, 238, 0.7);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  pointer-events: auto;
+  box-shadow: 0 1px 0 rgba(11, 20, 36, 0.02);
+}
+.toshin-overlay-nav a {
+  color: #2e5cd6;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color 0.3s ease, gap 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+.toshin-overlay-nav a:hover {
+  border-bottom-color: #2e5cd6;
+}
+.toshin-overlay-brand {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 16px;
+  color: #0b1424 !important;
+  letter-spacing: 0;
+  text-transform: none;
+  border-bottom: 1px solid transparent;
+}
+.toshin-overlay-brand:hover { border-bottom-color: #d9451c; }
+.toshin-overlay-brand .dot { color: #d9451c; font-style: normal; }
+.toshin-overlay-back:hover { gap: 0.7em; }
+
+/* nav の高さ分 body を下に押す(既存 ! を上書きするため最高優先度) */
+body {
+  padding-top: 44px !important;
+}
+/* ただし、既存 .header が position:sticky の場合は二重ヘッダ防止のため top を 44px にずらす */
+body .header[class*="header"] {
+  top: 44px;
+}
+
+/* ===== 下部 footer ===== */
+.toshin-overlay-footer {
+  margin-top: 60px;
+  padding: 36px 24px 32px;
+  background: #eff4fb;
+  border-top: 1px solid #d6e0ee;
+  text-align: center;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #5b6a82;
+  position: relative;
+  z-index: 1;
+}
+.toshin-overlay-footer-mark {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 800;
+  font-size: 26px;
+  color: #0b1424;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-bottom: 8px;
+}
+.toshin-overlay-footer-mark .dot { color: #d9451c; font-style: normal; }
+.toshin-overlay-footer-tag {
+  font-family: system-ui, 'Hiragino Sans', sans-serif;
+  font-size: 12.5px;
+  letter-spacing: 0.18em;
+  text-transform: none;
+  color: #5b6a82;
+  margin-bottom: 12px;
+}
+.toshin-overlay-footer-link {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+}
+.toshin-overlay-footer-link a {
+  color: #2e5cd6;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color 0.3s ease;
+}
+.toshin-overlay-footer-link a:hover { border-bottom-color: #2e5cd6; }
+.toshin-overlay-footer-meta {
+  margin-top: 12px;
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  color: #8594ae;
+}
+
+/* ===== レスポンシブ ===== */
+@media (max-width: 700px) {
+  .toshin-overlay-nav {
+    font-size: 10px;
+    padding: 8px 12px;
+    letter-spacing: 0.2em;
+  }
+  .toshin-overlay-brand { font-size: 14px; }
+  body { padding-top: 38px !important; }
+  body .header[class*="header"] { top: 38px; }
+  .toshin-overlay-footer { padding: 28px 16px 24px; }
+  .toshin-overlay-footer-mark { font-size: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toshin-overlay-nav a, .toshin-overlay-footer-link a {
+    transition: none !important;
+  }
+}

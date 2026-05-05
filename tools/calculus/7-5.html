@@ -55,8 +55,15 @@
       vertical-align: -0.2em;
     }
   </style>
+  <link rel="stylesheet" href="../../assets/tool-overlay.css" data-toshin-overlay>
 </head>
 <body class="overflow-hidden">
+<!-- TOSHIN_OVERLAY_NAV -->
+<nav class="toshin-overlay-nav" aria-label="toshin-web-tools navigation">
+  <a href="../../" class="toshin-overlay-brand">toshin<span class="dot">.</span>web-tools</a>
+  <a href="../../calculus/lesson-07/" class="toshin-overlay-back">← 第 7 回</a>
+</nav>
+<!-- /TOSHIN_OVERLAY_NAV -->
   <div class="flex flex-col lg:flex-row w-screen h-screen relative">
     <!-- UI Toggle Button -->
     <button id="ui-toggle" class="absolute top-4 left-4 z-20 p-2 rounded-full bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-800 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-gray-700/80 transition-colors duration-200">
@@ -573,5 +580,17 @@
     init();
     animate();
   </script>
+<!-- TOSHIN_OVERLAY_FOOTER -->
+<footer class="toshin-overlay-footer">
+  <div class="toshin-overlay-footer-mark">toshin<span class="dot">.</span>web-tools</div>
+  <div class="toshin-overlay-footer-tag">受験数学のWebツール集</div>
+  <div class="toshin-overlay-footer-link">
+    <a href="../../">home</a>
+    <a href="../../calculus/lesson-07/">第 7 回</a>
+    <a href="https://github.com/mikikof/toshin-web-tools">github</a>
+  </div>
+  <div class="toshin-overlay-footer-meta">© 2026 mikikof — MIT License</div>
+</footer>
+<!-- /TOSHIN_OVERLAY_FOOTER -->
 </body>
 </html>

@@ -49,8 +49,15 @@
             margin: 0; 
         }
     </style>
+  <link rel="stylesheet" href="../../assets/tool-overlay.css" data-toshin-overlay>
 </head>
 <body>
+<!-- TOSHIN_OVERLAY_NAV -->
+<nav class="toshin-overlay-nav" aria-label="toshin-web-tools navigation">
+  <a href="../../" class="toshin-overlay-brand">toshin<span class="dot">.</span>web-tools</a>
+  <a href="../../" class="toshin-overlay-back">← home</a>
+</nav>
+<!-- /TOSHIN_OVERLAY_NAV -->
     <div id="root"></div>
 
     <script type="text/babel">
@@ -723,5 +730,17 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
+<!-- TOSHIN_OVERLAY_FOOTER -->
+<footer class="toshin-overlay-footer">
+  <div class="toshin-overlay-footer-mark">toshin<span class="dot">.</span>web-tools</div>
+  <div class="toshin-overlay-footer-tag">受験数学のWebツール集</div>
+  <div class="toshin-overlay-footer-link">
+    <a href="../../">home</a>
+    <a href="../../">home</a>
+    <a href="https://github.com/mikikof/toshin-web-tools">github</a>
+  </div>
+  <div class="toshin-overlay-footer-meta">© 2026 mikikof — MIT License</div>
+</footer>
+<!-- /TOSHIN_OVERLAY_FOOTER -->
 </body>
 </html>

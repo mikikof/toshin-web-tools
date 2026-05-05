@@ -394,15 +394,24 @@ git push  # ★ 整合性レポート → ユーザー承認 → push
 
 ---
 
-## 13. 既存 32 ツールとの関係
+## 13. 既存 32 ツールとの関係(rev3 後の方針更新)
 
 - `_source/caliculus/*.html` (33 HTML + 7 RTF) は**正本として保存**(編集しない)
 - `tools/calculus/*.html` (32 HTML) は**配信用デコード版**
-- 既存 32 ツールは各自が `<style>` を inline で持つ(共通 `tool-style.css` を読まない)。これは **意図的**:
-  - 既存ツールは「単一 HTML 完結」が完成している
-  - 共通 CSS に切替えると class 名衝突や挙動変化のリスクがある
-  - **既存ツールは触らない**。新規ツールから共通 CSS を使う
-- ただし、Phase 2 で「既存ツールも共通 CSS に統一する」プロジェクトを実施する可能性あり(その時は別途計画)
+- 既存 32 ツールは各自が `<style>` を inline で持つ(独自スタイル尊重)
+- 各自の `<style>` を尊重しつつ、**`scripts/inject-tool-overlay.py` で共通オーバーレイ(toshin.web-tools nav + footer)を注入** する(2026-05-05 追加方針)
+  - 注入対象: `<head>` 末尾に `<link rel="stylesheet" href="../../assets/tool-overlay.css" data-toshin-overlay>`
+  - `<body>` 直後に上部 nav(ロゴ + 戻るリンク)
+  - `</body>` 直前に下部 footer(クレジット + ナビ)
+  - 冪等(`data-toshin-overlay` 属性で判定、再実行 OK)
+  - ロールバック可: `python3 scripts/inject-tool-overlay.py --remove`
+  - 既存ツールの class とは衝突しない(`toshin-overlay-` prefix で名前空間化)
+
+### オーバーレイ運用ルール
+
+- 新規ツールを `new-tool.py` で作った後、必要なら `inject-tool-overlay.py` を実行(雛形側にも統一感を出すため、ただし雛形には別途 `tool-style.css` がある)
+- オーバーレイの内容を変更したいときは `assets/tool-overlay.css` を編集 → 全ツールに即反映(注入は class 参照だけなので、CSS 1 ファイル変更で全ツール変わる)
+- 既存ツールの inline `<style>` 自体は触らない。ハブ統一感は overlay CSS で出す
 
 ---
 

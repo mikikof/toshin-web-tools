@@ -11,8 +11,15 @@
   <style>
     body { font-family: 'Inter', 'M PLUS Rounded 1c', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans JP', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; }
   </style>
+  <link rel="stylesheet" href="../../assets/tool-overlay.css" data-toshin-overlay>
 </head>
 <body class="bg-white text-gray-900">
+<!-- TOSHIN_OVERLAY_NAV -->
+<nav class="toshin-overlay-nav" aria-label="toshin-web-tools navigation">
+  <a href="../../" class="toshin-overlay-brand">toshin<span class="dot">.</span>web-tools</a>
+  <a href="../../calculus/lesson-04/" class="toshin-overlay-back">← 第 4 回</a>
+</nav>
+<!-- /TOSHIN_OVERLAY_NAV -->
   <div id="root"></div>
 
   <!-- React 18 UMD + Babel Standalone -->
@@ -1070,5 +1077,17 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<MVTPlayground />);
   </script>
+<!-- TOSHIN_OVERLAY_FOOTER -->
+<footer class="toshin-overlay-footer">
+  <div class="toshin-overlay-footer-mark">toshin<span class="dot">.</span>web-tools</div>
+  <div class="toshin-overlay-footer-tag">受験数学のWebツール集</div>
+  <div class="toshin-overlay-footer-link">
+    <a href="../../">home</a>
+    <a href="../../calculus/lesson-04/">第 4 回</a>
+    <a href="https://github.com/mikikof/toshin-web-tools">github</a>
+  </div>
+  <div class="toshin-overlay-footer-meta">© 2026 mikikof — MIT License</div>
+</footer>
+<!-- /TOSHIN_OVERLAY_FOOTER -->
 </body>
 </html>
