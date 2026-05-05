@@ -1,7 +1,18 @@
+/* ====================================================================
+ * toshin-web-tools / style.css
+ * ハブ系ページ(index.html / calculus/index.html / lesson-NN/index.html)
+ * 共通スタイル。mikikof-lab/index.html を踏襲しつつ、12 章カラー +
+ * lesson サブハブ用の拡張を施したフルセット。
+ *
+ * ツール本体用は assets/tool-style.css を別途参照のこと。
+ * ==================================================================== */
+
 :root {
+  /* base palette(mikikof-lab 流用) */
   --bg: #f7fafd;
   --bg-card: #ffffff;
   --bg-soft: #eff4fb;
+  --bg-elev: #fdfeff;
   --ink: #0b1424;
   --text: #1a2541;
   --mute: #5b6a82;
@@ -15,10 +26,20 @@
   --pop-pale: #fde0d0;
   --gold: #f4b93a;
 
-  --field-calculus: #1e3a8a;
-  --field-linear: #4c1d95;
-  --field-coming: #8594ae;
+  /* 12 章テーマカラー(章ごとに 1 色、coming 系は gray)
+     rev3: coral を赤寄り、amber を黄寄りに振って衝突回避 */
+  --chap-indigo:  #4338ca;
+  --chap-coral:   #dc2626;  /* rev3: 赤寄り(amber と差別化) */
+  --chap-navy:    #1e3a8a;
+  --chap-teal:    #0f766e;
+  --chap-purple:  #7c3aed;
+  --chap-amber:   #ca8a04;  /* rev3: 黄寄り(coral と差別化) */
+  --chap-cyan:    #0891b2;
+  --chap-emerald: #059669;
+  --chap-rose:    #be185d;
+  --chap-gray:    #64748b;
 
+  /* font stacks(mikikof-lab と同じ) */
   --f-jp-display: 'Zen Old Mincho', 'Noto Serif JP', serif;
   --f-jp-body: 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
   --f-la-display: 'Fraunces', 'Playfair Display', Georgia, serif;
@@ -34,34 +55,55 @@ body {
   color: var(--ink);
   font-family: var(--f-jp-body);
   font-weight: 500;
-  font-size: 17px;
-  line-height: 1.95;
+  font-size: 18px;
+  line-height: 2.0;
   letter-spacing: 0.025em;
   font-feature-settings: 'palt' 1;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+/* 全画面のドットパターン(mikikof-lab 流) */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: radial-gradient(circle at 1px 1px, rgba(30,58,138,0.06) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(30, 58, 138, 0.06) 1px, transparent 0);
   background-size: 28px 28px;
   pointer-events: none;
 }
 a { color: inherit; text-decoration: none; }
 ::selection { background: var(--accent); color: #fff; }
+:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 3px; border-radius: 4px; }
 
 /* ============ HERO ============ */
 .hero {
-  min-height: 70vh;
-  padding: 7rem 2rem 4rem;
+  min-height: 88vh;
+  padding: 9rem 2rem 5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   position: relative;
+  overflow: hidden;
+}
+/* rev3: hero に薄い数学装飾 SVG(関数曲線 + 等高線)を背景に重ねる */
+.hero-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.32;
+}
+.hero-deco svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.hero > *:not(.hero-deco) {
+  position: relative;
+  z-index: 1;
 }
 .hero-kicker {
   font-family: var(--f-la-body);
@@ -70,7 +112,7 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.45em;
   text-transform: uppercase;
   color: var(--accent-bright);
-  margin-bottom: 1.75rem;
+  margin-bottom: 2rem;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -85,26 +127,29 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--f-la-display);
   font-weight: 800;
   font-style: italic;
-  font-size: clamp(3rem, 9vw, 7rem);
+  font-size: clamp(3.5rem, 10vw, 8rem);
   letter-spacing: -0.01em;
   line-height: 0.95;
   color: var(--ink);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
-.hero-title .dot { color: var(--pop); font-style: normal; }
+.hero-title .dot {
+  color: var(--pop);
+  font-style: normal;
+}
 .hero-sub-jp {
   font-family: var(--f-jp-display);
   font-weight: 700;
-  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
   letter-spacing: 0.2em;
   color: var(--ink);
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 .hero-lede {
-  max-width: 620px;
-  font-size: 1.05rem;
+  max-width: 640px;
+  font-size: 1.08rem;
   font-weight: 500;
-  line-height: 2.0;
+  line-height: 2.05;
   color: var(--text);
 }
 .hero-lede strong {
@@ -112,31 +157,200 @@ a { color: inherit; text-decoration: none; }
   color: var(--accent);
   border-bottom: 2px solid var(--accent-pale);
 }
-
-/* ============ FIELDS (分野ブロック) ============ */
-.fields {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 3rem 2rem 6rem;
+.hero-stats {
+  margin-top: 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  justify-content: center;
 }
-.fields-head {
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--mute);
+  font-family: var(--f-la-body);
+}
+.hero-stat-num {
+  font-family: var(--f-la-display);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 2.6rem;
+  color: var(--accent);
+  line-height: 1;
+}
+.hero-stat-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+/* rev3: hero CTA(START CALCULUS、控えめ配置) */
+.hero-cta {
+  margin-top: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.75rem;
+  font-family: var(--f-la-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--bg-card);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  transition:
+    transform 0.3s var(--ease),
+    box-shadow 0.3s var(--ease),
+    background 0.3s var(--ease);
+}
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -14px rgba(30, 58, 138, 0.6);
+  background: var(--accent-bright);
+}
+.hero-cta-arrow {
+  display: inline-block;
+  transition: transform 0.3s var(--ease);
+}
+.hero-cta:hover .hero-cta-arrow { transform: translateX(4px); }
+
+/* rev3: linear preview を孤立させない(説明 + 1 カードの 2 カラム) */
+.field.field-preview {
+  padding-bottom: 5rem;
+}
+.preview-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .preview-layout {
+    grid-template-columns: 1fr 1.4fr;
+    gap: 3rem;
+  }
+}
+.preview-blurb {
+  color: var(--text);
+  font-size: 0.96rem;
+  line-height: 1.95;
+}
+.preview-blurb h3 {
+  font-family: var(--f-jp-display);
+  font-weight: 900;
+  font-size: 1.3rem;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+.preview-blurb ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin-top: 1rem;
+}
+.preview-blurb ul li { margin: 0.4rem 0; font-size: 0.92rem; }
+
+/* rev3: coming compact roadmap(章 10-12 を圧縮) */
+.coming-roadmap {
+  margin-top: 2rem;
+  padding: 1.75rem 2rem;
+  border: 1px dashed var(--line);
+  border-radius: 4px;
+  background: var(--bg-soft);
+}
+.coming-roadmap-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.coming-roadmap-title {
+  font-family: var(--f-la-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.coming-roadmap-meta {
+  font-family: var(--f-la-body);
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--mute-soft);
+}
+.coming-roadmap-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+.coming-roadmap-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-family: var(--f-la-body);
+  font-size: 0.85rem;
+  color: var(--mute);
+}
+.coming-roadmap-item .num {
+  font-family: var(--f-la-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--mute-soft);
+}
+
+/* rev3: field-head に "VIEW ALL TOOLS" リンクを追加できる */
+.field-head-link {
+  font-family: var(--f-la-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color 0.3s var(--ease), gap 0.3s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.field-head-link:hover {
+  border-bottom-color: var(--accent-bright);
+  gap: 0.85rem;
+}
+
+/* ============ FIELD SECTION ============ */
+.field {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 2rem 4rem;
+}
+.field + .field { padding-top: 1rem; }
+.field-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 3rem;
-  padding-bottom: 1.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--line);
   flex-wrap: wrap;
   gap: 1rem;
 }
-.fields-title {
+.field-title {
   font-family: var(--f-jp-display);
   font-weight: 900;
-  font-size: 1.7rem;
+  font-size: 1.85rem;
   letter-spacing: 0.15em;
   color: var(--ink);
 }
-.fields-title .en {
+.field-title .en {
   font-family: var(--f-la-display);
   font-style: italic;
   font-weight: 400;
@@ -145,247 +359,448 @@ a { color: inherit; text-decoration: none; }
   margin-left: 0.8rem;
   letter-spacing: 0.03em;
 }
-.fields-meta {
+.field-meta {
   font-family: var(--f-la-body);
   font-size: 0.78rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--mute);
 }
-.fields-grid {
+.field-tagline {
+  max-width: 740px;
+  margin: 0 0 3rem;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.95;
+}
+
+/* ============ CHAPTER GRID & CARD(mikikof-lab tool-card 構造を踏襲) ============ */
+.chapters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 2rem;
+  gap: 1.75rem;
 }
-.field-card {
+.chapter-card {
   background: var(--bg-card);
   border: 1px solid var(--line);
-  padding: 2.25rem 2rem 2.5rem;
+  padding: 2.5rem 2.25rem 2.75rem;
   border-radius: 4px;
-  transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
+  transition:
+    transform 0.4s var(--ease),
+    box-shadow 0.4s var(--ease),
+    border-color 0.4s var(--ease);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  min-height: 280px;
+  min-height: 360px;
+  --chap-accent: var(--accent);
+  --chap-accent-rgba: 30, 58, 138;
 }
-.field-card::before {
+.chapter-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0;
   width: 6px;
   height: 100%;
-  background: var(--field-accent, var(--accent));
+  background: var(--chap-accent);
 }
-.field-card.calculus { --field-accent: var(--field-calculus); }
-.field-card.linear   { --field-accent: var(--field-linear); }
-.field-card.coming   { --field-accent: var(--field-coming); }
-.field-card:hover:not(.coming) {
-  transform: translateY(-4px);
-  border-color: var(--field-accent);
-  box-shadow: 0 12px 28px rgba(30,58,138,0.08);
+.chapter-card.chap-indigo  { --chap-accent: var(--chap-indigo);  --chap-accent-rgba:  67,  56, 202; }
+.chapter-card.chap-coral   { --chap-accent: var(--chap-coral);   --chap-accent-rgba: 220,  38,  38; }
+.chapter-card.chap-navy    { --chap-accent: var(--chap-navy);    --chap-accent-rgba:  30,  58, 138; }
+.chapter-card.chap-teal    { --chap-accent: var(--chap-teal);    --chap-accent-rgba:  15, 118, 110; }
+.chapter-card.chap-purple  { --chap-accent: var(--chap-purple);  --chap-accent-rgba: 124,  58, 237; }
+.chapter-card.chap-amber   { --chap-accent: var(--chap-amber);   --chap-accent-rgba: 202, 138,   4; }
+.chapter-card.chap-cyan    { --chap-accent: var(--chap-cyan);    --chap-accent-rgba:   8, 145, 178; }
+.chapter-card.chap-emerald { --chap-accent: var(--chap-emerald); --chap-accent-rgba:   5, 150, 105; }
+.chapter-card.chap-rose    { --chap-accent: var(--chap-rose);    --chap-accent-rgba: 190,  24,  93; }
+.chapter-card.chap-gray    { --chap-accent: var(--chap-gray);    --chap-accent-rgba: 100, 116, 139; }
+.chapter-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px -20px rgba(var(--chap-accent-rgba), 0.28);
+  border-color: var(--chap-accent);
 }
-.field-card.coming { opacity: 0.55; cursor: default; }
-.field-tag {
-  font-family: var(--f-la-body);
+.chapter-card.coming {
+  cursor: default;
+  opacity: 0.55;
+}
+.chapter-card.coming:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--line);
+}
+.chapter-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.75rem;
   font-size: 0.72rem;
+  font-family: var(--f-la-body);
+  font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--field-accent, var(--accent));
-  margin-bottom: 1rem;
-  font-weight: 500;
 }
-.field-name {
+.chapter-num {
+  color: var(--mute-soft);
+  font-family: var(--f-la-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.chapter-status {
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+}
+.chapter-status.live {
+  color: var(--chap-accent);
+  border: 1px solid var(--chap-accent);
+  background: rgba(var(--chap-accent-rgba), 0.04);
+}
+.chapter-status.coming {
+  color: var(--mute);
+  border: 1px solid var(--line);
+}
+.chapter-name {
   font-family: var(--f-jp-display);
   font-weight: 900;
   font-size: 1.55rem;
-  letter-spacing: 0.08em;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
   color: var(--ink);
   margin-bottom: 0.5rem;
-  line-height: 1.4;
 }
-.field-name-en {
+.chapter-en {
   font-family: var(--f-la-display);
   font-style: italic;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 500;
+  font-size: 1rem;
   color: var(--mute);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   letter-spacing: 0.02em;
 }
-.field-desc {
-  font-size: 0.95rem;
-  line-height: 1.85;
+.chapter-desc {
+  font-size: 0.94rem;
+  font-weight: 500;
+  line-height: 1.8;  /* rev3: 1.95 → 1.8 に詰めて間延び防止 */
   color: var(--text);
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   flex-grow: 1;
 }
-.field-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+.chapter-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
   font-family: var(--f-la-body);
-  font-size: 0.75rem;
-  color: var(--mute);
-  letter-spacing: 0.15em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
+  color: var(--chap-accent);
+  padding-top: 1.5rem;
   border-top: 1px solid var(--line-soft);
-  padding-top: 1rem;
+  transition: gap 0.3s var(--ease);
 }
+.chapter-card:hover .chapter-cta { gap: 1.25rem; }
+.chapter-card.coming .chapter-cta { color: var(--mute-soft); }
 
-/* ============ LESSONS (回一覧) ============ */
-.lessons {
+/* ============ LESSON PAGE(章サブハブ: lesson-NN/index.html) ============ */
+.lesson-page {
   max-width: 1100px;
   margin: 0 auto;
   padding: 4rem 2rem 6rem;
 }
-.lessons-head {
-  margin-bottom: 3rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--line);
-}
-.lessons-kicker {
-  font-family: var(--f-la-body);
-  font-size: 0.78rem;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--accent-bright);
-  margin-bottom: 0.75rem;
-}
-.lessons-title {
-  font-family: var(--f-jp-display);
-  font-weight: 900;
-  font-size: 2.1rem;
-  letter-spacing: 0.1em;
-  color: var(--ink);
-}
-.lessons-title .en {
-  font-family: var(--f-la-display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 0.55em;
-  color: var(--mute);
-  margin-left: 0.8rem;
-}
-.lessons-lede {
-  margin-top: 1rem;
-  max-width: 720px;
-  color: var(--text);
-  font-size: 0.98rem;
-  line-height: 2.0;
-}
-.lessons-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.25rem;
-}
-.lesson-card {
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 1.5rem 1.5rem 1.75rem;
-  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
-  display: flex;
-  flex-direction: column;
-  min-height: 150px;
-  position: relative;
-}
-.lesson-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--accent);
-  box-shadow: 0 10px 22px rgba(30,58,138,0.08);
-}
-.lesson-num {
-  font-family: var(--f-la-display);
-  font-style: italic;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--accent-bright);
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.02em;
-}
-.lesson-title {
-  font-family: var(--f-jp-display);
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: 0.05em;
-  color: var(--ink);
-  line-height: 1.55;
-  flex-grow: 1;
-}
-.lesson-status {
-  margin-top: 0.85rem;
-  font-family: var(--f-la-body);
-  font-size: 0.7rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--mute);
-}
-.lesson-card.placeholder .lesson-title { color: var(--mute); font-weight: 500; }
-
-/* ============ LESSON PAGE (各回の単票) ============ */
-.lesson-page {
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 5rem 2rem 6rem;
-}
 .lesson-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   font-family: var(--f-la-body);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
+  font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--accent-bright);
   margin-bottom: 2.5rem;
-  display: inline-block;
   border-bottom: 1px solid transparent;
-  transition: border-color 0.3s var(--ease);
+  padding-bottom: 2px;
+  transition: gap 0.3s var(--ease), border-color 0.3s var(--ease);
 }
-.lesson-back:hover { border-bottom-color: var(--accent-bright); }
-.lesson-page-num {
-  font-family: var(--f-la-display);
-  font-style: italic;
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: var(--accent-bright);
-  margin-bottom: 0.75rem;
+.lesson-back:hover {
+  gap: 1rem;
+  border-bottom-color: var(--accent-bright);
 }
-.lesson-page-title {
+.lesson-head {
+  margin-bottom: 3.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+.lesson-kicker {
+  font-family: var(--f-la-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--lesson-accent, var(--accent-bright));
+  margin-bottom: 1.25rem;
+}
+.lesson-title {
   font-family: var(--f-jp-display);
   font-weight: 900;
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.3;
   letter-spacing: 0.05em;
   color: var(--ink);
-  line-height: 1.3;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0.6rem;
 }
-.lesson-placeholder {
+.lesson-title .en {
+  font-family: var(--f-la-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.55em;
+  color: var(--mute);
+  margin-left: 0.8rem;
+  letter-spacing: 0.02em;
+  display: inline-block;
+}
+.lesson-tagline {
+  max-width: 720px;
+  font-size: 0.98rem;
+  line-height: 1.95;
+  color: var(--text);
+  margin-top: 0.75rem;
+}
+.lesson-tagline strong {
+  color: var(--lesson-accent, var(--accent));
+  font-weight: 500;
+  border-bottom: 2px solid color-mix(in oklab, var(--lesson-accent, var(--accent)) 20%, transparent);
+}
+
+/* lesson-page も章カラーを継承 */
+.lesson-page.chap-indigo  { --lesson-accent: var(--chap-indigo); }
+.lesson-page.chap-coral   { --lesson-accent: var(--chap-coral); }
+.lesson-page.chap-navy    { --lesson-accent: var(--chap-navy); }
+.lesson-page.chap-teal    { --lesson-accent: var(--chap-teal); }
+.lesson-page.chap-purple  { --lesson-accent: var(--chap-purple); }
+.lesson-page.chap-amber   { --lesson-accent: var(--chap-amber); }
+.lesson-page.chap-cyan    { --lesson-accent: var(--chap-cyan); }
+.lesson-page.chap-emerald { --lesson-accent: var(--chap-emerald); }
+.lesson-page.chap-rose    { --lesson-accent: var(--chap-rose); }
+.lesson-page.chap-gray    { --lesson-accent: var(--chap-gray); }
+
+/* sections grid (章ページの節カード) */
+.sections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+.section-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1.75rem 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  min-height: 170px;
+  transition:
+    transform 0.3s var(--ease),
+    box-shadow 0.3s var(--ease),
+    border-color 0.3s var(--ease);
+}
+.section-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--lesson-accent, var(--accent));
+}
+.section-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px -16px rgba(30, 58, 138, 0.2);
+  border-color: var(--lesson-accent, var(--accent));
+}
+.section-card.placeholder { opacity: 0.55; cursor: default; }
+.section-card.placeholder:hover { transform: none; box-shadow: none; border-color: var(--line); }
+.section-num {
+  font-family: var(--f-la-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--lesson-accent, var(--accent-bright));
+  letter-spacing: 0.02em;
+}
+.section-title {
+  font-family: var(--f-jp-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  line-height: 1.55;
+  flex-grow: 1;
+}
+.section-card.placeholder .section-title { color: var(--mute); font-weight: 500; }
+.section-cta {
+  margin-top: 0.85rem;
+  font-family: var(--f-la-body);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--lesson-accent, var(--accent-bright));
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: gap 0.3s var(--ease);
+}
+.section-card:hover .section-cta { gap: 0.85rem; }
+.section-card.placeholder .section-cta { color: var(--mute-soft); }
+
+/* lesson-page placeholder section(全節 coming) */
+.lesson-empty {
   background: var(--bg-soft);
   border: 1px dashed var(--line);
-  padding: 3rem 2rem;
+  padding: 4rem 2rem;
   text-align: center;
-  border-radius: 4px;
   color: var(--mute);
-  font-size: 0.95rem;
-  line-height: 2.0;
+  border-radius: 4px;
+  font-size: 1rem;
+  line-height: 2;
+}
+
+/* ============ CALCULUS DETAIL PAGE(calculus/index.html: 章一覧) ============ */
+.calc-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+}
+.calc-head {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+.calc-kicker {
+  font-family: var(--f-la-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  margin-bottom: 1rem;
+}
+.calc-title {
+  font-family: var(--f-jp-display);
+  font-weight: 900;
+  font-size: clamp(2.2rem, 5.5vw, 3.4rem);
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  margin-bottom: 0.6rem;
+}
+.calc-title .en {
+  font-family: var(--f-la-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.5em;
+  color: var(--mute);
+  margin-left: 0.8rem;
+  letter-spacing: 0.02em;
+}
+.calc-tagline {
+  max-width: 760px;
+  font-size: 1rem;
+  line-height: 2;
+  color: var(--text);
+  margin-top: 0.75rem;
 }
 
 /* ============ FOOTER ============ */
-footer {
+.footer {
   border-top: 1px solid var(--line);
-  padding: 3rem 2rem 4rem;
+  background: var(--bg-soft);
+  padding: 5rem 2rem 3rem;
   text-align: center;
-  color: var(--mute);
-  font-family: var(--f-la-body);
-  font-size: 0.78rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  margin-top: 4rem;
 }
-footer a { color: var(--accent-bright); border-bottom: 1px solid transparent; }
-footer a:hover { border-bottom-color: var(--accent-bright); }
+.footer-mark {
+  font-family: var(--f-la-display);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 2.4rem;
+  letter-spacing: 0;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+.footer-mark .dot { color: var(--pop); font-style: normal; }
+.footer-tag {
+  font-family: var(--f-jp-display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--mute);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.15em;
+}
+.footer-meta {
+  font-family: var(--f-la-body);
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--mute-soft);
+  margin-bottom: 0.75rem;
+}
+.footer-link {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.footer-link a {
+  font-family: var(--f-la-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color 0.3s var(--ease), color 0.3s var(--ease);
+}
+.footer-link a:hover {
+  border-bottom-color: var(--accent-bright);
+  color: var(--accent);
+}
 
-@media (max-width: 600px) {
-  .hero { padding: 5rem 1.25rem 3rem; min-height: 60vh; }
-  .fields, .lessons { padding-left: 1.25rem; padding-right: 1.25rem; }
-  .lessons-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-  .lesson-page { padding: 4rem 1.25rem 4rem; }
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1024px) {
+  .hero { min-height: auto; padding: 7rem 1.5rem 4rem; }
+  .field { padding: 4rem 1.5rem 3rem; }
+  .chapters-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; }
+}
+@media (max-width: 700px) {
+  body { font-size: 16px; line-height: 1.85; }
+  .hero { padding: 5rem 1.25rem 3rem; }
+  .hero-title { font-size: clamp(2.4rem, 12vw, 4rem); }
+  .hero-stat-num { font-size: 2rem; }
+  .field { padding: 3rem 1.25rem 2rem; }
+  .field-title { font-size: 1.4rem; }
+  .chapters-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+  .chapter-card { padding: 2rem 1.5rem 2.25rem; min-height: auto; }
+  .chapter-name { font-size: 1.3rem; }
+  .lesson-page, .calc-page { padding: 3rem 1.25rem 4rem; }
+  .lesson-title { font-size: 1.7rem; }
+  .calc-title { font-size: 1.7rem; }
+  .sections-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .footer { padding: 3.5rem 1.25rem 2rem; }
+  .footer-mark { font-size: 1.8rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

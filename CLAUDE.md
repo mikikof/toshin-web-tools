@@ -69,6 +69,57 @@ toshin-web-tools/
 
 ---
 
+## 3-1. data/chapters.json スキーマ(v2、2026-05-05)
+
+ハブ生成のシングルソース。`build-hub.py` がこれを読んで全ハブ HTML を生成する。
+
+```json
+{
+  "calculus": {
+    "title": "微分積分学編",
+    "title_en": "Calculus",
+    "tagline": "...",
+    "chapter_count": 12,
+    "chapters": {
+      "1": {
+        "name": "Adam 最適化と学習の可視化",      // 日本語タイトル
+        "name_en": "Adam optimization & GD",      // 英語サブタイ(Fraunces italic)
+        "color": "indigo",                         // 章カラー(下記 9 + gray)
+        "description": "SGD・Adam・AdamW を ...",  // 1〜2 文の説明
+        "sections": [
+          {"file": "1-1.html", "title": "Adam 最適化の可視化"},
+          {"file": null, "title": "(節 1-X / RTF 移植予定)"}
+        ]
+      },
+      "2": {...}
+    }
+  },
+  "linear": {...}
+}
+```
+
+**章カラー(9 + gray)**:
+| color 値 | 用途 | hex |
+|---|---|---|
+| `indigo` | 第 1 回 / 機械学習 | `#4338ca` |
+| `coral` | 第 2 回 / 三角関数応用 | `#ea580c` |
+| `navy` | 第 3 回 / 解析 / ε-δ | `#1e3a8a` |
+| `teal` | 第 4 回 / 微分応用 | `#0f766e` |
+| `purple` | 第 5 回 / 級数 | `#7c3aed` |
+| `amber` | 第 6 回 / 積分 | `#d97706` |
+| `cyan` | 第 7 回 / 多変数 | `#0891b2` |
+| `emerald` | 第 8 回 / 偏微分 / DS | `#059669` |
+| `rose` | 第 9 回 / ベクトル解析 | `#be185d` |
+| `gray` | 準備中 / placeholder | `#64748b` |
+
+CSS 側では `.chapter-card.chap-indigo` 等の class で適用される(`assets/style.css` 定義済)。
+
+**スキーマ変更時の注意**:
+- `chapters[N]` を **list** から **dict(name/color/sections 等を持つ)** に変更したのは v2(2026-05-05、デザイン強化時)
+- 古いスキーマ([list] 直下)で書かれたデータがあっても `new-tool.py` は自動で v2 に移行する
+
+---
+
 ## 4. デザイン方針(SaaS 風モダン、統一)
 
 - **配色トークン**(`assets/tool-style.css` の `:root` で定義):

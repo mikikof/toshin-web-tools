@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第 5 回 — 微分積分学編 | toshin-web-tools</title>
+<title>第 5 回 テイラー展開と漸近 — toshin-web-tools</title>
+<meta name="description" content="テイラー展開と漸近: マクローリン・テイラー展開、ランダウ記号 o(x)、コーシー列、積分の正体。展開と近似の世界を歩く。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -11,62 +12,67 @@
 </head>
 <body>
 
-<section class="lessons">
-  <a href="../" class="lesson-back">← 微分積分学編</a>
+<section class="lesson-page chap-purple">
+  <a href="../" class="lesson-back">← Calculus</a>
 
-  <div class="lessons-head">
-    <div class="lessons-kicker">Lesson 05</div>
-    <h1 class="lessons-title">第 5 回<span class="en">Calculus / Lesson 05</span></h1>
+  <div class="lesson-head">
+    <div class="lesson-kicker">Lesson 05</div>
+    <h1 class="lesson-title">テイラー展開と漸近<span class="en">Taylor &amp; Landau notation</span></h1>
+    <p class="lesson-tagline"><strong>Taylor &amp; Landau notation</strong> — マクローリン・テイラー展開、ランダウ記号 o(x)、コーシー列、積分の正体。展開と近似の世界を歩く。</p>
   </div>
 
-  <div class="lessons-grid">
-    <a href="../../tools/calculus/5-1.html" class="lesson-card" target="_blank" rel="noopener">
-      <div class="lesson-num">5-1</div>
-      <div class="lesson-title">マクローリン展開(別版)</div>
-      <div class="lesson-status">↗ ツールを開く</div>
+  <div class="sections-grid">
+    <a href="../../tools/calculus/5-1.html" class="section-card" target="_blank" rel="noopener">
+      <div class="section-num">5-1</div>
+      <div class="section-title">マクローリン展開(別版)</div>
+      <div class="section-cta">↗ OPEN TOOL</div>
     </a>
-    <a href="../../tools/calculus/5-2.html" class="lesson-card" target="_blank" rel="noopener">
-      <div class="lesson-num">5-2</div>
-      <div class="lesson-title">テイラー展開</div>
-      <div class="lesson-status">↗ ツールを開く</div>
+    <a href="../../tools/calculus/5-2.html" class="section-card" target="_blank" rel="noopener">
+      <div class="section-num">5-2</div>
+      <div class="section-title">テイラー展開</div>
+      <div class="section-cta">↗ OPEN TOOL</div>
     </a>
-    <a href="../../tools/calculus/5-3.html" class="lesson-card" target="_blank" rel="noopener">
-      <div class="lesson-num">5-3</div>
-      <div class="lesson-title">ランダウ記号 o(x)</div>
-      <div class="lesson-status">↗ ツールを開く</div>
+    <a href="../../tools/calculus/5-3.html" class="section-card" target="_blank" rel="noopener">
+      <div class="section-num">5-3</div>
+      <div class="section-title">ランダウ記号 o(x)</div>
+      <div class="section-cta">↗ OPEN TOOL</div>
     </a>
-    <a href="../../tools/calculus/5-4.html" class="lesson-card" target="_blank" rel="noopener">
-      <div class="lesson-num">5-4</div>
-      <div class="lesson-title">コーシー列:狭まる区間</div>
-      <div class="lesson-status">↗ ツールを開く</div>
+    <a href="../../tools/calculus/5-4.html" class="section-card" target="_blank" rel="noopener">
+      <div class="section-num">5-4</div>
+      <div class="section-title">コーシー列:狭まる区間</div>
+      <div class="section-cta">↗ OPEN TOOL</div>
     </a>
-    <div class="lesson-card placeholder">
-      <div class="lesson-num">—</div>
-      <div class="lesson-title">(節 5-5 / RTF 移植予定)</div>
-      <div class="lesson-status">準備中</div>
+    <div class="section-card placeholder">
+      <div class="section-num">—</div>
+      <div class="section-title">(節 5-5 / RTF 移植予定)</div>
+      <div class="section-cta">PREPARING</div>
     </div>
-    <div class="lesson-card placeholder">
-      <div class="lesson-num">—</div>
-      <div class="lesson-title">(節 5-6 / RTF 移植予定)</div>
-      <div class="lesson-status">準備中</div>
+    <div class="section-card placeholder">
+      <div class="section-num">—</div>
+      <div class="section-title">(節 5-6 / RTF 移植予定)</div>
+      <div class="section-cta">PREPARING</div>
     </div>
-    <div class="lesson-card placeholder">
-      <div class="lesson-num">—</div>
-      <div class="lesson-title">(節 5-7 / RTF 移植予定)</div>
-      <div class="lesson-status">準備中</div>
+    <div class="section-card placeholder">
+      <div class="section-num">—</div>
+      <div class="section-title">(節 5-7 / RTF 移植予定)</div>
+      <div class="section-cta">PREPARING</div>
     </div>
-    <a href="../../tools/calculus/5-8.html" class="lesson-card" target="_blank" rel="noopener">
-      <div class="lesson-num">5-8</div>
-      <div class="lesson-title">積分の正体 ② 傾きの場</div>
-      <div class="lesson-status">↗ ツールを開く</div>
+    <a href="../../tools/calculus/5-8.html" class="section-card" target="_blank" rel="noopener">
+      <div class="section-num">5-8</div>
+      <div class="section-title">積分の正体 ② 傾きの場</div>
+      <div class="section-cta">↗ OPEN TOOL</div>
     </a>
   </div>
 </section>
 
-<footer>
-  <div>© toshin-web-tools — built with care for learners.</div>
-  <div style="margin-top: 0.75rem;">
-    <a href="https://github.com/mikikof/toshin-web-tools">GitHub</a>
+<footer class="footer">
+  <div class="footer-mark">toshin<span class="dot">.</span>web-tools</div>
+  <div class="footer-tag">受験数学のWebツール集</div>
+  <div class="footer-meta">© 2026 mikikof — MIT License</div>
+  <div class="footer-link">
+    <a href="../../">home</a>
+    <a href="https://github.com/mikikof/toshin-web-tools">github / source</a>
+    <a href="https://github.com/mikikof/toshin-web-tools/blob/main/LICENSE">license</a>
   </div>
 </footer>
 

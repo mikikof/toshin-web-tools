@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>toshin-web-tools — 受験数学の Web ツール集</title>
-<meta name="description" content="受験数学の Web ツール集。微分積分学編 全 32 ツール公開中。">
+<meta name="description" content="受験数学の Web ツール集。微分積分学編 全 32 ツール公開中。動かして・触って理解する数学。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -12,59 +12,217 @@
 </head>
 <body>
 
+<!-- ==================== HERO ==================== -->
 <section class="hero">
-  <div class="hero-kicker">Mathematics Web Tools</div>
+  <div class="hero-deco" aria-hidden="true">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="curveGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#2e5cd6" stop-opacity="0"/>
+        <stop offset="50%" stop-color="#2e5cd6" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#2e5cd6" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <!-- 等高線の楕円 -->
+    <ellipse cx="600" cy="400" rx="540" ry="280" fill="none" stroke="#1e3a8a" stroke-opacity="0.05" stroke-width="1"/>
+    <ellipse cx="600" cy="400" rx="440" ry="220" fill="none" stroke="#1e3a8a" stroke-opacity="0.06" stroke-width="1"/>
+    <ellipse cx="600" cy="400" rx="340" ry="170" fill="none" stroke="#1e3a8a" stroke-opacity="0.07" stroke-width="1"/>
+    <ellipse cx="600" cy="400" rx="240" ry="120" fill="none" stroke="#1e3a8a" stroke-opacity="0.08" stroke-width="1"/>
+    <ellipse cx="600" cy="400" rx="140" ry="70"  fill="none" stroke="#1e3a8a" stroke-opacity="0.10" stroke-width="1"/>
+    <!-- sin 曲線 -->
+    <path d="M 0 400 Q 150 250, 300 400 T 600 400 T 900 400 T 1200 400" fill="none" stroke="url(#curveGrad)" stroke-width="1.5"/>
+    <!-- 微分ベクトル(矢印 4 個) -->
+    <g stroke="#d9451c" stroke-opacity="0.18" stroke-width="1" fill="none">
+      <path d="M 200 380 L 240 350" marker-end="url(#arrowhead)"/>
+      <path d="M 500 320 L 540 305"/>
+      <path d="M 800 380 L 840 410"/>
+      <path d="M 1050 460 L 1080 440"/>
+    </g>
+    <!-- 積分の塗りつぶし(右下に小さく) -->
+    <path d="M 850 600 Q 950 500, 1050 580 L 1050 650 L 850 650 Z" fill="#0f766e" fill-opacity="0.04"/>
+  </svg>
+</div>
+  <div class="hero-kicker">toshin · web-tools</div>
   <h1 class="hero-title">toshin<span class="dot">.</span>web-tools</h1>
-  <div class="hero-sub-jp">受験数学の Web ツール集</div>
+  <div class="hero-sub-jp">受験数学のWebツール集</div>
   <p class="hero-lede">
-    数学の概念は、<strong>動かして・触って</strong>理解するほど深く根付きます。
-    このサイトでは、微分積分学をはじめとする受験数学の単元ごとに、
-    ブラウザで直接動かせる Web ツールを公開していきます。
+    数学の概念は、<strong>動かして・触って</strong>理解するほど深く根付く。
+    微分積分・線形代数の単元ごとに、ブラウザで直接動かせる Web ツールを公開。
   </p>
-</section>
-
-<section class="fields">
-  <div class="fields-head">
-    <h2 class="fields-title">分野<span class="en">Fields</span></h2>
-    <div class="fields-meta">32 TOOLS PUBLISHED</div>
-  </div>
-  <div class="fields-grid">
-
-    <a href="calculus/" class="field-card calculus">
-      <div class="field-tag">Field 01</div>
-      <div class="field-name">微分積分学編</div>
-      <div class="field-name-en">Calculus</div>
-      <p class="field-desc">
-        極限・微分・積分の基礎から、データサイエンスへの接続まで。
-        全 12 回の単元に沿って、Web ツールで「何に・どのように使われるか」を体感します。
-      </p>
-      <div class="field-meta">
-        <span>32 TOOLS / 12 LESSONS</span>
-        <span>→</span>
-      </div>
-    </a>
-
-    <div class="field-card linear coming">
-      <div class="field-tag">Field 02</div>
-      <div class="field-name">線形代数編</div>
-      <div class="field-name-en">Linear Algebra</div>
-      <p class="field-desc">
-        ベクトル・行列・線形写像・固有値。学習ノートは別途公開中。
-        Web ツール版を準備しています。
-      </p>
-      <div class="field-meta">
-        <span>COMING SOON</span>
-        <span></span>
-      </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">33</div>
+      <div class="hero-stat-label">tools</div>
     </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">12</div>
+      <div class="hero-stat-label">calculus lessons</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">1</div>
+      <div class="hero-stat-label">preview field</div>
+    </div>
+  </div>
+  <a href="#field-calculus" class="hero-cta">
+    Start Calculus
+    <span class="hero-cta-arrow">→</span>
+  </a>
+</section>
 
+<!-- ==================== FIELD 01: CALCULUS ==================== -->
+<section class="field" id="field-calculus">
+  <div class="field-head">
+    <h2 class="field-title">微分積分学編 <span class="en">Calculus</span></h2>
+    <div class="field-meta">
+      <span style="margin-right: 1.5rem;">12 LESSONS / 32 TOOLS</span>
+      <a href="calculus/" class="field-head-link">VIEW ALL TOOLS <span>→</span></a>
+    </div>
+  </div>
+  <p class="field-tagline">極限・微分・積分の基礎から、データサイエンスへの接続まで。全 12 回の単元に沿って Web ツールで体感する。</p>
+  <div class="chapters-grid">
+    <a href="calculus/lesson-01/" class="chapter-card chap-indigo">
+      <div class="chapter-meta">
+        <span class="chapter-num">01</span>
+        <span class="chapter-status live">2 LIVE</span>
+      </div>
+      <div class="chapter-name">Adam 最適化と学習の可視化</div>
+      <div class="chapter-en">Adam optimization &amp; gradient descent</div>
+      <p class="chapter-desc">SGD・Adam・AdamW を 2D の loss landscape を歩くロボとして可視化。ジグザグから安定化までの道のりを体感する。</p>
+      <div class="chapter-cta">OPEN CHAPTER →</div>
+    </a>
+    <a href="calculus/lesson-02/" class="chapter-card chap-coral">
+      <div class="chapter-meta">
+        <span class="chapter-num">02</span>
+        <span class="chapter-status live">1 LIVE</span>
+      </div>
+      <div class="chapter-name">逆三角関数とロボットアーム</div>
+      <div class="chapter-en">Inverse trig &amp; robot arm</div>
+      <p class="chapter-desc">逆三角関数で動くロボットアーム・ドローンの挙動を、関節角度と位置の対応として体験する。</p>
+      <div class="chapter-cta">OPEN CHAPTER →</div>
+    </a>
+    <a href="calculus/lesson-03/" class="chapter-card chap-navy">
+      <div class="chapter-meta">
+        <span class="chapter-num">03</span>
+        <span class="chapter-status live">4 LIVE / +1 PREP</span>
+      </div>
+      <div class="chapter-name">円錐曲線・双曲線関数・ε-δ</div>
+      <div class="chapter-en">Conic sections &amp; ε-δ rigor</div>
+      <p class="chapter-desc">円錐の切り方が決める曲線の形、双曲線関数と AI の関係、ε-δ 論法、データサイエンスへの接続を 4 視点で。</p>
+      <div class="chapter-cta">OPEN CHAPTER →</div>
+    </a>
+    <a href="calculus/lesson-04/" class="chapter-card chap-teal">
+      <div class="chapter-meta">
+        <span class="chapter-num">04</span>
+        <span class="chapter-status live">4 LIVE</span>
+      </div>
+      <div class="chapter-name">微分の応用と級数展開</div>
+      <div class="chapter-en">Derivative &amp; Taylor expansion</div>
+      <p class="chapter-desc">逆関数の微分・C² 連続性・平均値の定理・マクローリン展開。微分の道具を関数の振る舞いに当てはめる。</p>
+      <div class="chapter-cta">OPEN CHAPTER →</div>
+    </a>
+    <a href="calculus/lesson-05/" class="chapter-card chap-purple">
+      <div class="chapter-meta">
+        <span class="chapter-num">05</span>
+        <span class="chapter-status live">5 LIVE / +3 PREP</span>
+      </div>
+      <div class="chapter-name">テイラー展開と漸近</div>
+      <div class="chapter-en">Taylor &amp; Landau notation</div>
+      <p class="chapter-desc">マクローリン・テイラー展開、ランダウ記号 o(x)、コーシー列、積分の正体。展開と近似の世界を歩く。</p>
+      <div class="chapter-cta">OPEN CHAPTER →</div>
+    </a>
+    <a href="calculus/lesson-06/" class="chapter-card chap-amber">
+      <div class="chapter-meta">
+        <span class="chapter-num">06</span>
+        <span class="chapter-status live">5 LIVE / +1 PREP</span>
+      </div>
+      <div class="chapter-name">積分の理論と応用</div>
+      <div class="chapter-en">Integration: Riemann to Lebesgue</div>
+      <p class="chapter-desc">カヴァリエリの原理・リーマン vs ルベーグ・広義積分・微分積分と運動。積分の起源から応用まで。</p>
+      <div class="chapter-cta">OPEN CHAPTER →</div>
+    </a>
+    <a href="calculus/lesson-07/" class="chapter-card chap-cyan">
+      <div class="chapter-meta">
+        <span class="chapter-num">07</span>
+        <span class="chapter-status live">5 LIVE</span>
+      </div>
+      <div class="chapter-name">多変数関数イントロ</div>
+      <div class="chapter-en">Multivariable functions</div>
+      <p class="chapter-desc">多変数関数の極限を 3D で・f(x,y)=x^y の不思議。立体的な関数空間に踏み込む。</p>
+      <div class="chapter-cta">OPEN CHAPTER →</div>
+    </a>
+    <a href="calculus/lesson-08/" class="chapter-card chap-emerald">
+      <div class="chapter-meta">
+        <span class="chapter-num">08</span>
+        <span class="chapter-status live">5 LIVE / +1 PREP</span>
+      </div>
+      <div class="chapter-name">偏微分とデータサイエンス</div>
+      <div class="chapter-en">Partial derivatives &amp; ML</div>
+      <p class="chapter-desc">偏微分・連続性 vs 偏微分可能性・拡散モデル・データサイエンスの数理。AI の足元の数学。</p>
+      <div class="chapter-cta">OPEN CHAPTER →</div>
+    </a>
+    <a href="calculus/lesson-09/" class="chapter-card chap-rose">
+      <div class="chapter-meta">
+        <span class="chapter-num">09</span>
+        <span class="chapter-status live">1 LIVE</span>
+      </div>
+      <div class="chapter-name">楕円放物面の勾配</div>
+      <div class="chapter-en">Gradient of paraboloid</div>
+      <p class="chapter-desc">多変数関数の勾配を立体で見る。最も急に上る方向、勾配ベクトル場の幾何学。</p>
+      <div class="chapter-cta">OPEN CHAPTER →</div>
+    </a>
+  </div>
+  <div class="coming-roadmap" aria-label="準備中の章">
+    <div class="coming-roadmap-head">
+      <span class="coming-roadmap-title">Coming Next</span>
+      <span class="coming-roadmap-meta">3 CHAPTERS IN PREPARATION</span>
+    </div>
+    <div class="coming-roadmap-list">
+      <span class="coming-roadmap-item"><span class="num">10</span>(準備中)</span>
+          <span class="coming-roadmap-item"><span class="num">11</span>(準備中)</span>
+          <span class="coming-roadmap-item"><span class="num">12</span>(準備中)</span>
+    </div>
   </div>
 </section>
 
-<footer>
-  <div>© toshin-web-tools — built with care for learners.</div>
-  <div style="margin-top: 0.75rem;">
-    <a href="https://github.com/mikikof/toshin-web-tools">GitHub</a>
+<!-- ==================== FIELD 02: LINEAR ALGEBRA(preview) ==================== -->
+<section class="field field-preview" id="field-linear">
+  <div class="field-head">
+    <h2 class="field-title">線形代数学編 <span class="en">Linear Algebra</span></h2>
+    <div class="field-meta">PREVIEW / 1 TOOL</div>
+  </div>
+  <div class="preview-layout">
+    <div class="preview-blurb">
+      <h3>線形代数学編は preview 中</h3>
+      <p>ベクトル・行列・線形写像・固有値。学習ノートは別途公開中、Web ツール版を準備中。</p>
+      <ul>
+        <li>学習ノート(submodule: <code>toshin/線形代数</code>)は別途公開中</li>
+        <li>Web ツール版は React UMD のサンプル 1 件のみ</li>
+        <li>受験生・大学生からのフィードバックを集めて 2026 年中に拡充予定</li>
+      </ul>
+    </div>
+    <div>
+      <a href="tools/linear/2-2.html" class="chapter-card chap-purple" target="_blank" rel="noopener">
+        <div class="chapter-meta">
+          <span class="chapter-num">PREVIEW</span>
+          <span class="chapter-status live">1 LIVE</span>
+        </div>
+        <div class="chapter-name">ベクトル空間 サンプル</div>
+        <div class="chapter-en">Vector space (preview)</div>
+        <p class="chapter-desc">線形代数編は準備中。React UMD でのサンプル実装が 1 件あります。</p>
+        <div class="chapter-cta">↗ OPEN PREVIEW</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-mark">toshin<span class="dot">.</span>web-tools</div>
+  <div class="footer-tag">受験数学のWebツール集</div>
+  <div class="footer-meta">© 2026 mikikof — MIT License</div>
+  <div class="footer-link">
+    <a href="./">home</a>
+    <a href="https://github.com/mikikof/toshin-web-tools">github / source</a>
+    <a href="https://github.com/mikikof/toshin-web-tools/blob/main/LICENSE">license</a>
   </div>
 </footer>
 

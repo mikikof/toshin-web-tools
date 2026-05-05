@@ -56,10 +56,19 @@ def section_sort_key(s: dict) -> tuple[int, int]:
 
 
 def update_chapters_json(field: str, chap: int, file_name: str, title: str) -> None:
+    """data/chapters.json の該当章 sections に新規節を追記。
+
+    新スキーマ:
+        chapters[str(chap)] = {
+            "name": "...", "name_en": "...", "color": "...",
+            "description": "...", "sections": [...]
+        }
+    """
     json_path = BASE / "data/chapters.json"
     data = json.loads(json_path.read_text(encoding="utf-8"))
     field_obj = data.setdefault(field, {
         "title": "新分野",
+        "title_en": "New field",
         "chapter_count": chap,
         "chapters": {},
     })
@@ -67,7 +76,26 @@ def update_chapters_json(field: str, chap: int, file_name: str, title: str) -> N
     if chap > chap_count:
         field_obj["chapter_count"] = chap
     chapters = field_obj["chapters"]
-    sec_list = chapters.setdefault(str(chap), [])
+
+    # 新スキーマ: 章は {name, name_en, color, description, sections} の dict
+    chap_obj = chapters.setdefault(str(chap), {
+        "name": f"第 {chap} 回",
+        "name_en": f"Lesson {chap:02d}",
+        "color": "gray",
+        "description": "(章テーマ未設定 — chapters.json で編集)",
+        "sections": [],
+    })
+    # 既存章が古スキーマ([list] 直接)なら新スキーマに移行
+    if isinstance(chap_obj, list):
+        chap_obj = {
+            "name": f"第 {chap} 回",
+            "name_en": f"Lesson {chap:02d}",
+            "color": "gray",
+            "description": "(章テーマ未設定)",
+            "sections": chap_obj,
+        }
+        chapters[str(chap)] = chap_obj
+    sec_list = chap_obj.setdefault("sections", [])
 
     # 重複チェック
     for s in sec_list:
