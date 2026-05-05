@@ -8,23 +8,24 @@
  * ==================================================================== */
 
 :root {
-  /* base palette(mikikof-lab 流用) */
-  --bg: #f7fafd;
+  /* base palette(Editorial / Journal 紙系トーンに統一、tool-overlay と一致) */
+  --bg: #faf9f5;
   --bg-card: #ffffff;
-  --bg-soft: #eff4fb;
-  --bg-elev: #fdfeff;
-  --ink: #0b1424;
-  --text: #1a2541;
-  --mute: #5b6a82;
-  --mute-soft: #8594ae;
-  --line: #d6e0ee;
-  --line-soft: #e8edf5;
+  --bg-soft: #f4f1e8;
+  --bg-elev: #fdfcf7;
+  --ink: #14110f;
+  --text: #2a2520;
+  --mute: #6b6258;
+  --mute-soft: #968b7e;
+  --line: #e3ddd3;
+  --line-soft: #f1ece1;
   --accent: #1e3a8a;
   --accent-bright: #2e5cd6;
   --accent-pale: #dae6fa;
-  --pop: #d9451c;
-  --pop-pale: #fde0d0;
-  --gold: #f4b93a;
+  --pop: #c0392b;
+  --pop-pale: #f7d4cf;
+  --gold: #c08a3a;
+  --rule: #1f1c19;
 
   /* 12 章テーマカラー(章ごとに 1 色、coming 系は gray)
      rev3: coral を赤寄り、amber を黄寄りに振って衝突回避 */
@@ -39,11 +40,12 @@
   --chap-rose:    #be185d;
   --chap-gray:    #64748b;
 
-  /* font stacks(mikikof-lab と同じ) */
+  /* font stacks(Editorial 風: Fraunces 見出し + Source Serif 4 本文 + DM Sans UI) */
   --f-jp-display: 'Zen Old Mincho', 'Noto Serif JP', serif;
-  --f-jp-body: 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
+  --f-jp-body: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', system-ui, sans-serif;
   --f-la-display: 'Fraunces', 'Playfair Display', Georgia, serif;
-  --f-la-body: 'DM Sans', system-ui, sans-serif;
+  --f-la-body: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --f-la-serif: 'Source Serif 4', 'Fraunces', Georgia, serif;
 
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
@@ -62,14 +64,14 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-/* 全画面のドットパターン(mikikof-lab 流) */
+/* 全画面の paper grain texture(Editorial 紙系) */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: radial-gradient(circle at 1px 1px, rgba(30, 58, 138, 0.06) 1px, transparent 0);
-  background-size: 28px 28px;
+  background-image: radial-gradient(circle at 1px 1px, rgba(20, 17, 15, 0.025) 1px, transparent 0);
+  background-size: 22px 22px;
   pointer-events: none;
 }
 a { color: inherit; text-decoration: none; }
@@ -147,10 +149,12 @@ a { color: inherit; text-decoration: none; }
 }
 .hero-lede {
   max-width: 640px;
-  font-size: 1.08rem;
-  font-weight: 500;
-  line-height: 2.05;
+  font-family: var(--f-la-serif);
+  font-size: 1.18rem;
+  font-weight: 400;
+  line-height: 1.85;
   color: var(--text);
+  font-style: italic;
 }
 .hero-lede strong {
   font-weight: 500;
@@ -483,9 +487,10 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.02em;
 }
 .chapter-desc {
-  font-size: 0.94rem;
-  font-weight: 500;
-  line-height: 1.8;  /* rev3: 1.95 → 1.8 に詰めて間延び防止 */
+  font-family: var(--f-la-serif);
+  font-size: 1.0rem;
+  font-weight: 400;
+  line-height: 1.7;
   color: var(--text);
   margin-bottom: 2rem;
   flex-grow: 1;
