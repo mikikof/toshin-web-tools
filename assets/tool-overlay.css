@@ -1,419 +1,213 @@
 /* ====================================================================
- * toshin-web-tools / tool-overlay.css  (Editorial / Journal edition)
+ * toshin-web-tools / tool-overlay.css  (非侵略版 v3、2026-05-06)
  *
- * 既存 33 ツールを Distill.pub / Stripe Press / Observable 風の
- * 「ジャーナル / リサーチセンター」体験に格上げするための上塗り CSS。
+ * 既存 33 ツールの内部レイアウトには **一切触れない**。
+ * オーバーレイは「画面上部の固定 nav」と「最下部の footer」のみ。
  *
- * 既存の inline <style> やツール独自レイアウト(Tailwind CDN を含む)は
- * 残したまま、上下に強い Editorial 装飾を挿入し、カラーパレット・タイポを
- * `<html class="journal-mode chap-COLOR">` から強制する。
+ * 旧版(html.journal-mode で body / .container / .row / .card / .btn を !important
+ * 上書き)は既存ツールの height 計算を壊し、グラフ拡大・無限縦伸びを引き起こした。
+ * → 全廃。`!important` も nav/footer 自身の position/visibility 確保のみに限定。
  *
- * 全 class は `toshin-overlay-` または `journal-` prefix で名前空間化。
+ * 既存ツールの inline <style> はそのまま。Tailwind utility もそのまま。
+ * ツールごとの章カラーは nav の inline `style="--toshin-accent: #..."` で受ける。
  * ==================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,700;1,9..144,800&family=DM+Sans:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,800&family=DM+Sans:wght@500;700&display=swap');
 
-/* ===== トップレベル: journal-mode が <html> に当たると全ツールに Editorial タイポを強制 ===== */
-
-html.journal-mode {
-  --j-paper:        #faf9f5;       /* 紙系背景 */
-  --j-paper-elev:   #ffffff;       /* カード背景 */
-  --j-ink:          #14110f;       /* 主文字色(暖かい黒) */
-  --j-text:         #2a2520;
-  --j-mute:         #6b6258;
-  --j-mute-soft:    #968b7e;
-  --j-line:         #e3ddd3;
-  --j-line-soft:    #f1ece1;
-  --j-rule:         #1f1c19;       /* horizontal rule(濃い線) */
-  --j-accent:       #1e3a8a;       /* デフォルト章色 */
-  --j-pop:          #c0392b;       /* アクセント朱(ドット用) */
-  --j-shadow:       0 1px 0 rgba(20,17,15,.04), 0 12px 32px -16px rgba(20,17,15,.18);
-
-  --j-f-serif:      'Fraunces', 'Source Serif 4', 'Zen Old Mincho', 'Noto Serif JP', Georgia, serif;
-  --j-f-body-serif: 'Source Serif 4', 'Fraunces', Georgia, 'Hiragino Mincho ProN', serif;
-  --j-f-sans:       'DM Sans', 'Inter', system-ui, -apple-system, sans-serif;
-  --j-f-jp:         'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', system-ui, sans-serif;
-
-  background: var(--j-paper);
-  color: var(--j-ink);
-  /* paper grain texture */
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(20,17,15,0.025) 1px, transparent 0);
-  background-size: 22px 22px;
-}
-
-/* 章カラー override(各章の accent を上書き) */
-html.journal-mode.chap-indigo  { --j-accent: #4338ca; }
-html.journal-mode.chap-coral   { --j-accent: #dc2626; }
-html.journal-mode.chap-navy    { --j-accent: #1e3a8a; }
-html.journal-mode.chap-teal    { --j-accent: #0f766e; }
-html.journal-mode.chap-purple  { --j-accent: #7c3aed; }
-html.journal-mode.chap-amber   { --j-accent: #ca8a04; }
-html.journal-mode.chap-cyan    { --j-accent: #0891b2; }
-html.journal-mode.chap-emerald { --j-accent: #059669; }
-html.journal-mode.chap-rose    { --j-accent: #be185d; }
-html.journal-mode.chap-gray    { --j-accent: #6b6258; }
-
-/* ===== body / 既存ヘッダの調整 ===== */
-
-html.journal-mode body {
-  background: transparent !important;
-  color: var(--j-ink) !important;
-  font-family: var(--j-f-jp) !important;
-  padding-top: 96px !important;  /* オーバーレイ nav の高さ分 */
-  padding-bottom: 0 !important;
-  -webkit-font-smoothing: antialiased !important;
-  -moz-osx-font-smoothing: grayscale !important;
-}
-
-/* 既存ツールの sticky .header を、オーバーレイ nav の下にずらす(または位置調整) */
-html.journal-mode body .header {
-  top: 96px !important;
-  background: rgba(250, 249, 245, 0.85) !important;
-  backdrop-filter: saturate(1.4) blur(10px) !important;
-  -webkit-backdrop-filter: saturate(1.4) blur(10px) !important;
-  border-bottom-color: var(--j-line) !important;
-}
-
-/* 既存ツールの h1 を Fraunces serif に強制(自家製 SaaS 風ツール用) */
-html.journal-mode body h1 {
-  font-family: var(--j-f-serif) !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.005em !important;
-  color: var(--j-ink) !important;
-}
-html.journal-mode body h2 {
-  font-family: var(--j-f-serif) !important;
-  font-weight: 600 !important;
-  color: var(--j-ink) !important;
-}
-
-/* ===== 上部 EDITORIAL NAV(80-96px、Stripe Press 風) ===== */
+/* ========== 上部 NAV(56px 固定、半透明) ========== */
 
 .toshin-overlay-nav {
   position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 9999;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100000;
+  height: 56px;
   background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: saturate(1.6) blur(14px);
-  -webkit-backdrop-filter: saturate(1.6) blur(14px);
-  border-bottom: 1px solid var(--j-line, #e3ddd3);
-  font-family: var(--j-f-sans, 'DM Sans', sans-serif);
-  box-shadow: 0 1px 0 rgba(20, 17, 15, 0.02);
+  backdrop-filter: saturate(1.4) blur(12px);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid rgba(20, 17, 15, 0.08);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  /* 章カラー: inline style で `--toshin-accent: #...` を受け取る。デフォルトは navy */
+  --toshin-accent: #1e3a8a;
 }
-
 .toshin-overlay-nav-inner {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 18px 28px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 32px;
-  align-items: center;
-}
-
-/* 左: 大胆なロゴ + kicker */
-.toshin-overlay-brand-block {
+  height: 100%;
+  padding: 0 24px;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-decoration: none;
-}
-.toshin-overlay-kicker {
-  font-family: var(--j-f-sans, 'DM Sans', sans-serif);
-  font-size: 9.5px;
-  font-weight: 500;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  color: var(--j-mute, #6b6258);
-  line-height: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
 }
 .toshin-overlay-brand {
-  font-family: var(--j-f-serif, 'Fraunces', Georgia, serif) !important;
+  font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
   font-weight: 700;
-  font-size: 26px;
-  color: var(--j-ink, #14110f) !important;
+  font-size: 20px;
+  color: #14110f;
+  text-decoration: none;
   letter-spacing: -0.005em;
-  line-height: 1.1;
-  text-transform: none;
-  border-bottom: none !important;
-  padding-bottom: 0 !important;
+  line-height: 1;
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  transition: opacity 0.2s ease;
 }
+.toshin-overlay-brand:hover { opacity: 0.65; }
 .toshin-overlay-brand .dot {
-  color: var(--j-accent, var(--j-pop, #c0392b));
+  color: var(--toshin-accent);
   font-style: normal;
 }
-
-/* 中央: 現在の章情報(Editorial 風) */
 .toshin-overlay-context {
-  text-align: center;
-  font-family: var(--j-f-sans, 'DM Sans', sans-serif);
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  align-items: center;
+  flex: 1 1 auto;
   min-width: 0;
-}
-.toshin-overlay-context-label {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.45em;
-  text-transform: uppercase;
-  color: var(--j-mute, #6b6258);
-  line-height: 1;
-}
-.toshin-overlay-context-title {
-  font-family: var(--j-f-body-serif, 'Source Serif 4', serif);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--j-ink, #14110f);
-  letter-spacing: 0;
-  text-transform: none;
+  text-align: center;
+  font-size: 11.5px;
+  color: #6b6258;
+  letter-spacing: 0.04em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 480px;
 }
-
-/* 右: 戻るリンク */
+.toshin-overlay-context strong {
+  color: #14110f;
+  font-weight: 600;
+}
 .toshin-overlay-back {
-  font-family: var(--j-f-sans, 'DM Sans', sans-serif) !important;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--j-mute, #6b6258) !important;
-  text-decoration: none !important;
-  border-bottom: 1px solid transparent !important;
-  padding-bottom: 3px !important;
-  transition: color 0.3s ease, border-color 0.3s ease, gap 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
+  color: #6b6258;
+  text-decoration: none;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  padding: 0 0 2px;
   white-space: nowrap;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 .toshin-overlay-back:hover {
-  color: var(--j-accent, var(--j-ink, #14110f)) !important;
-  border-bottom-color: var(--j-accent, var(--j-ink, #14110f)) !important;
-  gap: 0.7em;
+  color: var(--toshin-accent);
+  border-bottom-color: var(--toshin-accent);
 }
-
-/* 章カラーアクセントバー(nav 下端に細い線) */
 .toshin-overlay-nav::after {
   content: '';
   position: absolute;
   bottom: -1px;
   left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--j-accent, transparent);
-  transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+  right: 0;
+  height: 1px;
+  background: var(--toshin-accent);
+  opacity: 0.45;
 }
-html.journal-mode .toshin-overlay-nav::after { width: 100%; }
 
-/* ===== 下部 EDITORIAL FOOTER(Stripe Press 風 長尺) ===== */
+/* ========== body 余白(nav 高さ分だけ。既存ツール内部はいじらない) ==========
+ * body[data-toshin-overlay] にだけ padding-top を当てる(他要素は無関係)
+ */
+body[data-toshin-overlay] {
+  padding-top: 56px;
+}
+/* 既存ツールが sticky header を持つ場合だけ、top を 56px にずらす(衝突回避) */
+body[data-toshin-overlay] > .header,
+body[data-toshin-overlay] > div > .header,
+body[data-toshin-overlay] > main > .header {
+  top: 56px !important;
+}
+
+/* ========== 下部 FOOTER(通常フロー、margin-top で離す) ========== */
 
 .toshin-overlay-footer {
-  margin-top: 96px;
-  padding: 80px 28px 56px;
-  background: var(--j-paper, #faf9f5);
-  border-top: 1px solid var(--j-line, #e3ddd3);
-  font-family: var(--j-f-sans, 'DM Sans', sans-serif);
-  color: var(--j-mute, #6b6258);
+  margin-top: 80px;
+  padding: 56px 24px 36px;
+  background: #faf9f5;
+  border-top: 1px solid #e3ddd3;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  text-align: center;
+  color: #6b6258;
+  font-size: 12px;
+  letter-spacing: 0.04em;
   position: relative;
   z-index: 1;
-  text-align: center;
-}
-/* 上部の重い罫線(Editorial の象徴) */
-.toshin-overlay-footer::before {
-  content: '';
-  display: block;
-  width: 64px;
-  height: 4px;
-  background: var(--j-accent, var(--j-rule, #1f1c19));
-  margin: 0 auto 56px;
 }
 .toshin-overlay-footer-mark {
-  font-family: var(--j-f-serif, 'Fraunces', Georgia, serif);
+  font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
   font-weight: 800;
-  font-size: 44px;
-  color: var(--j-ink, #14110f);
+  font-size: 28px;
+  color: #14110f;
   letter-spacing: -0.01em;
-  text-transform: none;
-  margin-bottom: 16px;
   line-height: 1;
+  margin-bottom: 8px;
 }
-.toshin-overlay-footer-mark .dot {
-  color: var(--j-pop, #c0392b);
-  font-style: normal;
-}
+.toshin-overlay-footer-mark .dot { color: #c0392b; font-style: normal; }
 .toshin-overlay-footer-tag {
-  font-family: var(--j-f-body-serif, 'Source Serif 4', serif);
-  font-style: italic;
-  font-size: 16px;
+  font-size: 13px;
   letter-spacing: 0;
-  text-transform: none;
-  color: var(--j-mute, #6b6258);
-  margin-bottom: 32px;
-  line-height: 1.6;
+  color: #6b6258;
+  margin-bottom: 24px;
 }
 .toshin-overlay-footer-link {
-  margin-top: 24px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 28px;
+  gap: 20px;
+  margin: 16px 0 0;
 }
 .toshin-overlay-footer-link a {
-  color: var(--j-mute, #6b6258);
-  text-decoration: none;
-  border-bottom: 1px solid var(--j-line, #e3ddd3);
-  padding-bottom: 4px;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  transition: color 0.3s ease, border-color 0.3s ease;
+  color: #6b6258;
+  text-decoration: none;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  padding: 0 0 2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 .toshin-overlay-footer-link a:hover {
-  color: var(--j-ink, #14110f);
-  border-bottom-color: var(--j-ink, #14110f);
+  color: #14110f;
+  border-bottom-color: #14110f;
 }
 .toshin-overlay-footer-meta {
-  margin-top: 48px;
-  padding-top: 24px;
-  border-top: 1px solid var(--j-line, #e3ddd3);
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid #e3ddd3;
   font-size: 10px;
-  letter-spacing: 0.4em;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: var(--j-mute-soft, #968b7e);
+  color: #968b7e;
   font-weight: 500;
 }
 
-/* ===== 既存「自家製 SaaS 風」ツール (.header / .container / .row / .card / .btn 等) の Editorial 化 ===== */
-
-html.journal-mode body .container {
-  max-width: 1080px !important;
-}
-
-/* .row の grid を Editorial の 1 カラム(雑誌風)に変更しても良いが、
-   多くのツールは左右カラムが必須なので そのまま尊重 */
-
-html.journal-mode body .card {
-  background: var(--j-paper-elev) !important;
-  border: 1px solid var(--j-line) !important;
-  border-radius: 4px !important;
-  box-shadow: 0 1px 0 rgba(20,17,15,.03), 0 8px 24px -16px rgba(20,17,15,.12) !important;
-}
-
-html.journal-mode body .card h2 {
-  font-family: var(--j-f-serif) !important;
-  font-weight: 700 !important;
-  font-size: 18px !important;
-  letter-spacing: -0.005em !important;
-  color: var(--j-ink) !important;
-}
-
-/* .btn を Editorial 化(border + serif font ではなく、はっきりとしたボタン) */
-html.journal-mode body .btn {
-  border-radius: 2px !important;
-  border: 1px solid var(--j-line) !important;
-  background: var(--j-paper-elev) !important;
-  color: var(--j-ink) !important;
-  font-family: var(--j-f-sans) !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.04em !important;
-  font-size: 13px !important;
-  padding: 9px 16px !important;
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-html.journal-mode body .btn:hover {
-  background: var(--j-line-soft) !important;
-  border-color: var(--j-mute-soft) !important;
-}
-html.journal-mode body .btn.primary {
-  background: var(--j-ink) !important;
-  border-color: var(--j-ink) !important;
-  color: var(--j-paper-elev) !important;
-}
-html.journal-mode body .btn.primary:hover {
-  background: var(--j-accent) !important;
-  border-color: var(--j-accent) !important;
-}
-
-/* .badge を 控えめに */
-html.journal-mode body .badge {
-  border-radius: 4px !important;
-  background: var(--j-accent) !important;
-  box-shadow: none !important;
-}
-
-/* .sub サブタイトルを Editorial 風 italic */
-html.journal-mode body .sub {
-  font-family: var(--j-f-body-serif) !important;
-  font-style: italic !important;
-  font-size: 14px !important;
-  color: var(--j-mute) !important;
-  letter-spacing: 0 !important;
-}
-
-/* .pill / .kv も 控えめに */
-html.journal-mode body .pill {
-  background: var(--j-line-soft) !important;
-  border-color: var(--j-line) !important;
-  color: var(--j-text) !important;
-  font-family: var(--j-f-sans) !important;
-}
-
-/* slider label を Editorial 風 */
-html.journal-mode body .sl label,
-html.journal-mode body .tool-slider label {
-  font-family: var(--j-f-sans) !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.02em !important;
-  color: var(--j-ink) !important;
-}
-
-/* mono フォント(数式・コード)を Source Code Pro 系に */
-html.journal-mode body code,
-html.journal-mode body .mono {
-  font-family: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace !important;
-  font-feature-settings: 'tnum' 1 !important;
-}
-
-/* ===== Tailwind 系ツール用の強制カラー(あくまで body / 主要要素のみ) ===== */
-
-/* Tailwind の bg-white / bg-slate-50 / bg-gray-100 などを上書きしすぎると壊れるので、
-   body 背景だけ強制し、内部の Tailwind utility はそのままにする(尊重) */
-html.journal-mode body[class*="bg-"] {
-  /* utility class が body に当たっている場合は上書きしない(壊れる可能性) */
-}
-
-/* ===== レスポンシブ ===== */
-
-@media (max-width: 900px) {
-  .toshin-overlay-nav-inner {
-    grid-template-columns: 1fr auto;
-    gap: 16px;
-    padding: 14px 18px;
+/* ========== レスポンシブ ========== */
+@media (max-width: 700px) {
+  .toshin-overlay-nav {
+    height: 48px;
   }
+  .toshin-overlay-nav-inner {
+    padding: 0 14px;
+    gap: 12px;
+  }
+  .toshin-overlay-brand { font-size: 17px; }
   .toshin-overlay-context { display: none; }
-  .toshin-overlay-brand { font-size: 22px; }
-  .toshin-overlay-kicker { font-size: 8.5px; letter-spacing: 0.36em; }
-  html.journal-mode body { padding-top: 72px !important; }
-  html.journal-mode body .header { top: 72px !important; }
-  .toshin-overlay-footer { padding: 56px 18px 36px; }
-  .toshin-overlay-footer-mark { font-size: 32px; }
-  .toshin-overlay-footer-tag { font-size: 14px; }
-  .toshin-overlay-footer-link { gap: 18px; }
+  body[data-toshin-overlay] { padding-top: 48px; }
+  body[data-toshin-overlay] > .header,
+  body[data-toshin-overlay] > div > .header,
+  body[data-toshin-overlay] > main > .header {
+    top: 48px !important;
+  }
+  .toshin-overlay-footer { padding: 40px 16px 28px; margin-top: 56px; }
+  .toshin-overlay-footer-mark { font-size: 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .toshin-overlay-nav::after,
+  .toshin-overlay-brand,
   .toshin-overlay-back,
   .toshin-overlay-footer-link a {
-    transition: none !important;
+    transition: none;
   }
 }

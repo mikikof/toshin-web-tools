@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
-"""既存 33 ツール本体に toshin-web-tools Editorial オーバーレイを注入する(rev2)。
+"""既存 33 ツール本体に toshin-web-tools オーバーレイを注入する(非侵略版 v3)。
 
 各ツール本体(tools/<field>/N-N.html)に対して以下を **冪等に** 挿入:
 
-1. <html> に `class="journal-mode chap-COLOR"` を追加(または既存 class に追記)
-2. <head> 末尾に `<link rel="stylesheet" href="../../assets/tool-overlay.css" data-toshin-overlay>` を追加
-3. <body> 直後に上部 Editorial nav(kicker + brand + context + back)を挿入
-4. </body> 直前に下部 Editorial footer(rule + mark + tag + links + meta)を挿入
+1. <head> 末尾に `<link rel="stylesheet" href="../../assets/tool-overlay.css" data-toshin-overlay>`
+2. <body> タグに `data-toshin-overlay="<color>"` 属性を追加(既存 class/属性は維持)
+3. <body> 直後に上部 nav(brand + context + back)を挿入
+4. </body> 直前に下部 footer(mark + tag + links + meta)を挿入
 
-冪等性: `data-toshin-overlay` 属性の有無で判定、既に注入済みのファイルはスキップ。
-更新時は `--force` で再注入(古い注入を削除 → 最新版で再注入)。
+旧版にあった <html class="journal-mode chap-COLOR"> による既存 CSS 上書きは **撤去**。
+オーバーレイは既存ツールの内部レイアウトに一切触れない設計。
+
+冪等性: `data-toshin-overlay` の有無で判定。`--force` で再注入(削除→注入)。
+ロールバック: `--remove`。
 
 Usage:
     python3 scripts/inject-tool-overlay.py            # 全ツールに注入
-    python3 scripts/inject-tool-overlay.py --force    # 既存注入を更新
+    python3 scripts/inject-tool-overlay.py --force    # 既存注入を最新版に更新
     python3 scripts/inject-tool-overlay.py --remove   # オーバーレイ削除
 """
 
@@ -30,32 +33,32 @@ OVERLAY_NAV_BEGIN = "<!-- TOSHIN_OVERLAY_NAV -->"
 OVERLAY_NAV_END = "<!-- /TOSHIN_OVERLAY_NAV -->"
 OVERLAY_FOOTER_BEGIN = "<!-- TOSHIN_OVERLAY_FOOTER -->"
 OVERLAY_FOOTER_END = "<!-- /TOSHIN_OVERLAY_FOOTER -->"
-OVERLAY_HTML_CLASS_MARK = "data-toshin-html"
 
-ALLOWED_COLORS = {"indigo", "coral", "navy", "teal", "purple", "amber", "cyan", "emerald", "rose", "gray"}
+# 章カラー hex 一覧(inline style で渡す)
+COLOR_HEX = {
+    "indigo":  "#4338ca",
+    "coral":   "#dc2626",
+    "navy":    "#1e3a8a",
+    "teal":    "#0f766e",
+    "purple":  "#7c3aed",
+    "amber":   "#ca8a04",
+    "cyan":    "#0891b2",
+    "emerald": "#059669",
+    "rose":    "#be185d",
+    "gray":    "#64748b",
+}
 
 
-def safe_color(c):
-    return c if c in ALLOWED_COLORS else "gray"
-
-
-def render_nav(home, back, back_label, chap_num, chap_name, chap_name_en):
-    """Editorial 風 上部 nav."""
+def render_nav(home, back, back_label, chap_num, chap_name, chap_name_en, color_hex):
     if chap_num and chap_name:
-        context = f"""    <div class="toshin-overlay-context">
-      <div class="toshin-overlay-context-label">Lesson {chap_num:02d}</div>
-      <div class="toshin-overlay-context-title">{chap_name} — {chap_name_en}</div>
-    </div>"""
+        ctx_inner = f'<strong>第 {chap_num} 回 — {chap_name}</strong>'
     else:
-        context = '    <div class="toshin-overlay-context"></div>'
+        ctx_inner = ''
     return f"""{OVERLAY_NAV_BEGIN}
-<nav class="toshin-overlay-nav" aria-label="toshin-web-tools navigation">
+<nav class="toshin-overlay-nav" style="--toshin-accent: {color_hex};" aria-label="toshin-web-tools navigation">
   <div class="toshin-overlay-nav-inner">
-    <a href="{home}" class="toshin-overlay-brand-block">
-      <span class="toshin-overlay-kicker">toshin · web-tools</span>
-      <span class="toshin-overlay-brand">toshin<span class="dot">.</span>web-tools</span>
-    </a>
-{context}
+    <a href="{home}" class="toshin-overlay-brand">toshin<span class="dot">.</span>web-tools</a>
+    <div class="toshin-overlay-context">{ctx_inner}</div>
     <a href="{back}" class="toshin-overlay-back">← {back_label}</a>
   </div>
 </nav>
@@ -63,7 +66,6 @@ def render_nav(home, back, back_label, chap_num, chap_name, chap_name_en):
 
 
 def render_footer(home, back, back_label, chap_num):
-    """Editorial 風 下部 footer."""
     chap_link = f'<a href="{back}">第 {chap_num} 回</a>' if chap_num else f'<a href="{back}">{back_label}</a>'
     return f"""{OVERLAY_FOOTER_BEGIN}
 <footer class="toshin-overlay-footer">
@@ -75,13 +77,13 @@ def render_footer(home, back, back_label, chap_num):
     <a href="{home}calculus/">all calculus</a>
     <a href="https://github.com/mikikof/toshin-web-tools">github</a>
   </div>
-  <div class="toshin-overlay-footer-meta">© 2026 mikikof · MIT License · built with care for learners</div>
+  <div class="toshin-overlay-footer-meta">© 2026 mikikof · MIT License</div>
 </footer>
 {OVERLAY_FOOTER_END}"""
 
 
 def remove_overlay(content):
-    """注入された overlay を取り除く(冪等)。"""
+    """既存の overlay(旧版・新版を問わず)を取り除く。冪等。"""
     # link 行
     content = re.sub(
         r"^[ \t]*<link[^>]*data-toshin-overlay[^>]*>[ \t]*\n?",
@@ -103,14 +105,27 @@ def remove_overlay(content):
         content,
         flags=re.DOTALL,
     )
-    # <html ... data-toshin-html="..."> の data-toshin-html と journal-mode 系 class を削除
+    # 旧版 <html class="journal-mode chap-..."> を撤去
     content = re.sub(
-        r'(<html[^>]*?)\s*class="journal-mode chap-\w+"',
+        r'(<html[^>]*?)\s+class="([^"]*?)\s*journal-mode\s+chap-\w+\s*([^"]*?)"',
+        lambda m: f'{m.group(1)} class="{m.group(2).strip()}{(" " + m.group(3).strip()) if m.group(3).strip() else ""}"',
+        content,
+    )
+    # 上の置換で class="" になったら削除
+    content = re.sub(
+        r'(<html[^>]*?)\s+class=""',
         r"\1",
         content,
     )
+    # 旧版 data-toshin-html 属性を撤去
     content = re.sub(
-        r'(<html[^>]*?)\s*data-toshin-html="[^"]*"',
+        r'(<html[^>]*?)\s+data-toshin-html="[^"]*"',
+        r"\1",
+        content,
+    )
+    # 新版 <body data-toshin-overlay="..."> を撤去
+    content = re.sub(
+        r'(<body[^>]*?)\s+data-toshin-overlay="[^"]*"',
         r"\1",
         content,
     )
@@ -118,56 +133,38 @@ def remove_overlay(content):
 
 
 def inject_overlay(content, home, back, back_label, chap_num, chap_name, chap_name_en, color):
-    """新版オーバーレイを注入(content は既に古い overlay が remove された前提)。"""
-    color = safe_color(color)
+    color_hex = COLOR_HEX.get(color, COLOR_HEX["gray"])
 
-    # 1. <html> に class 追加
-    def add_html_class(m):
-        tag = m.group(0)
-        # 既存 class があれば追記、なければ新規
-        if "class=" in tag:
-            tag = re.sub(
-                r'class="([^"]*)"',
-                lambda mm: f'class="{mm.group(1)} journal-mode chap-{color}"',
-                tag,
-                count=1,
-            )
-        else:
-            tag = re.sub(
-                r"<html",
-                f'<html class="journal-mode chap-{color}"',
-                tag,
-                count=1,
-            )
-        # data-toshin-html マーカー
-        if "data-toshin-html" not in tag:
-            tag = tag.replace(">", f' data-toshin-html="{color}">', 1)
-        return tag
-
-    new_content, n_html = re.subn(r"<html[^>]*>", add_html_class, content, count=1)
-    if n_html == 0:
-        return None, "no_html_tag"
-
-    # 2. <head> 末尾に link 追加
+    # 1. <head> 末尾に link 追加
     new_content, n_head = re.subn(
         r"(</head>)",
         f"  {OVERLAY_LINK_TAG}\n\\1",
-        new_content,
+        content,
         count=1,
     )
     if n_head == 0:
         return None, "no_head_close"
 
+    # 2. <body ...> タグに data-toshin-overlay 属性を追加(既存属性は維持)
+    def add_body_attr(m):
+        tag = m.group(0)
+        if "data-toshin-overlay" in tag:
+            return tag  # already
+        # ">" の直前に attribute を挿入
+        return tag[:-1].rstrip() + f' data-toshin-overlay="{color}">'
+
+    new_content, n_body_attr = re.subn(r"<body[^>]*>", add_body_attr, new_content, count=1)
+    if n_body_attr == 0:
+        return None, "no_body_open"
+
     # 3. <body> 直後に nav 挿入
-    nav_html = render_nav(home, back, back_label, chap_num, chap_name, chap_name_en)
-    new_content, n_body = re.subn(
+    nav_html = render_nav(home, back, back_label, chap_num, chap_name, chap_name_en, color_hex)
+    new_content = re.sub(
         r"(<body[^>]*>)",
         f"\\1\n{nav_html}",
         new_content,
         count=1,
     )
-    if n_body == 0:
-        return None, "no_body_open"
 
     # 4. </body> 直前に footer 挿入
     footer_html = render_footer(home, back, back_label, chap_num)
@@ -184,7 +181,6 @@ def inject_overlay(content, home, back, back_label, chap_num, chap_name, chap_na
 
 
 def process_file(path, home, back, back_label, chap_num, chap_name, chap_name_en, color, mode):
-    """mode: 'inject' / 'force' / 'remove'."""
     try:
         content = path.read_text(encoding="utf-8")
     except Exception as e:
@@ -203,10 +199,12 @@ def process_file(path, home, back, back_label, chap_num, chap_name, chap_name_en
         return "skipped"
 
     if mode == "force" and has_overlay:
-        # 既存 overlay を一旦削除
         content = remove_overlay(content)
 
-    new_content, status = inject_overlay(content, home, back, back_label, chap_num, chap_name, chap_name_en, color)
+    new_content, status = inject_overlay(
+        content, home, back, back_label,
+        chap_num, chap_name, chap_name_en, color,
+    )
     if new_content is None:
         return f"error:{status}"
 
